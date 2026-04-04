@@ -1,6 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+  const hideFooter = ["/signin", "/register", "/forgot-password", "/reset-password"].includes(pathname) || pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff");
+
+  if (hideFooter) return null;
+
   return (
     <footer className="bg-kiox-black border-t border-white/5 py-16 md:py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-texture opacity-20 pointer-events-none"></div>

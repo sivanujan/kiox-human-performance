@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Loader2 } from "lucide-react";
 import { Anton } from "next/font/google";
 import FAQModal from "./FAQModal";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "./providers/AuthProvider";
 
 const anton = Anton({ 
   weight: '400',
@@ -13,9 +16,21 @@ const anton = Anton({
 });
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
+  const { user, profile, loading, supabase } = useAuth();
+  const role = profile?.role || null;
+  const router = useRouter();
+
+  const hideNavbar = ["/signin", "/register", "/forgot-password", "/reset-password"].includes(pathname) || pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff");
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/signin");
+    setMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +48,8 @@ export default function Navbar() {
     { name: "Contact", href: "/#contact" },
     { name: "FAQ", action: () => setFaqOpen(true) },
   ];
+
+  if (hideNavbar) return null;
 
   return (
     <header
@@ -91,19 +108,40 @@ export default function Navbar() {
             )
           ))}
           
-          <div className="flex items-center gap-4 pl-4 border-l border-white/10">
-            <Link 
-              href="/signin" 
-              className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/signin" 
-              className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80] transition-all duration-300"
-            >
-              Register
-            </Link>
+          <div className="flex items-center gap-6 pl-6 border-l border-white/10">
+            {loading ? (
+              <Loader2 className="animate-spin text-[#22c55e]" size={18} />
+            ) : user ? (
+              <div className="flex items-center gap-6">
+                <Link 
+                  href={role === 'superadmin' ? "/admin" : role === 'staff' ? "/staff" : "/dashboard"} 
+                  className="px-5 py-2 text-[10px] font-black tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                >
+                  {role === 'superadmin' ? "Admin Portal" : role === 'staff' ? "Staff Portal" : "My Dashboard"}
+                </Link>
+                <button 
+                  onClick={handleSignOut}
+                  className="text-[10px] font-black tracking-widest uppercase text-white/40 hover:text-white transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <Link 
+                  href="/signin" 
+                  className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  href="/register" 
+                  className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80] transition-all duration-300"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -148,20 +186,44 @@ export default function Navbar() {
         ))}
         
         <div className="flex flex-col gap-4 px-8 mt-6 pb-6">
-          <Link 
-            href="/signin" 
-            className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Sign In
-          </Link>
-          <Link 
-            href="/signin" 
-            className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80]"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Register
-          </Link>
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="animate-spin text-[#22c55e]" size={24} />
+            </div>
+          ) : user ? (
+            <>
+              <Link 
+                href={role === 'superadmin' ? "/admin" : role === 'staff' ? "/staff" : "/dashboard"} 
+                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {role === 'superadmin' ? "Admin Portal" : role === 'staff' ? "Staff Portal" : "My Dashboard"}
+              </Link>
+              <button 
+                onClick={handleSignOut}
+                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase text-white/40 hover:text-white"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link 
+                href="/signin" 
+                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/register" 
+                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80]"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
 

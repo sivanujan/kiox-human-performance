@@ -14,12 +14,22 @@ export default function Loader() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check if loader was already shown in this session
+    const hasShownLoader = sessionStorage.getItem("kiox-loader-shown");
+    
+    if (hasShownLoader) {
+      setIsLoading(false);
+      return;
+    }
+
     // Lock scroll while loading
     document.body.style.overflow = "hidden";
     const timer = setTimeout(() => {
       setIsLoading(false);
       document.body.style.overflow = "auto";
+      sessionStorage.setItem("kiox-loader-shown", "true");
     }, 3000);
+
     return () => {
       clearTimeout(timer);
       document.body.style.overflow = "auto";

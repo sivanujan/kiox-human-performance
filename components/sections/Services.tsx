@@ -81,6 +81,7 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
             alt={service.title}
             width={180}
             height={180}
+            style={{ height: 'auto' }}
             className="object-contain mb-6 transition-transform duration-300 group-hover:scale-[1.05] shrink-0"
             unoptimized={true}
           />

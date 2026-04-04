@@ -1,0 +1,115 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { User, SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
+
+interface AuthContextType {
+  user: User | null;
+  profile: any | null;
+  loading: boolean;
+  refreshProfile: () => Promise<void>;
+  supabase: SupabaseClient;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Move supabase initialization outside to ensure it remains a singleton across re-renders
+const supabase = createClient();
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async (uid: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", uid)
+        .single();
+      
+      if (error) {
+        setProfile(null);
+      } else {
+        setProfile(data);
+      }
+    } catch (err) {
+      setProfile(null);
+    }
+  };
+
+  const refreshProfile = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+      setUser(currentUser);
+      await fetchProfile(currentUser.id);
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    let authListener: any = null;
+
+    const initializeAuth = async () => {
+      try {
+        // 1. Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+
+        const initialUser = session?.user ?? null;
+        setUser(initialUser);
+
+        if (initialUser) {
+          await fetchProfile(initialUser.id);
+        }
+
+        // 2. Setup listener for future changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
+          if (!mounted) return;
+
+          const currentUser = session?.user ?? null;
+          
+          // Only update and fetch if the user has actually changed to avoid redundant locks
+          if (currentUser?.id !== user?.id) {
+            setUser(currentUser);
+            if (currentUser) {
+              await fetchProfile(currentUser.id);
+            } else {
+              setProfile(null);
+            }
+          }
+        });
+
+        authListener = subscription;
+      } catch (err) {
+        console.error("Auth initialization error:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      if (authListener) authListener.unsubscribe();
+    };
+  }, []); // Only run once on mount
+
+  return (
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, supabase }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}

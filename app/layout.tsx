@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   description: "Ultra-premium sports performance and physiotherapy brand.",
 };
 
+import { AuthProvider } from "@/components/providers/AuthProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,13 +37,16 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${oswald.variable} ${anton.variable} h-full antialiased scroll-smooth`}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col bg-kiox-black text-white selection:bg-gold selection:text-kiox-black font-sans relative">
-        <Loader />
-        <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
-        <Navbar />
-        <main className="flex-1 w-full relative z-10">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Loader />
+          <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
+          <Navbar />
+          <main className="flex-1 w-full relative z-10">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
