@@ -112,8 +112,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/signin");
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Sign-out error:", err);
+    } finally {
+      window.location.href = "/signin";
+    }
   };
 
   if (loading) {

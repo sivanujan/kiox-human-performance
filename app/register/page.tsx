@@ -252,6 +252,26 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
+  const handleDevVerify = async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    
+    const res = await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id, confirmEmail: true }),
+    });
+
+    if (res.ok) {
+       setSuccessMsg("System Overridden. Initializing Profile Setup...");
+       setTimeout(() => setStep(3), 1000);
+    } else {
+       const err = await res.json();
+       setErrorMsg(`Override Failed: ${err.error || "Manual verification failed"}`);
+    }
+    setLoading(false);
+  };
+
   // Step 3-5: Profile Update Logic
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -447,9 +467,14 @@ export default function RegisterPage() {
                     <Mail className="text-[#22c55e]" size={32} />
                   </div>
                   <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-4`}>Verify Email</h2>
-                  <p className="text-white/40 text-[12px] uppercase tracking-widest leading-relaxed mb-10">
+                   <p className="text-white/40 text-[12px] uppercase tracking-widest leading-relaxed mb-6">
                     Transmission sent to <br /><span className="text-white font-bold">{formData.email}</span>
                   </p>
+                  <div className="mb-10 p-5 bg-white/5 border border-white/5 rounded-2xl">
+                     <p className="text-[9px] font-bold text-white/30 uppercase tracking-[1px] leading-relaxed">
+                        If you don&apos;t see the transmission, check your <span className="text-[#22c55e]">Spam or Junk</span> protocols. Some enterprise firewalls may delay the uplink.
+                     </p>
+                  </div>
                     <div className="flex flex-col items-center gap-6">
                       <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[3px] text-[#22c55e]">
                         <Loader2 className="animate-spin" size={16} />
@@ -471,6 +496,19 @@ export default function RegisterPage() {
                          >
                            Wrong email? Edit Address
                          </button>
+
+                         {/* Developer Bypass (Localhost Only) */}
+                         {typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+                           <div className="pt-8 border-t border-white/5 mt-8">
+                              <p className="text-[8px] font-black text-amber-500 uppercase tracking-[2px] mb-3">Developer Mode Active</p>
+                              <button 
+                                onClick={handleDevVerify}
+                                className="w-full py-3 bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[9px] font-black uppercase tracking-[3px] rounded-xl hover:bg-amber-500 hover:text-black transition-all"
+                              >
+                                Manual Dev Override (Bypass Email)
+                              </button>
+                           </div>
+                         )}
                       </div>
                     </div>
                 </motion.div>

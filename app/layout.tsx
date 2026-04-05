@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Oswald, Anton } from "next/font/google";
+import { Inter, Oswald, Anton, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,6 +21,11 @@ const anton = Anton({
   subsets: ["latin"],
 });
 
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "KIO-X Human Performance | Elite Training",
   description: "Ultra-premium sports performance and physiotherapy brand.",
@@ -36,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${oswald.variable} ${anton.variable} h-full antialiased scroll-smooth`}
+      className={`${inter.variable} ${oswald.variable} ${anton.variable} ${plusJakarta.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col bg-kiox-black text-white selection:bg-gold selection:text-kiox-black font-sans relative">

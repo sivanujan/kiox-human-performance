@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const lastActivityRef = useRef<number>(Date.now());
+  
+  const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   const fetchProfile = async (uid: string) => {
     try {
@@ -98,6 +103,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (authListener) authListener.unsubscribe();
     };
   }, []); // Only run once on mount
+
+  // Inactivity Logout Logic
+  useEffect(() => {
+    if (!user) return;
+
+    const updateActivity = () => {
+      lastActivityRef.current = Date.now();
+    };
+
+    // Global activity listeners
+    const events = ["mousedown", "keydown", "mousemove", "scroll", "touchstart"];
+    events.forEach(event => {
+      window.addEventListener(event, updateActivity);
+    });
+
+    // Verification interval - checks every 30 seconds
+    const interval = setInterval(async () => {
+      const now = Date.now();
+      const diff = now - lastActivityRef.current;
+
+      if (diff > INACTIVITY_LIMIT) {
+        console.log("Inactivity limit exceeded. Signing out...");
+        await supabase.auth.signOut();
+        router.push("/signin?message=Session expired due to inactivity");
+      }
+    }, 30000);
+
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, updateActivity);
+      });
+      clearInterval(interval);
+    };
+  }, [user, router]);
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, refreshProfile, supabase }}>

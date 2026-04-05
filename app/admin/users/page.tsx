@@ -23,6 +23,7 @@ import {
 import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import UserProfileModal from "@/components/modals/UserProfileModal";
 
 const anton = Anton({ 
   weight: '400',
@@ -42,6 +43,8 @@ export default function UserInventory() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [selectedAthlete, setSelectedAthlete] = useState<any | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedViewProfile, setSelectedViewProfile] = useState<any | null>(null);
   const [selectedProgramId, setSelectedProgramId] = useState("");
   const [assessmentDate, setAssessmentDate] = useState("");
   const [assessmentType, setAssessmentType] = useState("Initial Evaluation");
@@ -112,6 +115,24 @@ export default function UserInventory() {
       alert(data.error || "Booking Failed");
     }
     setActionLoading(false);
+  };
+
+  const handleVerifyEmail = async (userId: string) => {
+    if (!confirm("Are you sure you want to manually verify this user's email? This will allow them to bypass the email confirmation step.")) return;
+    
+    const res = await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, confirmEmail: true }),
+    });
+    
+    if (res.ok) {
+       alert("User email verified successfully.");
+       fetchProfiles();
+    } else {
+       const err = await res.json();
+       alert(`Verification Error: ${err.error}`);
+    }
   };
 
   const handleUpdate = async (userId: string, updates: any) => {
@@ -250,19 +271,39 @@ export default function UserInventory() {
 
                   {/* Actions column */}
                   <td className="px-8 py-5 text-right">
-                    {user_profile.role === 'athlete' ? (
+                    <div className="flex items-center justify-end gap-3">
                       <button 
                         onClick={() => {
-                          setSelectedAthlete(user_profile);
-                          setIsActionModalOpen(true);
+                          setSelectedViewProfile(user_profile);
+                          setIsViewModalOpen(true);
                         }}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#22c55e]/5 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all"
+                        className="inline-flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white/40 text-[9px] font-black uppercase tracking-[2px] hover:bg-white hover:text-black transition-all"
                       >
-                        <Layers size={14} /> Manage Protocol
+                        <ExternalLink size={14} /> View Profile
                       </button>
-                    ) : (
-                      <span className="text-[8px] font-black text-white/10 uppercase tracking-[2px]">No Protocols For {user_profile.role}</span>
-                    )}
+
+                      <button 
+                        onClick={() => handleVerifyEmail(user_profile.id)}
+                        className="inline-flex items-center gap-2 px-4 py-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-blue-500/60 text-[9px] font-black uppercase tracking-[2px] hover:bg-blue-500 hover:text-black transition-all"
+                        title="Manual Email Verification Override"
+                      >
+                        <ShieldCheck size={14} /> Verify Email
+                      </button>
+
+                      {user_profile.role === 'athlete' ? (
+                        <button 
+                          onClick={() => {
+                            setSelectedAthlete(user_profile);
+                            setIsActionModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-3 bg-[#22c55e]/5 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all"
+                        >
+                          <Layers size={14} /> Protocol
+                        </button>
+                      ) : (
+                        <span className="text-[8px] font-black text-white/10 uppercase tracking-[2px] min-w-[80px] text-center">System {user_profile.role}</span>
+                      )}
+                    </div>
                   </td>
                 </motion.tr>
               ))}
@@ -368,6 +409,13 @@ export default function UserInventory() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Profile Detail Modal */}
+      <UserProfileModal 
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        user_profile={selectedViewProfile}
+      />
     </div>
   );
 }

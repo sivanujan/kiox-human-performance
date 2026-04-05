@@ -16,17 +16,23 @@ import {
   Activity,
   AlertCircle
 } from "lucide-react";
-import { Anton } from "next/font/google";
+import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
+import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 
 const anton = Anton({ 
   weight: '400',
   subsets: ['latin'] 
 });
 
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin']
+});
+
 export default function AdminSettings() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user && profile?.role === 'superadmin') {
@@ -105,11 +111,11 @@ export default function AdminSettings() {
                      {section.icon}
                   </div>
                   <div>
-                    <h3 className={`${anton.className} text-white text-lg tracking-wider uppercase`}>{section.title}</h3>
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[2px]">{section.desc}</p>
+                    <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>{section.title}</h3>
+                    <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">{section.desc}</p>
                   </div>
                </div>
-               <button className="px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all">Update Section</button>
+               <button className="px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-bold uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all">Update Section</button>
             </div>
 
             <div className="p-8 space-y-6">
@@ -117,7 +123,7 @@ export default function AdminSettings() {
                  <div key={i} className="flex items-center justify-between group">
                     <div className="space-y-1">
                        <p className="text-sm font-bold text-white uppercase tracking-wide group-hover:text-[#22c55e] transition-colors">{item.label}</p>
-                       <p className="text-[9px] font-black text-white/10 uppercase tracking-[2px]">Configuration Key: {item.label.toLowerCase().replace(/ /g, '_')}</p>
+                       <p className="text-[11px] font-bold text-white/30 uppercase tracking-[1px]">Configuration Key: {item.label.toLowerCase().replace(/ /g, '_')}</p>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -129,10 +135,10 @@ export default function AdminSettings() {
                          />
                        )}
                        {item.type === 'display' && (
-                         <span className="text-xs font-black text-white/40 uppercase tracking-widest">{item.value}</span>
+                         <span className="text-xs font-bold text-white/60 uppercase tracking-widest">{item.value}</span>
                        )}
                        {item.type === 'status' && (
-                         <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg text-[9px] font-black uppercase text-[#22c55e]">{item.value || item.status}</span>
+                         <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-lg text-[9px] font-bold uppercase text-[#22c55e]">{item.value || item.status}</span>
                        )}
                        {item.type === 'toggle' && (
                          <div className={`w-12 h-6 rounded-full p-1 transition-all cursor-pointer ${item.status ? 'bg-[#22c55e]' : 'bg-white/10'}`}>
@@ -154,16 +160,60 @@ export default function AdminSettings() {
         transition={{ delay: 0.4 }}
         className="bg-red-500/5 border border-red-500/20 p-8 rounded-3xl"
       >
-         <h3 className={`${anton.className} text-red-500 text-lg tracking-wider mb-4 flex items-center gap-3`}>
+         <h3 className={`${plusJakarta.className} text-red-500 text-lg font-bold tracking-wider mb-4 flex items-center gap-3`}>
             <AlertCircle size={20} /> CORE SYSTEM RESET
          </h3>
-         <p className="text-xs font-black text-white/30 uppercase tracking-[2px] mb-8 max-w-2xl leading-relaxed">
+         <p className="text-xs font-bold text-white/50 uppercase tracking-[2px] mb-8 max-w-2xl leading-relaxed">
             Initializing a core reset will synchronize all platform biometrics to zero and purge the operational cache. This action requires Level 5 Authorization and cannot be reversed.
          </p>
-         <button className={`${anton.className} px-8 py-3 bg-red-500 text-white text-[12px] tracking-[0.2em] rounded-xl hover:bg-white hover:text-red-500 transition-all uppercase`}>
+         <button className={`${plusJakarta.className} px-8 py-3 bg-red-500 text-white text-[12px] font-bold tracking-[0.2em] rounded-xl hover:bg-white hover:text-red-500 transition-all uppercase`}>
             Initialize Platform Purge
          </button>
       </motion.div>
+
+      {/* Personal Account Security */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-[#111] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+      >
+        <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]">
+                 <Lock size={18} />
+              </div>
+              <div>
+                <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>Personal Account Security</h3>
+                <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Manage your administrative access credentials</p>
+              </div>
+           </div>
+        </div>
+        <div className="p-8">
+           <div className="flex items-center justify-between p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-[#22c55e]/30 transition-all">
+              <div className="flex items-center gap-6">
+                 <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-[#22c55e]">
+                    <Shield size={20} />
+                 </div>
+                 <div>
+                    <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] mb-1">Access Protocol</p>
+                    <p className="text-sm font-bold text-white uppercase tracking-widest">••••••••••••••••</p>
+                 </div>
+              </div>
+              <button 
+                onClick={() => setPasswordModalOpen(true)}
+                className="px-6 py-3 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-bold uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all"
+              >
+                Change Password
+              </button>
+           </div>
+        </div>
+      </motion.div>
+
+      <ChangePasswordModal 
+        isOpen={passwordModalOpen} 
+        onClose={() => setPasswordModalOpen(false)} 
+      />
     </div>
   );
 }

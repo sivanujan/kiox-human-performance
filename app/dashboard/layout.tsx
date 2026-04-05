@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,8 +44,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/signin");
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Sign-out error:", err);
+    } finally {
+      window.location.href = "/signin";
+    }
   };
 
   if (loading) {
@@ -56,10 +62,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   // Ensure user is an athlete
-  if (!user || profile?.role !== 'athlete') {
-    if (!loading && user && profile?.role === 'superadmin') router.push("/admin");
-    else if (!loading && !user) router.push("/signin");
-  }
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        router.push("/signin");
+      } else if (profile?.role === 'superadmin') {
+        router.push("/admin");
+      } else if (profile?.role === 'staff') {
+        router.push("/staff");
+      }
+    }
+  }, [user, profile, loading, router]);
 
   const userName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : user?.email?.split('@')[0] || 'Athlete';
   const status = profile?.status || 'Active';
@@ -154,17 +167,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div className="flex items-center gap-4">
             {/* Notification Bell */}
-            <div className="relative group cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/20 flex items-center justify-center transition-all group-hover:border-[#22c55e]/50">
+            <Link href="/dashboard/messages" className="relative group cursor-pointer block">
+              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/20 flex items-center justify-center transition-all group-hover:border-[#22c55e]/50 group-hover:bg-[#22c55e]/10">
                 <Bell size={20} className="text-[#22c55e]" />
               </div>
               <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#080808]" />
-            </div>
+            </Link>
 
             {/* Profile Small */}
-            <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-display text-sm cursor-pointer hover:border-[#22c55e] transition-all">
+            <Link href="/dashboard/profile" className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-display text-sm cursor-pointer hover:border-[#22c55e] hover:bg-[#22c55e]/20 transition-all">
               {userName[0].toUpperCase()}
-            </div>
+            </Link>
           </div>
         </header>
 

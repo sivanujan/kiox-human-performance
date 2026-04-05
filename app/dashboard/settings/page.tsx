@@ -17,14 +17,17 @@ import {
   AlertCircle,
   Save
 } from "lucide-react";
-import { Anton } from "next/font/google";
+import { Anton, Plus_Jakarta_Sans } from "next/font/google";
+import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 
 const anton = Anton({ weight: '400', subsets: ['latin'] });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
 export default function SettingsPage() {
   const { user, profile, supabase } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   const [notifs, setNotifs] = useState({
     email: true,
@@ -45,8 +48,8 @@ export default function SettingsPage() {
   return (
     <div className="p-10 max-w-4xl">
       <div className="mb-12">
-        <h2 className={`${anton.className} text-5xl text-white uppercase tracking-wider mb-2`}>System Settings</h2>
-        <p className="text-white/40 text-[10px] font-black uppercase tracking-[3px]">Manage your account security and portal preferences</p>
+        <h2 className={`${plusJakarta.className} text-5xl text-white font-bold uppercase tracking-wider mb-2`}>System Settings</h2>
+        <p className="text-white/40 text-[11px] font-bold uppercase tracking-[3px]">Manage your account security and portal preferences</p>
       </div>
 
       <div className="space-y-8">
@@ -54,7 +57,7 @@ export default function SettingsPage() {
         <section className="bg-[#111] border border-white/5 rounded-3xl p-8">
            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
               <ShieldCheck className="text-[#22c55e]" size={18} />
-              <h3 className="text-[11px] font-black text-white uppercase tracking-[3px]">Security Evolution</h3>
+              <h3 className="text-[11px] font-bold text-white uppercase tracking-[3px]">Security Evolution</h3>
            </div>
            
            <div className="space-y-6">
@@ -64,11 +67,11 @@ export default function SettingsPage() {
                        <Mail size={20} />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-1">Authenticated Encryption</p>
+                       <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] mb-1">Authenticated Encryption</p>
                        <p className="text-sm font-bold text-white uppercase tracking-widest">{user?.email}</p>
                     </div>
                  </div>
-                 <button className="text-[9px] font-black text-[#22c55e] uppercase tracking-[3px] opacity-0 group-hover:opacity-100 transition-all">Change →</button>
+                 <button className="text-[9px] font-bold text-[#22c55e] uppercase tracking-[3px] opacity-0 group-hover:opacity-100 transition-all">Change →</button>
               </div>
 
               <div className="flex items-center justify-between p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
@@ -77,11 +80,16 @@ export default function SettingsPage() {
                        <Lock size={20} />
                     </div>
                     <div>
-                       <p className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-1">Access Protocol</p>
+                       <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] mb-1">Access Protocol</p>
                        <p className="text-sm font-bold text-white uppercase tracking-widest">••••••••••••••••</p>
                     </div>
                  </div>
-                 <button className="text-[9px] font-black text-red-500 uppercase tracking-[3px] opacity-0 group-hover:opacity-100 transition-all">Update →</button>
+                 <button 
+                  onClick={() => setPasswordModalOpen(true)}
+                  className="text-[9px] font-bold text-red-500 uppercase tracking-[3px] opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  Update →
+                </button>
               </div>
            </div>
         </section>
@@ -90,7 +98,7 @@ export default function SettingsPage() {
         <section className="bg-[#111] border border-white/5 rounded-3xl p-8">
            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-white/5">
               <Bell className="text-[#22c55e]" size={18} />
-              <h3 className="text-[11px] font-black text-white uppercase tracking-[3px]">Tactical Communications</h3>
+              <h3 className="text-[11px] font-bold text-white uppercase tracking-[3px]">Tactical Communications</h3>
            </div>
 
            <div className="space-y-4">
@@ -101,8 +109,8 @@ export default function SettingsPage() {
               ].map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-xl">
                    <div>
-                      <h4 className="text-[10px] font-black text-white uppercase tracking-[2px]">{item.label}</h4>
-                      <p className="text-[9px] text-white/20 uppercase font-medium mt-1 tracking-wider">{item.desc}</p>
+                      <h4 className="text-[10px] font-bold text-white uppercase tracking-[2px]">{item.label}</h4>
+                      <p className="text-[9px] text-white/40 uppercase font-bold mt-1 tracking-wider">{item.desc}</p>
                    </div>
                    <button 
                      onClick={() => setNotifs({...notifs, [item.id]: !notifs[item.id as keyof typeof notifs]})}
@@ -125,18 +133,18 @@ export default function SettingsPage() {
            <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
               <div className="flex items-center gap-3 mb-6">
                  <Globe className="text-white/20" size={16} />
-                 <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">Regional Interface</h4>
+                 <h4 className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Regional Interface</h4>
               </div>
-              <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 uppercase tracking-widest font-bold">
+              <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/80 uppercase tracking-widest font-bold">
                  English (International)
               </div>
            </div>
            <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
               <div className="flex items-center gap-3 mb-6">
                  <Eye className="text-white/20" size={16} />
-                 <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">UI Intensity</h4>
+                 <h4 className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">UI Intensity</h4>
               </div>
-              <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 uppercase tracking-widest font-bold">
+              <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/80 uppercase tracking-widest font-bold">
                  Elite Dark (High Contrast)
               </div>
            </div>
@@ -166,6 +174,11 @@ export default function SettingsPage() {
            </button>
         </div>
       </div>
+
+      <ChangePasswordModal 
+        isOpen={passwordModalOpen} 
+        onClose={() => setPasswordModalOpen(false)} 
+      />
     </div>
   );
 }

@@ -23,9 +23,19 @@ export async function PATCH(req: Request) {
   );
 
   const body = await req.json();
-  const { userId, role, status } = body;
+  const { userId, role, status, confirmEmail } = body;
 
   if (!userId) return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+
+  // Handle Manual Email Confirmation
+  if (confirmEmail) {
+    const { data: authData, error: authError } = await supabase.auth.admin.updateUserById(
+      userId,
+      { email_confirm: true }
+    );
+    if (authError) return NextResponse.json({ error: authError.message }, { status: 500 });
+    return NextResponse.json({ message: "Email confirmed via authority override" });
+  }
 
   const updateData: any = {};
   if (role) updateData.role = role;

@@ -7,7 +7,8 @@
   --color-kiox-gray: #121212;
   --color-kiox-lightgray: #1E1E1E;
   --font-sans: var(--font-inter);
-  --font-display: var(--font-oswald);
+  --font-plus-jakarta: var(--font-plus-jakarta);
+  --font-display: var(--font-plus-jakarta);
 }
 
 @keyframes spinCW {

@@ -10,14 +10,20 @@ import {
   Calendar, 
   ExternalLink, 
   Loader2,
-  Dumbbell
+  Dumbbell,
+  Settings,
+  LogOut
 } from "lucide-react";
-import { Anton } from "next/font/google";
+import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 const anton = Anton({ 
   weight: '400',
   subsets: ['latin'] 
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin']
 });
 
 export default function StaffPortal() {
@@ -57,17 +63,57 @@ export default function StaffPortal() {
     );
   }
 
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Sign-out error:", err);
+    } finally {
+      window.location.href = "/signin";
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#080808] pt-[120px] pb-20 px-6 relative overflow-hidden text-white font-sans">
+      {/* Navigation Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 h-[80px]">
+        <div className="container mx-auto h-full flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+             <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-display text-sm">
+                {profile?.first_name?.[0] || 'S'}
+             </div>
+             <div>
+               <div className="text-[#22c55e] text-[8px] font-bold tracking-[3px] uppercase">Staff Access</div>
+               <div className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>{profile?.first_name} {profile?.last_name}</div>
+             </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+             <button 
+               onClick={() => router.push("/staff/settings")}
+               className="p-3 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-[#22c55e] hover:border-[#22c55e]/30 transition-all group"
+               title="Settings"
+             >
+                <Settings size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+             </button>
+             <button 
+               onClick={handleSignOut}
+               className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-[2px] flex items-center gap-2 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-all"
+             >
+                <LogOut size={14} /> Exit
+             </button>
+          </div>
+        </div>
+      </div>
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="mb-12 border-b border-white/5 pb-8">
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="text-[#22c55e]" size={16} />
-            <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Elite Performance Staff</span>
+            <span className="text-[10px] font-bold text-[#22c55e] uppercase tracking-[4px]">Elite Performance Staff</span>
           </div>
-          <h1 className={`${anton.className} text-5xl md:text-7xl uppercase tracking-wider`}>Athlete Roster</h1>
+          <h1 className={`${plusJakarta.className} text-5xl md:text-7xl font-bold uppercase tracking-wider`}>Athlete Roster</h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
