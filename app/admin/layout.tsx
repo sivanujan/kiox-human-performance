@@ -15,13 +15,14 @@ import {
   Calendar, 
   BarChart3, 
   ShieldAlert, 
-  MessageSquare, 
   Settings,
   Trophy,
   Zap,
   Plus
 } from "lucide-react";
 import { Anton } from "next/font/google";
+import AddAthleteModal from "@/components/modals/AddAthleteModal";
+
 
 const anton = Anton({ 
   weight: '400',
@@ -41,6 +42,12 @@ const adminNavItems = [
     href: '/admin/users',
     section: 'MANAGEMENT',
     showBadge: true,
+  },
+  { 
+    icon: <Plus size={18} />, 
+    label: 'ADD ATHLETE',
+    href: '/admin/users?action=add',
+    section: 'MANAGEMENT',
   },
   { 
     icon: <Clipboard size={18} />, 
@@ -67,12 +74,6 @@ const adminNavItems = [
     section: 'OPERATIONS',
   },
   { 
-    icon: <MessageSquare size={18} />, 
-    label: 'MESSAGES',
-    href: '/admin/messages',
-    section: 'OPERATIONS',
-  },
-  { 
     icon: <Settings size={18} />, 
     label: 'SETTINGS',
     href: '/admin/settings',
@@ -85,6 +86,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
 
   useEffect(() => {
     if (!loading && user) {
@@ -115,9 +118,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       await supabase.auth.signOut();
     } catch (err) {
-      console.error("Sign-out error:", err);
+      console.error("Critical Sign-out error:", err);
     } finally {
-      window.location.href = "/signin";
+      // Force a hard redirect to clear all contexts
+      window.location.replace("/signin");
     }
   };
 
@@ -174,6 +178,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={i}
                     href={item.href}
+                    onClick={(e) => {
+                      if (item.label === 'ADD ATHLETE') {
+                        e.preventDefault();
+                        setIsAddModalOpen(true);
+                      }
+                    }}
                     className={`flex items-center gap-3 px-5 py-3 text-[12px] font-black tracking-[0.1em] uppercase transition-all border-l-[3px] ${
                       isActive 
                         ? 'bg-[#22c55e]/5 border-[#22c55e] text-[#22c55e]' 
@@ -216,25 +226,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Top Header Bar */}
         <header className="sticky top-0 z-[50] bg-[#080808]/95 backdrop-blur-xl border-b border-[#22c55e]/10 px-10 h-[80px] flex items-center justify-between">
           <div>
-            <div className={`${anton.className} text-[#22c55e] text-[11px] tracking-[0.3em] uppercase mb-0.5`}>Elite Access Authority</div>
+            <div className={`text-[#22c55e] text-[12px] font-bold tracking-[0.2em] uppercase mb-0.5`}>Elite Access Authority</div>
             <h1 className={`${anton.className} text-2xl text-white uppercase tracking-wider`}>
               Control Center
             </h1>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification Bell */}
-            <div className="relative group cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/20 flex items-center justify-center transition-all group-hover:border-[#22c55e]/50">
-                <Bell size={20} className="text-[#22c55e]" />
-              </div>
-              <div className="absolute top-[3px] right-[3px] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#080808]" />
-            </div>
-
             {/* Quick Add Button */}
-            <button className={`${anton.className} px-5 py-2.5 bg-[#22c55e] text-black text-[12px] tracking-[0.15em] uppercase rounded-lg hover:bg-white transition-all`}>
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className={`px-6 py-2.5 bg-[#22c55e] text-black text-[15px] font-black tracking-wide uppercase rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)]`}
+            >
               Add Athlete
             </button>
+
           </div>
         </header>
 
@@ -242,7 +248,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="relative z-10 px-10 py-8">
           {children}
         </div>
+
+        <AddAthleteModal 
+          isOpen={isAddModalOpen} 
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={() => {
+            // Dispatch custom event to refresh user inventory without full reload
+            window.dispatchEvent(new CustomEvent('refresh-users'));
+          }}
+        />
       </main>
+
     </div>
   );
 }

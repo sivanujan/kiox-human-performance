@@ -43,20 +43,47 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authLoading && user && profile?.role === 'superadmin') {
-      fetchData();
+    // Fail-safe: Force stop loading after 3.5s if it gets stuck
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 3500);
+
+    if (!authLoading) {
+      if (user && profile?.role === 'superadmin') {
+        fetchData();
+      } else if (!user || (profile && profile.role !== 'superadmin')) {
+        setLoading(false);
+      }
     }
+
+    return () => clearTimeout(timeout);
   }, [user, profile, authLoading]);
 
   const fetchData = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      const { data: profiles, error: profileError } = await supabase.from("profiles").select("*");
-      if (profileError) throw profileError;
+      // Parallelize fetches for maximum speed
+      const [
+        { data: profiles, error: profileError },
+        { data: programsData, error: progError }
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, first_name, last_name, username, status, role, position_played"),
+        supabase
+          .from("programs")
+          .select("id, title")
+      ]);
 
-      const { data: programsData, error: progError } = await supabase.from("programs").select("*");
+      if (profileError) throw profileError;
+      if (progError) throw progError;
+
       const programsList = programsData || [];
 
       if (profiles) {

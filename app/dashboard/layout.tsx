@@ -15,7 +15,6 @@ import {
   Calendar, 
   BarChart3, 
   Target, 
-  MessageSquare, 
   Settings,
   Shield
 } from "lucide-react";
@@ -27,6 +26,10 @@ const anton = Anton({
   subsets: ['latin'] 
 });
 
+import { Orbitron } from "next/font/google";
+const orbitron = Orbitron({ subsets: ["latin"] });
+
+
 const navItems = [
   { icon: <LayoutDashboard size={18} />, label: 'OVERVIEW', href: '/dashboard' },
   { icon: <UserIcon size={18} />, label: 'MY PROFILE', href: '/dashboard/profile' },
@@ -34,7 +37,6 @@ const navItems = [
   { icon: <Calendar size={18} />, label: 'SCHEDULE', href: '/dashboard/schedule' },
   { icon: <BarChart3 size={18} />, label: 'PROGRESS', href: '/dashboard/progress' },
   { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking', badge: 'NEW' },
-  { icon: <MessageSquare size={18} />, label: 'MESSAGES', href: '/dashboard/messages' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
 ];
 
@@ -78,36 +80,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const status = profile?.status || 'Active';
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex">
       {/* Sidebar */}
-      <aside className="w-[260px] h-screen bg-[#0a0a0a] border-r border-[#22c55e]/15 fixed left-0 top-0 z-[100] flex flex-col overflow-y-auto">
+      <aside className="w-[210px] h-screen bg-[#0a0a0a] border-r border-[#00ff41]/15 fixed left-0 top-0 z-[100] flex flex-col overflow-y-auto">
         {/* Logo */}
-        <div className="p-6 border-b border-[#22c55e]/10">
-          <Link href="/" className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden">
-                <Image src="/newlogo.png" alt="KIO-X" width={32} height={32} unoptimized={true} />
+        <div className="p-5 border-b border-white/5">
+          <Link href="/" className="flex items-center gap-2 group">
+             <div className="w-8 h-8 rounded-lg bg-[#00ff41] flex items-center justify-center text-black font-black text-xl shadow-[0_0_15px_rgba(0,255,65,0.4)] group-hover:scale-110 transition-all duration-300">
+               X
              </div>
-             <span className={`${anton.className} text-2xl tracking-widest text-white`}>KIO-X</span>
+             <span className={`${orbitron.className} text-xl tracking-[0.2em] font-black text-white group-hover:text-[#00ff41] transition-colors`}>KIO-X</span>
           </Link>
         </div>
 
         {/* User Profile Block */}
-        <div className="p-6 border-b border-[#22c55e]/10">
-          <div className="w-16 h-16 rounded-full bg-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center text-2xl text-[#22c55e] font-display mb-3 shadow-[0_0_20px_rgba(34,197,94,0.2)]">
-            {userName[0].toUpperCase()}
-          </div>
-          <div className={`${anton.className} text-lg text-white mb-1 uppercase tracking-wider truncate`}>
-            {userName}
-          </div>
-          <div className="text-white/40 text-xs mb-3 truncate">
-            @{profile?.username || user?.email?.split('@')[0]}
-          </div>
+        <div className="p-5 border-b border-white/5">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-[#0a0a0a] border-2 border-[#00ff41] flex items-center justify-center text-2xl text-[#00ff41] font-black mb-3 shadow-[0_0_20px_rgba(0,255,65,0.2)]">
+              {userName[0].toUpperCase()}
+            </div>
+            <div className={`${orbitron.className} text-[13px] text-white mb-0.5 uppercase tracking-wider truncate w-full`}>
+              {userName}
+            </div>
+            <div className="text-white/30 text-[10px] mb-3 truncate w-full uppercase tracking-tighter">
+              @{profile?.username || user?.email?.split('@')[0]}
+            </div>
 
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-[2px] ${
-            status === 'active' ? 'bg-[#22c55e]/10 border-[#22c55e] text-[#22c55e]' : 'bg-amber-500/10 border-amber-500 text-amber-500'
-          }`}>
-            <div className={`w-1.5 h-1.5 rounded-full bg-current ${status === 'active' ? 'animate-pulse' : ''}`} />
-            {status}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#00ff41]/10 border border-[#00ff41]/30 text-[#00ff41] rounded-full text-[8px] font-bold uppercase tracking-[0.1em]">
+              <div className="w-1 h-1 rounded-full bg-[#00ff41] animate-pulse shadow-[0_0_5px_#00ff41]" />
+              {status}
+            </div>
           </div>
         </div>
 
@@ -119,16 +121,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link
                 key={i}
                 href={item.href}
-                className={`flex items-center gap-3 px-6 py-4 text-[11px] font-black tracking-[2px] uppercase transition-all border-l-[3px] ${
+                className={`flex items-center gap-3 px-5 py-3.5 text-[10px] font-bold tracking-[0.15em] uppercase transition-all relative ${
                   isActive 
-                    ? 'bg-[#22c55e]/5 border-[#22c55e] text-[#22c55e]' 
-                    : 'border-transparent text-white/40 hover:text-white hover:bg-white/5'
+                    ? 'text-[#00ff41]' 
+                    : 'text-white/40 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span className={isActive ? 'text-[#22c55e]' : 'text-current'}>{item.icon}</span>
+                {isActive && (
+                  <motion.div 
+                    layoutId="activeNav"
+                    className="absolute inset-y-0 left-0 w-1 bg-[#00ff41] shadow-[0_0_10px_#00ff41]"
+                  />
+                )}
+                <span className={isActive ? 'text-[#00ff41]' : 'text-current'}>{item.icon}</span>
                 {item.label}
                 {item.badge && (
-                  <span className="ml-auto bg-[#22c55e] text-black text-[8px] px-2 py-0.5 rounded-full font-black">
+                  <span className="ml-auto bg-[#00ff41] text-black text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
                     {item.badge}
                   </span>
                 )}
@@ -138,48 +146,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* Sign Out */}
-        <div className="p-6 border-t border-[#22c55e]/10">
+        <div className="p-5 border-t border-white/5">
           <button
             onClick={handleSignOut}
-            className="w-full py-3 border border-white/10 rounded-xl text-[10px] text-white/40 font-black uppercase tracking-[2px] flex items-center justify-center gap-2 hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all"
+            className="w-full py-2.5 border border-white/10 rounded-xl text-[9px] text-white/30 font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-[#00ff41]/30 hover:text-[#00ff41] transition-all"
           >
-            <LogOut size={14} /> Sign Out
+            <LogOut size={12} /> Sign Out
           </button>
         </div>
       </aside>
 
+
       {/* Main Content Area */}
-      <main className="flex-1 ml-[260px] min-h-screen relative">
+      <main className="flex-1 ml-[210px] min-h-screen relative">
         {/* Background Grid */}
-        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
-          backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
+          backgroundImage: 'linear-gradient(#00ff41 1px, transparent 1px), linear-gradient(90deg, #00ff41 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-50 bg-[#080808]/90 backdrop-blur-xl border-b border-[#22c55e]/10 px-10 h-[80px] flex items-center justify-between">
+        <header className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-10 h-[80px] flex items-center justify-between">
           <div>
-            <div className="text-[#22c55e] text-[9px] font-black tracking-[4px] uppercase mb-1">Elite Performance Portal</div>
-            <h1 className={`${anton.className} text-xl md:text-2xl text-white uppercase tracking-wider`}>
-              Welcome back, <span className="text-[#22c55e]">{userName.split(' ')[0]}</span> 👋
+            <div className="text-[#00ff41] text-[10px] font-black tracking-[0.3em] uppercase mb-1">Elite Performance Portal</div>
+            <h1 className={`${orbitron.className} text-xl md:text-2xl text-white uppercase tracking-wider`}>
+              Welcome back, <span className="text-[#00ff41]">{userName.split(' ')[0]}</span> 👋
             </h1>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification Bell */}
-            <Link href="/dashboard/messages" className="relative group cursor-pointer block">
-              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/20 flex items-center justify-center transition-all group-hover:border-[#22c55e]/50 group-hover:bg-[#22c55e]/10">
-                <Bell size={20} className="text-[#22c55e]" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#080808]" />
-            </Link>
-
             {/* Profile Small */}
-            <Link href="/dashboard/profile" className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-display text-sm cursor-pointer hover:border-[#22c55e] hover:bg-[#22c55e]/20 transition-all">
+            <Link href="/dashboard/profile" className="w-10 h-10 rounded-xl bg-[#00ff41]/10 border border-[#00ff41]/30 flex items-center justify-center text-[#00ff41] font-black text-sm cursor-pointer hover:border-[#00ff41] hover:bg-[#00ff41]/20 transition-all">
               {userName[0].toUpperCase()}
             </Link>
           </div>
         </header>
+
 
         {/* Page Content */}
         <div className="relative z-10">

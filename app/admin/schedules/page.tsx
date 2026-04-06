@@ -30,13 +30,20 @@ export default function AdminSchedules() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    if (!authLoading && user && profile?.role === 'superadmin') {
-      fetchSchedules();
+    if (!authLoading) {
+      if (user && profile?.role === 'superadmin') {
+        fetchSchedules();
+      } else if (!user || profile) {
+        setLoading(false);
+      }
     }
   }, [user, profile, authLoading]);
 
   const fetchSchedules = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     
     try {

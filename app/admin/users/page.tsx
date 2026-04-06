@@ -53,9 +53,17 @@ export default function UserInventory() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authLoading && user && profile?.role === 'superadmin') {
-      fetchProfiles();
+    if (!authLoading) {
+      if (user && profile?.role === 'superadmin') {
+        fetchProfiles();
+      } else if (!user || profile) {
+        setLoading(false);
+      }
     }
+
+    const handleRefresh = () => fetchProfiles();
+    window.addEventListener('refresh-users', handleRefresh);
+    return () => window.removeEventListener('refresh-users', handleRefresh);
   }, [user, profile, authLoading]);
 
   const fetchProfiles = async () => {

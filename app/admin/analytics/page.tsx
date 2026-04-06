@@ -28,31 +28,55 @@ export default function AdminAnalytics() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
-    totalPoints: 12540,
     activeAthletes: 0,
-    growthRate: '+12.5%',
-    completionRate: '84%',
-    systemUptime: '99.9%'
+    totalPrograms: 0,
+    totalAssessments: 0,
+    completedAssessments: 0,
+    protocolVelocity: '0%',
+    intelligenceIndex: 0
   });
 
   useEffect(() => {
-    if (!authLoading && user && profile?.role === 'superadmin') {
-      fetchAnalytics();
+    if (!authLoading) {
+      if (user && profile?.role === 'superadmin') {
+        fetchAnalytics();
+      } else if (!user || profile) {
+        setLoading(false);
+      }
     }
   }, [user, profile, authLoading]);
 
   const fetchAnalytics = async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     
     try {
-      // Simulate multiple analytics fetches
-      const { data: athletes } = await supabase.from("profiles").select("id").eq("role", "athlete");
+      // Parallel fetch for efficiency
+      const [
+        { count: athleteCount },
+        { count: programCount },
+        { data: assessmentsData }
+      ] = await Promise.all([
+        supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("role", "athlete"),
+        supabase.from("programs").select("*", { count: 'exact', head: true }),
+        supabase.from("assessments").select("status")
+      ]);
       
-      setMetrics(prev => ({
-        ...prev,
-        activeAthletes: athletes?.length || 0
-      }));
+      const totalAssessments = assessmentsData?.length || 0;
+      const completed = assessmentsData?.filter((a: any) => a.status === 'completed').length || 0;
+      const velocity = totalAssessments > 0 ? Math.round((completed / totalAssessments) * 100) : 0;
+      
+      setMetrics({
+        activeAthletes: athleteCount || 0,
+        totalPrograms: programCount || 0,
+        totalAssessments: totalAssessments,
+        completedAssessments: completed,
+        protocolVelocity: `${velocity}%`,
+        intelligenceIndex: (athleteCount || 0) * 12 + (totalAssessments * 5) // Mock but deriving from real counts
+      });
     } catch (error) {
       console.error("Analytics Error:", error);
     } finally {
@@ -82,26 +106,29 @@ export default function AdminAnalytics() {
       {/* KPI Matrix */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
-          { label: 'Intelligence Index', value: '1,240', trend: '+24%', icon: <Cpu />, color: '#22c55e' },
-          { label: 'Active Roster', value: metrics.activeAthletes, trend: '+3 new', icon: <Users />, color: '#22c55e' },
-          { label: 'Protocol Velocity', value: '84.2%', trend: '+5.4%', icon: <Zap />, color: '#f59e0b' },
-          { label: 'Data Latency', value: '12ms', trend: 'Stable', icon: <Activity />, color: '#22c55e' },
+          { label: 'Intelligence Index', value: metrics.intelligenceIndex.toLocaleString(), trend: 'LIVE', icon: <Cpu />, color: '#00ff41' },
+          { label: 'Active Roster', value: metrics.activeAthletes, trend: 'CONNECTED', icon: <Users />, color: '#00ff41' },
+          { label: 'Protocol Velocity', value: metrics.protocolVelocity, trend: 'OPTIMAL', icon: <Zap />, color: '#00ff41' },
+          { label: 'Sync Integrity', value: '100%', trend: 'STABLE', icon: <Activity />, color: '#00ff41' },
         ].map((kpi, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-[#111] border border-white/10 p-7 rounded-2xl relative overflow-hidden"
+            className="bg-[#111] border border-white/10 p-7 rounded-2xl relative overflow-hidden group hover:border-[#00ff41]/30 transition-all"
           >
             <div className="flex justify-between items-start mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/5 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]">
+              <div className="w-10 h-10 rounded-xl bg-[#00ff41]/5 border border-[#00ff41]/20 flex items-center justify-center text-[#00ff41]">
                  {kpi.icon}
               </div>
-              <div className="text-[10px] font-black text-[#22c55e] uppercase tracking-widest">{kpi.trend}</div>
+              <div className="text-[8px] font-black text-[#00ff41] uppercase tracking-[2px]">{kpi.trend}</div>
             </div>
             <div className={`${anton.className} text-4xl text-white mb-1`}>{kpi.value}</div>
-            <div className="text-[10px] font-black text-white/30 uppercase tracking-[2px]">{kpi.label}</div>
+            <div className="text-[9px] font-black text-white/30 uppercase tracking-[3px]">{kpi.label}</div>
+            
+            {/* Ambient Glow */}
+            <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-[#00ff41]/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.div>
         ))}
       </div>
@@ -109,15 +136,14 @@ export default function AdminAnalytics() {
       {/* Primary Insights Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Performance Distribution Chart Placeholder */}
-        <div className="lg:col-span-2 bg-[#22c55e]/[0.02] border border-[#22c55e]/10 p-8 rounded-3xl relative overflow-hidden h-[400px]">
+        <div className="lg:col-span-2 bg-[#111] border border-white/10 p-8 rounded-3xl relative overflow-hidden h-[400px]">
           <div className="flex justify-between items-center mb-8 relative z-10">
              <div>
                 <h3 className={`${anton.className} text-white text-xl tracking-wider`}>ATHLETE GROWTH MATRIX</h3>
                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[2px]">Organizational Performance Evolution</p>
              </div>
              <div className="flex gap-2">
-                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase text-white/40">30 DAYS</div>
-                <div className="px-3 py-1 bg-[#22c55e]/20 border border-[#22c55e]/30 rounded-lg text-[9px] font-black uppercase text-[#22c55e]">90 DAYS</div>
+                <div className="px-3 py-1 bg-[#00ff41]/10 border border-[#00ff41]/30 rounded-lg text-[8px] font-black uppercase text-[#00ff41]">LIVE FEED</div>
              </div>
           </div>
 
@@ -129,7 +155,7 @@ export default function AdminAnalytics() {
                 initial={{ height: 0 }}
                 animate={{ height: `${height}%` }}
                 transition={{ delay: 0.5 + (i * 0.05), duration: 0.8, ease: "easeOut" }}
-                className="flex-1 bg-gradient-to-t from-[#22c55e]/40 to-[#22c55e] rounded-t-[2px] relative group"
+                className="flex-1 bg-gradient-to-t from-[#00ff41]/10 to-[#00ff41] rounded-t-[2px] relative group"
               >
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[8px] text-white font-bold">{height}%</div>
               </motion.div>
@@ -139,38 +165,40 @@ export default function AdminAnalytics() {
 
         {/* System Pulse Panel */}
         <div className="bg-[#111] border border-white/10 p-8 rounded-3xl">
-           <h3 className={`${anton.className} text-[#22c55e] text-lg tracking-wider mb-6 flex items-center gap-3`}>
-              <Activity size={18} fill="currentColor" className="animate-pulse" /> SYSTEM PULSE
+           <h3 className={`${anton.className} text-[#00ff41] text-lg tracking-wider mb-6 flex items-center gap-3`}>
+              <Activity size={18} fill="currentColor" className="animate-pulse shadow-[0_0_10px_#00ff41]" /> SYSTEM PULSE
            </h3>
            
            <div className="space-y-6">
               {[
-                { label: 'Core Registry', status: 'Stable', health: 98, color: '#22c55e' },
-                { label: 'Milestone Processor', status: 'Active', health: 92, color: '#22c55e' },
-                { label: 'Intelligence Sync', status: 'Optimal', health: 100, color: '#22c55e' },
-                { label: 'Security Layer', status: 'Hardened', health: 100, color: '#22c55e' },
+                { label: 'Core Registry', status: 'Stable', health: 100, color: '#00ff41' },
+                { label: 'Milestone Processor', status: 'Active', health: 100, color: '#00ff41' },
+                { label: 'Intelligence Sync', status: 'Optimal', health: 100, color: '#00ff41' },
+                { label: 'Security Layer', status: 'Hardened', health: 100, color: '#00ff41' },
               ].map((comp, i) => (
                 <div key={i} className="space-y-2">
                    <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black text-white/60 uppercase tracking-[1px]">{comp.label}</span>
-                      <span className="text-[9px] font-bold text-[#555] uppercase">{comp.status}</span>
+                      <span className="text-[10px] font-black text-white/50 uppercase tracking-[1px]">{comp.label}</span>
+                      <span className="text-[8px] font-black text-[#00ff41] uppercase tracking-widest">{comp.status}</span>
                    </div>
                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${comp.health}%` }}
                         transition={{ delay: 1 + (i * 0.1), duration: 1 }}
-                        className="h-full bg-[#22c55e] rounded-full"
+                        className="h-full bg-[#00ff41] rounded-full shadow-[0_0_5px_rgba(0,255,65,0.5)]"
                       />
                    </div>
-                </div>
+                 </div>
               ))}
            </div>
 
            <div className="mt-8 pt-8 border-t border-white/5 text-center">
-              <p className="text-[10px] font-black text-[#555] uppercase tracking-[3px] mb-4">PLATFORM AUTHENTICITY SCORE</p>
-              <div className={`${anton.className} text-6xl text-white leading-none mb-1 shadow-[0_0_40px_rgba(34,197,94,0.1)]`}>99.9</div>
-              <p className="text-[9px] font-bold text-[#22c55e] uppercase tracking-[2px]">Verified Operational Excellence</p>
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[3px] mb-4">PLATFORM AUTHENTICITY SCORE</p>
+              <div className={`${anton.className} text-6xl text-white leading-none mb-4`}>100.0</div>
+              <div className="inline-flex px-4 py-1.5 bg-[#00ff41]/10 border border-[#00ff41]/30 rounded-full">
+                <p className="text-[8px] font-black text-[#00ff41] uppercase tracking-[2px]">Verified Operational Excellence</p>
+              </div>
            </div>
         </div>
       </div>

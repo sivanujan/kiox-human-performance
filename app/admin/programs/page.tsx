@@ -47,21 +47,25 @@ export default function ArchitectureMatrix() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) {
-        router.push("/signin");
-      } else if (profile?.role !== 'superadmin') {
-        router.push("/dashboard");
-      } else {
+      if (user && profile?.role === 'superadmin') {
         fetchPrograms();
+      } else if (!user || profile) {
+        // If auth is settled but user isn't superadmin or doesn't exist, stop loading
+        setLoading(false);
       }
     }
   }, [user, profile, authLoading, router]);
 
   const fetchPrograms = async () => {
-    const res = await fetch("/api/admin/programs");
-    const data = await res.json();
-    if (!data.error) setPrograms(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/programs");
+      const data = await res.json();
+      if (!data.error) setPrograms(data);
+    } catch (error) {
+      console.error("Program Fetch Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddProgram = async (e: React.FormEvent) => {
