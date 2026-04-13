@@ -167,7 +167,13 @@ export default function RegisterPage() {
       }
 
       if (profile) {
-        // Check required fields
+        // 1. ADMIN/STAFF BYPASS: Managers should NEVER see the athlete onboarding flow
+        if (profile.role === 'superadmin' || profile.role === 'staff') {
+          router.push('/admin');
+          return;
+        }
+
+        // 2. ATHLETE COMPLETION CHECK
         const requiredFields = [
           'first_name', 'last_name', 'username', 'date_of_birth',
           'phone_number', 'address', 'country',
@@ -208,7 +214,7 @@ export default function RegisterPage() {
           medicalHistory: profile.medical_history || '',
         }));
         
-        // User is logged in and confirmed but profile incomplete
+        // User is logged in and confirmed but profile incomplete (and is an athlete)
         if (step < 3) setStep(3);
       } else {
         // Logged in and confirmed but no profile at all
@@ -311,18 +317,19 @@ export default function RegisterPage() {
 
       const { error: upsertError } = await supabase.from('profiles').upsert(updates);
 
+      // Always stop loading once DB action completes
+      setLoading(false);
+
       if (upsertError) {
         setErrorMsg(upsertError.message);
-        setLoading(false);
       } else {
-        setSuccessMsg("Registry Synchronized Successfully. Initializing Dashboard...");
+        setSuccessMsg("Registry Synchronized. Security Protocols Verified.");
         
         // Non-blocking profile refresh
         refreshProfile().catch(console.error);
 
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
+        // Immediate redirect attempt
+        router.push("/dashboard");
       }
     } catch (err: any) {
       console.error("Submission error details:", err);
@@ -372,7 +379,7 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-10">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
-              <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
+              <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
             </div>
             <span className={`${anton.className} text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
           </Link>
@@ -470,10 +477,21 @@ export default function RegisterPage() {
                    <p className="text-white/40 text-[12px] uppercase tracking-widest leading-relaxed mb-6">
                     Transmission sent to <br /><span className="text-white font-bold">{formData.email}</span>
                   </p>
-                  <div className="mb-10 p-5 bg-white/5 border border-white/5 rounded-2xl">
-                     <p className="text-[9px] font-bold text-white/30 uppercase tracking-[1px] leading-relaxed">
-                        If you don&apos;t see the transmission, check your <span className="text-[#22c55e]">Spam or Junk</span> protocols. Some enterprise firewalls may delay the uplink.
-                     </p>
+                  <div className="mb-10 p-5 bg-white/5 border border-white/5 rounded-2xl text-left space-y-4">
+                     <div className="flex items-center gap-2 text-[10px] font-black text-[#22c55e] uppercase tracking-widest">
+                       <ShieldCheck size={14} /> Protocol Verification Guide
+                     </div>
+                     <div className="space-y-3">
+                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-[1px] leading-relaxed">
+                           1. <span className="text-white">Check Spam Registry</span>: Verify your spam/junk folders. Links often end up there.
+                        </p>
+                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-[1px] leading-relaxed">
+                           2. <span className="text-white">Rate Limits</span>: Supabase restricts verification emails to 3 per hour. Wait 15 minutes before retrying.
+                        </p>
+                        <p className="text-[9px] font-bold text-white/40 uppercase tracking-[1px] leading-relaxed">
+                           3. <span className="text-white">SMTP Alignment</span>: If using custom SMTP, ensure the <span className="text-[#22c55e]">Sender Name/Email</span> in the Supabase Dashboard matches your SMTP user.
+                        </p>
+                     </div>
                   </div>
                     <div className="flex flex-col items-center gap-6">
                       <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[3px] text-[#22c55e]">
@@ -732,10 +750,16 @@ export default function RegisterPage() {
                       </button>
                       <button 
                         type="submit" 
-                        disabled={loading || !formData.waiverAccepted || !formData.height || !formData.weight || !formData.position || !formData.goals} 
-                        className="flex-[3] bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] shadow-[0_0_30px_rgba(34,197,94,0.2)] disabled:opacity-30 disabled:hover:scale-100 transition-all"
+                        disabled={loading || (!successMsg && (!formData.waiverAccepted || !formData.height || !formData.weight || !formData.position || !formData.goals))} 
+                        className={`flex-[3] ${successMsg ? 'bg-white text-black underline underline-offset-4' : 'bg-[#22c55e] text-black'} font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] shadow-[0_0_30px_rgba(34,197,94,0.2)] disabled:opacity-30 disabled:hover:scale-100 transition-all`}
                       >
-                        {loading ? <Loader2 className="animate-spin" /> : <>Complete Registry <ShieldCheck size={18} /></>}
+                        {loading ? (
+                          <Loader2 className="animate-spin" />
+                        ) : successMsg ? (
+                          <>ACCESS DASHBOARD <ChevronRight size={18} /></>
+                        ) : (
+                          <>Complete Registry <ShieldCheck size={18} /></>
+                        )}
                       </button>
                     </div>
                   </form>

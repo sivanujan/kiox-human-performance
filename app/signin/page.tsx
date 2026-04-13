@@ -15,6 +15,7 @@ const anton = Anton({
 });
 
 export default function SignInPage() {
+  const [isHydrated, setIsHydrated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,16 +23,24 @@ export default function SignInPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const { supabase, user, loading: authLoading } = useAuth();
+  const { supabase, user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   // Redirect if already logged in
   useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/dashboard");
+    if (isHydrated && !authLoading && user && profile) {
+      if (profile.role === 'superadmin' || profile.role === 'staff') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, profile, authLoading, router, isHydrated]);
 
   // Check for error in URL params
   useEffect(() => {
@@ -52,19 +61,25 @@ export default function SignInPage() {
     setErrorMsg("");
     setSuccessMsg("");
     
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-           if (error.message.includes('fetch')) {
-               setErrorMsg("Database Connection Error. Are the Supabase Keys correct in .env.local?");
-           } else {
-               setErrorMsg(error.message);
-           }
-    } else {
-      router.push("/dashboard");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        if (error.message.includes('fetch')) {
+          setErrorMsg("Database Connection Error. Are the Supabase Keys correct in .env.local?");
+        } else {
+          setErrorMsg(error.message);
+        }
+        setLoading(false);
+      }
+      // If no error, the redirection useEffect will kick in
+    } catch (err: any) {
+      setErrorMsg(err.message || "A connection error occurred during authentication.");
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  if (!isHydrated) return null;
 
   return (
     <main className="min-h-screen bg-[#080808] flex items-center justify-center p-6 relative overflow-hidden">
@@ -77,7 +92,7 @@ export default function SignInPage() {
         <div className="flex flex-col items-center mb-10">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
-              <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
+              <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
             </div>
             <span className={`${anton.className} text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
           </Link>

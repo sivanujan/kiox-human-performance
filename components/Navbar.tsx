@@ -20,15 +20,14 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
-  const { user, profile, loading, supabase } = useAuth();
+  const { user, profile, loading, signOut, supabase } = useAuth();
   const role = profile?.role || null;
   const router = useRouter();
 
   const hideNavbar = ["/signin", "/register", "/forgot-password", "/reset-password"].includes(pathname) || pathname.startsWith("/dashboard") || pathname.startsWith("/admin") || pathname.startsWith("/staff");
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/signin");
+    await signOut();
     setMobileMenuOpen(false);
   };
 

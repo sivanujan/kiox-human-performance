@@ -108,15 +108,37 @@ export default function ForgotPasswordPage() {
             </form>
           ) : (
              <div className="space-y-6">
-                <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto">
-                    <ShieldCheck className="text-green-500" size={32} />
+                <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto text-green-500">
+                    <ShieldCheck size={32} />
                 </div>
-                <div className="space-y-4">
+                
+                <div className="space-y-2">
+                  <p className="text-white text-sm font-bold uppercase tracking-widest text-[#22c55e]">Transmission Sent</p>
+                  <p className="text-[10px] text-white/40 uppercase leading-relaxed font-bold">Please check your inbox and <span className="text-white font-black underline">Spam folder</span>.</p>
+                </div>
+
+                {/* TROUBLESHOOTING ALERTS */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left space-y-4">
+                  <div className="flex items-center gap-2 text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                    <AlertCircle size={14} /> Mission Critical Debug
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-[9px] text-white/40 font-bold uppercase leading-relaxed">
+                      1. <span className="text-white">Rate Limit Active</span>: Supabase restricts recovery links to 3 per hour. Wait 15 minutes before retrying.
+                    </p>
+                    <p className="text-[9px] text-white/40 font-bold uppercase leading-relaxed">
+                      2. <span className="text-white">SMTP Alignment</span>: If you configured own SMTP, ensure the <span className="text-[#22c55e]">Sender Address</span> in Supabase exactly matches your SMTP username.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4">
                   <button 
                       onClick={() => handleResetRequest()}
-                      className="w-full border border-[#22c55e]/30 text-[#22c55e] font-black uppercase tracking-[2px] py-4 rounded-xl hover:bg-[#22c55e]/10 transition-all"
+                      disabled={resendTimer > 0}
+                      className="w-full border border-[#22c55e]/30 text-[#22c55e] font-black uppercase tracking-[2px] py-4 rounded-xl hover:bg-[#22c55e]/10 transition-all disabled:opacity-20"
                   >
-                      I didn't get it. Send Again
+                      {resendTimer > 0 ? `Resend In ${Math.floor(resendTimer/60)}:${(resendTimer%60).toString().padStart(2, '0')}` : "I didn't get it. Send Again"}
                   </button>
                   <Link 
                       href="/signin"

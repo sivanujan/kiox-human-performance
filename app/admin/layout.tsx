@@ -3,6 +3,7 @@
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { 
@@ -18,10 +19,13 @@ import {
   Settings,
   Trophy,
   Zap,
-  Plus
+  Plus,
+  ArrowRight
 } from "lucide-react";
 import { Anton } from "next/font/google";
 import AddAthleteModal from "@/components/modals/AddAthleteModal";
+import AdminProfileModal from "@/components/modals/AdminProfileModal";
+import Avatar from "@/components/ui/Avatar";
 
 
 const anton = Anton({ 
@@ -82,12 +86,12 @@ const adminNavItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading, supabase } = useAuth();
+  const { user, profile, loading, signOut, supabase } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
+  const [isAdminProfileOpen, setIsAdminProfileOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -115,14 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error("Critical Sign-out error:", err);
-    } finally {
-      // Force a hard redirect to clear all contexts
-      window.location.replace("/signin");
-    }
+    await signOut();
   };
 
   if (loading) {
@@ -144,24 +141,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-6 border-b border-[#22c55e]/10">
           <Link href="/" className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden">
-                <img src="/newlogo.png" alt="KIO-X" className="w-8 h-8" />
+                <Image src="/newlogo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
              </div>
              <span className={`${anton.className} text-2xl tracking-widest text-white`}>KIO-X</span>
           </Link>
         </div>
 
         {/* Profile Block */}
-        <div className="p-5 border-b border-[#22c55e]/10">
-          <div className={`${anton.className} w-[52px] h-[52px] rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center text-xl text-[#22c55e] mb-3 shadow-[0_0_20px_rgba(34,197,94,0.2)]`}>
-            A
+        <motion.div 
+          onClick={() => setIsAdminProfileOpen(true)}
+          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
+          className="p-5 border-b border-[#22c55e]/10 cursor-pointer transition-colors group"
+          title="Click to Modify Profile"
+        >
+          <div className="relative inline-block mb-3">
+            <Avatar 
+              src={profile?.avatar_url}
+              name={`${profile?.first_name} ${profile?.last_name}`}
+              role="superadmin"
+              size="xl"
+            />
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_4px_10px_rgba(34,197,94,0.3)]">
+               <Zap size={12} fill="currentColor" />
+            </div>
           </div>
-          <div className={`${anton.className} text-[15px] text-white mb-0.5 uppercase tracking-wide`}>
-            KIO-X ADMIN
+          <div className={`${anton.className} text-[15px] text-white mb-0.5 uppercase tracking-wide group-hover:text-[#22c55e] transition-colors`}>
+            {profile?.first_name} {profile?.last_name || 'KIO-X ADMIN'}
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22c55e]/10 border border-[#22c55e] text-[#22c55e] rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
             <Zap size={10} fill="currentColor" /> SUPER ADMIN
           </div>
-        </div>
+        </motion.div>
 
         {/* Navigation Menu */}
         <nav className="flex-1 py-4">
@@ -257,6 +267,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             window.dispatchEvent(new CustomEvent('refresh-users'));
           }}
         />
+        <AdminProfileModal isOpen={isAdminProfileOpen} onClose={() => setIsAdminProfileOpen(false)} />
       </main>
 
     </div>

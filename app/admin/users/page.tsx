@@ -24,6 +24,7 @@ import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import UserProfileModal from "@/components/modals/UserProfileModal";
+import Avatar from "@/components/ui/Avatar";
 
 const anton = Anton({ 
   weight: '400',
@@ -230,10 +231,13 @@ export default function UserInventory() {
                   {/* Athlete Identity */}
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center relative`}>
-                         {user_profile.role === 'superadmin' ? <ShieldCheck size={18} className="text-[#22c55e]" /> : 
-                          user_profile.role === 'staff' ? <Trophy size={18} className="text-[#22c55e]" /> : <User size={18} className="text-white/20" />}
-                         
+                      <div className="relative">
+                         <Avatar 
+                           src={user_profile.avatar_url}
+                           name={`${user_profile.first_name} ${user_profile.last_name}`}
+                           role={user_profile.role}
+                           size="md"
+                         />
                          {updatingId === user_profile.id && (
                            <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
                              <Loader2 size={12} className="animate-spin text-[#22c55e]" />

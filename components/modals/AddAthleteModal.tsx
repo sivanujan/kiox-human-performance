@@ -16,6 +16,7 @@ import {
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const anton = Anton({ weight: '400', subsets: ['latin'] });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
@@ -37,7 +38,8 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
     last_name: "",
     username: "",
     email: "",
-    password: ""
+    password: "",
+    avatar_url: ""
   });
 
   useEffect(() => {
@@ -51,7 +53,8 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
         last_name: "",
         username: "",
         email: "",
-        password: generatePassword()
+        password: generatePassword(),
+        avatar_url: ""
       });
       setError(null);
       setSuccess(false);
@@ -142,19 +145,22 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                  <X size={24} />
                </button>
 
-               <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center text-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                      <UserPlus size={28} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
-                      System Protocol
-                    </div>
-                    <h2 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-1`}>
-                      Add New Athlete
-                    </h2>
-                  </div>
-               </div>
+                <div className="flex items-center gap-6">
+                   <div className="flex-shrink-0">
+                      <ImageUpload 
+                        onUpload={(url) => setFormData(p => ({ ...p, avatar_url: url }))}
+                        initialUrl={formData.avatar_url}
+                      />
+                   </div>
+                   <div>
+                     <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
+                       System Protocol
+                     </div>
+                     <h2 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-1`}>
+                       Add New Athlete
+                     </h2>
+                   </div>
+                </div>
             </div>
 
             {/* Form Content */}

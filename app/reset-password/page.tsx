@@ -62,6 +62,9 @@ export default function ResetPasswordPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+
     if (password !== confirmPassword) {
       setErrorMsg("Passwords do not match");
       return;
@@ -73,18 +76,29 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
-    setErrorMsg("");
+    console.log("INITIALIZING CREDENTIAL SECURING PROTOCOL...");
 
-    const { error } = await supabase.auth.updateUser({ password });
+    try {
+      // Isolate the update call to prevent auth-token locking conflicts
+      const { data, error } = await supabase.auth.updateUser({ password });
 
-    if (error) {
-      setErrorMsg(error.message);
+      if (error) {
+        console.error("CREDENTIAL UPDATE FAILURE:", error.message);
+        setErrorMsg(error.message);
+        setLoading(false);
+      } else {
+        console.log("CREDENTIAL UPDATE SUCCESSFUL:", data);
+        setSuccessMsg("Shield Established. Password updated successfully.");
+        
+        // Force state cleanup and redirect
+        setTimeout(() => {
+          router.push("/signin?message=Password updated. Please sign in with your new credentials.");
+        }, 2500);
+      }
+    } catch (err: any) {
+      console.error("CRITICAL SIGN-OUT PROTOCOL ERROR:", err);
+      setErrorMsg(err.message || "A clinical error occurred during encryption.");
       setLoading(false);
-    } else {
-      setSuccessMsg("Shield Established. Password updated successfully.");
-      setTimeout(() => {
-        router.push("/signin");
-      }, 3000);
     }
   };
 

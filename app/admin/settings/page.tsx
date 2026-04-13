@@ -19,6 +19,7 @@ import {
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const anton = Anton({ 
   weight: '400',
@@ -39,6 +40,22 @@ export default function AdminSettings() {
       setLoading(false);
     }
   }, [user, profile, authLoading]);
+
+  const handleAvatarUpload = async (url: string) => {
+    if (!user?.id) return;
+    try {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: url })
+        .eq("id", user.id);
+      
+      if (updateError) throw updateError;
+      // Refresh context
+      window.dispatchEvent(new CustomEvent('refresh-users'));
+    } catch (err) {
+      console.error("Avatar update failed:", err);
+    }
+  };
 
   if (loading) {
      return (
@@ -94,6 +111,48 @@ export default function AdminSettings() {
         </div>
         <h1 className={`${anton.className} text-5xl text-white uppercase tracking-wider`}>Global Settings</h1>
       </div>
+
+      {/* Personal Identity Section (NEW) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-[#111] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+      >
+        <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]">
+                 <Activity size={18} />
+              </div>
+              <div>
+                <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>Personal Identity</h3>
+                <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Manage your administrative presence and biometric data</p>
+              </div>
+           </div>
+        </div>
+        <div className="p-8 flex flex-col md:flex-row items-center gap-10">
+           <ImageUpload 
+             onUpload={handleAvatarUpload}
+             initialUrl={profile?.avatar_url}
+           />
+           <div className="flex-1 space-y-4 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-[#22c55e] uppercase tracking-[2px]">First Name</label>
+                    <input readOnly value={profile?.first_name || ""} className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white/40 uppercase tracking-widest font-bold" />
+                 </div>
+                 <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-[#22c55e] uppercase tracking-[2px]">Last Name</label>
+                    <input readOnly value={profile?.last_name || ""} className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white/40 uppercase tracking-widest font-bold" />
+                 </div>
+              </div>
+              <div className="space-y-1.5">
+                 <label className="text-[9px] font-black text-[#22c55e] uppercase tracking-[2px]">Operational Tag</label>
+                 <input readOnly value={`@${profile?.username || "NOT_SET"}`} className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-[#22c55e]/60 tracking-widest font-bold" />
+              </div>
+              <p className="text-[9px] text-white/20 font-bold uppercase tracking-widest italic pt-2">Note: To modify name/tag credentials, use the sidebar profile portal.</p>
+           </div>
+        </div>
+      </motion.div>
 
       {/* Settings Grid */}
       <div className="space-y-8">

@@ -27,7 +27,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export default function StaffPortal() {
-  const { user, profile, loading: authLoading, supabase } = useAuth();
+  const { user, profile, loading: authLoading, signOut, supabase } = useAuth();
   const [loading, setLoading] = useState(true);
   const [athletes, setAthletes] = useState<any[]>([]);
   const router = useRouter();
@@ -64,13 +64,7 @@ export default function StaffPortal() {
   }
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error("Sign-out error:", err);
-    } finally {
-      window.location.href = "/signin";
-    }
+    await signOut();
   };
 
   return (

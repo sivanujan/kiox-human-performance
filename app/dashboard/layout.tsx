@@ -26,6 +26,7 @@ const anton = Anton({
   subsets: ['latin'] 
 });
 
+import Avatar from "@/components/ui/Avatar";
 import { Orbitron } from "next/font/google";
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -41,18 +42,12 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading, supabase } = useAuth();
+  const { user, profile, loading, signOut, supabase } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error("Sign-out error:", err);
-    } finally {
-      window.location.href = "/signin";
-    }
+    await signOut();
   };
 
   if (loading) {
@@ -96,9 +91,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* User Profile Block */}
         <div className="p-5 border-b border-white/5">
           <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-[#0a0a0a] border-2 border-[#00ff41] flex items-center justify-center text-2xl text-[#00ff41] font-black mb-3 shadow-[0_0_20px_rgba(0,255,65,0.2)]">
-              {userName[0].toUpperCase()}
-            </div>
+            <Avatar 
+              src={profile?.avatar_url}
+              name={userName}
+              role="athlete"
+              size="lg"
+              className="mb-3 border-[#00ff41] shadow-[0_0_20px_rgba(0,255,65,0.2)]"
+            />
             <div className={`${orbitron.className} text-[13px] text-white mb-0.5 uppercase tracking-wider truncate w-full`}>
               {userName}
             </div>

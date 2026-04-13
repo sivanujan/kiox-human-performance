@@ -90,24 +90,30 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/signin', request.url));
     }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select(PROFILE_FIELDS)
-      .eq('id', user.id)
-      .single();
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select(PROFILE_FIELDS)
+        .eq('id', user.id)
+        .single();
 
-    if (isDashboardPath) {
-      if (!profile || !isProfileComplete(profile)) {
-        return NextResponse.redirect(new URL('/register', request.url));
+      if (isDashboardPath) {
+        if (!profile || !isProfileComplete(profile)) {
+          return NextResponse.redirect(new URL('/register', request.url));
+        }
       }
-    }
 
-    if (isAdminPath && profile?.role !== 'superadmin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+      if (isAdminPath && profile?.role !== 'superadmin') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
 
-    if (isStaffPath && (profile?.role !== 'staff' && profile?.role !== 'superadmin')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      if (isStaffPath && (profile?.role !== 'staff' && profile?.role !== 'superadmin')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    } catch (err) {
+      console.error("Middleware Safety Intercept:", err);
+      // In case of error, continue the request and let the client-side AuthProvider handle the re-fetch
+      // This prevents a hard 500 error for the user.
     }
   }
 

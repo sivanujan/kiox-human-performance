@@ -23,7 +23,7 @@ export async function PATCH(req: Request) {
   );
 
   const body = await req.json();
-  const { userId, role, status, confirmEmail } = body;
+  const { userId, role, status, avatar_url, confirmEmail } = body;
 
   if (!userId) return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
 
@@ -40,6 +40,7 @@ export async function PATCH(req: Request) {
   const updateData: any = {};
   if (role) updateData.role = role;
   if (status) updateData.status = status;
+  if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
 
   const { data, error } = await supabase
     .from("profiles")
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
   );
 
   const body = await req.json();
-  const { email, password, first_name, last_name, username, role = "athlete" } = body;
+  const { email, password, first_name, last_name, username, avatar_url, role = "athlete" } = body;
 
   if (!email || !password) {
     return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
       first_name,
       last_name,
       username,
+      avatar_url,
       role: role,
       status: "active"
     })

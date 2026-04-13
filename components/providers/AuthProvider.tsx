@@ -10,6 +10,7 @@ interface AuthContextType {
   profile: any | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  signOut: () => Promise<void>;
   supabase: SupabaseClient;
 }
 
@@ -50,6 +51,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (currentUser) {
       setUser(currentUser);
       await fetchProfile(currentUser.id);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      setLoading(true);
+      
+      // 1. Clear local state identity immediately to stop background activity
+      setUser(null);
+      setProfile(null);
+
+      // 2. Parallel sign out (Client + Server)
+      // We don't 'await' them strictly to prevent one hang from blocking the entire redirect
+      Promise.all([
+        supabase.auth.signOut(),
+        fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
+      ]).catch(err => console.error("Sign-out async warning:", err));
+      
+      // 3. Force immediate hard redirect
+      // Using window.location.href ensures a complete cache and state purge
+      window.location.href = "/signin";
+      
+    } catch (err) {
+      console.error("Sign-out protocol failure:", err);
+      window.location.href = "/signin";
+    } finally {
+      // Small delay to ensure redirect is triggered before loading state could potentially flip back
+      setTimeout(() => {
+        if (typeof window !== 'undefined') setLoading(false);
+      }, 100);
     }
   };
 
@@ -139,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, router]);
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, supabase }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, signOut, supabase }}>
       {children}
     </AuthContext.Provider>
   );

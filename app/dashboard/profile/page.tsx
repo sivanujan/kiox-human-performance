@@ -18,6 +18,7 @@ import {
   MoveVertical
 } from "lucide-react";
 import { Anton, Orbitron, Rajdhani } from "next/font/google";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const anton = Anton({ 
   weight: '400', 
@@ -74,6 +75,21 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
+  const handleAvatarUpload = async (url: string) => {
+    if (!user?.id) return;
+    try {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: url })
+        .eq("id", user.id);
+      
+      if (updateError) throw updateError;
+      await refreshProfile();
+    } catch (err) {
+      console.error("Avatar update failed:", err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -128,11 +144,15 @@ export default function ProfilePage() {
               <User size={120} />
             </div>
 
-            <div className="flex items-center gap-4 mb-10">
-              <div className="w-10 h-10 rounded-xl bg-[#00ff41]/5 border border-[#00ff41]/20 flex items-center justify-center text-[#00ff41]">
-                <User size={20} />
+            <div className="flex flex-col md:flex-row items-center gap-8 mb-10">
+              <ImageUpload 
+                onUpload={handleAvatarUpload}
+                initialUrl={profile?.avatar_url}
+              />
+              <div>
+                <h3 className={`${orbitron.className} text-[14px] font-black text-white uppercase tracking-[4px]`}>Personal Information</h3>
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[2px]">Update your biometric and identity credentials</p>
               </div>
-              <h3 className={`${orbitron.className} text-[14px] font-black text-white uppercase tracking-[4px]`}>Personal Information</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

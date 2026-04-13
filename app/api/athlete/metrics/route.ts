@@ -1,0 +1,52 @@
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { data: metrics, error } = await supabase
+    .from('profiles')
+    .select(`
+      top_speed, distance, sprints, hrv, vo2_max, resting_hr, 
+      power_output, high_intensity_efforts, recovery_index, 
+      sleep_score, soreness, hydration, mood, stress_level,
+      weekly_load, weekly_score, injury_risk, training_status,
+      goals, assists, xg, pass_accuracy, duels_won, pressures,
+      reaction_time, decision_score, focus_score,
+      sprint_speed_target, sprint_speed_current, 
+      pass_accuracy_target, fatigue_dips_per_week
+    `)
+    .eq('id', user.id)
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(metrics);
+}
+
+export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  try {
+    const body = await request.json();
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(body)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

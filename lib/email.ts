@@ -10,6 +10,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Verify environment on startup (Internal Log Only)
+if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.warn('⚠️ KIO-X Email Warning: SMTP environment variables are incomplete. Custom notifications will fail.');
+}
+
 const KIOX_GREEN = '#22c55e';
 const KIOX_BLACK = '#080808';
 const KIOX_CARD = '#111111';

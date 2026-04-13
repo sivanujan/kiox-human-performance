@@ -17,6 +17,7 @@ import {
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const anton = Anton({ weight: '400', subsets: ['latin'] });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
@@ -29,10 +30,33 @@ interface UserProfileModalProps {
 
 export default function UserProfileModal({ isOpen, onClose, user_profile }: UserProfileModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user_profile?.avatar_url || "");
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (user_profile) setAvatarUrl(user_profile.avatar_url || "");
+  }, [user_profile]);
+
+  const handleAvatarChange = async (url: string) => {
+    setAvatarUrl(url);
+    setUpdating(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user_profile.id, avatar_url: url })
+      });
+      if (!res.ok) throw new Error("Update failed");
+      
+      // Trigger a refresh of the users list
+      window.dispatchEvent(new CustomEvent('refresh-users'));
+    } catch (err) {
+      alert("Failed to update profile image.");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   if (!mounted || !user_profile) return null;
 
@@ -82,12 +106,19 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
                  <X size={24} />
                </button>
 
-               <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-3xl bg-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center text-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                     {user_profile.role === 'superadmin' ? <ShieldCheck size={32} /> : 
-                      user_profile.role === 'staff' ? <Trophy size={32} /> : <UserIcon size={32} />}
-                  </div>
-                  <div>
+                <div className="flex items-center gap-6">
+                   <div className="relative">
+                      <ImageUpload 
+                        onUpload={handleAvatarChange}
+                        initialUrl={avatarUrl}
+                      />
+                      {updating && (
+                        <div className="absolute inset-x-0 -bottom-2 flex justify-center">
+                          <Loader2 size={12} className="animate-spin text-[#22c55e]" />
+                        </div>
+                      )}
+                   </div>
+                   <div>
                     <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
                       Elite Identity Verified
                     </div>
