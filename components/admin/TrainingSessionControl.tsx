@@ -21,9 +21,10 @@ interface TrainingSessionControlProps {
   onViewDetails: (session: TrainingSession) => void;
   onAdjustLoad: () => void;
   onCreate: () => void;
+  isSuperAdmin?: boolean;
 }
 
-export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, onCreate }: TrainingSessionControlProps) {
+export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, onCreate, isSuperAdmin = false }: TrainingSessionControlProps) {
   const { sessions, loading, fetchSessions, updateSessionStatus } = useSessions();
 
   useEffect(() => {
@@ -135,20 +136,29 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
-        <button 
-          onClick={onAdjustLoad}
-          className="bg-transparent border-2 border-white/10 text-white/40 py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white/5 hover:text-white hover:border-white transition-all uppercase flex items-center justify-center gap-3"
-        >
-          ADJUST TRAINING LOAD <ArrowRight size={16} />
-        </button>
-        <button 
-          onClick={onCreate}
-          className="bg-[#22c55e] text-black py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl"
-        >
-          VIEW SESSION DETAILS <ArrowRight size={16} />
-        </button>
-      </div>
+      {isSuperAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+          <button 
+            onClick={onAdjustLoad}
+            className="bg-transparent border-2 border-white/10 text-white/40 py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white/5 hover:text-white hover:border-white transition-all uppercase flex items-center justify-center gap-3"
+          >
+            ADJUST TRAINING LOAD <ArrowRight size={16} />
+          </button>
+          <button 
+            onClick={onCreate}
+            className="bg-[#22c55e] text-black py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl"
+          >
+            CREATE NEW SESSION <ArrowRight size={16} />
+          </button>
+        </div>
+      )}
+      {!isSuperAdmin && (
+        <div className="relative z-10 pt-4 border-t border-white/5">
+           <p className="text-white/20 text-[9px] font-black uppercase tracking-[3px] text-center italic">
+              Administrative Control Locked // Superadmin Clearance Required for Session Modification
+           </p>
+        </div>
+      )}
     </div>
   );
 }

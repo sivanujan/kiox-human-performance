@@ -23,6 +23,7 @@ import {
 import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
+import InviteStaffModal from "@/components/modals/InviteStaffModal";
 import UserProfileModal from "@/components/modals/UserProfileModal";
 import Avatar from "@/components/ui/Avatar";
 
@@ -38,11 +39,13 @@ export default function UserInventory() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [teams, setTeams] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [programs, setPrograms] = useState<any[]>([]);
   const [selectedAthlete, setSelectedAthlete] = useState<any | null>(null);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedViewProfile, setSelectedViewProfile] = useState<any | null>(null);
@@ -57,12 +60,16 @@ export default function UserInventory() {
     if (!authLoading) {
       if (user && profile?.role === 'superadmin') {
         fetchProfiles();
+        fetchTeams();
       } else if (!user || profile) {
         setLoading(false);
       }
     }
 
-    const handleRefresh = () => fetchProfiles();
+    const handleRefresh = () => {
+        fetchProfiles();
+        fetchTeams();
+    };
     window.addEventListener('refresh-users', handleRefresh);
     return () => window.removeEventListener('refresh-users', handleRefresh);
   }, [user, profile, authLoading]);
@@ -78,6 +85,31 @@ export default function UserInventory() {
     if (!progData.error) setPrograms(progData);
     
     setLoading(false);
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const res = await fetch("/api/admin/teams");
+      const data = await res.json();
+      if (!data.error) setTeams(data);
+    } catch (err) {
+      console.error("Failed to fetch teams:", err);
+    }
+  };
+
+  const handleResetPassword = async (userId: string) => {
+    const res = await fetch("/api/admin/staff/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId })
+    });
+    
+    if (res.ok) {
+      alert("Password reset email sent to tactical agent.");
+    } else {
+      const err = await res.json();
+      alert(`Reset Failed: ${err.error}`);
+    }
   };
 
   const handleAssignProgram = async () => {
@@ -176,12 +208,21 @@ export default function UserInventory() {
     <div className="space-y-8">
       {/* Header & Controls */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-white/5">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="text-[#22c55e]" size={16} />
-            <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Global Registry Management</span>
-          </div>
-          <h1 className={`${anton.className} text-5xl text-white uppercase tracking-wider`}>User Inventory</h1>
+        <div className="flex items-end justify-between w-full lg:w-auto gap-12">
+            <div>
+                <div className="flex items-center gap-2 mb-2">
+                    <Users className="text-[#22c55e]" size={16} />
+                    <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Global Registry Management</span>
+                </div>
+                <h1 className={`${anton.className} text-5xl text-white uppercase tracking-wider`}>User Inventory</h1>
+            </div>
+            
+            <button 
+                onClick={() => setIsInviteModalOpen(true)}
+                className="hidden lg:flex items-center gap-2 px-8 py-4 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+            >
+                <Zap size={14} /> Invite Tactical Agent
+            </button>
         </div>
         
         <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
@@ -207,122 +248,166 @@ export default function UserInventory() {
         </div>
       </div>
 
+      <button 
+        onClick={() => setIsInviteModalOpen(true)}
+        className="lg:hidden w-full flex items-center justify-center gap-2 px-8 py-5 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all"
+      >
+        <Zap size={14} /> Invite Tactical Agent
+      </button>
+
       {/* Table Management View */}
-      <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden overflow-x-auto relative shadow-2xl">
-        <table className="w-full text-left border-collapse min-w-[1000px]">
-          <thead>
-            <tr className="bg-[#22c55e]/[0.03] border-b border-[#22c55e]/10">
-              <th className={`px-8 py-5 ${anton.className} text-[#444] text-[10px] tracking-[0.25em] uppercase`}>ATHLETE IDENTITY</th>
-              <th className={`px-6 py-5 ${anton.className} text-[#444] text-[10px] tracking-[0.25em] uppercase`}>ENTERPRISE ROLE</th>
-              <th className={`px-6 py-5 ${anton.className} text-[#444] text-[10px] tracking-[0.25em] uppercase`}>SYSTEM STATUS</th>
-              <th className={`px-8 py-5 ${anton.className} text-[#444] text-[10px] tracking-[0.25em] uppercase text-right`}>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#22c55e]/5">
-            <AnimatePresence>
-              {filteredProfiles.map((user_profile, i) => (
-                <motion.tr 
-                  key={user_profile.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="transition-colors hover:bg-white/[0.01] group"
-                >
-                  {/* Athlete Identity */}
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                         <Avatar 
-                           src={user_profile.avatar_url}
-                           name={`${user_profile.first_name} ${user_profile.last_name}`}
-                           role={user_profile.role}
-                           size="md"
-                         />
-                         {updatingId === user_profile.id && (
-                           <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                             <Loader2 size={12} className="animate-spin text-[#22c55e]" />
-                           </div>
-                         )}
+      <div className="bg-[#111] border border-white/10 rounded-3xl overflow-hidden relative shadow-2xl">
+        <div className="overflow-x-auto scrollbar-hide">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
+            <thead>
+              <tr className="bg-[#22c55e]/[0.03] border-b border-[#22c55e]/10">
+                <th className={`px-6 py-5 ${anton.className} text-[#444] text-[9px] tracking-[0.25em] uppercase w-[25%]`}>ATHLETE IDENTITY</th>
+                <th className={`px-4 py-5 ${anton.className} text-[#444] text-[9px] tracking-[0.25em] uppercase text-center`}>GOVERNANCE</th>
+                <th className={`px-4 py-5 ${anton.className} text-[#444] text-[9px] tracking-[0.25em] uppercase text-center`}>ASSIGNED UNIT</th>
+                <th className={`px-4 py-5 ${anton.className} text-[#444] text-[9px] tracking-[0.25em] uppercase text-center`}>SYSTEM STATUS</th>
+                <th className={`px-6 py-5 ${anton.className} text-[#444] text-[9px] tracking-[0.25em] uppercase text-right w-[20%]`}>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#22c55e]/5">
+              <AnimatePresence>
+                {filteredProfiles.map((user_profile, i) => (
+                  <motion.tr 
+                    key={user_profile.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="transition-colors hover:bg-white/[0.01] group"
+                  >
+                    {/* Athlete Identity */}
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex-shrink-0">
+                           <Avatar 
+                             src={user_profile.avatar_url}
+                             name={`${user_profile.first_name} ${user_profile.last_name}`}
+                             role={user_profile.role}
+                             size="md"
+                           />
+                           {updatingId === user_profile.id && (
+                             <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                               <Loader2 size={12} className="animate-spin text-[#22c55e]" />
+                             </div>
+                           )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-white uppercase tracking-wide group-hover:text-[#22c55e] transition-colors truncate">{user_profile.first_name} {user_profile.last_name}</p>
+                          <p className="text-[9px] font-black text-white/30 uppercase tracking-[2px] truncate">@{user_profile.username || 'not_set'}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-white uppercase tracking-wide group-hover:text-[#22c55e] transition-colors">{user_profile.first_name} {user_profile.last_name}</p>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-[2px]">@{user_profile.username || 'not_set'}</p>
+                    </td>
+
+                    {/* Enterprise Role toggles */}
+                    <td className="px-4 py-5">
+                      <div className="flex justify-center flex-wrap gap-1">
+                        {ROLES.map(role => (
+                          <button 
+                            key={role}
+                            onClick={() => handleUpdate(user_profile.id, { role })}
+                            className={`px-2 py-1 text-[7px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.role === role ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-black/20 text-white/40 border-white/5 hover:border-[#22c55e]/30'}`}
+                          >
+                            {role}
+                          </button>
+                        ))}
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Enterprise Role toggles */}
-                  <td className="px-6 py-5">
-                    <div className="flex gap-1.5">
-                      {ROLES.map(role => (
-                        <button 
-                          key={role}
-                          onClick={() => handleUpdate(user_profile.id, { role })}
-                          className={`px-3 py-1.5 text-[8px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.role === role ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-black/20 text-white/40 border-white/5 hover:border-[#22c55e]/30'}`}
-                        >
-                          {role}
-                        </button>
-                      ))}
-                    </div>
-                  </td>
+                    {/* Team/Unit Column */}
+                    <td className="px-4 py-5">
+                      <div className="flex justify-center">
+                          <select
+                              value={user_profile.team_id || ""}
+                              onChange={(e) => handleUpdate(user_profile.id, { team_id: e.target.value === "" ? null : e.target.value })}
+                              className="bg-black/40 border border-white/5 rounded-lg px-3 py-1.5 text-[7px] font-black text-white/40 uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all cursor-pointer w-full max-w-[120px]"
+                          >
+                              <option value="">NO_UNIT</option>
+                              {teams.map(t => (
+                                  <option key={t.id} value={t.id}>{t.name}</option>
+                              ))}
+                          </select>
+                      </div>
+                    </td>
 
-                  {/* System Status toggles */}
-                  <td className="px-6 py-5">
-                    <div className="flex gap-1.5 overflow-x-auto">
-                      {STATUSES.map(status => (
-                        <button 
-                          key={status}
-                          onClick={() => handleUpdate(user_profile.id, { status })}
-                          className={`px-3 py-1.5 text-[8px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.status === status ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-black/20 text-white/40 border-white/5 hover:border-[#22c55e]/30'}`}
-                        >
-                          {status}
-                        </button>
-                      ))}
-                    </div>
-                  </td>
+                    {/* System Status toggles */}
+                    <td className="px-4 py-5">
+                      <div className="flex justify-center flex-wrap gap-1">
+                        {STATUSES.map(status => (
+                          <button 
+                            key={status}
+                            onClick={() => handleUpdate(user_profile.id, { status })}
+                            className={`px-2 py-1 text-[7px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.status === status ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-black/20 text-white/40 border-white/5 hover:border-[#22c55e]/30'}`}
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
 
-                  {/* Actions column */}
-                  <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button 
-                        onClick={() => {
-                          setSelectedViewProfile(user_profile);
-                          setIsViewModalOpen(true);
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white/40 text-[9px] font-black uppercase tracking-[2px] hover:bg-white hover:text-black transition-all"
-                      >
-                        <ExternalLink size={14} /> View Profile
-                      </button>
-
-                      <button 
-                        onClick={() => handleVerifyEmail(user_profile.id)}
-                        className="inline-flex items-center gap-2 px-4 py-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-blue-500/60 text-[9px] font-black uppercase tracking-[2px] hover:bg-blue-500 hover:text-black transition-all"
-                        title="Manual Email Verification Override"
-                      >
-                        <ShieldCheck size={14} /> Verify Email
-                      </button>
-
-                      {user_profile.role === 'athlete' ? (
+                    {/* Actions column */}
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => {
-                            setSelectedAthlete(user_profile);
-                            setIsActionModalOpen(true);
+                            setSelectedViewProfile(user_profile);
+                            setIsViewModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-3 bg-[#22c55e]/5 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[9px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all"
+                          className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:bg-white hover:text-black transition-all"
+                          title="View Profile"
                         >
-                          <Layers size={14} /> Protocol
+                          <ExternalLink size={14} />
                         </button>
-                      ) : (
-                        <span className="text-[8px] font-black text-white/10 uppercase tracking-[2px] min-w-[80px] text-center">System {user_profile.role}</span>
-                      )}
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
-          </tbody>
-        </table>
+
+                        <button 
+                          onClick={() => handleVerifyEmail(user_profile.id)}
+                          className="p-2.5 bg-blue-500/5 border border-blue-500/20 rounded-xl text-blue-500/60 hover:bg-blue-500 hover:text-black transition-all"
+                          title="Verify Email"
+                        >
+                          <ShieldCheck size={14} />
+                        </button>
+
+                        {user_profile.role === 'staff' && (
+                          <button 
+                            onClick={() => handleResetPassword(user_profile.id)}
+                            className="p-2.5 bg-red-400/5 border border-red-400/20 rounded-xl text-red-400/60 hover:bg-red-400 hover:text-black transition-all"
+                            title="Reset Password"
+                          >
+                            <Zap size={14} />
+                          </button>
+                        )}
+
+                        {user_profile.role === 'athlete' ? (
+                          <button 
+                            onClick={() => {
+                              setSelectedAthlete(user_profile);
+                              setIsActionModalOpen(true);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 bg-[#22c55e]/5 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[8px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all"
+                          >
+                            <Layers size={14} /> <span>PROTO</span>
+                          </button>
+                        ) : (
+                          <div className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white/20 text-[7px] font-black uppercase tracking-[2px] text-center min-w-[70px]">SYSTEM OPS</div>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Invite Modal */}
+      <InviteStaffModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onSuccess={() => fetchProfiles()}
+      />
 
       {/* Action Modal */}
       <AnimatePresence>

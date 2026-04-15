@@ -264,6 +264,43 @@ export default function AdminDashboard() {
       <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
       {/* ========================
+          TACTICAL HEADQUARTERS SHORTCUTS
+          ======================== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+        <Link 
+          href="/admin/users"
+          className="bg-[#111] border border-[#22c55e]/10 rounded-[28px] p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl"
+        >
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform">
+              <UsersIcon size={28} />
+            </div>
+            <div>
+              <div className="text-[#22c55e] text-[9px] font-black uppercase tracking-[4px] mb-1">Squad Database</div>
+              <div className={`${anton.className} text-xl text-white uppercase tracking-widest`}>Global Registry Management</div>
+              <div className="text-white/20 text-[10px] uppercase font-bold tracking-[2px] mt-1">Invite Staff // Verify Athletes</div>
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:bg-[#22c55e] group-hover:text-black transition-all">
+            <ArrowRight size={20} />
+          </div>
+        </Link>
+
+        <div className="bg-[#111] border border-white/5 rounded-[28px] p-8 flex items-center justify-between opacity-50 cursor-not-allowed">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/10">
+              <Plus size={28} />
+            </div>
+            <div>
+              <div className="text-white/20 text-[9px] font-black uppercase tracking-[4px] mb-1">Asset Control</div>
+              <div className={`${anton.className} text-xl text-white/40 uppercase tracking-widest`}>Equipment Inventory</div>
+              <div className="text-white/10 text-[10px] uppercase font-bold tracking-[2px] mt-1">Coming Soon // Tactical Gear</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================
           TEAM OVERVIEW CARDS
           ======================== */}
       <SwipeableCards cards={[

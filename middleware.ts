@@ -82,6 +82,17 @@ export async function middleware(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   if (isAuthPath && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role === 'superadmin') {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    } else if (profile?.role === 'staff') {
+      return NextResponse.redirect(new URL('/staff', request.url));
+    }
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -98,7 +109,8 @@ export async function middleware(request: NextRequest) {
         .single();
 
       if (isDashboardPath) {
-        if (!profile || !isProfileComplete(profile)) {
+        // Only enforce profile completion for athletes. Staff/Admins bypass this flow.
+        if (profile?.role === 'athlete' && !isProfileComplete(profile)) {
           return NextResponse.redirect(new URL('/register', request.url));
         }
       }

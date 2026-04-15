@@ -76,28 +76,35 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
+    setErrorMsg("");
     console.log("INITIALIZING CREDENTIAL SECURING PROTOCOL...");
 
     try {
-      // Isolate the update call to prevent auth-token locking conflicts
-      const { data, error } = await supabase.auth.updateUser({ password });
+      // Use the mission-stable server-side credential terminal
+      const response = await fetch("/api/auth/set-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password })
+      });
 
-      if (error) {
-        console.error("CREDENTIAL UPDATE FAILURE:", error.message);
-        setErrorMsg(error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("CREDENTIAL PROVISIONING FAILURE:", result.error);
+        setErrorMsg(result.error || "Tactical synchronization failed.");
         setLoading(false);
       } else {
-        console.log("CREDENTIAL UPDATE SUCCESSFUL:", data);
+        console.log("CREDENTIAL PROVISIONING SUCCESSFUL");
         setSuccessMsg("Shield Established. Password updated successfully.");
         
-        // Force state cleanup and redirect
+        // 3. Force state cleanup and redirect
         setTimeout(() => {
-          router.push("/signin?message=Password updated. Please sign in with your new credentials.");
-        }, 2500);
+          router.push("/signin?message=Credentials established. Please sign in with your new identity.");
+        }, 2200);
       }
     } catch (err: any) {
-      console.error("CRITICAL SIGN-OUT PROTOCOL ERROR:", err);
-      setErrorMsg(err.message || "A clinical error occurred during encryption.");
+      console.error("CRITICAL PROVISIONING EXCEPTION:", err);
+      setErrorMsg("Interference detected in credential tunnel. Please refresh and try again.");
       setLoading(false);
     }
   };

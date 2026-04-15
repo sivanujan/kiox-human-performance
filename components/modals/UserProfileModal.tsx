@@ -12,7 +12,8 @@ import {
   Fingerprint, 
   Mail, 
   MapPin,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { createPortal } from "react-dom";

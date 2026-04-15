@@ -97,8 +97,8 @@ export default function CommandStaff() {
                   </div>
 
                   <div className="flex justify-between items-start mb-8 relative z-10">
-                    <div className="w-14 h-14 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center">
-                      {member.role === 'superadmin' ? <ShieldCheck className="text-[#22c55e]" size={24} /> : <Trophy className="text-[#22c55e]" size={24} />}
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-['Anton'] text-[#22c55e]">
+                      {member.first_name ? member.first_name[0].toUpperCase() : 'S'}
                     </div>
                     <div className="text-right">
                       <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-[8px] font-black uppercase tracking-widest rounded-full">{member.role}</span>

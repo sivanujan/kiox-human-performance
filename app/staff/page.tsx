@@ -1,161 +1,426 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { 
-  Users, 
+  Users as UsersIcon, 
   Activity, 
-  Trophy, 
-  Calendar, 
-  ExternalLink, 
+  Search,
+  Plus,
+  ArrowRight, 
   Loader2,
-  Dumbbell,
-  Settings,
-  LogOut
+  Zap,
+  Calendar as CalendarIcon,
+  AlertTriangle,
+  Clipboard,
+  MessageSquare,
+  ShieldAlert,
+  Target,
+  LogOut,
+  Settings
 } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
+import { Anton, Orbitron } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
+
+// Dashboard Components
+import SwipeableCards from "@/components/dashboard/SwipeableCards";
+import ProgressBar from "@/components/dashboard/ProgressBar";
+
+// Management Modals
+import TrainingPlanModal from "@/components/modals/TrainingPlanModal";
+import InjuryLogModal from "@/components/modals/InjuryLogModal";
+import SurveyAssignModal from "@/components/modals/SurveyAssignModal";
+import VideoFeedbackModal from "@/components/modals/VideoFeedbackModal";
+import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedModal";
+import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
+
+// Admin UI Components
+import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
+import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
+import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
+import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
+import AthleteRoster from "@/components/admin/AthleteRoster";
+
+// Operational Modals
+import CreateSessionModal from "@/components/modals/CreateSessionModal";
+import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
+import AdjustLoadModal from "@/components/modals/AdjustLoadModal";
 
 const anton = Anton({ 
   weight: '400',
   subsets: ['latin'] 
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin']
-});
+const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function StaffPortal() {
   const { user, profile, loading: authLoading, signOut, supabase } = useAuth();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [athletes, setAthletes] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [todaySessions, setTodaySessions] = useState<any[]>([]);
+  const [staffNotes, setStaffNotes] = useState<any[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [selectedAthlete, setSelectedAthlete] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Management Modal States
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isInjuryModalOpen, setIsInjuryModalOpen] = useState(false);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
+  
+  // Operational State
+  const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isAdjustLoadOpen, setIsAdjustLoadOpen] = useState(false);
+  const [activeSession, setActiveSession] = useState<any>(null);
+
   const router = useRouter();
 
   useEffect(() => {
+    setIsHydrated(true);
     if (!authLoading) {
-      if (!user) {
-        router.push("/signin");
-      } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin') {
-        router.push("/dashboard");
-      } else {
-        fetchAssignedAthletes(user.id);
-      }
+        if (!user) {
+            router.push("/signin");
+        } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin') {
+            router.push("/dashboard");
+        } else {
+            fetchAdminData();
+        }
     }
-  }, [user, profile, authLoading, router]);
+  }, [user, profile, authLoading]);
 
-  const fetchAssignedAthletes = async (staffId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("assigned_staff", staffId)
-      .eq("role", "athlete");
-    
-    if (data) setAthletes(data);
-    setLoading(false);
+  const fetchAdminData = async () => {
+    setLoading(true);
+    try {
+      const [athRes, alrtRes, noteRes] = await Promise.all([
+        fetch('/api/admin/athletes'),
+        fetch('/api/admin/alerts'),
+        fetch('/api/admin/notes')
+      ]);
+
+      const [athData, alrtData, noteData] = await Promise.all([
+        athRes.json(),
+        alrtRes.json(),
+        noteRes.json()
+      ]);
+
+      if (!athData.error) setAthletes(athData);
+      if (!alrtData.error) setAlerts(alrtData);
+      if (!noteData.error) setStaffNotes(noteData);
+
+      // Dummy sessions for design
+      setTodaySessions([
+        { name: 'Elite Tactical Phase', time: '09:00', type: 'training' },
+        { name: 'Recovery Matrix Alpha', time: '14:30', type: 'recovery' },
+        { name: 'Strength Evolution', time: '17:00', type: 'gym' }
+      ]);
+    } catch (error) {
+      console.error("Staff Matrix Sync Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
+  const handleAddNote = async () => {
+    if (!newNote || !selectedAthlete) return;
+    
+    try {
+      const res = await fetch('/api/admin/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: selectedAthlete, note: newNote })
+      });
+      if (res.ok) {
+        setNewNote("");
+        fetchAdminData();
+      }
+    } catch (err) {
+      console.error("Failed to add note:", err);
+    }
+  };
+
+  const handleSignOut = async () => {
+     await signOut();
+  };
+
+  if (!isHydrated || loading || authLoading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
-        <Loader2 className="text-[#22c55e] animate-spin" size={48} />
+      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-6">
+        <div className="relative">
+          <div className="w-20 h-20 rounded-full border-2 border-[#22c55e]/10 animate-ping absolute inset-0" />
+          <div className="w-20 h-20 rounded-full border-t-2 border-[#22c55e] animate-spin" />
+        </div>
+        <div className="text-[10px] font-black text-[#22c55e] uppercase tracking-[0.5em] animate-pulse">
+          Syncing Operational Matrix...
+        </div>
       </div>
     );
   }
 
-  const handleSignOut = async () => {
-    await signOut();
+  const teamStats = {
+    total: athletes.length,
+    pending: athletes.filter(a => a.status === 'pending').length,
+    active: athletes.filter(a => a.status === 'active' || a.status === 'approved').length,
+    trainingToday: todaySessions.length,
+    highFatigue: athletes.filter(a => a.training_status === 'monitor').length,
+    injuryAlerts: alerts.length
   };
 
   return (
-    <main className="min-h-screen bg-[#080808] pt-[120px] pb-20 px-6 relative overflow-hidden text-white font-sans">
-      {/* Navigation Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 h-[80px]">
-        <div className="container mx-auto h-full flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-             <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-display text-sm">
-                {profile?.first_name?.[0] || 'S'}
-             </div>
-             <div>
-               <div className="text-[#22c55e] text-[8px] font-bold tracking-[3px] uppercase">Staff Access</div>
-               <div className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>{profile?.first_name} {profile?.last_name}</div>
-             </div>
-          </div>
+    <div className="min-h-screen bg-[#080808] text-white">
+      {/* ========================
+          NAVIGATION HEADER
+          ======================== */}
+      {/* Main Staff Portal Container */}
+      <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-10 relative">
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
-          <div className="flex items-center gap-3">
-             <button 
-               onClick={() => router.push("/staff/settings")}
-               className="p-3 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-[#22c55e] hover:border-[#22c55e]/30 transition-all group"
-               title="Settings"
-             >
-                <Settings size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-             </button>
-             <button 
-               onClick={handleSignOut}
-               className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/40 uppercase tracking-[2px] flex items-center gap-2 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-all"
-             >
-                <LogOut size={14} /> Exit
-             </button>
-          </div>
-        </div>
-      </div>
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-
-      <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="mb-12 border-b border-white/5 pb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <Trophy className="text-[#22c55e]" size={16} />
-            <span className="text-[10px] font-bold text-[#22c55e] uppercase tracking-[4px]">Elite Performance Staff</span>
-          </div>
-          <h1 className={`${plusJakarta.className} text-5xl md:text-7xl font-bold uppercase tracking-wider`}>Athlete Roster</h1>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {athletes.length === 0 ? (
-            <div className="col-span-full py-20 text-center bg-[#111] border border-white/5 rounded-3xl">
-              <p className="text-[10px] font-bold text-white/20 uppercase tracking-[3px]">No active athlete assignments detected</p>
+        {/* ========================
+            STAFF HEADER
+            ======================== */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-['Anton'] text-[#22c55e]">
+              {profile?.first_name ? profile.first_name[0].toUpperCase() : 'C'}
             </div>
-          ) : (
-            athletes.map((athlete, i) => (
-              <motion.div 
-                key={athlete.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-[#111] border border-white/10 p-8 rounded-3xl hover:border-[#22c55e]/30 transition-all group pointer-events-auto"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <Activity className="text-[#22c55e]" size={20} />
-                  </div>
-                  <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-[8px] font-black uppercase tracking-widest rounded-full">{athlete.status}</span>
+            <div>
+              <div className="text-[#22c55e] text-[10px] tracking-[0.3em] font-['Anton'] uppercase">
+                Staff Command // Tactical Obersight
+              </div>
+              <div className="text-white font-['Anton'] text-2xl tracking-wider">
+                {profile?.role === 'staff' ? 'COACH' : 'ADMIN'} {profile?.last_name?.toUpperCase() || 'AGENT'}
+              </div>
+              <div className="text-white/20 text-[11px] uppercase tracking-widest font-bold">
+                {profile?.role === 'staff' ? 'Performance Admin' : 'Super Operations Command'} // KIO-X FORCE
+              </div>
+            </div>
+          </div>
+
+          <div className="relative w-full md:w-[320px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <input
+              placeholder="SEARCH SQUAD DATA..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-4 pl-12 pr-4 text-white text-xs font-['Anton'] tracking-widest focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-white/10"
+            />
+          </div>
+        </div>
+
+        {/* ========================
+            INDIVIDUAL MANAGEMENT SECTION
+            ======================== */}
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-10 opacity-5 font-['Anton'] text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COACH</div>
+           
+           <div className="relative z-10 max-w-2xl">
+              <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-6 flex items-center gap-3">
+                 <Target size={18} /> SQUAD MANAGEMENT CORE
+              </div>
+
+              <div className="space-y-8">
+                <div className="space-y-3">
+                   <label className="text-white/40 text-[11px] font-black uppercase tracking-[4px] ml-1">ATHLETE IDENTIFICATION</label>
+                   <select
+                    value={selectedAthlete}
+                    onChange={(e) => setSelectedAthlete(e.target.value)}
+                    className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-['Anton'] uppercase tracking-[3px] focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
+                   >
+                    <option value="">SELECT PLAYER...</option>
+                    {athletes.map(a => (
+                      <option key={a.id} value={a.id} className="bg-[#111]">{a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]</option>
+                    ))}
+                   </select>
                 </div>
 
-                <h3 className="text-xl font-bold uppercase tracking-widest mb-2">{athlete.first_name} {athlete.last_name}</h3>
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[1px] mb-6">Position: {athlete.position_played}</p>
+                <AnimatePresence>
+                  {selectedAthlete && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6"
+                    >
+                      {[
+                        { label: 'PLAN_UPDATE', icon: <Clipboard size={22} />, action: () => setIsPlanModalOpen(true) },
+                        { label: 'LOG_INJURY', icon: <ShieldAlert size={22} />, action: () => setIsInjuryModalOpen(true) },
+                        { label: 'SURVEY_SEND', icon: <Activity size={22} />, action: () => setIsSurveyModalOpen(true) },
+                        { label: 'CLIP_UPLOAD', icon: <Plus size={22} />, action: () => setIsVideoModalOpen(true) },
+                      ].map((btn, i) => (
+                        <button 
+                          key={i} 
+                          onClick={btn.action}
+                          className="flex flex-col items-center gap-4 bg-white/[0.03] border border-white/10 p-6 rounded-[24px] hover:bg-[#22c55e]/15 hover:border-[#22c55e]/50 hover:shadow-[0_10px_30px_rgba(34,197,94,0.15)] transition-all text-[#22c55e] group/btn shadow-lg"
+                        >
+                          <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
+                          <span className="text-[11px] font-['Anton'] tracking-[3px] text-white/70 group-hover/btn:text-white transition-colors">{btn.label}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+           </div>
+        </div>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-3 text-white/60">
-                    <Dumbbell size={14} className="text-[#22c55e]" />
-                    <span className="text-[9px] font-black uppercase tracking-[1px]">Assigning: Speed Matrix α</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/60">
-                    <Calendar size={14} className="text-[#22c55e]" />
-                    <span className="text-[9px] font-black uppercase tracking-[1px]">Next Session: TBA</span>
-                  </div>
+        <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
+
+        {/* ========================
+            TEAM OVERVIEW CARDS
+            ======================== */}
+        <SwipeableCards cards={[
+          { label: 'ASSIGNED SQUAD', value: teamStats.total, icon: '👥', color: '#22c55e' },
+          { label: 'PENDING TASKS', value: teamStats.pending, icon: '🔐', color: '#f59e0b' },
+          { label: 'ACTIVE UNIT', value: teamStats.active, icon: '✅', color: '#22c55e' },
+        ]} />
+
+        {/* HIGHER-FIDELITY ATHLETE ROSTER */}
+        <AthleteRoster 
+          onSelectAthlete={(id) => { setSelectedAthlete(id); setIsPlanModalOpen(true); }}
+          onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
+          onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
+          onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+          <TrainingSessionControl 
+            onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
+            onAdjustLoad={() => setIsAdjustLoadOpen(true)}
+            onCreate={() => setIsCreateSessionOpen(true)}
+            isSuperAdmin={profile?.role === 'superadmin'}
+          />
+
+          <div className="space-y-8">
+            <LiveTrainingMonitor />
+            <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
+          </div>
+        </div>
+
+        {/* FOOTER SECTION: WELLNESS + STAFF NOTES */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10 relative z-10">
+          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl">
+             <div className="flex justify-between items-center mb-8">
+                <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+                   <Activity size={18} /> SQUAD WELLNESS STATUS
                 </div>
+                <div className="text-[#22c55e] font-['Anton'] text-xl tracking-widest">79% OPS READY</div>
+             </div>
+             <ProgressBar value={79} height={8} />
+             <div className="mt-8 space-y-4">
+                {[
+                  { label: 'SLEEP ANOMALIES', count: 3, icon: '😴', color: '#f59e0b' },
+                  { label: 'EXTREME SORENESS', count: 2, icon: '🩹', color: '#ef4444' },
+                  { label: 'NEUTRAL MOOD', count: 1, icon: '😐', color: '#8b5cf6' },
+                ].map((issue, i) => (
+                  <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
+                    <div className="flex items-center gap-3 text-white/30 text-xs font-bold uppercase tracking-wider group-hover:text-white transition-colors">
+                      <span className="text-lg">{issue.icon}</span> {issue.label}
+                    </div>
+                    <div className="px-3 py-1 bg-black/40 text-[11px] font-['Anton'] tracking-widest rounded-full" style={{ color: issue.color }}>
+                      {issue.count} SUBJECTS
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
 
+          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl flex flex-col">
+             <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-8 flex items-center gap-3">
+                <MessageSquare size={18} /> STAFF PROTOCOL LOGS
+             </div>
+             <div className="flex-1 space-y-4 mb-8 max-h-[250px] overflow-y-auto pr-2 scrollbar-hide">
+                {staffNotes.length === 0 ? (
+                  <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest">
+                    PROTOCOL LOG CLEAR // NO RECENT NOTES
+                  </div>
+                ) : (
+                  staffNotes.map((note, i) => (
+                    <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                      <p className="text-white/60 text-xs leading-relaxed italic">"{note.note}"</p>
+                      <div className="flex justify-between items-center mt-3">
+                         <span className="text-[#22c55e] text-[10px] font-['Anton'] tracking-wider uppercase opacity-50">{note.added_by?.first_name} {note.added_by?.last_name}</span>
+                         <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+             </div>
+             <div className="flex gap-2">
+                <input 
+                  placeholder="ADD STAFF PROTOCOL NOTE..."
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-bold uppercase placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]"
+                />
                 <button 
-                  onClick={() => router.push(`/athlete/${athlete.id}`)}
-                  className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all flex items-center justify-center gap-2"
+                  onClick={handleAddNote}
+                  className="bg-[#22c55e] text-black font-['Anton'] text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                 >
-                  Analyze Profile <ExternalLink size={14} />
+                  COMMIT
                 </button>
-              </motion.div>
-            ))
-          )}
+             </div>
+          </div>
         </div>
       </div>
-    </main>
+
+      {/* Management Modals */}
+      <TrainingPlanModal 
+        isOpen={isPlanModalOpen} 
+        onClose={() => setIsPlanModalOpen(false)} 
+        athleteId={selectedAthlete} 
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+      />
+      <InjuryLogModal 
+        isOpen={isInjuryModalOpen} 
+        onClose={() => setIsInjuryModalOpen(false)} 
+        athleteId={selectedAthlete} 
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+      />
+      <SurveyAssignModal 
+        isOpen={isSurveyModalOpen} 
+        onClose={() => setIsSurveyModalOpen(false)} 
+        athleteId={selectedAthlete} 
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+      />
+      <VideoFeedbackModal 
+        isOpen={isVideoModalOpen} 
+        onClose={() => setIsVideoModalOpen(false)} 
+        athleteId={selectedAthlete} 
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+      />
+      <TrainingLoadExpandedModal 
+        isOpen={isLoadModalOpen} 
+        onClose={() => setIsLoadModalOpen(false)} 
+        athletes={athletes} 
+      />
+      <ReviewAlertsModal 
+        isOpen={isAlertsModalOpen} 
+        onClose={() => setIsAlertsModalOpen(false)} 
+      />
+
+      <CreateSessionModal 
+        isOpen={isCreateSessionOpen}
+        onClose={() => setIsCreateSessionOpen(false)}
+        athletes={athletes}
+      />
+      <SessionDetailsModal 
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        session={activeSession}
+      />
+      <AdjustLoadModal 
+        isOpen={isAdjustLoadOpen}
+        onClose={() => setIsAdjustLoadOpen(false)}
+        sessions={[]} 
+        athletes={athletes}
+      />
+    </div>
   );
 }
