@@ -198,7 +198,7 @@ export default function StaffPortal() {
                 {profile?.role === 'staff' ? 'COACH' : 'ADMIN'} {profile?.last_name?.toUpperCase() || 'AGENT'}
               </div>
               <div className="text-white/20 text-[11px] uppercase tracking-widest font-bold">
-                {profile?.role === 'staff' ? 'Performance Admin' : 'Super Operations Command'} // KIO-X FORCE
+                {profile?.role === 'staff' ? 'Performance Staff' : 'Super Operations Command'} // KIO-X FORCE
               </div>
             </div>
           </div>

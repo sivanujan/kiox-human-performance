@@ -180,7 +180,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <div className="text-[#22c55e] text-[10px] tracking-[0.3em] font-['Anton'] uppercase">
-              Performance Admin // Roster Oversight
+              {profile?.role === 'superadmin' ? 'Performance Admin' : 'Performance Staff'} // Roster Oversight
             </div>
             <div className="text-white font-['Anton'] text-2xl tracking-wider">
               COACH {profile?.last_name?.toUpperCase() || 'OFFICER'}

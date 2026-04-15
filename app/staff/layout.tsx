@@ -118,7 +118,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="flex flex-col gap-1 items-center">
               <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[8px] font-black uppercase tracking-[2px]">
-                Performance Admin
+                {profile?.role === 'superadmin' ? 'Super Admin' : 'Performance Staff'}
               </div>
               <div className="text-white/30 text-[9px] font-bold uppercase tracking-[1px] mt-1">
                 {userTeam?.name || "Independent Ops"}
