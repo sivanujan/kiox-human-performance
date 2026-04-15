@@ -10,10 +10,11 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data, error } = await supabase
-    .from('notifications')
+    .from('athlete_notifications')
     .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+    .eq('athlete_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
@@ -27,15 +28,18 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { id, read } = await request.json();
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read })
-      .eq('id', id)
-      .eq('user_id', user.id);
+    const { notificationId, isRead } = await request.json();
+
+    const { data, error } = await supabase
+      .from('athlete_notifications')
+      .update({ is_read: isRead })
+      .eq('id', notificationId)
+      .eq('athlete_id', user.id)
+      .select()
+      .single();
 
     if (error) throw error;
-    return NextResponse.json({ success: true });
+    return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

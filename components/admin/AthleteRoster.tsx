@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, 
@@ -27,13 +28,17 @@ interface AthleteRosterProps {
   onLogSession: (id: string) => void;
   onLogInjury: (id: string) => void;
   onViewAnalytics: (id: string) => void;
+  onAssess: (id: string) => void;
+  externalSearchQuery?: string;
 }
 
 export default function AthleteRoster({ 
   onSelectAthlete, 
   onLogSession, 
   onLogInjury, 
-  onViewAnalytics 
+  onViewAnalytics,
+  onAssess,
+  externalSearchQuery = ""
 }: AthleteRosterProps) {
   const { 
     athletes, 
@@ -46,6 +51,13 @@ export default function AthleteRoster({
     sortBy,
     setSortBy
   } = useAthleteRoster();
+
+  // Sync with external search query if provided
+  useEffect(() => {
+    if (externalSearchQuery !== undefined) {
+      setSearchQuery(externalSearchQuery);
+    }
+  }, [externalSearchQuery, setSearchQuery]);
 
   const getStatusConfig = (status: AthleteStatus) => {
     switch (status) {
@@ -207,7 +219,8 @@ export default function AthleteRoster({
                       { icon: <UserIcon size={14} />, action: (e: any) => { e.stopPropagation(); onSelectAthlete(athlete.id); }, label: 'Profile' },
                       { icon: <Activity size={14} />, action: (e: any) => { e.stopPropagation(); onLogSession(athlete.id); }, label: 'Log Load' },
                       { icon: <Stethoscope size={14} />, action: (e: any) => { e.stopPropagation(); onLogInjury(athlete.id); }, label: 'Log Injury' },
-                      { icon: <BarChart3 size={14} />, action: (e: any) => { e.stopPropagation(); onViewAnalytics(athlete.id); }, label: 'Analytics' },
+                      { icon: <BarChart3 size={14} />, action: (e: any) => { e.stopPropagation(); onAssess(athlete.id); }, label: 'Assessment' },
+                      { icon: <Video size={14} />, action: (e: any) => { e.stopPropagation(); onViewAnalytics(athlete.id); }, label: 'Analytics' },
                     ].map((btn, idx) => (
                       <button
                         key={idx}

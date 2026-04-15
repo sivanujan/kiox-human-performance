@@ -14,7 +14,8 @@ import {
   Settings,
   Zap,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  Camera
 } from "lucide-react";
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import Image from "next/image";
@@ -28,6 +29,7 @@ const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
 const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'CONTROL CENTER', href: '/staff' },
+  { icon: <Zap size={18} />, label: 'OPERATIONAL BLUEPRINT', href: '/staff/blueprint' },
   { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },
 ];
 
@@ -104,12 +106,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                 ) : (
                   profile?.first_name?.[0] || 'C'
                 )}
+                {/* Upload Overlay - Admin Style */}
+                <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+                   <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
+                   <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
+                </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e]">
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e] z-20">
                 <ShieldCheck size={14} fill="currentColor" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_4px_10px_rgba(34,197,94,0.3)]">
-                <Zap size={12} fill="currentColor" />
               </div>
             </div>
             

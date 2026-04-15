@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2 } from "lucide-react";
 import { Anton } from "next/font/google";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 
@@ -18,9 +19,12 @@ interface SessionDetailsModalProps {
 
 export default function SessionDetailsModal({ isOpen, onClose, session }: SessionDetailsModalProps) {
   const { logSessionCompletion, updateSessionStatus, getSessionLoads, loading } = useSessions();
+  const { profile } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [athleteLogs, setAthleteLogs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"INFO" | "ROSTER">("INFO");
+
+  const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
 
   useEffect(() => {
     setMounted(true);
@@ -53,10 +57,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   if (!mounted || !isOpen || !session) return null;
 
   const handleUpdateLog = (athleteId: string, updates: any) => {
+    if (!isStaff) return;
     setAthleteLogs(prev => prev.map(l => l.athlete_id === athleteId ? { ...l, ...updates } : l));
   };
 
   const handleComplete = async () => {
+    if (!isStaff) return;
     const res = await logSessionCompletion(session.id, athleteLogs);
     if (res.success) {
       onClose();
@@ -99,9 +105,11 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 </div>
              </div>
              <div className="flex items-center gap-4">
-                <button className="p-5 rounded-full bg-white/5 text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all">
-                   <Trash2 size={24} />
-                </button>
+                {isStaff && (
+                  <button className="p-5 rounded-full bg-white/5 text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all">
+                    <Trash2 size={24} />
+                  </button>
+                )}
                 <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-white/30 hover:text-white transition-all">
                    <X size={28} />
                 </button>
@@ -149,7 +157,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       </div>
 
                       <div className="pt-12 flex gap-4">
-                         {session.status === 'SCHEDULED' && (
+                         {isStaff && session.status === 'SCHEDULED' && (
                            <button 
                              onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
                              className="flex-1 py-4 bg-[#22c55e] text-black font-['Anton'] text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
@@ -157,7 +165,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                               <Play size={18} fill="currentColor" /> MARK IN PROGRESS
                            </button>
                          )}
-                         {session.status === 'IN_PROGRESS' && (
+                         {isStaff && session.status === 'IN_PROGRESS' && (
                            <button 
                              onClick={() => setActiveTab('ROSTER')}
                              className="flex-1 py-4 bg-amber-500 text-black font-['Anton'] text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"

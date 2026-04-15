@@ -20,7 +20,8 @@ import {
   Trophy,
   Zap,
   Plus,
-  ArrowRight
+  ArrowRight,
+  Camera
 } from "lucide-react";
 import { Anton } from "next/font/google";
 import AddAthleteModal from "@/components/modals/AddAthleteModal";
@@ -161,7 +162,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               role="superadmin"
               size="xl"
             />
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_4px_10px_rgba(34,197,94,0.3)]">
+            {/* Upload Overlay - Admin Style */}
+            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+               <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
+               <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
+            </div>
+            
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black shadow-[0_4px_10px_rgba(34,197,94,0.3)] z-20">
                <Zap size={12} fill="currentColor" />
             </div>
           </div>

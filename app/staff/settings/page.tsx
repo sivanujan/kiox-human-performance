@@ -22,8 +22,8 @@ import {
 import { Anton, Plus_Jakarta_Sans, Orbitron } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import ImageUpload from "@/components/ui/ImageUpload";
+import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 
 const anton = Anton({ weight: '400', subsets: ['latin'] });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });

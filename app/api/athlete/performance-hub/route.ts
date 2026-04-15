@@ -10,7 +10,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Fetch all performance-related modules in parallel
-  const [planRes, injuryRes, surveyRes, videoRes] = await Promise.all([
+  const [planRes, injuryRes, surveyRes, videoRes, noteRes] = await Promise.all([
     supabase
       .from("athlete_training_plans")
       .select("*")
@@ -36,6 +36,12 @@ export async function GET() {
       .select("*")
       .eq("athlete_id", user.id)
       .order("uploaded_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("trainer_notes")
+      .select('*, added_by:profiles!trainer_notes_added_by_fkey(first_name, last_name)')
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
       .limit(5)
   ]);
 
@@ -43,6 +49,7 @@ export async function GET() {
     activePlan: planRes.data,
     activeInjuries: injuryRes.data || [],
     pendingSurveys: surveyRes.data || [],
-    videoFeedback: videoRes.data || []
+    videoFeedback: videoRes.data || [],
+    trainerNotes: noteRes.data || []
   });
 }

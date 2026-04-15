@@ -35,6 +35,7 @@ import SurveyAssignModal from "@/components/modals/SurveyAssignModal";
 import VideoFeedbackModal from "@/components/modals/VideoFeedbackModal";
 import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedModal";
 import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
+import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 
 // Admin UI Components
 import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
@@ -42,6 +43,7 @@ import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
 import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
+import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
 
 // Operational Modals
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
@@ -66,6 +68,14 @@ export default function StaffPortal() {
   const [newNote, setNewNote] = useState("");
   const [selectedAthlete, setSelectedAthlete] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [wellnessStats, setWellnessStats] = useState({
+    readyPercent: 0,
+    completionCount: 0,
+    sleepAnomalies: 0,
+    extremeSoreness: 0,
+    hydrationFlags: 0
+  });
 
   // Management Modal States
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
@@ -74,6 +84,7 @@ export default function StaffPortal() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
+  const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
   
   // Operational State
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
@@ -99,28 +110,54 @@ export default function StaffPortal() {
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      const [athRes, alrtRes, noteRes] = await Promise.all([
+      const today = new Date().toISOString().split('T')[0];
+      
+      const [athRes, alrtRes, noteRes, wellRes, sessionRes] = await Promise.all([
         fetch('/api/admin/athletes'),
         fetch('/api/admin/alerts'),
-        fetch('/api/admin/notes')
+        fetch('/api/admin/notes'),
+        fetch('/api/admin/team/wellness-summary'),
+        supabase
+          .from('training_sessions')
+          .select('*')
+          .eq('scheduled_date', today)
+          .order('scheduled_time', { ascending: true })
       ]);
 
-      const [athData, alrtData, noteData] = await Promise.all([
+      const [athData, alrtData, noteData, wellData] = await Promise.all([
         athRes.json(),
         alrtRes.json(),
-        noteRes.json()
+        noteRes.json(),
+        wellRes.json()
       ]);
 
       if (!athData.error) setAthletes(athData);
       if (!alrtData.error) setAlerts(alrtData);
       if (!noteData.error) setStaffNotes(noteData);
 
-      // Dummy sessions for design
-      setTodaySessions([
-        { name: 'Elite Tactical Phase', time: '09:00', type: 'training' },
-        { name: 'Recovery Matrix Alpha', time: '14:30', type: 'recovery' },
-        { name: 'Strength Evolution', time: '17:00', type: 'gym' }
-      ]);
+      if (!wellData.error) {
+        // Calculate ready percent: (Sleep Avg + (10 - Soreness Avg)) / 20 * 100
+        const sleepWeight = wellData.avg_sleep || 0;
+        const sorenessWeight = 10 - (wellData.avg_soreness || 0);
+        const readyPercent = logsExist ? Math.round(((sleepWeight + sorenessWeight) / 20) * 100) : 0;
+        
+        setWellnessStats({
+          readyPercent: readyPercent || 0,
+          completionCount: wellData.completion_count || 0,
+          sleepAnomalies: wellData.low_sleep_count || 0, // Assuming 0 for now as API might not provide it yet
+          extremeSoreness: wellData.high_soreness_count || 0,
+          hydrationFlags: wellData.hydration_flag ? 1 : 0
+        });
+      }
+
+      if (!sessionRes.error && sessionRes.data) {
+        const mappedSessions = sessionRes.data.map(s => ({
+          name: s.title,
+          time: s.scheduled_time.slice(0, 5),
+          type: s.session_type.toLowerCase()
+        }));
+        setTodaySessions(mappedSessions);
+      }
     } catch (error) {
       console.error("Staff Matrix Sync Error:", error);
     } finally {
@@ -128,21 +165,34 @@ export default function StaffPortal() {
     }
   };
 
+  const logsExist = wellnessStats.completionCount > 0;
+
   const handleAddNote = async () => {
-    if (!newNote || !selectedAthlete) return;
+    if (!newNote || newNote.trim().length === 0) return;
     
+    setIsSavingNote(true);
     try {
       const res = await fetch('/api/admin/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: selectedAthlete, note: newNote })
+        body: JSON.stringify({ 
+          userId: selectedAthlete || null, 
+          note: newNote 
+        })
       });
       if (res.ok) {
         setNewNote("");
+        setSearchQuery(""); // Clear search so the new note is visible
         fetchAdminData();
+      } else {
+        const err = await res.json();
+        alert(`Failed to save note: ${err.error || 'Unauthorized'}`);
       }
     } catch (err) {
       console.error("Failed to add note:", err);
+      alert("System Error: Failed to reach the notes API.");
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
@@ -224,15 +274,84 @@ export default function StaffPortal() {
           { label: 'ACTIVE UNIT', value: teamStats.active, icon: '✅', color: '#22c55e' },
         ]} />
 
-        {/* 2. ATHLETE LIST (HIGHER-FIDELITY ATHLETE ROSTER) */}
+        {/* 2. STAFF PROTOCOL LOGS (MOVED FOR VISIBILITY) */}
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl flex flex-col relative z-10">
+           <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-8 flex items-center gap-3">
+              <MessageSquare size={18} /> STAFF PROTOCOL LOGS
+           </div>
+           
+           <div className="flex gap-2 mb-8">
+              <input 
+                placeholder="ADD STAFF PROTOCOL NOTE (SELECT PLAYER ABOVE FOR ATHLETE RECORD)..."
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-bold uppercase placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]"
+              />
+              <button 
+                onClick={handleAddNote}
+                disabled={isSavingNote}
+                className="bg-[#22c55e] text-black font-['Anton'] text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center"
+              >
+                {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
+              </button>
+           </div>
+
+           <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+              {staffNotes.filter(n => {
+                const athlete = athletes.find(a => a.id === n.user_id);
+                const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                const noteSearch = n.note.toLowerCase();
+                const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                const query = searchQuery.toLowerCase();
+                return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+              }).length === 0 ? (
+                <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest">
+                  {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
+                </div>
+              ) : (
+                staffNotes.filter(n => {
+                  const athlete = athletes.find(a => a.id === n.user_id);
+                  const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                  const noteSearch = n.note.toLowerCase();
+                  const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                  const query = searchQuery.toLowerCase();
+                  return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+                }).map((note, i) => (
+                  <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px]">
+                        {note.user_id ? "Athlete Record" : "General Protocol"}
+                      </div>
+                      <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-white/60 text-xs leading-relaxed italic">"{note.note}"</p>
+                    <div className="flex justify-between items-center mt-3">
+                       <span className="text-[#22c55e] text-[10px] font-['Anton'] tracking-wider uppercase opacity-50">
+                         {note.added_by?.first_name} {note.added_by?.last_name}
+                       </span>
+                       {note.user_id && (
+                         <span className="text-white/20 text-[9px] font-bold uppercase tracking-[1px]">
+                           Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
+                         </span>
+                       )}
+                    </div>
+                  </div>
+                ))
+              )}
+           </div>
+        </div>
+
+        {/* 3. ATHLETE LIST (HIGHER-FIDELITY ATHLETE ROSTER) */}
         <AthleteRoster 
           onSelectAthlete={(id) => { setSelectedAthlete(id); setIsPlanModalOpen(true); }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
+          onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
+          externalSearchQuery={searchQuery}
         />
 
-        {/* 3, 4, 5. OPERATIONS GRID (TRAINING SESSION CONTROL, LIVE MONITOR, ALERTS) */}
+        {/* 4, 5, 6. OPERATIONS GRID (TRAINING SESSION CONTROL, LIVE MONITOR, ALERTS) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
           <TrainingSessionControl 
             onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
@@ -242,15 +361,16 @@ export default function StaffPortal() {
           />
 
           <div className="space-y-8">
+            <AdminBookingsPanel />
             <LiveTrainingMonitor />
             <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
           </div>
         </div>
 
-        {/* 6. TRAINING LOAD MANAGEMENT */}
+        {/* 7. TRAINING LOAD MANAGEMENT */}
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
-        {/* 7. INDIVIDUAL ATHLETE MANAGEMENT (SQUAD MANAGEMENT CORE) */}
+        {/* 8. INDIVIDUAL ATHLETE MANAGEMENT (SQUAD MANAGEMENT CORE) */}
         <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
            <div className="absolute top-0 right-0 p-10 opacity-5 font-['Anton'] text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COACH</div>
            
@@ -268,7 +388,9 @@ export default function StaffPortal() {
                     className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-['Anton'] uppercase tracking-[3px] focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
                    >
                     <option value="">SELECT PLAYER...</option>
-                    {athletes.map(a => (
+                    {athletes.filter(a => 
+                      `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map(a => (
                       <option key={a.id} value={a.id} className="bg-[#111]">{a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]</option>
                     ))}
                    </select>
@@ -287,6 +409,7 @@ export default function StaffPortal() {
                         { label: 'LOG_INJURY', icon: <ShieldAlert size={22} />, action: () => setIsInjuryModalOpen(true) },
                         { label: 'SURVEY_SEND', icon: <Activity size={22} />, action: () => setIsSurveyModalOpen(true) },
                         { label: 'CLIP_UPLOAD', icon: <Plus size={22} />, action: () => setIsVideoModalOpen(true) },
+                        { label: 'ASSESS', icon: <BarChart3 size={22} />, action: () => setIsAssessmentModalOpen(true) },
                       ].map((btn, i) => (
                         <button 
                           key={i} 
@@ -304,68 +427,33 @@ export default function StaffPortal() {
            </div>
         </div>
 
-        {/* FOOTER SECTION: WELLNESS + STAFF NOTES */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10 relative z-10">
+        {/* FOOTER SECTION: WELLNESS */}
+        <div className="pb-10 relative z-10 w-full lg:w-1/2">
           <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
                 <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                    <Activity size={18} /> SQUAD WELLNESS STATUS
                 </div>
-                <div className="text-[#22c55e] font-['Anton'] text-xl tracking-widest">79% OPS READY</div>
+                <div className="text-[#22c55e] font-['Anton'] text-xl tracking-widest">
+                  {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : 'NO DATA RECEIVED'}
+                </div>
              </div>
-             <ProgressBar value={79} height={8} />
+             <ProgressBar value={wellnessStats.readyPercent} height={8} />
              <div className="mt-8 space-y-4">
                 {[
-                  { label: 'SLEEP ANOMALIES', count: 3, icon: '😴', color: '#f59e0b' },
-                  { label: 'EXTREME SORENESS', count: 2, icon: '🩹', color: '#ef4444' },
-                  { label: 'NEUTRAL MOOD', count: 1, icon: '😐', color: '#8b5cf6' },
+                  { label: 'SLEEP ANOMALIES', count: wellnessStats.sleepAnomalies, icon: '😴', color: '#f59e0b' },
+                  { label: 'EXTREME SORENESS', count: wellnessStats.extremeSoreness, icon: '🩹', color: '#ef4444' },
+                  { label: 'HYDRATION ISSUES', count: wellnessStats.hydrationFlags, icon: '💧', color: '#8b5cf6' },
                 ].map((issue, i) => (
                   <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
                     <div className="flex items-center gap-3 text-white/30 text-xs font-bold uppercase tracking-wider group-hover:text-white transition-colors">
                       <span className="text-lg">{issue.icon}</span> {issue.label}
                     </div>
                     <div className="px-3 py-1 bg-black/40 text-[11px] font-['Anton'] tracking-widest rounded-full" style={{ color: issue.color }}>
-                      {issue.count} SUBJECTS
+                      {logsExist ? `${issue.count} SUBJECTS` : '---'}
                     </div>
                   </div>
                 ))}
-             </div>
-          </div>
-
-          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl flex flex-col">
-             <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-8 flex items-center gap-3">
-                <MessageSquare size={18} /> STAFF PROTOCOL LOGS
-             </div>
-             <div className="flex-1 space-y-4 mb-8 max-h-[250px] overflow-y-auto pr-2 scrollbar-hide">
-                {staffNotes.length === 0 ? (
-                  <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest">
-                    PROTOCOL LOG CLEAR // NO RECENT NOTES
-                  </div>
-                ) : (
-                  staffNotes.map((note, i) => (
-                    <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
-                      <p className="text-white/60 text-xs leading-relaxed italic">"{note.note}"</p>
-                      <div className="flex justify-between items-center mt-3">
-                         <span className="text-[#22c55e] text-[10px] font-['Anton'] tracking-wider uppercase opacity-50">{note.added_by?.first_name} {note.added_by?.last_name}</span>
-                         <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-             </div>
-             <div className="flex gap-2">
-                <input 
-                  placeholder="ADD STAFF PROTOCOL NOTE..."
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-bold uppercase placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]"
-                />
-                <button 
-                  onClick={handleAddNote}
-                  className="bg-[#22c55e] text-black font-['Anton'] text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-                >
-                  COMMIT
-                </button>
              </div>
           </div>
         </div>
@@ -404,6 +492,12 @@ export default function StaffPortal() {
       <ReviewAlertsModal 
         isOpen={isAlertsModalOpen} 
         onClose={() => setIsAlertsModalOpen(false)} 
+      />
+      <AthleteAssessmentModal
+        isOpen={isAssessmentModalOpen}
+        onClose={() => setIsAssessmentModalOpen(false)}
+        athleteId={selectedAthlete}
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
       />
 
       <CreateSessionModal 

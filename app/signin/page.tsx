@@ -60,13 +60,30 @@ export default function SignInPage() {
     setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
+
+    // Pre-flight Config Check
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      setErrorMsg("CRITICAL: Supabase keys are missing from environment. Restart dev server or check .env.local.");
+      setLoading(false);
+      return;
+    }
+
+    // Verify Key Format (Detection for potentially wrong key services like Stripe)
+    if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.startsWith('sb_publishable_')) {
+      console.warn("POTENTIAL KEY MISMATCH: The Supabase Anon Key starts with 'sb_publishable_'. This usually indicates a Stripe or Clerk key has been pasted into the Supabase configuration.");
+    }
     
     try {
+      if (!supabase) {
+        throw new Error("Supabase internal client initialization failed.");
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
-        if (error.message.includes('fetch')) {
-          setErrorMsg("Database Connection Error. Are the Supabase Keys correct in .env.local?");
+        // Handle specific fetch/network errors
+        if (error.message.includes('fetch') || error.name === 'TypeError') {
+          setErrorMsg("Database Connection Error. Please verify your Supabase URL and Anon Key in .env.local and ensure you have an active network connection.");
         } else {
           setErrorMsg(error.message);
         }
@@ -74,7 +91,12 @@ export default function SignInPage() {
       }
       // If no error, the redirection useEffect will kick in
     } catch (err: any) {
-      setErrorMsg(err.message || "A connection error occurred during authentication.");
+      console.error("Authentication Runtime Exception:", err);
+      if (err.message?.includes('fetch') || err.name === 'TypeError') {
+        setErrorMsg("Failed to reach Auth Matrix. Verify Supabase Keys in .env.local and check console for details.");
+      } else {
+        setErrorMsg(err.message || "A connection error occurred during authentication.");
+      }
       setLoading(false);
     }
   };

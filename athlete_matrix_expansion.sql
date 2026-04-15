@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS public.match_stats (
 
 -- 4. Cognitive Sessions
 CREATE TABLE IF NOT EXISTS public.cognitive_sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     test_type TEXT, -- reaction, focus, decision
     score NUMERIC,
@@ -71,10 +71,13 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
     title TEXT NOT NULL,
     description TEXT,
     session_type TEXT CHECK (session_type IN ('strength', 'tactical', 'recovery', 'assessment')),
-    start_time TIMESTAMPTZ NOT NULL,
-    end_time TIMESTAMPTZ NOT NULL,
+    scheduled_date DATE DEFAULT CURRENT_DATE,
+    scheduled_time TIME NOT NULL,
+    duration_minutes INTEGER DEFAULT 60,
     max_capacity INTEGER DEFAULT 1,
     location TEXT,
+    assigned_athletes UUID[] DEFAULT '{}',
+    status TEXT DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'in_progress', 'completed', 'cancelled')),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -82,10 +85,6 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
 ALTER TABLE public.video_clips 
 ADD COLUMN IF NOT EXISTS thumbnail_url TEXT,
 ADD COLUMN IF NOT EXISTS tactical_compliance_percent INTEGER;
-
-ALTER TABLE public.weekly_schedules 
-ADD COLUMN IF NOT EXISTS booking_status TEXT DEFAULT 'available' CHECK (booking_status IN ('available', 'booked', 'cancelled')),
-ADD COLUMN IF NOT EXISTS session_id UUID REFERENCES public.training_sessions(id);
 
 -- 7. RLS & Security
 ALTER TABLE public.wellness_logs ENABLE ROW LEVEL SECURITY;

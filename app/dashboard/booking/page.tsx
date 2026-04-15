@@ -1,8 +1,6 @@
 "use client";
 
-import { useAuth } from "@/components/providers/AuthProvider";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, 
   Clock, 
@@ -13,185 +11,110 @@ import {
   Loader2,
   AlertCircle,
   Zap,
-  Target
+  Target,
+  Activity,
+  ChevronRight,
+  Monitor
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
+import WeeklySchedule from "@/components/dashboard/WeeklySchedule";
 
 const anton = Anton({ weight: '400', subsets: ['latin'] });
 
-const ASSESSMENT_TYPES = [
-  { id: 'biomechanical', title: 'Biomechanical Lab', icon: <Zap size={16} />, desc: 'Motion capture and joint-torque analysis' },
-  { id: 'metabolic', title: 'Metabolic Baseline', icon: <Activity size={16} />, desc: 'VO2 max and lactate threshold testing' },
-  { id: 'physiometric', title: 'Physiometric Scan', icon: <Target size={16} />, desc: 'Body composition and force-plate symmetry' },
-  { id: 'neuro-reactive', title: 'Neuro-Reactive', icon: <Shield size={16} />, desc: 'Cognitive load and reaction timing' },
-];
-
-import { Activity } from "lucide-react";
-
 export default function BookingPage() {
-  const { user, supabase } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [type, setType] = useState("biomechanical");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!date || !time) return setError("Please specify date and time.");
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const assessmentDate = new Date(`${date}T${time}`);
-      
-      const res = await fetch('/api/admin/assessments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user?.id,
-          assessmentType: ASSESSMENT_TYPES.find(t => t.id === type)?.title || type,
-          assessmentDate: assessmentDate.toISOString(),
-          status: 'pending' // Admin needs to approve
-        })
-      });
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      setSuccess(true);
-      setTimeout(() => router.push("/dashboard/schedule"), 2000);
-    } catch (err: any) {
-      setError(err.message || "Failed to book session");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const inputClasses = "w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-sm text-white focus:border-[#22c55e] focus:ring-1 focus:ring-[#22c55e] transition-all outline-none placeholder:text-white/10";
-  const labelClasses = "text-[10px] font-black text-[#22c55e] uppercase tracking-[3px] mb-3 block";
+  const [activeTab, setActiveTab] = useState<'SESSIONS' | 'EVALUATIONS'>('SESSIONS');
 
   return (
-    <div className="p-10 max-w-4xl">
-      <div className="mb-12">
-        <h2 className={`${anton.className} text-5xl text-white uppercase tracking-wider mb-2`}>Strategic Booking</h2>
-        <p className="text-white/40 text-[10px] font-black uppercase tracking-[3px]">Initialize your next performance evaluation milestone</p>
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-12">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+        <div>
+          <h2 className={`${anton.className} text-5xl md:text-6xl text-white uppercase tracking-wider leading-tight`}>
+            Strategic Booking Hub
+          </h2>
+          <p className="text-white/40 text-[10px] md:text-[11px] font-black uppercase tracking-[4px] mt-4 flex items-center gap-2">
+             <Monitor size={14} className="text-[#22c55e]" /> MATRIX_ACCESS // INITIALIZE OPERATIONAL LOGISTICS
+          </p>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 w-full md:w-auto">
+           <button 
+             onClick={() => setActiveTab('SESSIONS')}
+             className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[2px] transition-all flex items-center justify-center gap-3 ${
+               activeTab === 'SESSIONS' ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' : 'text-white/40 hover:text-white'
+             }`}
+           >
+             <Zap size={14} /> Training Sessions
+           </button>
+           <button 
+             onClick={() => setActiveTab('EVALUATIONS')}
+             className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[2px] transition-all flex items-center justify-center gap-3 ${
+               activeTab === 'EVALUATIONS' ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' : 'text-white/40 hover:text-white'
+             }`}
+           >
+             <Shield size={14} /> Strategic Labs
+           </button>
+        </div>
       </div>
 
-      <AnimatePresence>
-        {success ? (
+      <AnimatePresence mode="wait">
+        {activeTab === 'SESSIONS' ? (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl p-12 text-center"
+            key="sessions"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-8"
           >
-             <div className="w-20 h-20 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(34,197,94,0.4)]">
-                <CheckCircle2 className="text-black" size={40} />
-             </div>
-             <h3 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-2`}>Assessment Requested</h3>
-             <p className="text-white/40 text-sm uppercase tracking-widest leading-relaxed">
-               Your performance evaluation has been queued for initialization. Strategic review will confirm your slot within 12 hours.
-             </p>
-             <div className="mt-8 flex justify-center gap-4">
-               <Loader2 className="animate-spin text-[#22c55e]" size={16} />
-               <span className="text-[10px] font-black text-white/20 uppercase tracking-[2px]">Redirecting to Schedule...</span>
-             </div>
+            <div className="bg-[#111] border border-[#22c55e]/20 rounded-[32px] p-8 md:p-12 relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-12 opacity-5 font-['Anton'] text-[120px] pointer-events-none uppercase">WEEKLY</div>
+               <div className="relative z-10">
+                  <WeeklySchedule />
+               </div>
+            </div>
           </motion.div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Section: Assessment Intensity */}
-            <section className="bg-[#111] border border-white/5 rounded-3xl p-8">
-               <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[3px] mb-8">Select Evaluation Type</h3>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {ASSESSMENT_TYPES.map((t) => (
-                     <div 
-                       key={t.id}
-                       onClick={() => setType(t.id)}
-                       className={`p-6 rounded-2xl border transition-all cursor-pointer flex flex-col items-start gap-4 ${
-                         type === t.id ? 'bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.1)]' : 'bg-black/20 border-white/5 hover:border-white/20'
-                       }`}
-                     >
-                        <div className={`p-3 rounded-xl ${type === t.id ? 'bg-[#22c55e] text-black' : 'bg-white/5 text-[#22c55e]'}`}>
-                           {t.icon}
-                        </div>
-                        <div>
-                           <p className="text-sm font-bold text-white uppercase tracking-widest">{t.title}</p>
-                           <p className="text-[9px] text-white/30 uppercase mt-1 leading-relaxed font-semibold">{t.desc}</p>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </section>
-
-            {/* Section: Logistics */}
-            <motion.section 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-[#111] border border-white/5 rounded-3xl p-8"
-            >
-              <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[3px] mb-8">Deployment Window</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div>
-                    <label className={labelClasses}>Deployment Date</label>
-                    <div className="relative">
-                       <input 
-                         type="date" 
-                         value={date}
-                         onChange={(e) => setDate(e.target.value)}
-                         className={inputClasses}
-                         style={{ colorScheme: 'dark' }}
-                       />
-                       <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10 pointer-events-none" />
-                    </div>
-                 </div>
-                 <div>
-                    <label className={labelClasses}>Initialization Time</label>
-                    <div className="relative">
-                       <input 
-                         type="time" 
-                         value={time}
-                         onChange={(e) => setTime(e.target.value)}
-                         className={inputClasses}
-                         style={{ colorScheme: 'dark' }}
-                       />
-                       <Clock size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10 pointer-events-none" />
-                    </div>
-                 </div>
-              </div>
-            </motion.section>
-
-            {/* Actions */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-6">
-              <div className="flex-1">
-                {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-2 text-red-500"
-                  >
-                    <AlertCircle size={18} />
-                    <span className="text-[10px] font-black uppercase tracking-[2px]">{error}</span>
-                  </motion.div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full md:w-auto px-12 py-5 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[2px] rounded-xl flex items-center justify-center gap-3 hover:bg-white hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_30px_rgba(34,197,94,0.3)]"
-              >
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
-                Initialize Evaluation Milestone
-              </button>
-            </div>
-          </form>
+          <motion.div 
+            key="evaluations"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-[#111] border border-white/5 rounded-[32px] p-8 md:p-12 flex flex-col items-center justify-center text-center space-y-8"
+          >
+             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 mb-2">
+                <Shield size={40} className="text-[#22c55e]" />
+             </div>
+             <div>
+                <h3 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-4`}>High-Fidelity Lab Scheduling</h3>
+                <p className="text-white/40 text-xs md:text-sm uppercase tracking-[2px] max-w-md mx-auto leading-relaxed">
+                  Strategic evaluations (VO2 Max, Biomechanical Capture) are currently managed via direct coach directive.
+                </p>
+             </div>
+             <button className="px-10 py-5 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[3px] rounded-2xl hover:bg-white transition-all shadow-[0_20px_40px_rgba(34,197,94,0.2)]">
+                REQUEST EVALUATION MILESTONE
+             </button>
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Booking Notice Sidebar style footer */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         {[
+           { icon: <Clock size={20} />, title: 'Deployment Buffer', desc: 'Arrive 15 minutes prior to operational start for initial vitals sync.' },
+           { icon: <AlertCircle size={20} />, title: 'Cancellation Protocol', desc: 'Deployments must be cancelled 12H in advance to avoid penalty.' },
+           { icon: <Shield size={20} />, title: 'Medically Cleared', desc: 'By booking, you confirm full physical readiness for deployment.' },
+         ].map((item, i) => (
+           <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+              <div className="text-[#22c55e] mb-4">{item.icon}</div>
+              <h4 className="text-white font-bold text-[11px] uppercase tracking-widest mb-2">{item.title}</h4>
+              <p className="text-white/30 text-[10px] leading-relaxed uppercase font-semibold">{item.desc}</p>
+           </div>
+         ))}
+      </div>
     </div>
   );
 }
