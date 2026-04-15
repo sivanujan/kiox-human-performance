@@ -15,7 +15,8 @@ import {
   Stethoscope,
   BarChart3,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Video
 } from "lucide-react";
 import { Anton } from "next/font/google";
 import { useAthleteRoster, AthleteStatus } from "@/hooks/useAthleteRoster";
