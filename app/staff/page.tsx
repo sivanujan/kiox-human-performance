@@ -217,6 +217,40 @@ export default function StaffPortal() {
         {/* ========================
             INDIVIDUAL MANAGEMENT SECTION
             ======================== */}
+        {/* 1. TEAM OVERVIEW CARDS */}
+        <SwipeableCards cards={[
+          { label: 'ASSIGNED SQUAD', value: teamStats.total, icon: '👥', color: '#22c55e' },
+          { label: 'PENDING TASKS', value: teamStats.pending, icon: '🔐', color: '#f59e0b' },
+          { label: 'ACTIVE UNIT', value: teamStats.active, icon: '✅', color: '#22c55e' },
+        ]} />
+
+        {/* 2. ATHLETE LIST (HIGHER-FIDELITY ATHLETE ROSTER) */}
+        <AthleteRoster 
+          onSelectAthlete={(id) => { setSelectedAthlete(id); setIsPlanModalOpen(true); }}
+          onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
+          onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
+          onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
+        />
+
+        {/* 3, 4, 5. OPERATIONS GRID (TRAINING SESSION CONTROL, LIVE MONITOR, ALERTS) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+          <TrainingSessionControl 
+            onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
+            onAdjustLoad={() => setIsAdjustLoadOpen(true)}
+            onCreate={() => setIsCreateSessionOpen(true)}
+            isSuperAdmin={profile?.role === 'superadmin'}
+          />
+
+          <div className="space-y-8">
+            <LiveTrainingMonitor />
+            <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
+          </div>
+        </div>
+
+        {/* 6. TRAINING LOAD MANAGEMENT */}
+        <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
+
+        {/* 7. INDIVIDUAL ATHLETE MANAGEMENT (SQUAD MANAGEMENT CORE) */}
         <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
            <div className="absolute top-0 right-0 p-10 opacity-5 font-['Anton'] text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COACH</div>
            
@@ -268,39 +302,6 @@ export default function StaffPortal() {
                 </AnimatePresence>
               </div>
            </div>
-        </div>
-
-        <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
-
-        {/* ========================
-            TEAM OVERVIEW CARDS
-            ======================== */}
-        <SwipeableCards cards={[
-          { label: 'ASSIGNED SQUAD', value: teamStats.total, icon: '👥', color: '#22c55e' },
-          { label: 'PENDING TASKS', value: teamStats.pending, icon: '🔐', color: '#f59e0b' },
-          { label: 'ACTIVE UNIT', value: teamStats.active, icon: '✅', color: '#22c55e' },
-        ]} />
-
-        {/* HIGHER-FIDELITY ATHLETE ROSTER */}
-        <AthleteRoster 
-          onSelectAthlete={(id) => { setSelectedAthlete(id); setIsPlanModalOpen(true); }}
-          onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
-          onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
-          onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
-          <TrainingSessionControl 
-            onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
-            onAdjustLoad={() => setIsAdjustLoadOpen(true)}
-            onCreate={() => setIsCreateSessionOpen(true)}
-            isSuperAdmin={profile?.role === 'superadmin'}
-          />
-
-          <div className="space-y-8">
-            <LiveTrainingMonitor />
-            <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
-          </div>
         </div>
 
         {/* FOOTER SECTION: WELLNESS + STAFF NOTES */}

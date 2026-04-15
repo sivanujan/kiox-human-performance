@@ -41,8 +41,8 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
       // 3. Upload to Supabase Storage with Timeout
       const uploadPromise = supabase.storage.from(folder).upload(filePath, file);
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("NETWORK TIMEOUT: The system took too long to respond.")), 15000)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("NETWORK TIMEOUT: Upload took too long. Check your internet connection and try again.")), 60000)
       );
 
       const { data, error: uploadError } = await Promise.race([
@@ -68,7 +68,9 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
       setStatus("");
     } catch (error: any) {
       console.error("CRITICAL UPLOAD FAILURE:", error);
-      alert(`SYSTEM ERROR: ${error.message || "Unknown Matrix Error"}\n\n1. Check if the '${folder}' bucket exists in Supabase.\n2. Ensure it is set to 'Public'.`);
+      const msg = error.message || "Unknown upload error";
+      const isTimeout = msg.toLowerCase().includes("timeout");
+      alert(`SYSTEM ERROR: ${msg}${isTimeout ? "\n\nTip: Try a smaller image file or check your internet connection." : ""}`);
       setPreviewUrl(initialUrl || null); // Reset on failure
       setStatus("");
     } finally {
