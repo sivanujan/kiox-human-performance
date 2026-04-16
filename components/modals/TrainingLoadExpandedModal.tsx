@@ -172,80 +172,20 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
                 </div>
               </div>
 
-              {/* Right: Manual Entry & Table */}
-              <div className="space-y-8">
-                <button 
-                  onClick={() => setIsLogging(!isLogging)}
-                  className="w-full py-4 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center gap-3 text-white font-['Anton'] text-sm tracking-widest hover:bg-[#22c55e]/10 transition-all uppercase"
-                >
-                  <Plus size={18} className="text-[#22c55e]" /> NEW LOAD ENTRY
-                </button>
-
-                {isLogging && (
-                  <motion.form 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onSubmit={handleLog}
-                    className="p-8 bg-[#111] border border-[#22c55e]/20 rounded-3xl space-y-6"
-                  >
-                     <div className="space-y-4">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">SUBJECT</label>
-                          <select 
-                            value={form.athleteId}
-                            onChange={(e) => setForm({ ...form, athleteId: e.target.value })}
-                            className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer"
-                          >
-                            <option value="">SELECT ATHLETE</option>
-                            {athletes.map(a => (
-                              <option key={a.id} value={a.id}>{a.first_name} {a.last_name}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-1">
-                              <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">AU VALUE</label>
-                              <input 
-                                type="number"
-                                placeholder="000"
-                                value={form.value}
-                                onChange={(e) => setForm({ ...form, value: e.target.value })}
-                                className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none transition-all"
-                              />
-                           </div>
-                           <div className="space-y-1">
-                              <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">SESSION</label>
-                              <select 
-                                value={form.type}
-                                onChange={(e) => setForm({ ...form, type: e.target.value })}
-                                className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer"
-                              >
-                                <option value="Tactical">TACTICAL</option>
-                                <option value="Strength">STRENGTH</option>
-                                <option value="Gym">GYM</option>
-                                <option value="Recovery">RECOVERY</option>
-                              </select>
-                           </div>
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-black text-white/20 uppercase tracking-widest ml-1">LOG DATE</label>
-                          <input 
-                            type="date"
-                            value={form.date}
-                            onChange={(e) => setForm({ ...form, date: e.target.value })}
-                            className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none transition-all"
-                          />
-                        </div>
-                     </div>
-                     <button 
-                       disabled={loading}
-                       className="w-full bg-white text-black py-4 rounded-xl font-['Anton'] text-sm tracking-widest hover:bg-[#22c55e] hover:text-white transition-all uppercase flex items-center justify-center gap-2"
-                     >
-                        {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
-                        COMMIT LOG
-                     </button>
-                  </motion.form>
-                )}
+              {/* Right: Automation Banner & Table */}
+              <div className="space-y-8 lg:col-span-1">
+                <div className="p-6 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-3xl relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-5 bg-[url('/bg-texture.png')] mix-blend-overlay w-full h-full pointer-events-none" />
+                   <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-[#22c55e] flex items-center justify-center text-black">
+                         <Activity size={20} />
+                      </div>
+                      <div className="text-white text-[12px] font-black uppercase tracking-[3px]">System Automated</div>
+                   </div>
+                   <p className="text-white/60 text-[11px] leading-relaxed font-medium">
+                     Training Loads (AU) are now synchronized globally in the background. The matrix automatically extracts duration and exertion metrics when Command Staff marks a session as <strong>COMPLETED</strong>. Manual entry is no longer required.
+                   </p>
+                </div>
 
                 <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden">
                    <div className="p-6 border-b border-white/5 bg-white/5">
