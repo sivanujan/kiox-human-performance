@@ -23,12 +23,19 @@ export default function SignInPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const [rememberMe, setRememberMe] = useState(true);
+
   const { supabase, user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsHydrated(true);
+    // Initialize rememberMe from localStorage if it exists
+    const saved = localStorage.getItem("kiox_remember_me");
+    if (saved !== null) {
+      setRememberMe(saved === "true");
+    }
   }, []);
 
   // Redirect if already logged in
@@ -77,6 +84,9 @@ export default function SignInPage() {
       if (!supabase) {
         throw new Error("Supabase internal client initialization failed.");
       }
+
+      // Store rememberMe preference before signing in
+      localStorage.setItem("kiox_remember_me", rememberMe.toString());
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       
@@ -157,6 +167,27 @@ export default function SignInPage() {
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                 </div>
+
+                <div className="flex items-center justify-between pb-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative w-5 h-5">
+                      <input 
+                        type="checkbox" 
+                        className="peer sr-only" 
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                      />
+                      <div className="w-full h-full bg-black/40 border border-white/10 rounded transition-all peer-checked:bg-[#22c55e] peer-checked:border-[#22c55e]" />
+                      <div className="absolute inset-0 flex items-center justify-center text-black scale-0 peer-checked:scale-100 transition-transform">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-500 group-hover:text-white tracking-widest uppercase transition-colors">Remember Me</span>
+                  </label>
+                </div>
+
                 <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
                   {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={18} />
                 </button>

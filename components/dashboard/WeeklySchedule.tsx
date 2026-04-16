@@ -107,7 +107,7 @@ export default function WeeklySchedule() {
                            <div className="min-w-0">
                               <h4 className="text-[11px] font-black text-white uppercase tracking-wider truncate mb-0.5">{session.title}</h4>
                               <div className="flex items-center gap-3 opacity-30">
-                                 <span className="text-[9px] font-black uppercase flex items-center gap-1"><Clock size={10} /> {session.scheduled_time.slice(0, 5)}</span>
+                                 <span className="text-[9px] font-black uppercase flex items-center gap-1"><Clock size={10} /> {session.start_time.slice(0, 5)}</span>
                                  <span className="text-[9px] font-black uppercase flex items-center gap-1"><Users size={10} /> {session.confirmed_count}/{session.max_capacity}</span>
                               </div>
                            </div>

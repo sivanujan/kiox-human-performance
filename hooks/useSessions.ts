@@ -9,7 +9,7 @@ export interface TrainingSession {
   title: string;
   session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM';
   scheduled_date: string;
-  scheduled_time: string;
+  start_time: string;
   duration_minutes: number;
   location?: string;
   assigned_athletes: string[];
@@ -31,7 +31,7 @@ export function useSessions() {
       .from("training_sessions")
       .select("*")
       .eq("scheduled_date", dateStr)
-      .order("scheduled_time", { ascending: true });
+      .order("start_time", { ascending: true });
 
     if (!error && data) {
       setSessions(data);
@@ -50,7 +50,7 @@ export function useSessions() {
       setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, status } : s));
     }
     setLoading(false);
-    return { success: !error, error };
+    return { success: !error, error: error?.message || null };
   };
 
   const createSession = async (sessionData: Partial<TrainingSession>) => {
@@ -65,7 +65,7 @@ export function useSessions() {
       setSessions(prev => [...prev, data]);
     }
     setLoading(false);
-    return { success: !error, data, error };
+    return { success: !error, data, error: error?.message || null };
   };
 
   const getSessionLoads = async (sessionId: string) => {

@@ -15,7 +15,8 @@ import {
   Zap,
   ShieldCheck,
   ChevronRight,
-  Camera
+  Camera,
+  Bell
 } from "lucide-react";
 import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import Image from "next/image";
@@ -173,8 +174,44 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           backgroundSize: '40px 40px' 
         }} />
 
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-50 bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 px-10 h-[80px] flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             <div className="w-1.5 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e]" />
+             <div>
+                <div className="text-[#22c55e] text-[9px] font-black tracking-[3px] uppercase mb-0.5">Tactical Command Hub</div>
+                <h1 className={`${anton.className} text-2xl text-white uppercase tracking-wider`}>
+                  System Online // <span className="text-[#22c55e]">{profile?.first_name || 'Staff'}</span>
+                </h1>
+             </div>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-[#22c55e] hover:border-[#22c55e]/30 transition-all">
+               <Bell size={18} />
+               <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-[#22c55e] shadow-[0_0_5px_#22c55e]" />
+            </button>
+            <button 
+              onClick={() => setIsProfileOpen(true)}
+              className="flex items-center gap-3 group px-4 py-2 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all"
+            >
+               <div className="text-right hidden md:block">
+                  <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
+                  <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">Operational Staff</div>
+               </div>
+               <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-black text-sm group-hover:bg-[#22c55e] group-hover:text-black transition-all overflow-hidden">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    profile?.first_name?.[0] || 'S'
+                  )}
+               </div>
+            </button>
+          </div>
+        </header>
+
         {/* Page Content */}
-        <div className="relative z-10">
+        <div className="relative z-10 p-10">
           {children}
         </div>
       </main>

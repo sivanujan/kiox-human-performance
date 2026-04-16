@@ -26,7 +26,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
     title: "",
     session_type: "STRENGTH" as any,
     scheduled_date: format(new Date(), "yyyy-MM-dd"),
-    scheduled_time: format(new Date(), "HH:mm"),
+    start_time: format(new Date(), "HH:mm"),
     duration_minutes: 60,
     location: "",
     target_load_au: 450,
@@ -52,13 +52,14 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
     try {
       const res = await createSession({
         ...formData,
+        start_time: `${formData.start_time}:00`, // Ensure HH:mm:ss format
         assigned_by: user?.id
       });
       
       if (res.success) {
         onClose();
       } else {
-        setError(res.error?.message || "Failed to initialize session.");
+        setError(res.error || "Failed to initialize session.");
       }
     } catch (err: any) {
       setError(err.message || "A mission-critical error occurred.");
@@ -128,13 +129,13 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                          <select 
                            value={formData.session_type}
                            onChange={e => setFormData(prev => ({ ...prev, session_type: e.target.value as any }))}
-                           className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-xs font-bold focus:border-amber-500 outline-none appearance-none cursor-pointer"
+                           className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-xs font-bold focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none appearance-none cursor-pointer transition-all"
                          >
-                            <option value="STRENGTH">STRENGTH</option>
-                            <option value="TACTICAL">TACTICAL</option>
-                            <option value="CONDITIONING">CONDITIONING</option>
-                            <option value="RECOVERY">RECOVERY</option>
-                            <option value="CUSTOM">CUSTOM</option>
+                            <option value="STRENGTH" className="bg-[#111]">STRENGTH</option>
+                            <option value="TACTICAL" className="bg-[#111]">TACTICAL</option>
+                            <option value="CONDITIONING" className="bg-[#111]">CONDITIONING</option>
+                            <option value="RECOVERY" className="bg-[#111]">RECOVERY</option>
+                            <option value="CUSTOM" className="bg-[#111]">CUSTOM</option>
                          </select>
                       </div>
                       <div className="space-y-3">
@@ -168,8 +169,8 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                          <input 
                            type="time"
                            required
-                           value={formData.scheduled_time}
-                           onChange={e => setFormData(prev => ({ ...prev, scheduled_time: e.target.value }))}
+                           value={formData.start_time}
+                           onChange={e => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-xs font-bold focus:border-amber-500 outline-none"
                          />
                       </div>

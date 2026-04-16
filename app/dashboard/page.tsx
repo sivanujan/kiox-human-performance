@@ -42,6 +42,7 @@ import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import Avatar from "@/components/ui/Avatar";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import WeeklySchedule from "@/components/dashboard/WeeklySchedule";
+import WellnessCheckinModal from "@/components/modals/WellnessCheckinModal";
 
 const anton = Anton({ 
   weight: '400', 
@@ -67,6 +68,7 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isPassModalOpen, setIsPassModalOpen] = useState(false);
+  const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<TrainingSession | null>(null);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
 
@@ -84,9 +86,10 @@ export default function DashboardOverview() {
     const { data, error } = await supabase
       .from("training_sessions")
       .select("*")
-      .eq("scheduled_date", today)
+      .gte("scheduled_date", today) // Get today and future
       .contains("assigned_athletes", [user.id])
-      .order("scheduled_time", { ascending: true });
+      .order("scheduled_date", { ascending: true })
+      .order("start_time", { ascending: true });
 
     if (!error && data) {
       setTodaySessions(data as TrainingSession[]);
@@ -97,10 +100,10 @@ export default function DashboardOverview() {
     setLoading(true);
     try {
       const [metRes, schRes, notRes, perfRes] = await Promise.all([
-        fetch('/api/athlete/metrics'),
-        fetch('/api/athlete/schedule'),
-        fetch('/api/athlete/notifications'),
-        fetch('/api/athlete/performance-hub')
+        fetch(`/api/athlete/metrics?t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`/api/athlete/schedule?t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`/api/athlete/notifications?t=${Date.now()}`, { cache: 'no-store' }),
+        fetch(`/api/athlete/performance-hub?t=${Date.now()}`, { cache: 'no-store' })
       ]);
       
       const [metData, schData, notData, perfData] = await Promise.all([
@@ -134,15 +137,25 @@ export default function DashboardOverview() {
 
   const athleteName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Athlete';
   
-  // High-fidelity Next Session Logic
+  const todayStr = format(new Date(), "yyyy-MM-dd");
   const now = new Date();
   const currentTimeStr = format(now, "HH:mm:ss");
-  const upcomingToday = todaySessions
-    .filter(s => s.scheduled_time > currentTimeStr)
-    [0];
 
-  const nextSession = upcomingToday 
-    ? { session: upcomingToday.title, time: format(new Date(`2000-01-01T${upcomingToday.scheduled_time}`), "h:mm aa") }
+  const todaySessionsFiltered = todaySessions.filter(s => s.scheduled_date === todayStr);
+  const futureSessions = todaySessions.filter(s => s.scheduled_date > todayStr);
+
+  const upcomingToday = todaySessionsFiltered.filter(s => s.start_time > currentTimeStr)[0];
+  const nextFuture = futureSessions[0];
+
+  const sessionToDisplay = upcomingToday || nextFuture;
+
+  const nextSession = sessionToDisplay
+    ? { 
+        session: sessionToDisplay.title, 
+        time: format(new Date(`2000-01-01T${sessionToDisplay.start_time}`), "h:mm aa"),
+        isToday: sessionToDisplay.scheduled_date === todayStr,
+        date: format(new Date(sessionToDisplay.scheduled_date + 'T00:00:00'), "MMM d")
+      }
     : (schedule.find(s => s.type !== 'rest') || { session: 'No Session Scheduled', time: '--:--' });
 
   // Readiness Logic
@@ -206,6 +219,15 @@ export default function DashboardOverview() {
                    {readinessScore}%
                  </span>
               </div>
+              <button
+                 onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
+                 className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl border border-[#22c55e] text-black hover:bg-white transition-all transform hover:scale-105"
+              >
+                 <Activity size={12} />
+                 <span className="text-[9px] font-black uppercase tracking-widest">
+                   Daily Check-in
+                 </span>
+              </button>
             </div>
           </div>
         </div>
@@ -229,6 +251,7 @@ export default function DashboardOverview() {
              {nextSession.session}
            </div>
            <div className="text-[#22c55e] font-['Anton'] text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+             {!nextSession.isToday && <span className="text-white/20 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
              {nextSession.time}
            </div>
            <div className="absolute bottom-2 right-4 text-[40px] opacity-5 font-['Anton'] pointer-events-none">
@@ -500,20 +523,18 @@ export default function DashboardOverview() {
             </div>
 
             <div className="space-y-4">
-              {performanceData.trainerNotes?.length === 0 ? (
+              {!metrics?.protocol_directives || metrics.protocol_directives.includes('PROTOCOL NEUTRAL') ? (
                 <div className="py-10 text-center text-white/10 uppercase font-bold text-[10px] tracking-widest italic border border-dashed border-white/5 rounded-2xl">
                   Subject Protocol Neutral // No Directives Found
                 </div>
               ) : (
-                performanceData.trainerNotes.map((note: any, i: number) => (
-                  <div key={i} className="p-5 bg-white/[0.03] border-l-4 border-l-[#22c55e] rounded-xl relative group">
-                    <div className="flex justify-between items-start mb-2">
-                       <span className="text-[#22c55e] text-[9px] font-['Anton'] tracking-wider uppercase"> {note.added_by?.first_name} {note.added_by?.last_name} // COACHING STAFF</span>
-                       <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-white/70 text-xs leading-relaxed italic">"{note.note}"</p>
+                <div className="p-5 bg-[#22c55e]/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                  <div className="flex justify-between items-start mb-2">
+                     <span className="text-[#22c55e] text-[9px] font-['Anton'] tracking-wider uppercase">COACHING STAFF // TACTICAL DIRECTIVE</span>
+                     <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">LATEST UPDATE</span>
                   </div>
-                ))
+                  <p className="text-white/70 text-sm leading-relaxed italic whitespace-pre-wrap">"{metrics.protocol_directives}"</p>
+                </div>
               )}
             </div>
             <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none uppercase">LOG</div>
@@ -532,12 +553,12 @@ export default function DashboardOverview() {
             </div>
 
             <div className="space-y-4 mb-2">
-              {todaySessions.length === 0 ? (
+              {todaySessionsFiltered.length === 0 ? (
                 <div className="py-12 text-center text-white/10 uppercase font-bold text-[10px] tracking-widest italic border border-white/5 rounded-2xl bg-white/[0.01]">
                   Field Operations Clear // No Sessions Detected
                 </div>
               ) : (
-                todaySessions.map((s, i) => (
+                todaySessionsFiltered.map((s, i) => (
                   <button 
                     key={i} 
                     onClick={() => {
@@ -558,7 +579,7 @@ export default function DashboardOverview() {
                            {s.status}
                          </span>
                          <span className="text-white/20 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                            <Clock size={10} /> {s.scheduled_time.slice(0, 5)}
+                            <Clock size={10} /> {s.start_time.slice(0, 5)}
                          </span>
                       </div>
                       <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase truncate group-hover:text-[#22c55e] transition-colors">{s.title}</h4>
@@ -590,31 +611,62 @@ export default function DashboardOverview() {
                     NO TACTICAL CLIPS ASSIGNED
                   </div>
                 ) : (
-                  performanceData.videoFeedback.map((clip: any, i: number) => (
-                    <div key={i} className="flex flex-col gap-3 bg-white/5 p-4 rounded-xl border border-white/5 hover:border-blue-500/30 cursor-pointer group transition-all">
+                  performanceData.videoFeedback.map((clip: any, i: number) => {
+                    
+                    // --- SMART VIDEO PARSER ---
+                    let embedUrl = clip.video_url;
+                    let isDirectVideo = false;
+                    
+                    if (clip.video_url.includes('youtube.com/watch?v=')) {
+                      embedUrl = clip.video_url.replace('watch?v=', 'embed/');
+                    } else if (clip.video_url.includes('youtu.be/')) {
+                      embedUrl = clip.video_url.replace('youtu.be/', 'youtube.com/embed/');
+                    } else if (clip.video_url.includes('vimeo.com/')) {
+                      // Extract the ID from the end of the URL
+                      const vimeoId = clip.video_url.split('/').pop().split('?')[0];
+                      embedUrl = `https://player.vimeo.com/video/${vimeoId}`;
+                    } else if (clip.video_url.endsWith('.mp4') || clip.video_url.endsWith('.mov') || clip.video_url.includes('supabase.co/storage')) {
+                      // Supabase storage links or direct file links can be played natively
+                      isDirectVideo = true;
+                    }
+
+                    return (
+                    <div key={i} className="flex flex-col gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <Play size={14} className="text-blue-500 group-hover:scale-110 transition-transform" />
+                          <Play size={14} className="text-blue-500" />
                           <span className="text-xs text-white font-bold tracking-wide uppercase">{clip.title}</span>
                         </div>
                         <div className="bg-blue-500/10 text-blue-500 text-[9px] font-['Anton'] px-3 py-1 rounded-full uppercase tracking-widest">
                           {clip.category}
                         </div>
                       </div>
-                      <Link 
-                        href={clip.video_url} 
-                        target="_blank"
-                        className="relative rounded-lg overflow-hidden aspect-video bg-black/40 flex items-center justify-center border border-white/5"
-                      >
-                         <Video className="text-white/10" size={32} />
-                         <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                         <div className="absolute bottom-3 right-3 bg-black/80 px-3 py-1 rounded text-[8px] font-black text-white/40 uppercase tracking-widest">
-                           WATCH FEEDBACK →
-                         </div>
-                      </Link>
-                      {clip.notes && <p className="text-[10px] text-white/30 italic leading-relaxed px-1">"{clip.notes}"</p>}
+                      
+                      <div className="relative rounded-lg overflow-hidden aspect-video bg-black/40 border border-white/5">
+                         {isDirectVideo ? (
+                           <video 
+                             className="w-full h-full object-cover" 
+                             controls 
+                             preload="metadata"
+                             src={clip.video_url}
+                           >
+                             Your browser does not support the video tag.
+                           </video>
+                         ) : (
+                           <iframe 
+                             className="absolute inset-0 w-full h-full"
+                             src={embedUrl}
+                             title={clip.title}
+                             frameBorder="0"
+                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                             allowFullScreen
+                           />
+                         )}
+                      </div>
+
+                      {clip.notes && <p className="text-[10px] text-white/30 italic leading-relaxed px-1 mt-1">"{clip.notes}"</p>}
                     </div>
-                  ))
+                  )})
                 )}
              </div>
           </CollapsibleSection>
@@ -659,6 +711,15 @@ export default function DashboardOverview() {
         isOpen={isSessionModalOpen}
         onClose={() => setIsSessionModalOpen(false)}
         session={selectedSession}
+      />
+      <WellnessCheckinModal 
+        isOpen={isCheckinModalOpen}
+        onClose={() => setIsCheckinModalOpen(false)}
+        athleteId={user?.id || ""}
+        onSuccess={() => {
+          fetchDashboardData();
+          fetchAthleteSessions();
+        }}
       />
     </div>
   );

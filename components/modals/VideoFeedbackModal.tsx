@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, ArrowRight, Loader2, Zap, Video, Link as LinkIcon, UploadCloud } from "lucide-react";
+import { X, Plus, ArrowRight, Loader2, Zap, Video, Link as LinkIcon, UploadCloud, Play, Calendar, ExternalLink, Trash2 } from "lucide-react";
 import { Anton } from "next/font/google";
 
 const anton = Anton({ weight: "400", subsets: ["latin"] });
@@ -25,7 +25,32 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/admin/athlete/${athleteId}/video-feedback`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setHistory(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch history:", err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchHistory();
+    }
+  }, [isOpen, athleteId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,11 +80,42 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
       const result = await res.json();
       if (result.error) throw new Error(result.error);
 
-      onClose();
+      setSuccess(true);
+      alert("SUCCESS: Video Feedback Transmitted! You should see it in the list below.");
+      setFormData({ title: "", category: "Technique", notes: "", externalUrl: "" });
+      setVideoFile(null);
+      
+      // Refresh history instead of closing
+      fetchHistory();
+      
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
     } catch (err: any) {
+      console.error("Transmission Error:", err);
+      alert(`SYSTEM ERROR: ${err.message || "Failed to upload tactical feedback."}`);
       setError(err.message || "Failed to upload tactical feedback.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (videoId: string) => {
+    if (!confirm("Remove this feedback clip from the athlete's record?")) return;
+    
+    setDeletingId(videoId);
+    try {
+      const res = await fetch(`/api/admin/athlete/${athleteId}/video-feedback?videoId=${videoId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete video");
+      
+      // Remove from UI
+      setHistory(prev => prev.filter(v => v.id !== videoId));
+    } catch (err: any) {
+      alert(`Delete Error: ${err.message}`);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -188,8 +244,14 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
               </div>
 
               {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center animate-shake">
                   ERROR: {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-500 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
+                  FEEDBACK TRANSMITTED SUCCESSFULLY
                 </div>
               )}
 
@@ -202,6 +264,65 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                 {!loading && <ArrowRight size={18} />}
               </button>
             </form>
+
+            {/* History Section */}
+            <div className="mt-12 pt-8 border-t border-white/5 space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="text-white/20 text-[10px] font-black tracking-widest uppercase">RECENT TRANSMISSIONS</div>
+                {historyLoading && <Loader2 size={12} className="animate-spin text-blue-500" />}
+              </div>
+
+              <div className="space-y-4">
+                {history.length === 0 ? (
+                  <div className="py-8 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-white/10 uppercase font-bold text-[9px] tracking-widest italic">
+                    NO PREVIOUS TRANSMISSIONS FOUND
+                  </div>
+                ) : (
+                  history.slice(0, 5).map((clip, i) => (
+                    <div key={i} className="p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-blue-500/30 transition-all">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+                            <Video size={14} />
+                          </div>
+                          <div>
+                            <div className="text-white text-xs font-bold tracking-wide uppercase">{clip.title}</div>
+                            <div className="text-white/20 text-[8px] font-black tracking-wider uppercase mt-0.5">{clip.category}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <a 
+                            href={clip.video_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-blue-500 hover:text-white transition-all"
+                            title="View Link"
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(clip.id);
+                            }}
+                            disabled={deletingId === clip.id}
+                            className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-red-500 hover:text-white transition-all group/del disabled:opacity-50"
+                            title="Delete Clip"
+                          >
+                            {deletingId === clip.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          </button>
+                        </div>
+                      </div>
+                      {clip.notes && (
+                         <div className="text-[10px] text-white/40 leading-relaxed italic border-l-2 border-white/10 pl-3">
+                           "{clip.notes}"
+                         </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

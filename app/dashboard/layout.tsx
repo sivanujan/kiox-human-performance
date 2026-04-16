@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import NotificationDropdown from "@/components/NotificationDropdown";
 import { 
   Loader2, 
   Bell, 
@@ -192,10 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-[#22c55e] hover:border-[#22c55e]/30 transition-all">
-               <Bell size={18} />
-               <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_#ef4444]" />
-            </button>
+            <NotificationDropdown />
             <Link href="/dashboard/profile" className="flex items-center gap-3 group">
                <div className="text-right hidden md:block">
                   <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>

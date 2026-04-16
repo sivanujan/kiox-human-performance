@@ -43,6 +43,7 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import NotificationProvider from "@/components/providers/NotificationProvider";
 
 export default function RootLayout({
   children,
@@ -57,11 +58,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white selection:bg-[#00ff41] selection:text-black font-sans relative">
         <AuthProvider>
-          <Loader />
-          <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
-          <Navbar />
-          <main className="flex-1 w-full relative z-10">{children}</main>
-          <Footer />
+          <NotificationProvider>
+            <Loader />
+            <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
+            <Navbar />
+            <main className="flex-1 w-full relative z-10">{children}</main>
+            <Footer />
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>

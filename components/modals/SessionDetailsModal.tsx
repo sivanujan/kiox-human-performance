@@ -100,7 +100,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 <h2 className={`${anton.className} text-5xl text-white tracking-wider uppercase mb-2`}>{session.title}</h2>
                 <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-widest">
                    <div className="flex items-center gap-2"><Calendar size={14} className="text-[#22c55e]" /> {session.scheduled_date}</div>
-                   <div className="flex items-center gap-2"><Clock size={14} className="text-[#22c55e]" /> {session.scheduled_time}</div>
+                   <div className="flex items-center gap-2"><Clock size={14} className="text-[#22c55e]" /> {session.start_time}</div>
                    <div className="flex items-center gap-2"><MapPin size={14} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
                 </div>
              </div>

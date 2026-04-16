@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import NotificationDropdown from "@/components/NotificationDropdown";
 import { 
   Loader2, 
   Bell, 
@@ -250,6 +251,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-4">
+            <NotificationDropdown />
             {/* Quick Add Button */}
             <button 
               onClick={() => setIsAddModalOpen(true)}

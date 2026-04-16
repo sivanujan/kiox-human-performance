@@ -21,7 +21,7 @@ export async function GET() {
     .select(`
       *,
       athlete:profiles(id, first_name, last_name, avatar_url, weekly_load),
-      session:training_sessions(id, title, session_type, scheduled_date, scheduled_time, max_capacity)
+      session:training_sessions(id, title, session_type, scheduled_date, start_time, max_capacity)
     `)
     .order('booked_at', { ascending: false });
 

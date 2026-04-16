@@ -46,7 +46,7 @@ export async function POST(request: Request) {
             title: t.title,
             session_type: t.session_type,
             scheduled_date: format(sessionDate, 'yyyy-MM-dd'),
-            scheduled_time: t.start_time,
+            start_time: t.start_time,
             duration_minutes: t.duration_minutes,
             max_capacity: t.max_capacity,
             location: t.location,

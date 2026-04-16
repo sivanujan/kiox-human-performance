@@ -126,7 +126,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                   <div className="text-white/20 text-[9px] font-black uppercase tracking-widest mb-1">DEPLOYMENT WINDOW</div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
                      <Clock size={14} className="text-[#22c55e]" />
-                     {session.scheduled_time.slice(0, 5)} // {session.duration_minutes}m
+                     {session.start_time.slice(0, 5)} // {session.duration_minutes}m
                   </div>
                </div>
                <div className="bg-white/[0.03] p-4 rounded-2xl border border-white/5">

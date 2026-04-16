@@ -105,7 +105,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
                     {session.status}
                   </span>
                   <span className="text-white/20 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                    <Clock size={10} /> {session.scheduled_time.slice(0, 5)}
+                    <Clock size={10} /> {session.start_time.slice(0, 5)}
                   </span>
                 </div>
                 <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase mb-1 truncate">{session.title}</h4>

@@ -33,6 +33,7 @@ import SurveyAssignModal from "@/components/modals/SurveyAssignModal";
 import VideoFeedbackModal from "@/components/modals/VideoFeedbackModal";
 import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedModal";
 import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
+import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 
 // Admin UI Components
 import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
+  const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
   
   // Operational State
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
@@ -116,7 +118,7 @@ export default function AdminDashboard() {
           .from('training_sessions')
           .select('*')
           .eq('scheduled_date', today)
-          .order('scheduled_time', { ascending: true })
+          .order('start_time', { ascending: true })
       ]);
 
       const [athData, alrtData, noteData, wellData] = await Promise.all([
@@ -148,7 +150,7 @@ export default function AdminDashboard() {
       if (!sessionRes.error && sessionRes.data) {
         const mappedSessions = sessionRes.data.map(s => ({
           name: s.title,
-          time: s.scheduled_time.slice(0, 5),
+          time: s.start_time.slice(0, 5),
           type: s.session_type.toLowerCase()
         }));
         setTodaySessions(mappedSessions);
@@ -332,6 +334,7 @@ export default function AdminDashboard() {
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
+          onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
           externalSearchQuery={searchQuery}
         />
 
@@ -486,6 +489,12 @@ export default function AdminDashboard() {
       <CreateSessionModal isOpen={isCreateSessionOpen} onClose={() => setIsCreateSessionOpen(false)} athletes={athletes} />
       <SessionDetailsModal isOpen={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} session={activeSession} />
       <AdjustLoadModal isOpen={isAdjustLoadOpen} onClose={() => setIsAdjustLoadOpen(false)} sessions={[]} athletes={athletes} />
+      <AthleteAssessmentModal
+        isOpen={isAssessmentModalOpen}
+        onClose={() => setIsAssessmentModalOpen(false)}
+        athleteId={selectedAthlete}
+        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+      />
     </div>
   );
 }

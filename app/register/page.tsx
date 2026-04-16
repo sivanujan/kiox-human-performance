@@ -596,10 +596,12 @@ export default function RegisterPage() {
                             name="countryCode" 
                             value={formData.countryCode} 
                             onChange={handleChange}
-                            className="w-[100px] bg-black/30 border border-white/10 rounded-xl py-4 px-3 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm appearance-none cursor-pointer"
+                            className="w-[110px] bg-black/30 border border-white/10 rounded-xl py-4 px-3 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm appearance-none cursor-pointer"
                           >
                             {countries.map(c => (
-                              <option key={c.code} value={c.code} className="bg-[#111]">{c.code}</option>
+                              <option key={c.code} value={c.code} className="bg-[#111] text-white">
+                                {c.code} ({c.name.substring(0, 3)})
+                              </option>
                             ))}
                           </select>
                           <input 
@@ -663,10 +665,12 @@ export default function RegisterPage() {
                             name="emergencyCountryCode" 
                             value={formData.emergencyCountryCode} 
                             onChange={handleChange}
-                            className="w-[100px] bg-black/30 border border-white/10 rounded-xl py-4 px-3 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm appearance-none cursor-pointer"
+                            className="w-[110px] bg-black/30 border border-white/10 rounded-xl py-4 px-3 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm appearance-none cursor-pointer"
                           >
                             {countries.map(c => (
-                              <option key={c.code} value={c.code} className="bg-[#111]">{c.code}</option>
+                              <option key={c.code} value={c.code} className="bg-[#111] text-white">
+                                {c.code} ({c.name.substring(0, 3)})
+                              </option>
                             ))}
                           </select>
                           <input 

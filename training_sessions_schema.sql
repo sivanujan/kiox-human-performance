@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
     title TEXT NOT NULL,
     session_type TEXT CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'CUSTOM')),
     scheduled_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    scheduled_time TIME NOT NULL,
+    start_time TIME NOT NULL,
     duration_minutes INTEGER DEFAULT 60,
     location TEXT,
     assigned_athletes UUID[] DEFAULT '{}',
@@ -22,16 +22,20 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
 DO $$ 
 BEGIN
     -- Core identity & timing
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='session_type') THEN
-        ALTER TABLE public.training_sessions ADD COLUMN session_type TEXT CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'CUSTOM'));
-    END IF;
+    -- Standardize session_type check constraint (Handles Uppercase standard)
+    ALTER TABLE public.training_sessions DROP CONSTRAINT IF EXISTS training_sessions_session_type_check;
+    ALTER TABLE public.training_sessions ADD CONSTRAINT training_sessions_session_type_check 
+        CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'ASSESSMENT', 'CUSTOM'));
     
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='scheduled_date') THEN
         ALTER TABLE public.training_sessions ADD COLUMN scheduled_date DATE NOT NULL DEFAULT CURRENT_DATE;
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='scheduled_time') THEN
-        ALTER TABLE public.training_sessions ADD COLUMN scheduled_time TIME NOT NULL DEFAULT '09:00:00';
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='start_time') THEN
+        ALTER TABLE public.training_sessions ADD COLUMN start_time TIME NOT NULL DEFAULT '09:00:00';
+    ELSE
+        -- Ensure the column is explicitly TIME if it exists as another type (e.g., TIMESTAMPTZ)
+        ALTER TABLE public.training_sessions ALTER COLUMN start_time TYPE TIME USING start_time::TIME;
     END IF;
 
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='duration_minutes') THEN
@@ -51,9 +55,10 @@ BEGIN
         ALTER TABLE public.training_sessions ADD COLUMN assigned_by UUID REFERENCES public.profiles(id);
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='status') THEN
-        ALTER TABLE public.training_sessions ADD COLUMN status TEXT DEFAULT 'SCHEDULED' CHECK (status IN ('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'));
-    END IF;
+    -- Standardize status check constraint (Handles Uppercase standard)
+    ALTER TABLE public.training_sessions DROP CONSTRAINT IF EXISTS training_sessions_status_check;
+    ALTER TABLE public.training_sessions ADD CONSTRAINT training_sessions_status_check 
+        CHECK (status IN ('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'));
 
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='notes') THEN
         ALTER TABLE public.training_sessions ADD COLUMN notes TEXT;
@@ -61,6 +66,11 @@ BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='target_load_au') THEN
         ALTER TABLE public.training_sessions ADD COLUMN target_load_au INTEGER;
+    END IF;
+
+    -- Legacy/External field cleanup
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='end_time') THEN
+        ALTER TABLE public.training_sessions ALTER COLUMN end_time DROP NOT NULL;
     END IF;
 END $$;
 
@@ -81,6 +91,7 @@ ALTER TABLE public.training_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.session_athlete_loads ENABLE ROW LEVEL SECURITY;
 
 -- SESSIONS: Admin/Staff can manage, athletes can view if assigned
+DROP POLICY IF EXISTS "Admin/Staff can manage all training sessions" ON public.training_sessions;
 CREATE POLICY "Admin/Staff can manage all training sessions"
     ON public.training_sessions
     FOR ALL
@@ -88,6 +99,7 @@ CREATE POLICY "Admin/Staff can manage all training sessions"
     USING (public.is_admin_or_staff(auth.uid()))
     WITH CHECK (public.is_admin_or_staff(auth.uid()));
 
+DROP POLICY IF EXISTS "Athletes can view their assigned sessions" ON public.training_sessions;
 CREATE POLICY "Athletes can view their assigned sessions"
     ON public.training_sessions
     FOR SELECT
@@ -95,6 +107,7 @@ CREATE POLICY "Athletes can view their assigned sessions"
     USING (auth.uid() = ANY(assigned_athletes));
 
 -- LOADS: Admin/Staff can manage, athletes can view their own
+DROP POLICY IF EXISTS "Admin/Staff can manage all session loads" ON public.session_athlete_loads;
 CREATE POLICY "Admin/Staff can manage all session loads"
     ON public.session_athlete_loads
     FOR ALL
@@ -102,6 +115,7 @@ CREATE POLICY "Admin/Staff can manage all session loads"
     USING (public.is_admin_or_staff(auth.uid()))
     WITH CHECK (public.is_admin_or_staff(auth.uid()));
 
+DROP POLICY IF EXISTS "Athletes can view their own session loads" ON public.session_athlete_loads;
 CREATE POLICY "Athletes can view their own session loads"
     ON public.session_athlete_loads
     FOR SELECT
@@ -131,6 +145,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS tr_sync_session_load_on_completion ON public.training_sessions;
 CREATE TRIGGER tr_sync_session_load_on_completion
     AFTER UPDATE ON public.training_sessions
     FOR EACH ROW

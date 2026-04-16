@@ -21,7 +21,7 @@ export async function GET() {
       .gte('scheduled_date', start)
       .lte('scheduled_date', end)
       .order('scheduled_date', { ascending: true })
-      .order('scheduled_time', { ascending: true }),
+      .order('start_time', { ascending: true }),
     supabase
       .from('session_bookings')
       .select('*')

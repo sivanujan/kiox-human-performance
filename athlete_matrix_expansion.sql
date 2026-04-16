@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
     description TEXT,
     session_type TEXT CHECK (session_type IN ('strength', 'tactical', 'recovery', 'assessment')),
     scheduled_date DATE DEFAULT CURRENT_DATE,
-    scheduled_time TIME NOT NULL,
+    start_time TIME NOT NULL,
     duration_minutes INTEGER DEFAULT 60,
     max_capacity INTEGER DEFAULT 1,
     location TEXT,

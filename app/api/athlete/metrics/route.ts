@@ -19,7 +19,9 @@ export async function GET() {
       goals, assists, xg, pass_accuracy, duels_won, pressures,
       reaction_time, decision_score, focus_score,
       sprint_speed_target, sprint_speed_current, 
-      pass_accuracy_target, fatigue_dips_per_week
+      pass_accuracy_target, fatigue_dips_per_week,
+      protocol_directives,
+      reaction_time, decision_score, focus_score, stress_level
     `)
     .eq('id', user.id)
     .single();

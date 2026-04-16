@@ -160,7 +160,7 @@ export default function AdminSchedules() {
                        className={`w-full text-left p-3 rounded-xl border border-white/5 relative group transition-all hover:translate-y-[-2px] hover:shadow-xl ${getTypeColor(session.session_type)} bg-opacity-10`}
                      >
                         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getTypeColor(session.session_type)}`} />
-                        <div className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">{session.scheduled_time.slice(0, 5)}</div>
+                        <div className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">{session.start_time.slice(0, 5)}</div>
                         <div className="text-white font-bold text-[10px] uppercase truncate tracking-wide">{session.title}</div>
                         <div className="mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                            <div className="w-1 h-1 rounded-full bg-white/20" />

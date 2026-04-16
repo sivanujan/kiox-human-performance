@@ -153,7 +153,7 @@ export default function StaffPortal() {
       if (!sessionRes.error && sessionRes.data) {
         const mappedSessions = sessionRes.data.map(s => ({
           name: s.title,
-          time: s.scheduled_time.slice(0, 5),
+          time: s.start_time.slice(0, 5),
           type: s.session_type.toLowerCase()
         }));
         setTodaySessions(mappedSessions);
@@ -233,33 +233,16 @@ export default function StaffPortal() {
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
         {/* ========================
-            STAFF HEADER
+            PAGE CONTENT HEADER
             ======================== */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-['Anton'] text-[#22c55e]">
-              {profile?.first_name ? profile.first_name[0].toUpperCase() : 'C'}
-            </div>
-            <div>
-              <div className="text-[#22c55e] text-[10px] tracking-[0.3em] font-['Anton'] uppercase">
-                Staff Command // Tactical Obersight
-              </div>
-              <div className="text-white font-['Anton'] text-2xl tracking-wider">
-                {profile?.role === 'staff' ? 'COACH' : 'ADMIN'} {profile?.last_name?.toUpperCase() || 'AGENT'}
-              </div>
-              <div className="text-white/20 text-[11px] uppercase tracking-widest font-bold">
-                {profile?.role === 'staff' ? 'Performance Staff' : 'Super Operations Command'} // KIO-X FORCE
-              </div>
-            </div>
-          </div>
-
-          <div className="relative w-full md:w-[320px]">
+          <div className="relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
             <input
               placeholder="SEARCH SQUAD DATA..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-4 pl-12 pr-4 text-white text-xs font-['Anton'] tracking-widest focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-white/10"
+              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-4 pl-12 pr-4 text-white text-xs font-['Anton'] tracking-widest focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-white/10 shadow-2xl"
             />
           </div>
         </div>

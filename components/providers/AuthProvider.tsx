@@ -151,6 +151,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Verification interval - checks every 30 seconds
     const interval = setInterval(async () => {
+      // Check for Remember Me preference
+      const rememberMe = localStorage.getItem("kiox_remember_me") === "true";
+      
+      if (rememberMe) {
+        // If Remember Me is active, bypass inactivity logout
+        return;
+      }
+
       const now = Date.now();
       const diff = now - lastActivityRef.current;
 
