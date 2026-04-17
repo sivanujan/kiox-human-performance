@@ -17,7 +17,7 @@ export async function POST(
   // 2. Role Check
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, first_name")
     .eq("id", user.id)
     .single();
 
@@ -46,8 +46,14 @@ export async function POST(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Note: The SQL trigger 'update_injury_risk_on_log' will automatically
-  // handle the profile.injury_risk update.
+  // --- TRIGGER PUSH NOTIFICATION ---
+  await supabase.from("system_notifications").insert({
+    recipient_id: athleteId,
+    sender_id: user.id,
+    title: "MEDICAL STATUS UPDATE",
+    message: `A new ${injuryType} injury record has been logged by ${profile?.first_name || 'Staff'}.`,
+    type: "UPDATE"
+  });
 
   return NextResponse.json({ success: true, data });
 }

@@ -44,6 +44,15 @@ export async function POST(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+ 
+  // --- TRIGGER PUSH NOTIFICATION ---
+  await supabase.from("system_notifications").insert({
+    recipient_id: athleteId,
+    sender_id: user.id,
+    title: "NEW TRAINING PLAN",
+    message: `${profile?.first_name || 'Staff'} has initiated a new ${phase} phase: ${title}`,
+    type: "UPDATE"
+  });
 
   return NextResponse.json({ success: true, data });
 }

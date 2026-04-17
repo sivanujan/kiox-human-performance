@@ -17,7 +17,7 @@ export async function POST(
   // 2. Role Check
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, first_name")
     .eq("id", user.id)
     .single();
 
@@ -43,6 +43,15 @@ export async function POST(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // --- TRIGGER PUSH NOTIFICATION ---
+  await supabase.from("system_notifications").insert({
+    recipient_id: athleteId,
+    sender_id: user.id,
+    title: "NEW ASSESSMENT ISSUED",
+    message: `${profile?.first_name || 'Staff'} assigned a new ${surveyType} survey. Due: ${dueDate}`,
+    type: "UPDATE"
+  });
 
   return NextResponse.json({ success: true, data });
 }
