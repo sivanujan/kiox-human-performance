@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { recalculateAthleteMetrics } from '@/utils/analytics-engine';
@@ -24,18 +25,23 @@ export async function POST(
   try {
     const { alertId } = await request.json();
 
+    const supabaseAdmin = createAdminClient();
+
     // 2. Clear Active Injuries for Athlete
-    const { error: injError } = await supabase
+    const { error: injError } = await supabaseAdmin
       .from('athlete_injury_logs')
       .update({ status: 'Cleared' })
       .eq('athlete_id', athleteId)
       .neq('status', 'Cleared');
 
-    if (injError) throw injError;
+    if (injError) {
+      console.error("Injury Clear Error:", injError);
+      throw injError;
+    }
 
     // 3. Resolve the Clearance Alert
     if (alertId) {
-      await supabase
+      await supabaseAdmin
         .from('athlete_alerts')
         .update({
           is_resolved: true,
@@ -46,18 +52,18 @@ export async function POST(
     }
 
     // 4. Update Profile Risk to Low (Trigger should handle this, but let's be explicit)
-    await supabase.from('profiles').update({ injury_risk: 'low' }).eq('id', athleteId);
+    await supabaseAdmin.from('profiles').update({ injury_risk: 'low' }).eq('id', athleteId);
 
     // 5. Recalculate Metrics (Sync readiness score)
-    await recalculateAthleteMetrics(supabase, athleteId);
+    await recalculateAthleteMetrics(supabaseAdmin, athleteId);
 
     // 6. Notify athlete
-    await supabase.from('system_notifications').insert({
+    await supabaseAdmin.from('system_notifications').insert({
       recipient_id: athleteId,
       sender_id: user.id,
       title: "MEDICAL CLEARANCE GRANTED",
       message: "Congratulations. Command staff has verified your recovery. You are cleared for operational training.",
-      type: 'SUCCESS'
+      type: 'UPDATE'
     });
 
     return NextResponse.json({ success: true, message: 'Athlete cleared for performance duties.' });
