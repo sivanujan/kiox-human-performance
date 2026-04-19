@@ -23,6 +23,19 @@ export async function POST() {
 
     if (injError) throw injError;
     if (!activeInjuries || activeInjuries.length === 0) {
+      // SELF-HEALING: If athlete is "RESTRICTED" but has no logs, reset their profile status
+      const { data: profile } = await supabase.from('profiles').select('training_status').eq('id', athleteId).single();
+      
+      if (profile?.training_status === 'INJURED' || profile?.training_status === 'NOT READY') {
+        console.log(`[Self-Healing] Reconciling stuck injury status for: ${athleteId}`);
+        await require('@/utils/analytics-engine').recalculateAthleteMetrics(supabase, athleteId);
+        
+        return NextResponse.json({ 
+          success: true, 
+          message: 'Clinical status synchronized manually. Access restored.' 
+        }, { status: 200 });
+      }
+
       return NextResponse.json({ 
         success: false, 
         message: 'No clinical injury records found requiring command clearance at this time.' 

@@ -26,10 +26,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('trainer_notes')
-    .select(`
-      *,
-      added_by:profiles(first_name, last_name)
-    `);
+    .select('*');
   
   if (userId && userId !== 'null' && userId !== 'undefined') {
     query = query.eq('user_id', userId);
@@ -42,10 +39,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ 
       error: error.message, 
       details: error.details,
-      hint: "Ensure you have created the trainer_notes table and added_by foreign key." 
+      hint: "Ensure you have created the trainer_notes table." 
     }, { status: 500 });
   }
-  return NextResponse.json(notes);
+  return NextResponse.json(notes || []);
 }
 
 export async function POST(request: Request) {
