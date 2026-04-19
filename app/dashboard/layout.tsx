@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Activity,
   Menu,
-  X
+  X,
+  Camera
 } from "lucide-react";
 import Image from "next/image";
 

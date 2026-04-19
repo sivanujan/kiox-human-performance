@@ -332,7 +332,10 @@ export default function AdminDashboard() {
 
         {/* 3. ATHLETE LIST */}
         <AthleteRoster 
-          onSelectAthlete={(id) => { setSelectedAthlete(id); setIsPlanModalOpen(true); }}
+          onSelectAthlete={(id) => { 
+            setSelectedAthlete(id); 
+            document.getElementById('admin-management-core')?.scrollIntoView({ behavior: 'smooth' });
+          }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
@@ -359,7 +362,7 @@ export default function AdminDashboard() {
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
         {/* 8. INDIVIDUAL ATHLETE MANAGEMENT */}
-         <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
+         <div id="admin-management-core" className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-10 opacity-5 font-display text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COMMAND</div>
                       <div className="relative z-10 max-w-2xl">
                <div className="text-[#22c55e] font-display text-2xl font-black mb-6 flex items-center gap-3 tracking-widest">

@@ -63,94 +63,117 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-lg bg-[#0a0a0a] border border-red-500/20 rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.1)]"
+          className="relative w-full md:max-w-md bg-[#111] border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50"
         >
-          {/* Header */}
-          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-red-500/10 to-transparent">
+          {/* Drag handle — mobile only */}
+          <div className="md:hidden flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 rounded-full bg-gray-700" />
+          </div>
+
+          {/* Modal Header */}
+          <div className="flex items-start justify-between p-5 md:p-6 border-b border-gray-800">
             <div>
-              <div className="text-red-500 text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
-                <ShieldAlert size={12} fill="currentColor" /> MEDICAL PROTOCOL
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[#22c55e] text-xs">⚡</span>
+                <span className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase">
+                  COMMAND PROTOCOL
+                </span>
               </div>
-              <h2 className={`font-display text-2xl text-white tracking-wider uppercase`}>
-                LOG INJURY / RECOVERY
+              <h2 className="font-display text-xl font-bold text-white tracking-wide uppercase">
+                INJURY LOG
               </h2>
             </div>
-            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-gray-500 hover:text-white transition-all">
-              <X size={20} />
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-white transition-all touch-manipulation flex-shrink-0"
+            >
+              ✕
             </button>
           </div>
 
-          <div className="p-8">
-            <div className="mb-8 p-4 bg-white/5 border border-white/5 rounded-2xl">
-              <div className="text-gray-500 text-[9px] font-black tracking-widest uppercase mb-1 flex items-center gap-2">
-                <Zap size={10} className="text-red-500" /> SUBJECT IDENTITY
+          <div className="p-5 md:p-6 space-y-5">
+            {/* Target Subject (read-only) */}
+            <div>
+              <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2">
+                TARGET SUBJECT
+              </label>
+              <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
+                {athleteName}
               </div>
-              <div className="text-white font-bold tracking-wide uppercase">{athleteName}</div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-red-500 tracking-widest uppercase ml-1">Injury Type</label>
-                  <select
-                    value={formData.injuryType}
-                    onChange={(e) => setFormData({ ...formData, injuryType: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="Muscle Strain">MUSCLE STRAIN</option>
-                    <option value="Joint">JOINT</option>
-                    <option value="Fatigue">FATIGUE</option>
-                    <option value="Illness">ILLNESS</option>
-                    <option value="Other">OTHER</option>
-                  </select>
+                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Injury Type</label>
+                  <div className="relative">
+                    <select
+                      value={formData.injuryType}
+                      onChange={(e) => setFormData({ ...formData, injuryType: e.target.value })}
+                      className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                    >
+                      <option value="Muscle Strain">MUSCLE STRAIN</option>
+                      <option value="Joint">JOINT</option>
+                      <option value="Fatigue">FATIGUE</option>
+                      <option value="Illness">ILLNESS</option>
+                      <option value="Other">OTHER</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▾</div>
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-red-500 tracking-widest uppercase ml-1">Severity</label>
-                  <select
-                    value={formData.severity}
-                    onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="Low">LOW RISK</option>
-                    <option value="Medium">MEDIUM RISK</option>
-                    <option value="High">HIGH RISK</option>
-                  </select>
+                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Severity</label>
+                  <div className="relative">
+                    <select
+                      value={formData.severity}
+                      onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
+                      className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                    >
+                      <option value="Low">LOW RISK</option>
+                      <option value="Medium">MEDIUM RISK</option>
+                      <option value="High">HIGH RISK</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▾</div>
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-red-500 tracking-widest uppercase ml-1">Body Part</label>
+                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Body Part</label>
                   <input
                     required
                     placeholder="EX: LEFT HAMSTRING"
                     value={formData.bodyPart}
                     onChange={(e) => setFormData({ ...formData, bodyPart: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold placeholder:text-white/5 focus:outline-none focus:border-red-500 transition-all"
+                    className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-red-500 tracking-widest uppercase ml-1">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-red-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="Active Injury">ACTIVE INJURY</option>
-                    <option value="In Recovery">IN RECOVERY</option>
-                    <option value="Cleared">CLEARED</option>
-                  </select>
+                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Status</label>
+                  <div className="relative">
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                    >
+                      <option value="Active Injury">ACTIVE INJURY</option>
+                      <option value="In Recovery">IN RECOVERY</option>
+                      <option value="Cleared">CLEARED</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▾</div>
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-red-500 tracking-widest uppercase ml-1">Clinical Notes</label>
+                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Clinical Notes</label>
                 <textarea
                   rows={4}
                   placeholder="DETAIL THE FINDINGS AND REHAB PROTOCOL..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-medium placeholder:text-white/5 focus:outline-none focus:border-red-500 transition-all resize-none"
+                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase resize-none transition-all min-h-[120px]"
                 />
               </div>
 
@@ -160,14 +183,22 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-red-500 text-white font-black uppercase tracking-[2px] py-5 rounded-xl flex items-center justify-center gap-2 hover:bg-red-600 transition-all shadow-[0_10px_30px_rgba(239,68,68,0.3)] disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : "COMMIT MEDICAL LOG"}
-                {!loading && <ArrowRight size={18} />}
-              </button>
+              <div className="sticky bottom-0 pt-4 bg-[#111] border-t border-gray-800 mt-6 -mx-6 px-6 pb-6">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-[#22c55e] hover:bg-[#4ade80] disabled:bg-[#22c55e]/50 disabled:cursor-not-allowed text-black font-display font-bold text-sm tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all touch-manipulation active:scale-[0.98]"
+                >
+                    {loading ? (
+                        <>
+                            <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                            PROCESSING...
+                        </>
+                    ) : (
+                        <>COMMIT MEDICAL LOG →</>
+                    )}
+                </button>
+              </div>
             </form>
           </div>
         </motion.div>

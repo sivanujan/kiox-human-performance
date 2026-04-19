@@ -132,69 +132,96 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-lg bg-[#0a0a0a] border border-blue-500/20 rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.1)]"
+          className="relative w-full md:max-w-md bg-[#111] border border-gray-800 rounded-t-2xl md:rounded-2xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50"
         >
-          {/* Header */}
-          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-transparent">
+          {/* Drag handle — mobile only */}
+          <div className="md:hidden flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 rounded-full bg-gray-700" />
+          </div>
+
+          {/* Modal Header */}
+          <div className="flex items-start justify-between p-5 md:p-6 border-b border-gray-800">
             <div>
-              <div className="text-blue-500 text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
-                <Video size={12} fill="currentColor" /> TACTICAL PROTOCOL
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[#22c55e] text-xs">⚡</span>
+                <span className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase">
+                  COMMAND PROTOCOL
+                </span>
               </div>
-              <h2 className={`font-display text-2xl text-white tracking-wider uppercase`}>
-                UPLOAD VIDEO FEEDBACK
+              <h2 className="font-display text-xl font-bold text-white tracking-wide uppercase">
+                VIDEO FEEDBACK
               </h2>
             </div>
-            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-gray-500 hover:text-white transition-all">
-              <X size={20} />
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-white transition-all touch-manipulation flex-shrink-0"
+            >
+              ✕
             </button>
           </div>
 
-          <div className="p-8">
-            <div className="mb-8 p-4 bg-white/5 border border-white/5 rounded-2xl">
-              <div className="text-gray-500 text-[9px] font-black tracking-widest uppercase mb-1">TARGET SUBJECT</div>
-              <div className="text-white font-bold tracking-wide uppercase">{athleteName}</div>
+          <div className="p-5 md:p-6 space-y-5">
+            {/* Target Subject (read-only) */}
+            <div>
+              <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2">
+                TARGET SUBJECT
+              </label>
+              <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
+                {athleteName}
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-blue-500 tracking-widest uppercase ml-1">Feedback Title</label>
+                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Feedback Title</label>
                 <input
                   required
                   placeholder="EX: MIDFIELD TRANSITION ANALYSIS"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-blue-500 tracking-widest uppercase ml-1">Category</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                >
-                  <option value="Technique">TECHNIQUE</option>
-                  <option value="Tactical">TACTICAL</option>
-                  <option value="Strength">STRENGTH</option>
-                  <option value="General">GENERAL</option>
-                </select>
+                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Category</label>
+                <div className="relative">
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                  >
+                    <option value="Technique">TECHNIQUE</option>
+                    <option value="Tactical">TACTICAL</option>
+                    <option value="Strength">STRENGTH</option>
+                    <option value="General">GENERAL</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">▾</div>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-blue-500 tracking-widest uppercase ml-1">Upload Source</label>
-                <div className="flex gap-2 p-1 bg-black/40 border border-white/10 rounded-xl">
+                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Upload Source</label>
+                <div className="flex rounded-xl overflow-hidden border border-gray-800">
                   <button
                     type="button"
                     onClick={() => setUploadMethod("file")}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'file' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-white'}`}
+                     className={`flex-1 py-2.5 font-mono text-[10px] tracking-wider uppercase flex items-center justify-center gap-2 transition-all ${
+                        uploadMethod === 'file'
+                          ? 'bg-[#22c55e]/20 text-[#22c55e] border-r border-gray-800'
+                          : 'bg-transparent text-gray-500 border-r border-gray-800 hover:text-gray-300'
+                      }`}
                   >
                     <UploadCloud size={14} /> FILE UPLOAD
                   </button>
                   <button
                     type="button"
                     onClick={() => setUploadMethod("url")}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'url' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-white'}`}
+                    className={`flex-1 py-2.5 font-mono text-[10px] tracking-wider uppercase flex items-center justify-center gap-2 transition-all ${
+                        uploadMethod === 'url'
+                          ? 'bg-[#22c55e]/20 text-[#22c55e]'
+                          : 'bg-transparent text-gray-500 hover:text-gray-300'
+                      }`}
                   >
                     <LinkIcon size={14} /> EXTERNAL URL
                   </button>
@@ -204,10 +231,10 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
               {uploadMethod === "file" ? (
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl p-8 flex flex-col items-center gap-2 cursor-pointer transition-all group bg-blue-500/5"
+                  className="border-2 border-dashed border-gray-700 hover:border-[#22c55e]/50 rounded-xl p-8 text-center cursor-pointer transition-all hover:bg-[#22c55e]/5 active:bg-[#22c55e]/10 group"
                 >
-                  <UploadCloud size={32} className="text-gray-700 group-hover:text-blue-500 transition-colors" />
-                  <div className="text-[10px] font-black text-white/40 uppercase tracking-widest">
+                  <div className="text-[#22c55e] text-2xl mb-2 flex justify-center group-hover:scale-110 transition-transform">↑</div>
+                  <div className="font-mono text-[10px] text-gray-500 tracking-widest uppercase">
                     {videoFile ? videoFile.name : "SELECT MP4 / MOV (MAX 500MB)"}
                   </div>
                   <input 
@@ -221,103 +248,96 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
               ) : (
                 <input
                   required
-                  placeholder="PASTE VIDEO URL (YOUTUBE/VIMEO/DIRECT)..."
+                  placeholder="PASTE VIDEO URL..."
                   value={formData.externalUrl}
                   onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-bold focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
                 />
               )}
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-blue-500 tracking-widest uppercase ml-1">Strategic Notes</label>
+                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Strategic Notes</label>
                 <textarea
                   rows={3}
                   placeholder="DETAIL THE COACHING POINTS..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-white text-sm font-medium focus:outline-none focus:border-blue-500 transition-all resize-none"
+                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase resize-none transition-all min-h-[100px]"
                 />
               </div>
 
               {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center animate-shake">
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
                   ERROR: {error}
                 </div>
               )}
 
-              {success && (
-                <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-500 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
-                  FEEDBACK TRANSMITTED SUCCESSFULLY
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-500 text-white font-black uppercase tracking-[2px] py-5 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-[0_10px_30px_rgba(59,130,246,0.3)] disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : "TRANSMIT FEEDBACK"}
-                {!loading && <ArrowRight size={18} />}
-              </button>
+              <div className="sticky bottom-0 pt-4 bg-[#111] border-t border-gray-800 mt-6 -mx-6 px-6 pb-6">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-[#22c55e] hover:bg-[#4ade80] disabled:bg-[#22c55e]/50 disabled:cursor-not-allowed text-black font-display font-bold text-sm tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all touch-manipulation active:scale-[0.98]"
+                >
+                    {loading ? (
+                        <>
+                            <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                            PROCESSING...
+                        </>
+                    ) : (
+                        <>TRANSMIT FEEDBACK →</>
+                    )}
+                </button>
+              </div>
             </form>
 
-            {/* History Section */}
-            <div className="mt-12 pt-8 border-t border-white/5 space-y-6">
-              <div className="flex justify-between items-center">
-                <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">RECENT TRANSMISSIONS</div>
-                {historyLoading && <Loader2 size={12} className="animate-spin text-blue-500" />}
-              </div>
-
-              <div className="space-y-4">
-                {history.length === 0 ? (
-                  <div className="py-8 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-gray-700 uppercase font-bold text-[9px] tracking-widest italic">
-                    NO PREVIOUS TRANSMISSIONS FOUND
-                  </div>
-                ) : (
-                  history.slice(0, 5).map((clip, i) => (
-                    <div key={i} className="p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-blue-500/30 transition-all">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
-                            <Video size={14} />
-                          </div>
-                          <div>
-                            <div className="text-white text-xs font-bold tracking-wide uppercase">{clip.title}</div>
-                            <div className="text-gray-500 text-[8px] font-black tracking-wider uppercase mt-0.5">{clip.category}</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <a 
-                            href={clip.video_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-blue-500 hover:text-white transition-all"
-                            title="View Link"
-                          >
-                            <ExternalLink size={14} />
-                          </a>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(clip.id);
-                            }}
-                            disabled={deletingId === clip.id}
-                            className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-red-500 hover:text-white transition-all group/del disabled:opacity-50"
-                            title="Delete Clip"
-                          >
-                            {deletingId === clip.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                          </button>
-                        </div>
-                      </div>
-                      {clip.notes && (
-                         <div className="text-[10px] text-white/40 leading-relaxed italic border-l-2 border-white/10 pl-3">
-                           "{clip.notes}"
-                         </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+            {/* Recent Transmissions Section */}
+            <div className="mt-5 pt-5 border-t border-gray-800">
+               <div className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase mb-3">
+                 RECENT TRANSMISSIONS
+               </div>
+               
+               {history.length === 0 ? (
+                 <div className="py-8 text-center bg-[#1a1a1a] rounded-xl border border-gray-800 text-gray-600 font-mono text-[10px] uppercase tracking-widest italic">
+                    NO PREVIOUS DATA STREAMS FOUND
+                 </div>
+               ) : (
+                 history.slice(0, 5).map(upload => (
+                   <div key={upload.id} 
+                        className="flex items-center gap-3 p-3 bg-[#1a1a1a] rounded-xl border border-gray-800 hover:border-gray-700 transition-all mb-2 group/clip">
+                     
+                     <div className="w-8 h-8 rounded-lg bg-gray-800 flex-shrink-0 flex items-center justify-center text-[#22c55e] text-xs group-hover/clip:bg-[#22c55e]/20 transition-all">
+                       ▶
+                     </div>
+                     
+                     <div className="flex-1 min-w-0">
+                       <div className="font-display text-xs font-bold text-white tracking-wider uppercase truncate">
+                         {upload.title}
+                       </div>
+                       <div className="font-mono text-[9px] text-gray-600 font-bold tracking-wider uppercase">
+                         {upload.category}
+                       </div>
+                     </div>
+                     
+                     <div className="flex gap-1 flex-shrink-0">
+                       <a 
+                         href={upload.video_url} 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         className="w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-[#22c55e] text-xs transition-all touch-manipulation"
+                       >
+                         ↗
+                       </a>
+                       <button 
+                         onClick={() => handleDelete(upload.id)}
+                         disabled={deletingId === upload.id}
+                         className="w-7 h-7 rounded-lg bg-gray-800 hover:bg-red-500/20 flex items-center justify-center text-gray-400 hover:text-red-400 text-xs transition-all touch-manipulation"
+                       >
+                         {deletingId === upload.id ? <Loader2 size={12} className="animate-spin" /> : '🗑'}
+                       </button>
+                     </div>
+                   </div>
+                 ))
+               )}
             </div>
           </div>
         </motion.div>

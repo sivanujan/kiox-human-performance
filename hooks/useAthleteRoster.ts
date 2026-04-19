@@ -62,6 +62,13 @@ export function useAthleteRoster() {
       return;
     }
 
+    // 1.5 Fetch Wellness Logs separately to avoid relationship issues
+    const profileIds = (profiles || []).map(p => p.id);
+    const { data: wellnessLogs } = await supabase
+      .from('wellness_logs')
+      .select('user_id, sleep_score, soreness_score, created_at')
+      .in('user_id', profileIds);
+
     const processed = (profiles || []).map(p => {
       // 1. Resolve Status
       const activeInjuries = p.athlete_injury_logs?.filter((l: any) => l.status !== 'Cleared') || [];
@@ -92,7 +99,18 @@ export function useAthleteRoster() {
         computed_status: computedStatus,
         last_session: sessions[0],
         load_trend: mockTrend,
-        alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0
+        alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,
+        recovery_score: (() => {
+          const athleteWellness = (wellnessLogs || []).filter((w: any) => w.user_id === p.id);
+          const sortedWellness = athleteWellness.sort((a: any, b: any) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          const latest = sortedWellness[0];
+          if (!latest) return 0;
+          const sleep = latest.sleep_score || 0;
+          const soreness = latest.soreness_score || 0;
+          return Math.round(((sleep + (10 - soreness)) / 20) * 100);
+        })()
       };
     });
 
