@@ -5,9 +5,10 @@ import { recalculateAthleteMetrics } from '@/utils/analytics-engine';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const athleteId = params.id;
+  const resolvedParams = await params;
+  const athleteId = resolvedParams.id;
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
