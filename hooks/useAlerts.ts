@@ -32,7 +32,6 @@ export function useAlerts() {
   useEffect(() => {
     fetchAlerts();
 
-    // Subscribe to new alerts and resolution updates
     const channelId = `alerts_${Math.random().toString(36).slice(2, 9)}`;
     const channel = supabase
       .channel(channelId)
@@ -40,7 +39,7 @@ export function useAlerts() {
         "postgres_changes",
         { event: "*", schema: "public", table: "athlete_alerts" },
         () => {
-          fetchAlerts(); // Refresh list on any change
+          fetchAlerts();
         }
       )
       .subscribe();
@@ -50,30 +49,62 @@ export function useAlerts() {
     };
   }, []);
 
-  // 3. Resolve Alert Action
+  // 3. Resolve a single alert — isolated from global loading state so it never gets stuck
   const resolveAlert = async (alertId: string, resolverId?: string) => {
-    setLoading(true);
     try {
+      const updatePayload: any = {
+        is_resolved: true,
+        resolved_at: new Date().toISOString(),
+      };
+      // Only set resolved_by if we have a valid user ID to avoid NOT NULL violations
+      if (resolverId) {
+        updatePayload.resolved_by = resolverId;
+      }
+
       const { error } = await supabase
         .from("athlete_alerts")
-        .update({
-          is_resolved: true,
-          resolved_at: new Date().toISOString(),
-          resolved_by: resolverId
-        })
+        .update(updatePayload)
         .eq("id", alertId);
 
       if (error) throw error;
+
+      // Optimistically remove from local state immediately — no waiting for realtime
+      setAlerts(prev => prev.filter(a => a.id !== alertId));
       return { success: true };
     } catch (err: any) {
       console.error("Failed to resolve anomaly:", err);
       return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
     }
   };
 
-  // 4. Fetch Resolved History
+  // 4. Resolve ALL active alerts at once (bulk clear)
+  const resolveAllAlerts = async (resolverId?: string) => {
+    try {
+      const updatePayload: any = {
+        is_resolved: true,
+        resolved_at: new Date().toISOString(),
+      };
+      if (resolverId) {
+        updatePayload.resolved_by = resolverId;
+      }
+
+      const { error } = await supabase
+        .from("athlete_alerts")
+        .update(updatePayload)
+        .eq("is_resolved", false);
+
+      if (error) throw error;
+
+      // Clear local state immediately
+      setAlerts([]);
+      return { success: true };
+    } catch (err: any) {
+      console.error("Failed to resolve all anomalies:", err);
+      return { success: false, error: err.message };
+    }
+  };
+
+  // 5. Fetch Resolved History
   const getResolvedHistory = async () => {
     try {
       const { data, error } = await supabase
@@ -94,5 +125,5 @@ export function useAlerts() {
     }
   };
 
-  return { alerts, loading, resolveAlert, fetchAlerts, getResolvedHistory };
+  return { alerts, loading, resolveAlert, resolveAllAlerts, fetchAlerts, getResolvedHistory };
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShieldAlert, CheckCircle2, Search, Filter, Clock, User, ClipboardList, Trash2, History, Loader2 } from "lucide-react";
+import { X, ShieldAlert, CheckCircle2, Search, Filter, Clock, User, ClipboardList, Trash2, History, Loader2, Zap } from "lucide-react";
 import { useAlerts } from "@/hooks/useAlerts";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { format } from "date-fns";
@@ -16,7 +16,7 @@ interface ReviewAlertsModalProps {
 
 export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModalProps) {
   const { user } = useAuth();
-  const { alerts, resolveAlert, getResolvedHistory, loading: globalLoading } = useAlerts();
+  const { alerts, resolveAlert, resolveAllAlerts, getResolvedHistory } = useAlerts();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "RESOLVED">("ACTIVE");
   const [history, setHistory] = useState<any[]>([]);
@@ -24,6 +24,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
   const [filterType, setFilterType] = useState("ALL");
   const [loading, setLoading] = useState(false);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [isResolvingAll, setIsResolvingAll] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -42,34 +43,42 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
     setLoading(false);
   };
 
-  const handleAction = async (alert: any) => {
-    setResolvingId(alert.id);
+  const handleAction = async (alertItem: any) => {
+    setResolvingId(alertItem.id);
     try {
-      if (alert.alert_type === 'MEDICAL_CLEARANCE_REQUEST') {
-        const res = await fetch(`/api/admin/athlete/${alert.athlete_id}/injury/clearance-approve`, {
+      if (alertItem.alert_type === 'MEDICAL_CLEARANCE_REQUEST') {
+        const res = await fetch(`/api/admin/athlete/${alertItem.athlete_id}/injury/clearance-approve`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ alertId: alert.id })
+          body: JSON.stringify({ alertId: alertItem.id })
         });
         if (res.ok) {
-          const result = await resolveAlert(alert.id, user?.id);
-          if (!result.success) alert(`Sync Warning: ${result.error}`);
+          await resolveAlert(alertItem.id, user?.id);
         } else {
           const errData = await res.json();
-          alert(`Clearance Error: ${errData.error || 'System failed to approve clearance'}`);
+          window.alert(`Clearance Error: ${errData.error || 'System failed to approve clearance'}`);
         }
       } else {
-        const result = await resolveAlert(alert.id, user?.id);
-        if (!result.success) alert(`Resolution Error: ${result.error}`);
-      }
-      
-      if (activeTab === "RESOLVED") {
-        loadHistory();
+        const result = await resolveAlert(alertItem.id, user?.id);
+        if (!result.success) window.alert(`Resolution Error: ${result.error}`);
       }
     } catch (e) {
       console.error("Resolution failed:", e);
     } finally {
       setResolvingId(null);
+    }
+  };
+
+  const handleResolveAll = async () => {
+    if (!window.confirm(`Resolve ALL ${alerts.length} active alerts? This cannot be undone.`)) return;
+    setIsResolvingAll(true);
+    try {
+      const result = await resolveAllAlerts(user?.id);
+      if (!result.success) window.alert(`Bulk Resolve Error: ${result.error}`);
+    } catch (e) {
+      console.error("Bulk resolution failed:", e);
+    } finally {
+      setIsResolvingAll(false);
     }
   };
 
@@ -99,19 +108,31 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
           className="relative w-full max-w-6xl bg-[#0a0a0a] border border-red-500/10 rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(239,68,68,0.1)]"
         >
           {/* Header */}
-          <div className="p-12 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-red-500/[0.05] to-transparent">
+          <div className="p-8 md:p-12 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-red-500/[0.05] to-transparent">
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 rounded-[24px] bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
                 <ShieldAlert size={32} />
               </div>
               <div>
                 <div className="text-red-500 text-[10px] font-black tracking-[5px] uppercase mb-1">CENTRAL RISK MANAGEMENT</div>
-                <h2 className={`font-display text-4xl text-white tracking-widest uppercase`}>System Anomalies</h2>
+                <h2 className="font-display text-4xl text-white tracking-widest uppercase">System Anomalies</h2>
               </div>
             </div>
-            <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
-              <X size={28} />
-            </button>
+            <div className="flex items-center gap-4">
+              {activeTab === "ACTIVE" && alerts.length > 0 && (
+                <button
+                  onClick={handleResolveAll}
+                  disabled={isResolvingAll}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-orange-500/10 border border-orange-500/40 text-orange-400 font-display text-xs tracking-widest uppercase hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all shadow-lg disabled:opacity-50"
+                >
+                  {isResolvingAll ? <Loader2 className="animate-spin" size={16} /> : <Zap size={16} />}
+                  {isResolvingAll ? 'CLEARING...' : `RESOLVE ALL (${alerts.length})`}
+                </button>
+              )}
+              <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                <X size={28} />
+              </button>
+            </div>
           </div>
 
           <div className="p-12">
@@ -198,8 +219,8 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                     ) : (
                       <button 
                         onClick={() => handleAction(alert)}
-                        disabled={resolvingId !== null}
-                        className="bg-red-500 text-white min-w-[140px] px-8 py-4 rounded-2xl font-display text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl flex items-center justify-center gap-2"
+                        disabled={resolvingId === alert.id || isResolvingAll}
+                        className="bg-red-500 text-white min-w-[140px] px-8 py-4 rounded-2xl font-display text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl flex items-center justify-center gap-2 disabled:opacity-60"
                       >
                         {resolvingId === alert.id ? (
                           <Loader2 className="animate-spin" size={18} />
