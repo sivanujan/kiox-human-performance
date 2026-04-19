@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -44,8 +45,11 @@ export async function POST() {
 
     const latestInjury = activeInjuries[0];
 
-    // 3. Check if a request already exists in active alerts
-    const { data: existingAlert } = await supabase
+    // 3. Admin Client for elevated operations
+    const supabaseAdmin = createAdminClient();
+
+    // 4. Check if a request already exists in active alerts
+    const { data: existingAlert } = await supabaseAdmin
       .from('athlete_alerts')
       .select('id')
       .eq('athlete_id', athleteId)
@@ -57,8 +61,8 @@ export async function POST() {
       return NextResponse.json({ message: 'Clearance request is already pending review.' }, { status: 200 });
     }
 
-    // 4. Create MEDICAL_CLEARANCE_REQUEST alert for Staff
-    const { error: alertError } = await supabase
+    // 5. Create MEDICAL_CLEARANCE_REQUEST alert for Staff (Bypass RLS)
+    const { error: alertError } = await supabaseAdmin
       .from('athlete_alerts')
       .insert({
         athlete_id: athleteId,
@@ -67,10 +71,13 @@ export async function POST() {
         message: `Athlete is requesting medical clearance for: ${latestInjury.injury_type} (${latestInjury.body_part || 'Unspecified area'})`,
       });
 
-    if (alertError) throw alertError;
+    if (alertError) {
+      console.error("Alert Insert Error:", alertError);
+      throw alertError;
+    }
 
-    // 5. Notify Staff via system_notifications
-    const { data: staffProfiles } = await supabase
+    // 6. Notify Staff via system_notifications (Bypass RLS)
+    const { data: staffProfiles } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .in('role', ['superadmin', 'staff']);
@@ -87,7 +94,7 @@ export async function POST() {
         type: 'UPDATE'
       }));
 
-      await supabase.from('system_notifications').insert(notifications);
+      await supabaseAdmin.from('system_notifications').insert(notifications);
     }
 
     return NextResponse.json({ success: true, message: 'Medical clearance request submitted to command staff.' });
