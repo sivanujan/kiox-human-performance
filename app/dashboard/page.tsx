@@ -221,7 +221,7 @@ export default function DashboardOverview() {
                     Restricted: {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
                   </h3>
                   <p className="text-white/40 text-[10px] md:text-xs font-medium mt-1 uppercase tracking-wider">
-                    Location: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Logged at: {format(new Date(performanceData.activeInjuries[0]?.logged_at), "MMM d, HH:mm")}
+                    Location: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Logged at: {performanceData.activeInjuries[0]?.logged_at ? format(new Date(performanceData.activeInjuries[0]?.logged_at), "MMM d, HH:mm") : 'N/A'}
                   </p>
                </div>
                <button 
