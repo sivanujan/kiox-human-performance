@@ -51,7 +51,7 @@ export async function POST() {
       .eq('athlete_id', athleteId)
       .eq('alert_type', 'MEDICAL_CLEARANCE_REQUEST')
       .eq('is_resolved', false)
-      .single();
+      .maybeSingle();
 
     if (existingAlert) {
       return NextResponse.json({ message: 'Clearance request is already pending review.' }, { status: 200 });
