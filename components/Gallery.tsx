@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // Added for Portal
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import CustomVideoPlayer from '@/components/ui/CustomVideoPlayer';
 import { useAuth } from './providers/AuthProvider';
@@ -55,6 +55,7 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
       <AnimatePresence>
         {isAdmin && isFlipped && (
           <motion.div 
+            key="admin-controls"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -151,12 +152,20 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
         </div>
 
         {/* ===== BACK FACE ===== */}
-        <div style={{
-          position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)', borderRadius: '16px', overflow: 'hidden', border: '2px solid #22c55e',
-          background: '#0a0a0a', boxShadow: '0 0 30px rgba(34,197,94,0.3)',
-          display: 'flex', flexDirection: 'column',
-        }}>
+        <div 
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onPlay(item);
+          }}
+          style={{
+            position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)', borderRadius: '16px', overflow: 'hidden', border: '2px solid #22c55e',
+            background: '#0a0a0a', boxShadow: '0 0 30px rgba(34,197,94,0.3)',
+            display: 'flex', flexDirection: 'column',
+            zIndex: isFlipped ? 20 : 1
+          }}
+        >
           {item.type === 'video' ? (
             <video
               ref={backVideoRef}
@@ -188,11 +197,12 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
                 e.stopPropagation();
                 onPlay(item);
               }}
-              className="font-display transition-all active:scale-95"
+              className="font-display transition-all active:scale-95 group/btn"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#000', background: '#22c55e',
                 padding: '10px 18px', borderRadius: '4px', fontSize: '11px', fontWeight: '900',
-                letterSpacing: '0.15em', textDecoration: 'none', width: 'fit-content', marginTop: '12px'
+                letterSpacing: '0.15em', textDecoration: 'none', width: 'fit-content', marginTop: '12px',
+                position: 'relative', zIndex: 30
               }}
             >
               {item.type === 'video' ? '▶ WATCH NOW' : '🔍 VIEW FULL'}
@@ -211,7 +221,7 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [playingVideo, setPlayingVideo] = useState<any>(null);
-  const [mounted, setMounted] = useState(false); // For Portal safety
+  const [mounted, setMounted] = useState(false);
   
   // Admin State
   const isAdmin = profile?.role === 'superadmin' || profile?.role === 'staff';
@@ -285,7 +295,7 @@ export default function Gallery() {
 
       const result = await res.json();
       if (result.success) {
-        fetchData(); // Refresh everything
+        fetchData();
         setIsUploadOpen(false);
         setUploadFile(null);
         setUploadTitle("");
@@ -384,48 +394,52 @@ export default function Gallery() {
 
   return (
     <>
-      <AnimatePresence>
-        {playingVideo && mounted && createPortal(
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black flex flex-col justify-center items-center"
-          >
-            <div className="w-full h-full relative">
-              {playingVideo.type === 'video' ? (
-                <CustomVideoPlayer 
-                  src={playingVideo.file_path}
-                  title={playingVideo.title}
-                  category={playingVideo.category || 'EXCELLENCE'}
-                  onBack={() => setPlayingVideo(null)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-black">
-                  <div className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-[110]">
-                    <button 
-                      onClick={() => setPlayingVideo(null)}
-                      className="flex items-center gap-3 px-6 py-2.5 bg-black/60 backdrop-blur-md border border-[#22c55e]/30 text-[#22c55e] rounded-full hover:bg-[#22c55e] hover:text-black transition-all font-bold uppercase tracking-widest text-xs"
-                    >
-                      <X size={18} /> Back To Gallery
-                    </button>
-                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none">
-                      <span className="text-[#22c55e] text-[9px] font-black tracking-[4px] uppercase">{playingVideo.category || 'MOMENT'}</span>
-                      <h2 className="text-white font-bold tracking-widest text-lg uppercase">{playingVideo.title}</h2>
-                    </div>
-                  </div>
-                  <img 
-                    src={playingVideo.file_path} 
-                    alt={playingVideo.title}
-                    className="max-w-full max-h-full object-contain"
+      {/* PORTAL WRAPPER (Always on top of the DOM stack) */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {playingVideo && (
+            <motion.div 
+              key="video-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[99999] bg-black flex flex-col justify-center items-center"
+            >
+              <div className="w-full h-full relative">
+                {playingVideo.type === 'video' ? (
+                  <CustomVideoPlayer 
+                    src={playingVideo.file_path}
+                    title={playingVideo.title}
+                    category={playingVideo.category || 'EXCELLENCE'}
+                    onBack={() => setPlayingVideo(null)}
                   />
-                </div>
-              )}
-            </div>
-          </motion.div>,
-          document.body // Portal to root to escape stacking contexts
-        )}
-      </AnimatePresence>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-black">
+                    <div className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-[110]">
+                      <button 
+                        onClick={() => setPlayingVideo(null)}
+                        className="flex items-center gap-3 px-6 py-2.5 bg-black/60 backdrop-blur-md border border-[#22c55e]/30 text-[#22c55e] rounded-full hover:bg-[#22c55e] hover:text-black transition-all font-bold uppercase tracking-widest text-xs"
+                      >
+                        <X size={18} /> Back To Gallery
+                      </button>
+                      <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none">
+                        <span className="text-[#22c55e] text-[9px] font-black tracking-[4px] uppercase">{playingVideo.category || 'MOMENT'}</span>
+                        <h2 className="text-white font-bold tracking-widest text-lg uppercase">{playingVideo.title}</h2>
+                      </div>
+                    </div>
+                    <img 
+                      src={playingVideo.file_path} 
+                      alt={playingVideo.title}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       <div style={{ background: '#080808', minHeight: '100vh', paddingBottom: '100px' }}>
         {/* HERO BANNER */}
@@ -480,7 +494,6 @@ export default function Gallery() {
           </motion.div>
         </div>
 
-        {/* FILTER TABS */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', padding: '40px 20px', flexWrap: 'wrap' }}>
           <motion.button
             onClick={() => setActiveFilter('ALL')}
@@ -525,7 +538,6 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* GRID */}
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 30px' }}>
           {loading ? (
              <div className="flex flex-col items-center justify-center py-40 gap-4 opacity-50">
@@ -570,7 +582,6 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* Upload Modal */}
       <AnimatePresence>
         {isUploadOpen && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
@@ -644,7 +655,6 @@ export default function Gallery() {
         )}
       </AnimatePresence>
 
-      {/* Category Management Modal */}
       <AnimatePresence>
         {isCategoryManageOpen && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
