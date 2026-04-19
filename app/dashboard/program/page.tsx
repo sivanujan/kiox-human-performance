@@ -14,9 +14,7 @@ import {
   Trophy,
   Activity
 } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function MyProgramPage() {
   const { user, loading: authLoading } = useAuth();
@@ -55,9 +53,9 @@ export default function MyProgramPage() {
     return (
       <div className="p-10 max-w-4xl text-center">
         <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <Lock className="text-white/20" size={32} />
+          <Lock className="text-gray-500" size={32} />
         </div>
-        <h2 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-4`}>Protocol Locked</h2>
+        <h2 className={`font-display text-3xl text-white uppercase tracking-wider mb-4`}>Protocol Locked</h2>
         <p className="text-white/40 text-sm max-w-sm mx-auto uppercase tracking-widest leading-relaxed">
           You are not currently enrolled in an active training matrix. Contact your performance lead to initialize your architecture.
         </p>
@@ -75,16 +73,16 @@ export default function MyProgramPage() {
             <Zap className="text-[#22c55e]" size={10} />
             <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[2px]">Core Evolution Protocol</span>
           </div>
-          <h2 className={`${anton.className} text-5xl text-white uppercase tracking-wider leading-none`}>{p.title}</h2>
+          <h2 className={`font-display text-5xl text-white uppercase tracking-wider leading-none`}>{p.title}</h2>
           <p className="text-white/40 text-[10px] font-black uppercase tracking-[3px] mt-4">Initialized on {new Date(program.enrolled_at).toLocaleDateString()}</p>
         </div>
         <div className="flex gap-4">
           <div className="px-6 py-3 bg-[#111] border border-white/5 rounded-2xl flex flex-col items-center">
-            <span className="text-[8px] font-black text-white/30 uppercase tracking-[2px] mb-1">Estimated Intensity</span>
+            <span className="text-[8px] font-black text-gray-400 uppercase tracking-[2px] mb-1">Estimated Intensity</span>
             <span className="text-sm font-bold text-[#22c55e] uppercase">{p.level}</span>
           </div>
           <div className="px-6 py-3 bg-[#111] border border-white/5 rounded-2xl flex flex-col items-center">
-            <span className="text-[8px] font-black text-white/30 uppercase tracking-[2px] mb-1">Cycle Duration</span>
+            <span className="text-[8px] font-black text-gray-400 uppercase tracking-[2px] mb-1">Cycle Duration</span>
             <span className="text-sm font-bold text-white uppercase">{p.duration}</span>
           </div>
         </div>
@@ -137,13 +135,13 @@ export default function MyProgramPage() {
                  <div className="flex items-center gap-4">
                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                      m.status === 'completed' ? 'bg-[#22c55e]/20 text-[#22c55e]' :
-                     m.status === 'active' ? 'bg-[#22c55e] text-black' : 'bg-white/5 text-white/20'
+                     m.status === 'active' ? 'bg-[#22c55e] text-black' : 'bg-white/5 text-gray-500'
                    }`}>
                      {m.icon}
                    </div>
                    <div>
-                     <p className={`text-sm font-bold uppercase tracking-widest ${m.status === 'locked' ? 'text-white/20' : 'text-white'}`}>{m.title}</p>
-                     <p className="text-[8px] font-black uppercase tracking-[2px] text-white/20 mt-1">{m.status}</p>
+                     <p className={`text-sm font-bold uppercase tracking-widest ${m.status === 'locked' ? 'text-gray-500' : 'text-white'}`}>{m.title}</p>
+                     <p className="text-[8px] font-black uppercase tracking-[2px] text-gray-500 mt-1">{m.status}</p>
                    </div>
                  </div>
                  {m.status === 'active' && <span className="text-[10px] font-black text-[#22c55e] animate-pulse uppercase tracking-[2px]">Live Now</span>}
@@ -179,7 +177,7 @@ export default function MyProgramPage() {
                  { label: 'Protocol Type', value: p.category },
                ].map((item, i) => (
                  <div key={i} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0">
-                   <span className="text-[9px] font-black text-white/20 uppercase tracking-[2px]">{item.label}</span>
+                   <span className="text-[9px] font-black text-gray-500 uppercase tracking-[2px]">{item.label}</span>
                    <span className="text-xs font-bold text-white tracking-widest">{item.value}</span>
                  </div>
                ))}

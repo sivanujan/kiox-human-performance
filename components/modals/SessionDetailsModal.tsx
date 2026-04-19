@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface SessionDetailsModalProps {
   isOpen: boolean;
@@ -95,9 +93,9 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    }`}>
                       {session.status}
                    </span>
-                   <span className="text-white/20 text-[10px] font-black tracking-[4px] uppercase">{session.session_type} // {session.id.slice(0, 8)}</span>
+                   <span className="text-gray-500 text-[10px] font-black tracking-[4px] uppercase">{session.session_type} // {session.id.slice(0, 8)}</span>
                 </div>
-                <h2 className={`${anton.className} text-5xl text-white tracking-wider uppercase mb-2`}>{session.title}</h2>
+                <h2 className={`font-display text-5xl text-white tracking-wider uppercase mb-2`}>{session.title}</h2>
                 <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-widest">
                    <div className="flex items-center gap-2"><Calendar size={14} className="text-[#22c55e]" /> {session.scheduled_date}</div>
                    <div className="flex items-center gap-2"><Clock size={14} className="text-[#22c55e]" /> {session.start_time}</div>
@@ -106,11 +104,11 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
              </div>
              <div className="flex items-center gap-4">
                 {isStaff && (
-                  <button className="p-5 rounded-full bg-white/5 text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all">
+                  <button className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all">
                     <Trash2 size={24} />
                   </button>
                 )}
-                <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-white/30 hover:text-white transition-all">
+                <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
                    <X size={28} />
                 </button>
              </div>
@@ -126,7 +124,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    <button 
                      key={tab.id}
                      onClick={() => setActiveTab(tab.id as any)}
-                     className={`flex flex-col items-center gap-2 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-white/20 hover:text-white/40'}`}
+                     className={`flex flex-col items-center gap-2 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
                    >
                       {tab.icon}
                       <span className="text-[8px] font-black tracking-widest">{tab.label}</span>
@@ -140,19 +138,19 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    <div className="space-y-12">
                       <div className="grid grid-cols-2 gap-12">
                          <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                            <div className="text-white/20 text-[10px] font-black tracking-widest uppercase mb-4">TARGET INTENSITY MATRIX</div>
-                            <div className="text-4xl font-['Anton'] text-[#22c55e]">{session.target_load_au} AU</div>
-                            <div className="text-white/20 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
+                            <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TARGET INTENSITY MATRIX</div>
+                            <div className="text-4xl font-display text-[#22c55e]">{session.target_load_au} AU</div>
+                            <div className="text-gray-500 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
                          </div>
                          <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                            <div className="text-white/20 text-[10px] font-black tracking-widest uppercase mb-4">UNIT ASSIGNMENT</div>
-                            <div className="text-4xl font-['Anton'] text-white">{session.assigned_athletes.length} SUBJECTS</div>
-                            <div className="text-white/20 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
+                            <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">UNIT ASSIGNMENT</div>
+                            <div className="text-4xl font-display text-white">{session.assigned_athletes.length} SUBJECTS</div>
+                            <div className="text-gray-500 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
                          </div>
                       </div>
 
                       <div className="space-y-4">
-                         <div className="text-white/20 text-[10px] font-black tracking-widest uppercase">MISSION NOTES</div>
+                         <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">MISSION NOTES</div>
                          <p className="text-white/60 text-sm leading-relaxed italic">"{session.notes || 'No operational modifications recorded for this session.'}"</p>
                       </div>
 
@@ -160,7 +158,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          {isStaff && session.status === 'SCHEDULED' && (
                            <button 
                              onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
-                             className="flex-1 py-4 bg-[#22c55e] text-black font-['Anton'] text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                             className="flex-1 py-4 bg-[#22c55e] text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
                            >
                               <Play size={18} fill="currentColor" /> MARK IN PROGRESS
                            </button>
@@ -168,7 +166,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          {isStaff && session.status === 'IN_PROGRESS' && (
                            <button 
                              onClick={() => setActiveTab('ROSTER')}
-                             className="flex-1 py-4 bg-amber-500 text-black font-['Anton'] text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                             className="flex-1 py-4 bg-amber-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
                            >
                               <CheckCircle2 size={18} /> INITIALIZE COMPLETION LOG
                            </button>
@@ -182,7 +180,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          <button 
                            onClick={handleComplete}
                            disabled={loading}
-                           className="px-8 py-3 bg-amber-500 text-black font-['Anton'] text-xs tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2"
+                           className="px-8 py-3 bg-amber-500 text-black font-display text-xs tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2"
                          >
                             {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} COMMIT LOADS & CLOSE
                          </button>
@@ -192,7 +190,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          {athleteLogs.map((log, i) => (
                            <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[32px] flex flex-wrap lg:flex-nowrap items-center gap-8 group">
                               <div className="flex items-center gap-4 shrink-0 min-w-[200px]">
-                                 <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-['Anton'] shadow-xl uppercase">
+                                 <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase">
                                     {log.athlete_id.slice(0, 2)}
                                  </div>
                                  <div className="text-white font-bold text-xs uppercase tracking-wider truncate">SUBJECT {log.athlete_id.slice(0, 8)}</div>
@@ -204,7 +202,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                      key={status}
                                      onClick={() => handleUpdateLog(log.athlete_id, { attendance: status })}
                                      className={`px-4 py-2 rounded-xl text-[8px] font-black tracking-widest transition-all ${
-                                       log.attendance === status ? 'bg-[#22c55e] text-black' : 'text-white/20 hover:text-white'
+                                       log.attendance === status ? 'bg-[#22c55e] text-black' : 'text-gray-500 hover:text-white'
                                      }`}
                                    >
                                       {status}
@@ -214,7 +212,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
                               <div className="flex-1 grid grid-cols-2 gap-6">
                                  <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1">ACTUAL LOAD (AU)</label>
+                                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">ACTUAL LOAD (AU)</label>
                                     <input 
                                       type="number"
                                       value={log.actual_load_au}
@@ -223,7 +221,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                     />
                                  </div>
                                  <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-white/20 uppercase tracking-widest ml-1 flex justify-between">RPE <span>{log.rpe}/10</span></label>
+                                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 flex justify-between">RPE <span>{log.rpe}/10</span></label>
                                     <input 
                                       type="range"
                                       min="1"

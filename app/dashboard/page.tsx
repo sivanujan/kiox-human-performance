@@ -71,6 +71,8 @@ export default function DashboardOverview() {
   const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<TrainingSession | null>(null);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [clearanceLoading, setClearanceLoading] = useState(false);
+  const [clearanceMessage, setClearanceMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -78,6 +80,13 @@ export default function DashboardOverview() {
       fetchAthleteSessions();
     }
   }, [user, authLoading]);
+
+  // Sync internal clearance message with API state
+  useEffect(() => {
+    if (performanceData.clearanceRequest) {
+      setClearanceMessage('Request Pending');
+    }
+  }, [performanceData.clearanceRequest]);
 
   const fetchAthleteSessions = async () => {
     if (!supabase || !user) return;
@@ -158,13 +167,70 @@ export default function DashboardOverview() {
       }
     : (schedule.find(s => s.type !== 'rest') || { session: 'No Session Scheduled', time: '--:--' });
 
-  // Readiness Logic
+  // --- LOGIC: READINESS & SAFETY ---
   const readinessScore = Math.round(((metrics?.sleep_score || 0) + (10 - (metrics?.soreness || 0))) / 20 * 100);
-  const isReady = readinessScore > 70;
+  
+  // Safety First: Active injury overrides readiness to "NOT READY"
+  const hasActiveInjury = performanceData.activeInjuries && performanceData.activeInjuries.length > 0;
+  const isReady = readinessScore > 70 && !hasActiveInjury;
+  
+  // Status Labels
+  const statusLabel = hasActiveInjury ? 'INJURED' : isReady ? 'READY' : 'FATIGUE';
+  const statusColor = hasActiveInjury ? 'text-red-500' : isReady ? 'text-[#22c55e]' : 'text-amber-500';
+
+  const handleRequestClearance = async () => {
+    setClearanceLoading(true);
+    try {
+      const res = await fetch('/api/athlete/injury/clearance-request', { method: 'POST' });
+      const data = await res.json();
+      setClearanceMessage(data.message || 'Request Sent');
+    } catch (err) {
+      setClearanceMessage('Connection Failed');
+    } finally {
+      setClearanceLoading(false);
+    }
+  };
 
   return (
     <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-8 relative">
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+      {/* ========================
+          MEDICAL ADVISORY (CRITICAL)
+          ======================== */}
+      <AnimatePresence>
+        {hasActiveInjury && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden z-10"
+          >
+            <div className="bg-red-500/10 border border-red-500/30 rounded-[28px] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[0_0_30px_rgba(239,68,68,0.1)]">
+               <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
+                  <ShieldCheck size={28} />
+               </div>
+               <div className="flex-1 text-center md:text-left">
+                  <div className="text-red-500 text-[10px] font-black tracking-[3px] uppercase mb-1">Medical Advisory // Restricted Ops</div>
+                  <h3 className="text-white font-display text-xl md:text-2xl tracking-wide uppercase">
+                    Restricted: {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
+                  </h3>
+                  <p className="text-white/40 text-[10px] md:text-xs font-medium mt-1 uppercase tracking-wider">
+                    Location: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Logged at: {format(new Date(performanceData.activeInjuries[0]?.logged_at), "MMM d, HH:mm")}
+                  </p>
+               </div>
+               <button 
+                onClick={handleRequestClearance}
+                disabled={clearanceLoading || clearanceMessage !== null}
+                className="w-full md:w-auto px-8 py-4 bg-red-500 text-white font-black text-[10px] md:text-xs rounded-xl uppercase tracking-widest hover:bg-white hover:text-red-500 transition-all shadow-2xl active-scale disabled:opacity-50"
+               >
+                 {clearanceLoading ? <Loader2 className="animate-spin" size={16} /> : 
+                  clearanceMessage ? clearanceMessage.toUpperCase() : "Request Medical Clearance"}
+               </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ========================
           SECTION 1: HEADER
@@ -174,59 +240,52 @@ export default function DashboardOverview() {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
         onClick={() => setIsProfileModalOpen(true)}
-        title="Click to Modify Identity Matrix"
-        className="relative group overflow-hidden bg-gradient-to-br from-[#22c55e]/[0.08] to-transparent border border-[#22c55e]/15 rounded-[24px] p-8 flex flex-col md:flex-row justify-between items-center gap-8 z-10 cursor-pointer transition-all"
+        className="relative group overflow-hidden bg-gradient-to-br from-[#22c55e]/[0.08] to-transparent border border-[#22c55e]/15 rounded-[24px] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all"
       >
         {/* Left: Profile */}
-        <div className="flex items-center gap-6 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
           {/* Avatar Container */}
-          <div className="relative shrink-0 group/avatar">
+          <div className="relative shrink-0 group/avatar mx-auto sm:mx-0">
             <Avatar 
                 src={profile?.avatar_url}
                 name={athleteName}
                 role="athlete"
                 size="xl"
             />
-            {/* Upload Overlay - Admin Style */}
-            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-               <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
+            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e]">
+               <Camera size={24} className="text-[#22c55e] mb-1" />
                <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
             </div>
-            
-            {/* Status Indicator */}
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black shadow-[0_4px_10px_rgba(34,197,94,0.3)]">
-               <Activity size={12} strokeWidth={3} />
+            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg ${hasActiveInjury ? 'bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)]' : 'bg-[#22c55e] shadow-[0_4px_10px_rgba(34,197,94,0.3)]'} border-2 border-[#0a0a0a] flex items-center justify-center text-black`}>
+               {hasActiveInjury ? <ShieldCheck size={12} strokeWidth={3} /> : <Activity size={12} strokeWidth={3} />}
             </div>
           </div>
 
           <div>
-            <div className="text-[#22c55e] text-[10px] sm:text-[11px] font-['Anton'] tracking-[0.3em] uppercase mb-1">
+            <div className="text-[#22c55e] text-[10px] font-black tracking-[0.3em] uppercase mb-1">
               Athlete Portal // Baseline Active
             </div>
-            <h2 className={`${anton.className} text-3xl md:text-4xl text-white tracking-wider mb-3 leading-none`}>
+            <h2 className={`font-display text-3xl sm:text-4xl text-white tracking-wider mb-4 leading-none`}>
               {athleteName.toUpperCase()}
             </h2>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-[#22c55e]/10">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
                  <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Training:</span>
-                 <span className={`text-[10px] font-black uppercase tracking-widest ${isReady ? 'text-[#22c55e]' : 'text-amber-500'}`}>
-                   {isReady ? 'READY' : 'NOT READY'}
+                 <span className={`text-[10px] font-black uppercase tracking-widest ${statusColor}`}>
+                   {statusLabel}
                  </span>
               </div>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-[#22c55e]/10">
+              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
                  <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Recovery:</span>
                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                   {readinessScore}%
+                   {hasActiveInjury ? 0 : readinessScore}%
                  </span>
               </div>
               <button
                  onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
-                 className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl border border-[#22c55e] text-black hover:bg-white transition-all transform hover:scale-105"
+                 className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl text-black font-black uppercase text-[9px] tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale"
               >
-                 <Activity size={12} />
-                 <span className="text-[9px] font-black uppercase tracking-widest">
-                   Daily Check-in
-                 </span>
+                 <Activity size={12} /> Daily Check-in
               </button>
             </div>
           </div>
@@ -236,25 +295,26 @@ export default function DashboardOverview() {
         <motion.button 
            whileHover={{ scale: 1.02 }}
            whileTap={{ scale: 0.98 }}
-           onClick={() => {
+           onClick={(e) => {
+             e.stopPropagation();
              if (upcomingToday) {
                setSelectedSession(upcomingToday);
                setIsSessionModalOpen(true);
              }
            }}
-           className="w-full md:w-auto bg-black/40 border border-[#22c55e]/20 rounded-2xl p-6 text-center md:text-right relative min-w-[200px] cursor-pointer group/next"
+           className="w-full sm:w-auto bg-black/40 border border-white/10 rounded-2xl p-6 text-center sm:text-right relative min-w-[200px] cursor-pointer group/next"
         >
-           <div className="text-white/20 text-[10px] font-['Anton'] tracking-[0.3em] uppercase mb-1">
+           <div className="text-white/20 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
              NEXT OPS SESSION
            </div>
-           <div className="text-white font-['Anton'] text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
+           <div className="text-white font-display text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
              {nextSession.session}
            </div>
-           <div className="text-[#22c55e] font-['Anton'] text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
-             {!nextSession.isToday && <span className="text-white/20 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
+           <div className="text-[#22c55e] font-display text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+             {!nextSession.isToday && <span className="text-white/10 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
              {nextSession.time}
            </div>
-           <div className="absolute bottom-2 right-4 text-[40px] opacity-5 font-['Anton'] pointer-events-none">
+           <div className="absolute bottom-2 right-4 text-[40px] opacity-5 font-display pointer-events-none">
              SYSTEM_01
            </div>
         </motion.button>
@@ -285,7 +345,7 @@ export default function DashboardOverview() {
         },
         { 
           label: 'RECOVERY INDEX',
-          value: `${metrics?.recovery_index || 0}%`,
+          value: `${hasActiveInjury ? 0 : (metrics?.recovery_index || 0)}%`,
           icon: '💪',
           color: '#22c55e',
         },
@@ -294,7 +354,7 @@ export default function DashboardOverview() {
       {/* ========================
           SECTION 3: QUICK METRICS
           ======================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 z-10 relative">
         {[
           { label: 'TOP SPEED', value: metrics?.top_speed || 0, unit: 'km/h', icon: '⚡', trend: '↑' },
           { label: 'DISTANCE', value: metrics?.distance || 0, unit: 'km', icon: '📍', trend: '↑' },

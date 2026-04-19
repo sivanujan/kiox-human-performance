@@ -60,18 +60,15 @@ const FloatingParticle = ({ index }: { index: number }) => {
         width: data.current.size,
         height: data.current.size,
         left: `${data.current.initialX}%`,
-        top: `${data.current.initialY}%`,
-      }}
+        top: `${data.current.initialY}%` }}
       animate={{
         x: [0, data.current.targetX, 0],
         y: [0, data.current.targetY, 0],
-        opacity: [0.2, 0.5, 0.2],
-      }}
+        opacity: [0.2, 0.5, 0.2] }}
       transition={{
         duration: data.current.duration,
         repeat: Infinity,
-        ease: "linear",
-      }}
+        ease: "linear" }}
     />
   );
 };
@@ -323,7 +320,7 @@ export default function Introduction() {
               { label: "Athletes", value: "500+", accent: "ELITE" }
             ].map((stat, i) => (
               <div key={i} className="flex flex-col gap-1">
-                <span className="text-[10px] text-white/30 font-black uppercase tracking-[0.3em]">{stat.label}</span>
+                <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em]">{stat.label}</span>
                 <div className="flex items-baseline gap-2">
                    <span className="text-white font-display text-4xl font-black italic tracking-tighter">{stat.value}</span>
                    <span className="text-[#22c55e] text-[10px] font-black italic">{stat.accent}</span>

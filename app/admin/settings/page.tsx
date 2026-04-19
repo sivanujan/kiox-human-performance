@@ -16,19 +16,11 @@ import {
   Activity,
   AlertCircle
 } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin']
-});
 
 export default function AdminSettings() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
@@ -109,7 +101,7 @@ export default function AdminSettings() {
           <SettingsIcon className="text-[#22c55e]" size={16} />
           <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">System Infrastructure</span>
         </div>
-        <h1 className={`${anton.className} text-5xl text-white uppercase tracking-wider`}>Global Settings</h1>
+        <h1 className={`font-display text-5xl text-white uppercase tracking-wider`}>Global Settings</h1>
       </div>
 
       {/* Personal Identity Section (NEW) */}
@@ -124,7 +116,7 @@ export default function AdminSettings() {
                  <Activity size={18} />
               </div>
               <div>
-                <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>Personal Identity</h3>
+                <h3 className={`font-sans text-white text-lg font-bold tracking-wider uppercase`}>Personal Identity</h3>
                 <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Manage your administrative presence and biometric data</p>
               </div>
            </div>
@@ -149,7 +141,7 @@ export default function AdminSettings() {
                  <label className="text-[9px] font-black text-[#22c55e] uppercase tracking-[2px]">Operational Tag</label>
                  <input readOnly value={`@${profile?.username || "NOT_SET"}`} className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-[#22c55e]/60 tracking-widest font-bold" />
               </div>
-              <p className="text-[9px] text-white/20 font-bold uppercase tracking-widest italic pt-2">Note: To modify name/tag credentials, use the sidebar profile portal.</p>
+              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest italic pt-2">Note: To modify name/tag credentials, use the sidebar profile portal.</p>
            </div>
         </div>
       </motion.div>
@@ -170,7 +162,7 @@ export default function AdminSettings() {
                      {section.icon}
                   </div>
                   <div>
-                    <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>{section.title}</h3>
+                    <h3 className={`font-sans text-white text-lg font-bold tracking-wider uppercase`}>{section.title}</h3>
                     <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">{section.desc}</p>
                   </div>
                </div>
@@ -182,7 +174,7 @@ export default function AdminSettings() {
                  <div key={i} className="flex items-center justify-between group">
                     <div className="space-y-1">
                        <p className="text-sm font-bold text-white uppercase tracking-wide group-hover:text-[#22c55e] transition-colors">{item.label}</p>
-                       <p className="text-[11px] font-bold text-white/30 uppercase tracking-[1px]">Configuration Key: {item.label.toLowerCase().replace(/ /g, '_')}</p>
+                       <p className="text-[11px] font-bold text-gray-400 uppercase tracking-[1px]">Configuration Key: {item.label.toLowerCase().replace(/ /g, '_')}</p>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -219,13 +211,13 @@ export default function AdminSettings() {
         transition={{ delay: 0.4 }}
         className="bg-red-500/5 border border-red-500/20 p-8 rounded-3xl"
       >
-         <h3 className={`${plusJakarta.className} text-red-500 text-lg font-bold tracking-wider mb-4 flex items-center gap-3`}>
+         <h3 className={`font-sans text-red-500 text-lg font-bold tracking-wider mb-4 flex items-center gap-3`}>
             <AlertCircle size={20} /> CORE SYSTEM RESET
          </h3>
          <p className="text-xs font-bold text-white/50 uppercase tracking-[2px] mb-8 max-w-2xl leading-relaxed">
             Initializing a core reset will synchronize all platform biometrics to zero and purge the operational cache. This action requires Level 5 Authorization and cannot be reversed.
          </p>
-         <button className={`${plusJakarta.className} px-8 py-3 bg-red-500 text-white text-[12px] font-bold tracking-[0.2em] rounded-xl hover:bg-white hover:text-red-500 transition-all uppercase`}>
+         <button className={`font-sans px-8 py-3 bg-red-500 text-white text-[12px] font-bold tracking-[0.2em] rounded-xl hover:bg-white hover:text-red-500 transition-all uppercase`}>
             Initialize Platform Purge
          </button>
       </motion.div>
@@ -243,7 +235,7 @@ export default function AdminSettings() {
                  <Lock size={18} />
               </div>
               <div>
-                <h3 className={`${plusJakarta.className} text-white text-lg font-bold tracking-wider uppercase`}>Personal Account Security</h3>
+                <h3 className={`font-sans text-white text-lg font-bold tracking-wider uppercase`}>Personal Account Security</h3>
                 <p className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Manage your administrative access credentials</p>
               </div>
            </div>
@@ -251,7 +243,7 @@ export default function AdminSettings() {
         <div className="p-8">
            <div className="flex items-center justify-between p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-[#22c55e]/30 transition-all">
               <div className="flex items-center gap-6">
-                 <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-[#22c55e]">
+                 <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#22c55e]">
                     <Shield size={20} />
                  </div>
                  <div>

@@ -2,12 +2,7 @@
 
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Anton } from 'next/font/google';
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function TrainWithCoach() {
   const ref = useRef(null);
@@ -17,23 +12,19 @@ export default function TrainWithCoach() {
     {
       number: '01',
       title: 'UEFA B Elite Youth License',
-      sub: 'Professional Coaching Certification',
-    },
+      sub: 'Professional Coaching Certification' },
     {
       number: '02', 
       title: 'DFB Football-Base Trainer',
-      sub: 'U12 & U13 Development Expert',
-    },
+      sub: 'U12 & U13 Development Expert' },
     {
       number: '03',
       title: 'Multilingual Coach',
-      sub: 'German · French · English',
-    },
+      sub: 'German · French · English' },
     {
       number: '04',
       title: 'Human Performance Optimizer',
-      sub: 'Holistic Athletic Development',
-    },
+      sub: 'Holistic Athletic Development' },
   ];
 
   return (
@@ -41,8 +32,7 @@ export default function TrainWithCoach() {
       background: '#080808',
       padding: '140px 0',
       position: 'relative',
-      overflow: 'hidden',
-    }}>
+      overflow: 'hidden' }}>
 
       {/* SECTION TITLE */}
       <motion.div
@@ -51,45 +41,38 @@ export default function TrainWithCoach() {
         transition={{ duration: 0.6 }}
         style={{
           textAlign: 'center',
-          marginBottom: '80px',
-        }}
+          marginBottom: '80px' }}
       >
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '16px',
-          marginBottom: '16px',
-        }}>
+          marginBottom: '16px' }}>
           <div style={{
             width: '60px',
             height: '1px',
-            background: 'linear-gradient(90deg, transparent, #22c55e)',
-          }} />
-            <span style={{
+            background: 'linear-gradient(90deg, transparent, #22c55e)' }} />
+            <span className="font-display" style={{
             color: '#22c55e',
             fontSize: '12px',
             letterSpacing: '0.4em',
-            textTransform: 'uppercase',
-            fontFamily: anton.style.fontFamily,
-          }}>
+            textTransform: 'uppercase' }}>
             MEET YOUR COACH
           </span>
           <div style={{
             width: '60px',
             height: '1px',
-            background: 'linear-gradient(90deg, #22c55e, transparent)',
-          }} />
+            background: 'linear-gradient(90deg, #22c55e, transparent)' }} />
         </div>
-        <h2 style={{
+        <h2 className="font-display" style={{
           color: '#ffffff',
           fontSize: 'clamp(42px, 6vw, 80px)',
-          fontFamily: anton.style.fontFamily,
-          fontWeight: 400,
+          fontWeight: 900,
           lineHeight: 1,
           margin: 0,
-          textTransform: 'uppercase',
-        }}>
+          letterSpacing: '-0.02em',
+          textTransform: 'uppercase' }}>
           TRAIN WITH{' '}
           <span style={{ color: '#22c55e' }}>
             FRANCIS KIOYO
@@ -105,8 +88,7 @@ export default function TrainWithCoach() {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '80px',
-        alignItems: 'center',
-      }}>
+        alignItems: 'center' }}>
 
         {/* LEFT — 3D IMAGE */}
         <motion.div
@@ -125,21 +107,18 @@ export default function TrainWithCoach() {
             height: '500px',
             background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)',
             filter: 'blur(40px)',
-            zIndex: 0,
-          }} />
+            zIndex: 0 }} />
 
           {/* 3D Image card */}
           <motion.div
             whileHover={{ 
               rotateY: 5,
               rotateX: -3,
-              scale: 1.02,
-            }}
+              scale: 1.02 }}
             transition={{ 
               type: 'spring',
               stiffness: 200,
-              damping: 20,
-            }}
+              damping: 20 }}
             style={{
               position: 'relative',
               borderRadius: '24px',
@@ -152,8 +131,7 @@ export default function TrainWithCoach() {
                 0 0 40px rgba(34,197,94,0.2),
                 0 0 80px rgba(34,197,94,0.1),
                 0 40px 80px rgba(0,0,0,0.5)
-              `,
-            }}
+              ` }}
           >
             {/* Green gradient border */}
             <div style={{
@@ -165,8 +143,7 @@ export default function TrainWithCoach() {
               WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
               WebkitMaskComposite: 'xor',
               zIndex: 2,
-              opacity: 0.6,
-            }} />
+              opacity: 0.6 }} />
 
             {/* Image */}
             <img
@@ -178,8 +155,7 @@ export default function TrainWithCoach() {
                 objectFit: 'cover',
                 objectPosition: 'center top',
                 display: 'block',
-                borderRadius: '24px',
-              }}
+                borderRadius: '24px' }}
             />
 
             {/* Bottom overlay */}
@@ -191,8 +167,7 @@ export default function TrainWithCoach() {
               height: '50%',
               background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
               borderRadius: '0 0 24px 24px',
-              zIndex: 3,
-            }} />
+              zIndex: 3 }} />
           </motion.div>
 
           {/* Corner brackets */}
@@ -207,8 +182,7 @@ export default function TrainWithCoach() {
               width: '24px',
               height: '24px',
               zIndex: 10,
-              ...s,
-            }} />
+              ...s }} />
           ))}
 
           {/* Floating badge — experience */}
@@ -216,6 +190,7 @@ export default function TrainWithCoach() {
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.6 }}
+            className="font-display"
             style={{
               position: 'absolute',
               bottom: '40px',
@@ -224,14 +199,12 @@ export default function TrainWithCoach() {
               color: '#000000',
               padding: '14px 22px',
               borderRadius: '12px',
-              fontFamily: anton.style.fontFamily,
               fontSize: '13px',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               boxShadow: '0 10px 40px rgba(34,197,94,0.5)',
               zIndex: 10,
-              whiteSpace: 'nowrap',
-            }}
+              whiteSpace: 'nowrap' }}
           >
             ⚡ 20+ YEARS EXPERIENCE
           </motion.div>
@@ -241,6 +214,7 @@ export default function TrainWithCoach() {
             initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.7 }}
+            className="font-display"
             style={{
               position: 'absolute',
               top: '30px',
@@ -250,13 +224,11 @@ export default function TrainWithCoach() {
               color: '#22c55e',
               padding: '12px 18px',
               borderRadius: '10px',
-              fontFamily: anton.style.fontFamily,
               fontSize: '12px',
               letterSpacing: '0.1em',
               boxShadow: '0 0 20px rgba(34,197,94,0.2)',
               zIndex: 10,
-              whiteSpace: 'nowrap',
-            }}
+              whiteSpace: 'nowrap' }}
           >
             🏆 UEFA B LICENSE
           </motion.div>
@@ -269,14 +241,14 @@ export default function TrainWithCoach() {
           transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
         >
           {/* Bio */}
-          <p style={{
-            color: '#888888',
-            fontSize: '16px',
-            lineHeight: '1.9',
+          <p className="font-label" style={{
+            color: '#eeeeee',
+            fontSize: '18px',
+            lineHeight: '1.8',
+            fontWeight: 500,
             marginBottom: '48px',
-            borderLeft: '3px solid #22c55e',
-            paddingLeft: '20px',
-          }}>
+            borderLeft: '4px solid #22c55e',
+            paddingLeft: '24px' }}>
             Football Engineer, Consultant and Human Performance Optimizer with 20+ years of elite experience. Designing pathways for success by connecting sports performance and education through implementing successful programs.
           </p>
 
@@ -297,14 +269,13 @@ export default function TrainWithCoach() {
                   borderBottom: '1px solid rgba(34,197,94,0.1)',
                   borderRadius: '8px',
                   cursor: 'default',
-                  transition: 'all 0.3s ease',
-                }}
+                  transition: 'all 0.3s ease' }}
               >
-                <span style={{ color: 'rgba(34,197,94,0.3)', fontSize: '13px', fontFamily: anton.style.fontFamily, fontWeight: 400, minWidth: '28px' }}>{c.number}</span>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', flexShrink: 0 }} />
+                <span className="font-stat" style={{ color: 'rgba(34,197,94,0.4)', fontSize: '14px', fontWeight: 900, minWidth: '32px' }}>{c.number}</span>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 12px #22c55e', flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '3px' }}>{c.title}</div>
-                  <div style={{ color: '#555555', fontSize: '12px', letterSpacing: '0.05em' }}>{c.sub}</div>
+                  <div className="font-display" style={{ color: '#ffffff', fontSize: '18px', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '3px', textTransform: 'uppercase' }}>{c.title}</div>
+                  <div className="font-label" style={{ color: '#aaaaaa', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{c.sub}</div>
                 </div>
                 <span style={{ color: '#22c55e', fontSize: '16px', opacity: 0.5 }}>→</span>
               </motion.div>
@@ -319,11 +290,10 @@ export default function TrainWithCoach() {
             padding: '24px',
             background: 'rgba(34,197,94,0.03)',
             border: '1px solid rgba(34,197,94,0.1)',
-            borderRadius: '16px',
-          }}>
-            <div style={{ textAlign: 'center', padding: '8px 40px' }}>
-              <div style={{ color: '#22c55e', fontSize: '36px', fontFamily: anton.style.fontFamily, fontWeight: 400, lineHeight: 1, textShadow: '0 0 20px rgba(34,197,94,0.4)' }}>15+</div>
-              <div style={{ color: '#555555', fontSize: '11px', letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: '6px' }}>PROFESSIONAL TEAMS</div>
+            borderRadius: '16px' }}>
+            <div style={{ textAlign: 'center', padding: '12px 48px' }}>
+              <div className="font-stat" style={{ color: '#22c55e', fontSize: '48px', fontWeight: 900, lineHeight: 1, textShadow: '0 0 30px rgba(34,197,94,0.5)' }}>15+</div>
+              <div className="font-label" style={{ color: '#ffffff', fontSize: '12px', fontWeight: 900, letterSpacing: '0.4em', textTransform: 'uppercase', marginTop: '10px' }}>PROFESSIONAL TEAMS</div>
             </div>
           </div>
           <p style={{
@@ -342,6 +312,7 @@ export default function TrainWithCoach() {
             <motion.button
               whileHover={{ scale: 1.03, boxShadow: '0 10px 40px rgba(34,197,94,0.4)' }}
               whileTap={{ scale: 0.97 }}
+              className="font-display"
               style={{
                 background: '#22c55e',
                 color: '#000000',
@@ -349,19 +320,18 @@ export default function TrainWithCoach() {
                 padding: '20px 48px',
                 borderRadius: '6px',
                 fontSize: '14px',
-                fontWeight: 400,
-                letterSpacing: '0.15em',
+                fontWeight: 800,
+                letterSpacing: '0.25em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                fontFamily: anton.style.fontFamily,
-                whiteSpace: 'nowrap',
-              }}
+                whiteSpace: 'nowrap' }}
             >
               BOOK TRAINING →
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.03, background: 'rgba(34,197,94,0.1)' }}
               whileTap={{ scale: 0.97 }}
+              className="font-display"
               style={{
                 background: 'transparent',
                 color: '#22c55e',
@@ -372,9 +342,7 @@ export default function TrainWithCoach() {
                 fontWeight: 400,
                 letterSpacing: '0.15em',
                 cursor: 'pointer',
-                fontFamily: anton.style.fontFamily,
-                whiteSpace: 'nowrap',
-              }}
+                whiteSpace: 'nowrap' }}
             >
               VIEW PROFILE
             </motion.button>
@@ -383,7 +351,7 @@ export default function TrainWithCoach() {
       </div>
 
       {/* BG DECORATION */}
-      <div style={{ position: 'absolute', right: '-60px', bottom: '-80px', fontSize: '400px', fontFamily: anton.style.fontFamily, color: 'rgba(34,197,94,0.02)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
+      <div className="font-display" style={{ position: 'absolute', right: '-60px', bottom: '-80px', fontSize: '400px', color: 'rgba(34,197,94,0.02)', lineHeight: 1, userSelect: 'none', pointerEvents: 'none', zIndex: 0 }}>
         FK
       </div>
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(34,197,94,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px', zIndex: 0, pointerEvents: 'none' }} />

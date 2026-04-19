@@ -2,10 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Zap, Monitor } from "lucide-react";
-import { Anton } from "next/font/google";
 import TemplateManager from "@/components/admin/TemplateManager";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function BlueprintPage() {
   return (
@@ -25,7 +23,7 @@ export default function BlueprintPage() {
              </div>
              <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Operational Logistics</span>
           </div>
-          <h1 className={`${anton.className} text-6xl md:text-8xl text-white uppercase tracking-wider`}>
+          <h1 className={`font-display text-6xl md:text-8xl text-white uppercase tracking-wider`}>
              Operational Blueprint
           </h1>
           <p className="text-white/40 text-[11px] font-bold uppercase tracking-[4px] mt-6 leading-relaxed max-w-2xl">
@@ -36,7 +34,7 @@ export default function BlueprintPage() {
         <div className="flex bg-[#111] border border-white/5 rounded-2xl p-6 items-center gap-4">
            <Monitor className="text-[#22c55e]" size={24} />
            <div>
-              <div className="text-[9px] font-black text-white/30 uppercase tracking-[2px]">SYNC STATUS</div>
+              <div className="text-[9px] font-black text-gray-400 uppercase tracking-[2px]">SYNC STATUS</div>
               <div className="text-[#22c55e] font-black text-xs uppercase tracking-widest">REALTIME_CONNECTED</div>
            </div>
         </div>
@@ -50,13 +48,13 @@ export default function BlueprintPage() {
       {/* Protocol Notice */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 opacity-40">
          <div className="p-8 border border-white/5 rounded-[32px] bg-white/[0.01]">
-            <h4 className="text-white font-['Anton'] text-sm tracking-widest uppercase mb-4">Template Integrity</h4>
+            <h4 className="text-white font-display text-sm tracking-widest uppercase mb-4">Template Integrity</h4>
             <p className="text-[10px] text-white leading-relaxed uppercase tracking-widest">
                Modifying the blueprint affects all future deployments generated from those modules. Maintain operational standardisation.
             </p>
          </div>
          <div className="p-8 border border-white/5 rounded-[32px] bg-white/[0.01]">
-            <h4 className="text-white font-['Anton'] text-sm tracking-widest uppercase mb-4">Deployment Sync</h4>
+            <h4 className="text-white font-display text-sm tracking-widest uppercase mb-4">Deployment Sync</h4>
             <p className="text-[10px] text-white leading-relaxed uppercase tracking-widest">
                Generating sessions for next week will notify all athletes assigned to those specific tactical windows.
             </p>

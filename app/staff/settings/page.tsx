@@ -19,15 +19,11 @@ import {
   Zap,
   Target
 } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans, Orbitron } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/ui/ImageUpload";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
-const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function StaffSettingsPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
@@ -139,7 +135,7 @@ export default function StaffSettingsPage() {
               <Zap className="text-[#22c55e]" size={18} />
               <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Secure Personnel Hub</span>
             </div>
-            <h1 className={`${anton.className} text-6xl md:text-8xl text-white uppercase tracking-wider`}>Personnel Profile</h1>
+            <h1 className={`font-display text-6xl md:text-8xl text-white uppercase tracking-wider`}>Personnel Profile</h1>
             <p className="text-white/40 text-[11px] font-bold uppercase tracking-[4px] mt-6 leading-relaxed max-w-xl">
               Access and manage your tactical identity, squad assignments, and operational security credentials.
             </p>
@@ -155,7 +151,7 @@ export default function StaffSettingsPage() {
             </div>
             <div className="relative z-10">
                <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[4px] mb-1">KIO-X STAFF COMMAND // OPS_READY</div>
-               <div className={`${plusJakarta.className} text-2xl font-black uppercase tracking-widest text-white`}>Coach {profile?.first_name} {profile?.last_name}</div>
+               <div className={`font-sans text-2xl font-black uppercase tracking-widest text-white`}>Coach {profile?.first_name} {profile?.last_name}</div>
                <div className="flex items-center gap-3 mt-2">
                   <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Role: <span className="text-[#22c55e]">{profile?.role === 'superadmin' ? 'Super Admin' : 'Performance Staff'}</span></div>
                   <div className="w-1 h-1 rounded-full bg-white/10" />
@@ -179,15 +175,15 @@ export default function StaffSettingsPage() {
                  
                  <div className="space-y-6">
                     <div>
-                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[2px] mb-2">Assigned Unit</p>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[2px] mb-2">Assigned Unit</p>
                         <div className="px-5 py-4 bg-black/40 border-l-2 border-[#22c55e] rounded-r-xl">
-                           <span className={`${plusJakarta.className} text-sm font-black text-white uppercase tracking-wider`}>
+                           <span className={`font-sans text-sm font-black text-white uppercase tracking-wider`}>
                               {userTeam?.name || "Independent Ops"}
                            </span>
                         </div>
                     </div>
                     <div>
-                        <p className="text-[9px] font-bold text-white/30 uppercase tracking-[2px] mb-2">Unit Mission</p>
+                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[2px] mb-2">Unit Mission</p>
                         <p className="text-[10px] text-white/50 leading-relaxed uppercase font-bold tracking-widest italic">
                            "{userTeam?.description || "High-performance operational baseline. No specific tactical assignment detected."}"
                         </p>
@@ -212,7 +208,7 @@ export default function StaffSettingsPage() {
                   <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
                       <div className="flex items-center gap-3">
                         <User className="text-[#22c55e]" size={20} />
-                        <h3 className={`${anton.className} text-2xl text-white uppercase tracking-widest`}>Personnel Profile</h3>
+                        <h3 className={`font-display text-2xl text-white uppercase tracking-widest`}>Personnel Profile</h3>
                       </div>
                       
                       <AnimatePresence>
@@ -243,13 +239,13 @@ export default function StaffSettingsPage() {
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* First Name */}
                         <div className="space-y-3">
-                           <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
+                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
                            <div className="relative group">
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
                               <input 
                                 value={formData.first_name}
                                 onChange={e => setFormData({...formData, first_name: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
                                 placeholder="FIRST_NAME"
                               />
                            </div>
@@ -257,13 +253,13 @@ export default function StaffSettingsPage() {
 
                         {/* Last Name */}
                         <div className="space-y-3">
-                           <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
+                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
                            <div className="relative group">
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
                               <input 
                                 value={formData.last_name}
                                 onChange={e => setFormData({...formData, last_name: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
                                 placeholder="LAST_NAME"
                               />
                            </div>
@@ -271,13 +267,13 @@ export default function StaffSettingsPage() {
 
                         {/* Username */}
                         <div className="space-y-3">
-                           <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Digital Callsign</label>
+                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Digital Callsign</label>
                            <div className="relative group">
-                              <Hash className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                              <Hash className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
                               <input 
                                 value={formData.username}
                                 onChange={e => setFormData({...formData, username: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
                                 placeholder="OPERATOR_CODE"
                               />
                            </div>
@@ -285,13 +281,13 @@ export default function StaffSettingsPage() {
 
                         {/* Phone */}
                         <div className="space-y-3">
-                           <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Comms Frequency</label>
+                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Comms Frequency</label>
                            <div className="relative group">
-                              <Smartphone className="absolute left-6 top-1/2 -translate-y-1/2 text-white/10 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                              <Smartphone className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
                               <input 
                                 value={formData.phone_number}
                                 onChange={e => setFormData({...formData, phone_number: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
                                 placeholder="+1 000 000 0000"
                               />
                            </div>
@@ -302,7 +298,7 @@ export default function StaffSettingsPage() {
                         <button 
                            type="submit"
                            disabled={saverLoading}
-                           className="w-full py-6 bg-white text-black font-['Anton'] text-sm uppercase tracking-[4px] rounded-2xl hover:bg-[#22c55e] transition-all flex items-center justify-center gap-4 group disabled:opacity-50"
+                           className="w-full py-6 bg-white text-black font-display text-sm uppercase tracking-[4px] rounded-2xl hover:bg-[#22c55e] transition-all flex items-center justify-center gap-4 group disabled:opacity-50"
                         >
                            {saverLoading ? (
                              <Loader2 size={24} className="animate-spin" />
@@ -325,17 +321,17 @@ export default function StaffSettingsPage() {
                   <div className="relative z-10">
                      <div className="flex items-center gap-3 mb-10 pb-6 border-b border-white/5">
                         <Lock className="text-red-500" size={20} />
-                        <h3 className={`${anton.className} text-2xl text-white uppercase tracking-widest`}>Access Security</h3>
+                        <h3 className={`font-display text-2xl text-white uppercase tracking-widest`}>Access Security</h3>
                      </div>
 
                      <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-10 bg-black/60 border border-white/5 rounded-3xl hover:border-red-500/30 transition-all">
                         <div className="flex items-start gap-6">
-                           <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-white/20">
+                           <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-gray-500">
                               <ShieldCheck size={32} />
                            </div>
                            <div>
                               <p className="text-[11px] font-bold text-white uppercase tracking-[3px] mb-2">Access Code Rotation</p>
-                              <p className="text-[10px] text-white/30 uppercase font-bold tracking-[1px] leading-relaxed max-w-sm">
+                              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-[1px] leading-relaxed max-w-sm">
                                  Manually cycle your tactical access code. Frequent rotation is advised for high-clearance personnel.
                               </p>
                            </div>

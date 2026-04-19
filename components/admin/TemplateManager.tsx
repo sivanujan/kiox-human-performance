@@ -15,10 +15,8 @@ import {
   CheckCircle2,
   AlertCircle
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { format, startOfWeek, addDays } from "date-fns";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function TemplateManager() {
   const [templates, setTemplates] = useState<any[]>([]);
@@ -123,10 +121,10 @@ export default function TemplateManager() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
          <div>
-            <h3 className={`${anton.className} text-3xl text-white uppercase tracking-wider flex items-center gap-3`}>
+            <h3 className={`font-display text-3xl text-white uppercase tracking-wider flex items-center gap-3`}>
                <Zap className="text-[#22c55e]" size={24} /> Operational Blueprint
             </h3>
-            <p className="text-white/30 text-[9px] font-black uppercase tracking-[3px] mt-1">Define recurring weekly tactical operations</p>
+            <p className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] mt-1">Define recurring weekly tactical operations</p>
          </div>
 
          <div className="flex gap-4">
@@ -162,7 +160,7 @@ export default function TemplateManager() {
              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 items-end">
                 {/* Title */}
                 <div className="col-span-1 lg:col-span-2 space-y-2">
-                   <label className="text-white/20 text-[8px] font-black tracking-widest uppercase">Operational Title</label>
+                   <label className="text-gray-500 text-[8px] font-black tracking-widest uppercase">Operational Title</label>
                    <input 
                      defaultValue={t.title}
                      onBlur={(e) => handleSave(t.id, { title: e.target.value })}
@@ -172,7 +170,7 @@ export default function TemplateManager() {
 
                 {/* Day */}
                 <div className="space-y-2">
-                   <label className="text-white/20 text-[8px] font-black tracking-widest uppercase">Cycle Day</label>
+                   <label className="text-gray-500 text-[8px] font-black tracking-widest uppercase">Cycle Day</label>
                    <select 
                      value={t.day_of_week}
                      onChange={(e) => handleSave(t.id, { day_of_week: parseInt(e.target.value) })}
@@ -184,7 +182,7 @@ export default function TemplateManager() {
 
                 {/* Time */}
                 <div className="space-y-2">
-                   <label className="text-white/20 text-[8px] font-black tracking-widest uppercase">Start Time</label>
+                   <label className="text-gray-500 text-[8px] font-black tracking-widest uppercase">Start Time</label>
                    <input 
                      type="time"
                      defaultValue={t.start_time.slice(0, 5)}
@@ -196,9 +194,9 @@ export default function TemplateManager() {
 
                 {/* Capacity */}
                 <div className="space-y-2">
-                   <label className="text-white/20 text-[8px] font-black tracking-widest uppercase">Capacity</label>
+                   <label className="text-gray-500 text-[8px] font-black tracking-widest uppercase">Capacity</label>
                    <div className="relative">
-                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/10" size={14} />
+                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700" size={14} />
                       <input 
                         type="number"
                         defaultValue={t.max_capacity}
@@ -212,7 +210,7 @@ export default function TemplateManager() {
                 <div className="flex justify-end">
                    <button 
                      onClick={() => handleDelete(t.id)}
-                     className="p-4 text-white/10 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                     className="p-4 text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
                    >
                       <Trash2 size={18} />
                    </button>
@@ -222,7 +220,7 @@ export default function TemplateManager() {
         ))}
 
         {templates.length === 0 && (
-          <div className="py-20 text-center text-white/10 uppercase font-black text-[10px] tracking-[4px] border border-dashed border-white/5 rounded-[32px]">
+          <div className="py-20 text-center text-gray-700 uppercase font-black text-[10px] tracking-[4px] border border-dashed border-white/5 rounded-[32px]">
              No operational modules detected. Initialize blueprint.
           </div>
         )}

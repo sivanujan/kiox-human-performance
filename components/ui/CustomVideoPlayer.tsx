@@ -401,7 +401,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
 
             {/* Time */}
             <div className="font-mono text-sm text-white/80 tracking-tighter">
-              {formatTime(currentTime)} <span className="text-white/30 mx-1">/</span> {formatTime(duration)}
+              {formatTime(currentTime)} <span className="text-gray-400 mx-1">/</span> {formatTime(duration)}
             </div>
           </div>
 

@@ -24,6 +24,7 @@ ALTER TABLE public.athlete_alerts REPLICA IDENTITY FULL;
 ALTER TABLE public.athlete_alerts ENABLE ROW LEVEL SECURITY;
 
 -- STAFF/ADMIN: Total Control over anomalies
+DROP POLICY IF EXISTS "Staff/Admin manage all alerts" ON public.athlete_alerts;
 CREATE POLICY "Staff/Admin manage all alerts"
 ON public.athlete_alerts
 FOR ALL
@@ -32,6 +33,7 @@ USING (public.is_admin_or_staff(auth.uid()))
 WITH CHECK (public.is_admin_or_staff(auth.uid()));
 
 -- ATHLETES: Read-only access to personal flags
+DROP POLICY IF EXISTS "Athletes view personal alerts" ON public.athlete_alerts;
 CREATE POLICY "Athletes view personal alerts"
 ON public.athlete_alerts
 FOR SELECT
@@ -63,6 +65,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS tr_check_load_anomalies ON public.profiles;
 CREATE TRIGGER tr_check_load_anomalies
 AFTER UPDATE OF weekly_load ON public.profiles
 FOR EACH ROW
@@ -72,14 +75,37 @@ EXECUTE FUNCTION public.check_load_anomalies();
 CREATE OR REPLACE FUNCTION public.check_injury_anomalies()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.severity = 'High' AND NEW.status != 'Cleared' THEN
+    -- Ensure we have a valid athlete_id
+    IF NEW.athlete_id IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    -- Trigger for both Medium and High severity
+    IF (NEW.severity = 'High' OR NEW.severity = 'Medium') AND NEW.status != 'Cleared' THEN
+        -- 1. Create the Performance Hub Flag (for dashboard stats)
         INSERT INTO public.athlete_alerts (athlete_id, alert_type, severity, message)
-        VALUES (NEW.athlete_id, 'INJURY_RISK', 'HIGH', 'Medical Flag: Internal clinical log reports HIGH severity injury/risk.');
+        VALUES (
+            NEW.athlete_id, 
+            'INJURY_RISK', 
+            UPPER(NEW.severity), 
+            'Medical Flag: ' || UPPER(NEW.severity) || ' severity ' || NEW.injury_type || ' detected in ' || UPPER(COALESCE(NEW.body_part, 'unspecified area')) || '.'
+        );
+
+        -- 2. Create the System Notification (for the Bell Icon / Realtime Alert)
+        INSERT INTO public.system_notifications (recipient_id, sender_id, title, message, type)
+        VALUES (
+            NEW.athlete_id,
+            NEW.logged_by,
+            'MEDICAL STATUS ALERT',
+            'Management has updated your clinical status: ' || NEW.severity || ' risk ' || NEW.injury_type || ' detected.',
+            'ALERT'
+        );
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS tr_check_injury_anomalies ON public.athlete_injury_logs;
 CREATE TRIGGER tr_check_injury_anomalies
 AFTER INSERT OR UPDATE ON public.athlete_injury_logs
 FOR EACH ROW
@@ -114,6 +140,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS tr_check_wellness_anomalies ON public.athlete_surveys;
 CREATE TRIGGER tr_check_wellness_anomalies
 AFTER UPDATE ON public.athlete_surveys
 FOR EACH ROW

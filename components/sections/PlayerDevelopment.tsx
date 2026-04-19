@@ -153,8 +153,7 @@ export default function PlayerDevelopment() {
                 transition: 'border 0.3s ease',
                 borderRadius: '8px 0 0 8px',
                 position: 'relative',
-                transformOrigin: 'right center',
-              }}
+                transformOrigin: 'right center' }}
             >
               {activeId === seg.id && (
                 <motion.div layoutId="activeDotLeft" style={{ position: 'absolute', right: '-5.5px', top: '50%', transform: 'translateY(-50%)', width: '9px', height: '9px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 15px #22c55e', zIndex: 5 }} />
@@ -207,8 +206,7 @@ export default function PlayerDevelopment() {
                 transition: 'border 0.3s ease',
                 borderRadius: '0 8px 8px 0',
                 position: 'relative',
-                transformOrigin: 'left center',
-              }}
+                transformOrigin: 'left center' }}
             >
               {activeId === seg.id && (
                 <motion.div layoutId="activeDotRight" style={{ position: 'absolute', left: '-5.5px', top: '50%', transform: 'translateY(-50%)', width: '9px', height: '9px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 15px #22c55e', zIndex: 5 }} />

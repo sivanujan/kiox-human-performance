@@ -2,6 +2,9 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -10,7 +13,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Fetch all performance-related modules in parallel
-  const [planRes, injuryRes, surveyRes, videoRes, noteRes] = await Promise.all([
+  const [planRes, injuryRes, surveyRes, videoRes, noteRes, alertRes] = await Promise.all([
     supabase
       .from("athlete_training_plans")
       .select("*")
@@ -42,7 +45,14 @@ export async function GET() {
       .select('*, added_by:profiles!trainer_notes_added_by_fkey(first_name, last_name)')
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(5)
+      .limit(5),
+    supabase
+      .from("athlete_alerts")
+      .select("*")
+      .eq("athlete_id", user.id)
+      .eq("alert_type", "MEDICAL_CLEARANCE_REQUEST")
+      .eq("is_resolved", false)
+      .maybeSingle()
   ]);
 
   return NextResponse.json({
@@ -50,6 +60,7 @@ export async function GET() {
     activeInjuries: injuryRes.data || [],
     pendingSurveys: surveyRes.data || [],
     videoFeedback: videoRes.data || [],
-    trainerNotes: noteRes.data || []
+    trainerNotes: noteRes.data || [],
+    clearanceRequest: alertRes.data
   });
 }

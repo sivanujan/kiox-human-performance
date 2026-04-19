@@ -2,9 +2,7 @@
 
 import { User as UserIcon, ShieldCheck, Trophy } from "lucide-react";
 import Image from "next/image";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface AvatarProps {
   src?: string | null;

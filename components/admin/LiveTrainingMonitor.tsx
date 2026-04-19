@@ -9,27 +9,27 @@ export default function LiveTrainingMonitor() {
   const { athletes, loading } = useLiveMonitor();
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#22c55e]/15 rounded-[32px] p-8 shadow-2xl relative overflow-hidden group">
+    <div className="bg-[#0a0a0a] border border-[#22c55e]/15 rounded-[24px] md:rounded-[32px] p-5 md:p-8 shadow-2xl relative overflow-hidden group">
       {/* Background Pulse Effect */}
-      <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
-        <Activity size={160} className="text-[#22c55e]" />
+      <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+        <Activity className="w-[120px] h-[120px] md:w-[160px] md:h-[160px] text-[#22c55e]" />
       </div>
 
-      <div className="flex justify-between items-center mb-10 relative z-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 md:mb-10 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#22c55e]/10 flex items-center justify-center text-[#22c55e]">
-            <Zap size={24} fill="currentColor" />
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[#22c55e]/10 flex items-center justify-center text-[#22c55e]">
+            <Zap className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" />
           </div>
           <div>
-            <div className="text-[#22c55e] font-['Anton'] text-[10px] tracking-[0.3em] uppercase">Tactical Telemetry</div>
-            <h2 className="text-white font-['Anton'] text-xl tracking-wider uppercase">Live Training Monitor</h2>
+            <div className="text-[#22c55e] font-display text-[9px] md:text-[10px] tracking-[0.3em] uppercase">Tactical Telemetry</div>
+            <h2 className="text-white font-display text-lg md:text-xl tracking-wider uppercase">Live Monitor</h2>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-black border border-[#22c55e]/20 rounded-full">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black border border-[#22c55e]/20 rounded-full">
             <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse shadow-[0_0_10px_#22c55e]" />
-            <span className="text-[10px] font-black text-[#22c55e] tracking-widest">REAL-TIME</span>
+            <span className="text-[9px] font-black text-[#22c55e] tracking-widest">REAL-TIME</span>
           </div>
         </div>
       </div>
@@ -38,12 +38,12 @@ export default function LiveTrainingMonitor() {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-4">
             <Loader2 className="text-[#22c55e] animate-spin" size={32} />
-            <div className="text-white/20 text-[10px] font-black uppercase tracking-widest">Establishing Sensor Link...</div>
+            <div className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Establishing Sensor Link...</div>
           </div>
         ) : athletes.length === 0 ? (
           <div className="py-24 text-center">
-            <div className="text-white/5 font-['Anton'] text-5xl mb-4">INACTIVE</div>
-            <div className="text-white/10 uppercase font-black text-[10px] tracking-[0.4em]">
+            <div className="text-white/5 font-display text-5xl mb-4">INACTIVE</div>
+            <div className="text-gray-700 uppercase font-black text-[10px] tracking-[0.4em]">
               NO ACTIVE TRAINING SESSIONS DETECTED
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function LiveTrainingMonitor() {
         )}
       </div>
 
-      <button className="relative z-10 w-full bg-transparent border-2 border-[#22c55e]/20 text-[#22c55e] py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-[#22c55e] hover:text-black hover:border-[#22c55e] transition-all uppercase flex items-center justify-center gap-3 group/btn">
+      <button className="relative z-10 w-full bg-transparent border-2 border-[#22c55e]/20 text-[#22c55e] py-4 rounded-2xl font-display text-xs tracking-[0.2em] hover:bg-[#22c55e] hover:text-black hover:border-[#22c55e] transition-all uppercase flex items-center justify-center gap-3 group/btn">
         VIEW FULL TELEMETRY GRID 
         <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
       </button>
@@ -73,61 +73,62 @@ function LiveAthleteRow({ athlete }: { athlete: LiveAthleteMetric }) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="flex items-center gap-6 bg-black/40 border border-white/5 p-5 rounded-3xl hover:border-[#22c55e]/30 transition-all group/item"
+      className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 bg-black/40 border border-white/5 p-4 md:p-5 rounded-2xl md:rounded-3xl hover:border-[#22c55e]/30 transition-all group/item active-scale sm:active-scale-none"
     >
-      <div className="shrink-0">
+      <div className="flex items-center gap-4 sm:gap-6 shrink-0">
         <Avatar 
           src={athlete.avatar_url}
           name={`${athlete.first_name} ${athlete.last_name}`}
           size="md"
         />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="text-white font-bold text-sm uppercase tracking-wide truncate">
-          {athlete.first_name} {athlete.last_name[0]}.
-        </div>
-        <div className="text-white/20 text-[9px] font-black uppercase tracking-widest mt-1">SENSOR_ID: {athlete.athlete_id.slice(0, 8)}</div>
-      </div>
-
-      {/* Sparkline */}
-      <div className="hidden xl:block w-24 h-8 shrink-0">
-         <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
-            <path
-              d={`M ${athlete.hr_history.map((val, i) => `${(i / 9) * 100},${40 - ((val - 60) / 140) * 40}`).join(' L ')}`}
-              fill="none"
-              stroke={hrColor}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-all duration-500"
-            />
-         </svg>
-      </div>
-
-      <div className="flex items-center gap-8 shrink-0">
-        <div className="text-right">
-          <div className="text-xs font-black uppercase tracking-widest text-white/20 mb-1">SPEED</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-white font-['Anton'] text-xl">{athlete.speed.toFixed(1)}</span>
-            <span className="text-white/40 text-[8px] font-bold">KM/H</span>
+        <div className="min-w-0">
+          <div className="text-white font-bold text-sm md:text-md uppercase tracking-wide truncate">
+            {athlete.first_name} {athlete.last_name[0]}.
           </div>
+          <div className="text-gray-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest mt-1">SENSOR: {athlete.athlete_id.slice(0, 8)}</div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between sm:justify-end flex-1 gap-4 md:gap-8">
+        {/* Sparkline - Show on SM+ */}
+        <div className="hidden sm:block w-20 md:w-24 h-8 shrink-0">
+           <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
+              <path
+                d={`M ${athlete.hr_history.map((val, i) => `${(i / 9) * 100},${40 - ((val - 60) / 140) * 40}`).join(' L ')}`}
+                fill="none"
+                stroke={hrColor}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-all duration-500"
+              />
+           </svg>
         </div>
 
-        <div className="text-right min-w-[80px]">
-          <div className="text-xs font-black uppercase tracking-widest text-white/20 mb-1 flex items-center justify-end gap-1">
-            <Heart size={10} className={athlete.heart_rate > 170 ? "animate-pulse text-red-500" : ""} /> HR
+        <div className="flex items-center gap-6 md:gap-8 shrink-0 ml-auto sm:ml-0">
+          <div className="text-right">
+            <div className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-0.5 md:mb-1">SPEED</div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-white font-display text-lg md:text-xl">{athlete.speed.toFixed(1)}</span>
+              <span className="text-white/40 text-[7px] md:text-[8px] font-bold">KM/H</span>
+            </div>
           </div>
-          <div className="flex items-baseline gap-1">
-            <motion.span 
-              key={athlete.heart_rate}
-              initial={{ scale: 1.2, color: "#fff" }}
-              animate={{ scale: 1, color: hrColor }}
-              className="font-['Anton'] text-2xl"
-            >
-              {athlete.heart_rate}
-            </motion.span>
-            <span className="text-white/40 text-[8px] font-bold">BPM</span>
+
+          <div className="text-right min-w-[70px] md:min-w-[80px]">
+            <div className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-0.5 md:mb-1 flex items-center justify-end gap-1">
+              <Heart size={10} className={athlete.heart_rate > 170 ? "animate-pulse text-red-500" : ""} /> HR
+            </div>
+            <div className="flex items-baseline gap-1">
+              <motion.span 
+                key={athlete.heart_rate}
+                initial={{ scale: 1.2, color: "#fff" }}
+                animate={{ scale: 1, color: hrColor }}
+                className="font-display text-xl md:text-2xl"
+              >
+                {athlete.heart_rate}
+              </motion.span>
+              <span className="text-white/40 text-[7px] md:text-[8px] font-bold">BPM</span>
+            </div>
           </div>
         </div>
       </div>

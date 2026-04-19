@@ -4,16 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Loader2 } from "lucide-react";
-import { Anton } from "next/font/google";
 import FAQModal from "./FAQModal";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "./providers/AuthProvider";
-
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -72,10 +66,10 @@ export default function Navbar() {
               unoptimized={true}
             />
           </div>
-          <span className={`${anton.className} transition-transform duration-500 group-hover:scale-105`}
+          <span className="font-display font-black transition-transform duration-500 group-hover:scale-105"
             style={{
               fontSize: '40px',
-              letterSpacing: '6px',
+              letterSpacing: '8px',
               lineHeight: 1,
               color: '#ffffff'
             }}>
@@ -90,19 +84,19 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="group relative text-sm font-medium text-gray-300 hover:text-white active:text-gold focus:text-gold transition-colors tracking-[0.15em] uppercase"
+                className="group relative text-[11px] font-bold font-display text-gray-100 hover:text-white active:text-neon-green focus:text-neon-green transition-colors tracking-[0.25em] uppercase"
               >
                 {link.name}
-                <span className="absolute -bottom-2 left-0 w-0 h-px bg-gold transition-all duration-300 ease-out group-hover:w-full"></span>
+                <span className="absolute -bottom-2 left-0 w-0 h-px bg-neon-green transition-all duration-300 ease-out group-hover:w-full"></span>
               </Link>
             ) : (
               <button
                 key={link.name}
                 onClick={link.action}
-                className="group relative text-sm font-medium text-gray-300 hover:text-white active:text-gold focus:text-gold transition-colors tracking-[0.15em] uppercase cursor-pointer"
+                className="group relative text-[11px] font-bold font-display text-gray-100 hover:text-white active:text-neon-green focus:text-neon-green transition-colors tracking-[0.25em] uppercase cursor-pointer"
               >
                 {link.name}
-                <span className="absolute -bottom-2 left-0 w-0 h-px bg-gold transition-all duration-300 ease-out group-hover:w-full"></span>
+                <span className="absolute -bottom-2 left-0 w-0 h-px bg-neon-green transition-all duration-300 ease-out group-hover:w-full"></span>
               </button>
             )
           ))}
@@ -114,13 +108,13 @@ export default function Navbar() {
               <div className="flex items-center gap-6">
                 <Link 
                   href={role === 'superadmin' ? "/admin" : role === 'staff' ? "/staff" : "/dashboard"} 
-                  className="px-5 py-2 text-[10px] font-black tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                  className="px-5 py-2 text-[10px] font-bold font-display tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
                 >
                   {role === 'superadmin' ? "Admin Portal" : role === 'staff' ? "Staff Portal" : "My Dashboard"}
                 </Link>
                 <button 
                   onClick={handleSignOut}
-                  className="text-[10px] font-black tracking-widest uppercase text-white/40 hover:text-white transition-colors"
+                  className="text-[10px] font-bold font-display tracking-widest uppercase text-white/40 hover:text-white transition-colors"
                 >
                   Sign Out
                 </button>
@@ -129,13 +123,13 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 <Link 
                   href="/signin" 
-                  className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
                 >
                   Sign In
                 </Link>
                 <Link 
                   href="/register" 
-                  className="px-5 py-2 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80] transition-all duration-300"
+                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80] transition-all duration-300"
                 >
                   Register
                 </Link>

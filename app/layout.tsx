@@ -1,40 +1,29 @@
 import type { Metadata } from "next";
-import { Inter, Oswald, Anton, Plus_Jakarta_Sans, Orbitron, Rajdhani } from "next/font/google";
+import { Inter, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Loader from "@/components/Loader";
 
 const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
-  subsets: ["latin"],
+  display: "swap",
 });
 
-const oswald = Oswald({
-  variable: "--font-oswald",
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-barlow",
+  display: "swap",
 });
 
-const anton = Anton({
-  variable: "--font-anton",
-  weight: "400",
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-});
-
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-});
-
-const rajdhani = Rajdhani({
-  variable: "--font-rajdhani",
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -53,10 +42,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${oswald.variable} ${anton.variable} ${plusJakarta.variable} ${orbitron.variable} ${rajdhani.variable} h-full antialiased scroll-smooth`}
+      className={`${inter.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white selection:bg-[#00ff41] selection:text-black font-sans relative">
+      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-[#e5e7eb] selection:bg-[#00ff41] selection:text-black font-sans relative">
         <AuthProvider>
           <NotificationProvider>
             <Loader />

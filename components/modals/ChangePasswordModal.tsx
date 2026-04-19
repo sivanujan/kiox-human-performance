@@ -4,17 +4,9 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, Eye, EyeOff, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin']
-});
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -109,13 +101,13 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <div className="h-[1px] w-[20px] bg-gradient-to-r from-transparent to-[#22c55e]"></div>
                 <span className="text-[#22c55e] text-[10px] tracking-[0.4em] font-bold uppercase">Authentication</span>
               </div>
-              <h2 className={`${plusJakarta.className} text-white text-3xl font-bold uppercase tracking-wider`}>
+              <h2 className={`font-sans text-white text-3xl font-bold uppercase tracking-wider`}>
                 Update <span className="text-[#22c55e]">Security</span>
               </h2>
               
               <button 
                 onClick={onClose}
-                className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -149,7 +141,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] ml-1">New Access Code</label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
                       <Lock size={16} />
                     </div>
                     <input 
@@ -157,13 +149,13 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Minimum 6 characters"
-                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-white/10"
+                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-gray-700"
                       required
                     />
                     <button 
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                     >
                       {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -174,7 +166,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] ml-1">Verify Protocol</label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
                       <ShieldCheck size={16} />
                     </div>
                     <input 
@@ -182,13 +174,13 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new code"
-                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-white/10"
+                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-gray-700"
                       required
                     />
                     <button 
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
                     >
                       {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -210,7 +202,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
             </form>
 
             <div className="px-8 pb-8">
-              <p className="text-[9px] text-white/20 uppercase font-bold text-center leading-relaxed tracking-wider">
+              <p className="text-[9px] text-gray-500 uppercase font-bold text-center leading-relaxed tracking-wider">
                 Updating your security credentials will secure all active sessions and encrypt your profile with the new digital signature.
               </p>
             </div>

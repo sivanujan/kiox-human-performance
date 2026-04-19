@@ -20,10 +20,7 @@ export default function Contact() {
       opacity: 1,
       transition: {
         staggerChildren: 0.15,
-        delayChildren: 0.3,
-      },
-    },
-  };
+        delayChildren: 0.3 } } };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -31,8 +28,7 @@ export default function Contact() {
       opacity: 1, 
       y: 0,
       transition: { duration: 0.6, ease: "easeOut" as const }
-    },
-  };
+    } };
 
   const leftSlide = {
     hidden: { opacity: 0, x: -50 },
@@ -40,8 +36,7 @@ export default function Contact() {
       opacity: 1, 
       x: 0,
       transition: { duration: 0.8, ease: "easeOut" as const }
-    },
-  };
+    } };
 
   const rightSlide = {
     hidden: { opacity: 0, x: 50 },
@@ -49,8 +44,7 @@ export default function Contact() {
       opacity: 1, 
       x: 0,
       transition: { duration: 0.8, ease: "easeOut" as const }
-    },
-  };
+    } };
 
   const contactInfo = [
     {

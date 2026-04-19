@@ -13,10 +13,8 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import { Activity, Maximize2, Zap } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useTrainingLoad } from "@/hooks/useTrainingLoad";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface TrainingLoadWidgetProps {
   onExpand: () => void;
@@ -58,7 +56,7 @@ export default function TrainingLoadWidget({ onExpand }: TrainingLoadWidgetProps
           </div>
           <div>
             <div className={`text-white/40 text-[10px] uppercase tracking-[0.3em] font-black`}>Performance Matrix</div>
-            <h2 className={`${anton.className} text-xl text-white tracking-wider uppercase`}>Training Load Management</h2>
+            <h2 className={`font-display text-xl text-white tracking-wider uppercase`}>Training Load Management</h2>
           </div>
         </div>
         <button 
@@ -73,10 +71,10 @@ export default function TrainingLoadWidget({ onExpand }: TrainingLoadWidgetProps
         {/* Metric Column */}
         <div className="space-y-6">
           <div className="p-6 bg-black/40 border border-white/5 rounded-2xl relative overflow-hidden">
-             <div className="text-white/20 text-[10px] font-black uppercase tracking-[3px] mb-1">TEAM AVG WEEKLY LOAD</div>
+             <div className="text-gray-500 text-[10px] font-black uppercase tracking-[3px] mb-1">TEAM AVG WEEKLY LOAD</div>
              <div className="flex items-baseline gap-2">
-                <span className={`${anton.className} text-4xl text-white`}>{teamAvg}</span>
-                <span className="text-xs text-white/20 font-bold">AU</span>
+                <span className={`font-display text-4xl text-white`}>{teamAvg}</span>
+                <span className="text-xs text-gray-500 font-bold">AU</span>
              </div>
              <div className="mt-4 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: status.color }} />
@@ -89,7 +87,7 @@ export default function TrainingLoadWidget({ onExpand }: TrainingLoadWidgetProps
 
           <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
             <div className="flex justify-between items-center mb-4">
-               <span className="text-white/20 text-[10px] font-black uppercase tracking-[3px]">TARGET RANGE</span>
+               <span className="text-gray-500 text-[10px] font-black uppercase tracking-[3px]">TARGET RANGE</span>
                <span className="text-[10px] text-[#22c55e] font-black tracking-widest">{targetMin} - {targetMax} AU</span>
             </div>
             <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
@@ -133,7 +131,7 @@ export default function TrainingLoadWidget({ onExpand }: TrainingLoadWidgetProps
 
       <button 
         onClick={onExpand}
-        className="mt-6 w-full py-4 border border-dashed border-white/10 rounded-2xl text-[10px] text-white/20 font-black tracking-[0.4em] hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all uppercase"
+        className="mt-6 w-full py-4 border border-dashed border-white/10 rounded-2xl text-[10px] text-gray-500 font-black tracking-[0.4em] hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all uppercase"
       >
         TAP TO EXPAND ANALYSIS →
       </button>

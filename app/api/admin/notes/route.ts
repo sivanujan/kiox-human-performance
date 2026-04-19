@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     .from('trainer_notes')
     .select(`
       *,
-      added_by:profiles!trainer_notes_added_by_fkey(first_name, last_name)
+      added_by:profiles(first_name, last_name)
     `);
   
   if (userId && userId !== 'null' && userId !== 'undefined') {
@@ -37,7 +37,14 @@ export async function GET(request: Request) {
 
   const { data: notes, error } = await query.order('created_at', { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("Notes Fetch Error:", error);
+    return NextResponse.json({ 
+      error: error.message, 
+      details: error.details,
+      hint: "Ensure you have created the trainer_notes table and added_by foreign key." 
+    }, { status: 500 });
+  }
   return NextResponse.json(notes);
 }
 
@@ -80,7 +87,12 @@ export async function POST(request: Request) {
 
     if (error) throw error;
     return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: any) {
+    console.error("Notes Creation Error:", err);
+    return NextResponse.json({ 
+      error: err.message,
+      details: err.details,
+      hint: "Check if the athlete (userId) exists and you have staff permissions." 
+    }, { status: 500 });
   }
 }

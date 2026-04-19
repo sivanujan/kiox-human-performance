@@ -15,7 +15,6 @@ import {
   Filter,
   Loader2
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { 
   format, 
   addMonths, 
@@ -34,7 +33,6 @@ import CreateSessionModal from "@/components/modals/CreateSessionModal";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import { TrainingSession } from "@/hooks/useSessions";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function AdminSchedules() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -92,7 +90,7 @@ export default function AdminSchedules() {
             <CalendarIcon className="text-[#22c55e]" size={16} />
             <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Fleet Operations Hub</span>
           </div>
-          <h1 className={`${anton.className} text-6xl text-white uppercase tracking-wider`}>Global Schedules</h1>
+          <h1 className={`font-display text-6xl text-white uppercase tracking-wider`}>Global Schedules</h1>
         </div>
 
         <div className="flex items-center gap-6 bg-[#111] border border-white/5 p-4 rounded-[28px] shadow-2xl">
@@ -100,7 +98,7 @@ export default function AdminSchedules() {
             <ChevronLeft size={24} />
           </button>
           <div className="px-6 border-x border-white/5">
-            <div className="text-white font-['Anton'] text-2xl tracking-[0.2em] uppercase min-w-[200px] text-center">
+            <div className="text-white font-display text-2xl tracking-[0.2em] uppercase min-w-[200px] text-center">
               {format(currentMonth, "MMMM yyyy")}
             </div>
           </div>
@@ -111,7 +109,7 @@ export default function AdminSchedules() {
 
         <button 
           onClick={() => setIsCreateModalOpen(true)}
-          className="bg-[#22c55e] text-black px-10 py-5 rounded-[24px] font-['Anton'] text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3"
+          className="bg-[#22c55e] text-black px-10 py-5 rounded-[24px] font-display text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3"
         >
           <Plus size={20} /> INITIALIZE SESSION
         </button>
@@ -128,7 +126,7 @@ export default function AdminSchedules() {
         {/* Days Header */}
         <div className="grid grid-cols-7 border-b border-white/5">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-            <div key={day} className="py-6 text-center text-[10px] font-black text-white/20 tracking-[4px] border-r last:border-r-0 border-white/5 bg-white/[0.02]">
+            <div key={day} className="py-6 text-center text-[10px] font-black text-gray-500 tracking-[4px] border-r last:border-r-0 border-white/5 bg-white/[0.02]">
                {day}
             </div>
           ))}
@@ -147,7 +145,7 @@ export default function AdminSchedules() {
                 className={`min-h-[160px] p-4 border-r border-b border-white/5 transition-all ${!isCurrentMonth ? 'opacity-20' : ''} ${isToday ? 'bg-[#22c55e]/[0.02]' : ''} hover:bg-white/[0.03] last:border-r-0`}
               >
                 <div className="flex justify-between items-start mb-4">
-                   <span className={`font-['Anton'] text-xl tracking-widest ${isToday ? 'text-[#22c55e]' : 'text-white/40'}`}>
+                   <span className={`font-display text-xl tracking-widest ${isToday ? 'text-[#22c55e]' : 'text-white/40'}`}>
                       {format(day, "dd")}
                    </span>
                 </div>

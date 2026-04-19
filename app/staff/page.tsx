@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,9 +19,9 @@ import {
   ShieldAlert,
   Target,
   LogOut,
-  Settings
+  Settings,
+  BarChart3
 } from "lucide-react";
-import { Anton, Orbitron } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 // Dashboard Components
@@ -50,12 +50,7 @@ import CreateSessionModal from "@/components/modals/CreateSessionModal";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import AdjustLoadModal from "@/components/modals/AdjustLoadModal";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
-const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function StaffPortal() {
   const { user, profile, loading: authLoading, signOut, supabase } = useAuth();
@@ -94,9 +89,11 @@ export default function StaffPortal() {
 
   const router = useRouter();
 
+  const fetchingRef = useRef(false);
+
   useEffect(() => {
     setIsHydrated(true);
-    if (!authLoading) {
+    if (!authLoading && !fetchingRef.current) {
         if (!user) {
             router.push("/signin");
         } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin') {
@@ -105,10 +102,12 @@ export default function StaffPortal() {
             fetchAdminData();
         }
     }
-  }, [user, profile, authLoading]);
+  }, [user?.id, profile?.role, authLoading]);
 
   const fetchAdminData = async () => {
-    setLoading(true);
+    if (athletes.length === 0) setLoading(true);
+    fetchingRef.current = true;
+
     try {
       const today = new Date().toISOString().split('T')[0];
       
@@ -162,6 +161,7 @@ export default function StaffPortal() {
       console.error("Staff Matrix Sync Error:", error);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   };
 
@@ -207,7 +207,7 @@ export default function StaffPortal() {
           <div className="w-20 h-20 rounded-full border-2 border-[#22c55e]/10 animate-ping absolute inset-0" />
           <div className="w-20 h-20 rounded-full border-t-2 border-[#22c55e] animate-spin" />
         </div>
-        <div className="text-[10px] font-black text-[#22c55e] uppercase tracking-[0.5em] animate-pulse">
+        <div className="font-label text-[#22c55e] animate-pulse">
           Syncing Operational Matrix...
         </div>
       </div>
@@ -224,12 +224,12 @@ export default function StaffPortal() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white">
+    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
       {/* ========================
           NAVIGATION HEADER
           ======================== */}
       {/* Main Staff Portal Container */}
-      <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-10 relative">
+      <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
         {/* ========================
@@ -237,12 +237,12 @@ export default function StaffPortal() {
             ======================== */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
           <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
             <input
               placeholder="SEARCH SQUAD DATA..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-4 pl-12 pr-4 text-white text-xs font-['Anton'] tracking-widest focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-white/10 shadow-2xl"
+              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-3 md:py-4 pl-12 pr-4 text-white text-xs md:text-sm font-label focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-gray-600 shadow-2xl"
             />
           </div>
         </div>
@@ -258,22 +258,22 @@ export default function StaffPortal() {
         ]} />
 
         {/* 2. STAFF PROTOCOL LOGS (MOVED FOR VISIBILITY) */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl flex flex-col relative z-10">
-           <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-8 flex items-center gap-3">
-              <MessageSquare size={18} /> STAFF PROTOCOL LOGS
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+           <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
+              <MessageSquare size={18} /> Protocol Logs
            </div>
            
-           <div className="flex gap-2 mb-8">
+           <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
               <input 
-                placeholder="ADD STAFF PROTOCOL NOTE (SELECT PLAYER ABOVE FOR ATHLETE RECORD)..."
+                placeholder="ADD PROTOCOL NOTE..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-bold uppercase placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]"
+                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
               />
               <button 
                 onClick={handleAddNote}
                 disabled={isSavingNote}
-                className="bg-[#22c55e] text-black font-['Anton'] text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center"
+                className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
               >
                 {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
               </button>
@@ -288,7 +288,7 @@ export default function StaffPortal() {
                 const query = searchQuery.toLowerCase();
                 return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
               }).length === 0 ? (
-                <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest">
+                <div className="py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl">
                   {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
                 </div>
               ) : (
@@ -302,18 +302,18 @@ export default function StaffPortal() {
                 }).map((note, i) => (
                   <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px]">
+                      <div className="font-label text-[#22c55e]">
                         {note.user_id ? "Athlete Record" : "General Protocol"}
                       </div>
-                      <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
+                      <span className="text-gray-500 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-white/60 text-xs leading-relaxed italic">"{note.note}"</p>
+                    <p className="text-gray-200 text-xs leading-relaxed italic font-sans">"{note.note}"</p>
                     <div className="flex justify-between items-center mt-3">
-                       <span className="text-[#22c55e] text-[10px] font-['Anton'] tracking-wider uppercase opacity-50">
+                       <span className="text-[#22c55e] font-label opacity-70">
                          {note.added_by?.first_name} {note.added_by?.last_name}
                        </span>
                        {note.user_id && (
-                         <span className="text-white/20 text-[9px] font-bold uppercase tracking-[1px]">
+                         <span className="text-gray-500 font-label">
                            Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
                          </span>
                        )}
@@ -354,53 +354,56 @@ export default function StaffPortal() {
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
         {/* 8. INDIVIDUAL ATHLETE MANAGEMENT (SQUAD MANAGEMENT CORE) */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-10 opacity-5 font-['Anton'] text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COACH</div>
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[16px] md:rounded-[24px] p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-10 opacity-5 font-display text-9xl pointer-events-none group-hover:opacity-10 transition-opacity hidden md:block uppercase">COACH</div>
            
            <div className="relative z-10 max-w-2xl">
-              <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-6 flex items-center gap-3">
-                 <Target size={18} /> SQUAD MANAGEMENT CORE
-              </div>
+               <div className="text-[#22c55e] font-display text-xl md:text-2xl font-black mb-6 flex items-center gap-3 tracking-widest uppercase truncate">
+                  <Target size={24} /> SQUAD MANAGEMENT
+               </div>
 
               <div className="space-y-8">
                 <div className="space-y-3">
-                   <label className="text-white/40 text-[11px] font-black uppercase tracking-[4px] ml-1">ATHLETE IDENTIFICATION</label>
-                   <select
-                    value={selectedAthlete}
-                    onChange={(e) => setSelectedAthlete(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-['Anton'] uppercase tracking-[3px] focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
-                   >
-                    <option value="">SELECT PLAYER...</option>
-                    {athletes.filter(a => 
-                      `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(a => (
-                      <option key={a.id} value={a.id} className="bg-[#111]">{a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]</option>
-                    ))}
-                   </select>
+                    <label className="text-gray-400 font-label ml-1">ATHLETE IDENTIFICATION</label>
+                   <div className="relative">
+                     <select
+                      value={selectedAthlete}
+                      onChange={(e) => setSelectedAthlete(e.target.value)}
+                      className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-display focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
+                     >
+                      <option value="">SELECT PLAYER...</option>
+                      {athletes.filter(a => 
+                        `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map(a => (
+                        <option key={a.id} value={a.id} className="bg-[#111]">{a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]</option>
+                      ))}
+                     </select>
+                   </div>
                 </div>
+ 
+                 <AnimatePresence>
+                   {selectedAthlete && (
+                     <motion.div 
+                       initial={{ opacity: 0, scale: 0.98 }}
+                       animate={{ opacity: 1, scale: 1 }}
+                       exit={{ opacity: 0, scale: 0.98 }}
+                       className="grid grid-cols-2 lg:grid-cols-5 gap-4 pt-6"
+                     >
 
-                <AnimatePresence>
-                  {selectedAthlete && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6"
-                    >
                       {[
-                        { label: 'PLAN_UPDATE', icon: <Clipboard size={22} />, action: () => setIsPlanModalOpen(true) },
-                        { label: 'LOG_INJURY', icon: <ShieldAlert size={22} />, action: () => setIsInjuryModalOpen(true) },
-                        { label: 'SURVEY_SEND', icon: <Activity size={22} />, action: () => setIsSurveyModalOpen(true) },
-                        { label: 'CLIP_UPLOAD', icon: <Plus size={22} />, action: () => setIsVideoModalOpen(true) },
+                        { label: 'PLAN', icon: <Clipboard size={22} />, action: () => setIsPlanModalOpen(true) },
+                        { label: 'INJURY', icon: <ShieldAlert size={22} />, action: () => setIsInjuryModalOpen(true) },
+                        { label: 'SURVEY', icon: <Activity size={22} />, action: () => setIsSurveyModalOpen(true) },
+                        { label: 'UPLOAD', icon: <Plus size={22} />, action: () => setIsVideoModalOpen(true) },
                         { label: 'ASSESS', icon: <BarChart3 size={22} />, action: () => setIsAssessmentModalOpen(true) },
                       ].map((btn, i) => (
                         <button 
                           key={i} 
                           onClick={btn.action}
-                          className="flex flex-col items-center gap-4 bg-white/[0.03] border border-white/10 p-6 rounded-[24px] hover:bg-[#22c55e]/15 hover:border-[#22c55e]/50 hover:shadow-[0_10px_30px_rgba(34,197,94,0.15)] transition-all text-[#22c55e] group/btn shadow-lg"
+                          className="flex flex-col items-center gap-3 bg-white/[0.03] border border-white/10 p-5 rounded-[20px] hover:bg-[#22c55e]/15 hover:border-[#22c55e]/50 hover:shadow-[0_10px_30px_rgba(34,197,94,0.15)] transition-all text-[#22c55e] group/btn shadow-lg active-scale"
                         >
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
-                          <span className="text-[11px] font-['Anton'] tracking-[3px] text-white/70 group-hover/btn:text-white transition-colors">{btn.label}</span>
+                           <div className="w-10 h-10 rounded-xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
+                           <span className="font-label text-gray-400 text-[10px] font-bold group-hover/btn:text-white transition-colors uppercase tracking-widest">{btn.label}</span>
                         </button>
                       ))}
                     </motion.div>
@@ -410,16 +413,21 @@ export default function StaffPortal() {
            </div>
         </div>
 
+        {/* 9. BOOKING PANELS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+           {/* Booking panels would go here if needed, adding specific responsive grid spacing */}
+        </div>
+
         {/* FOOTER SECTION: WELLNESS */}
-        <div className="pb-10 relative z-10 w-full lg:w-1/2">
-          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl">
+        <div className="pb-10 relative z-10 w-full lg:w-3/5">
+          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
-                <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+                <div className="text-[#22c55e] font-display text-sm flex items-center gap-3">
                    <Activity size={18} /> SQUAD WELLNESS STATUS
                 </div>
-                <div className="text-[#22c55e] font-['Anton'] text-xl tracking-widest">
-                  {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : 'NO DATA RECEIVED'}
-                </div>
+                 <div className="text-[#22c55e] font-stat text-xl">
+                   {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : <span className="font-display text-white/40 font-black tracking-[0.2em] italic">NO DATA RECEIVED</span>}
+                 </div>
              </div>
              <ProgressBar value={wellnessStats.readyPercent} height={8} />
              <div className="mt-8 space-y-4">
@@ -428,13 +436,13 @@ export default function StaffPortal() {
                   { label: 'EXTREME SORENESS', count: wellnessStats.extremeSoreness, icon: '🩹', color: '#ef4444' },
                   { label: 'HYDRATION ISSUES', count: wellnessStats.hydrationFlags, icon: '💧', color: '#8b5cf6' },
                 ].map((issue, i) => (
-                  <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
-                    <div className="flex items-center gap-3 text-white/30 text-xs font-bold uppercase tracking-wider group-hover:text-white transition-colors">
-                      <span className="text-lg">{issue.icon}</span> {issue.label}
-                    </div>
-                    <div className="px-3 py-1 bg-black/40 text-[11px] font-['Anton'] tracking-widest rounded-full" style={{ color: issue.color }}>
-                      {logsExist ? `${issue.count} SUBJECTS` : '---'}
-                    </div>
+                   <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
+                     <div className="flex items-center gap-3 text-gray-400 font-label font-bold group-hover:text-white transition-colors">
+                       <span className="text-lg">{issue.icon}</span> {issue.label}
+                     </div>
+                     <div className="px-3 py-1 bg-black/40 font-stat rounded-full" style={{ color: issue.color }}>
+                       {logsExist ? `${issue.count} SUBJECTS` : <span className="text-[10px] opacity-40">---</span>}
+                     </div>
                   </div>
                 ))}
              </div>
@@ -454,6 +462,7 @@ export default function StaffPortal() {
         onClose={() => setIsInjuryModalOpen(false)} 
         athleteId={selectedAthlete} 
         athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        onSuccess={fetchAdminData}
       />
       <SurveyAssignModal 
         isOpen={isSurveyModalOpen} 

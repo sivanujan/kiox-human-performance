@@ -55,7 +55,7 @@ export default function AthleteAlertsCard({ athleteId }: AthleteAlertsCardProps)
         </div>
         <div>
           <div className="text-red-500 text-[10px] font-black tracking-[3px] uppercase">Recovery Advisory</div>
-          <h3 className="text-white font-['Anton'] text-lg tracking-wider uppercase">Active Performance Flags</h3>
+          <h3 className="text-white font-display text-lg tracking-wider uppercase">Active Performance Flags</h3>
         </div>
       </div>
 
@@ -70,7 +70,7 @@ export default function AthleteAlertsCard({ athleteId }: AthleteAlertsCardProps)
              <div>
                 <div className="text-white font-bold text-xs uppercase tracking-wide">{alert.alert_type} FLAG</div>
                 <div className="text-white/40 text-[10px] leading-relaxed mt-0.5">{alert.message}</div>
-                <div className="text-white/20 text-[8px] font-black uppercase mt-2 flex items-center gap-1">
+                <div className="text-gray-500 text-[8px] font-black uppercase mt-2 flex items-center gap-1">
                    <Clock size={10} /> {formatDistanceToNow(new Date(alert.triggered_at))} ago
                 </div>
              </div>
@@ -85,7 +85,7 @@ export default function AthleteAlertsCard({ athleteId }: AthleteAlertsCardProps)
          </p>
       </div>
 
-      <div className="absolute -bottom-2 -right-2 opacity-[0.02] font-['Anton'] text-6xl pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+      <div className="absolute -bottom-2 -right-2 opacity-[0.02] font-display text-6xl pointer-events-none group-hover:opacity-[0.05] transition-opacity">
         FLAG
       </div>
     </div>

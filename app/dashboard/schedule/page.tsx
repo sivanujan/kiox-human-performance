@@ -14,10 +14,8 @@ import {
   History,
   Timer
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import Link from "next/link";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function SchedulePage() {
   const { user, loading: authLoading } = useAuth();
@@ -59,7 +57,7 @@ export default function SchedulePage() {
     <div className="p-10 max-w-6xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
         <div>
-          <h2 className={`${anton.className} text-5xl text-white uppercase tracking-wider leading-none`}>Performance Timeline</h2>
+          <h2 className={`font-display text-5xl text-white uppercase tracking-wider leading-none`}>Performance Timeline</h2>
           <p className="text-white/40 text-[10px] font-black uppercase tracking-[3px] mt-4">Your elite evaluation schedule and milestone history</p>
         </div>
         <Link 
@@ -82,7 +80,7 @@ export default function SchedulePage() {
 
             {upcoming.length === 0 ? (
               <div className="p-10 bg-white/5 border border-white/5 rounded-3xl text-center">
-                <p className="text-white/20 text-[10px] font-black uppercase tracking-[3px]">No assessments currently scheduled</p>
+                <p className="text-gray-500 text-[10px] font-black uppercase tracking-[3px]">No assessments currently scheduled</p>
               </div>
             ) : (
               <div className="space-y-4 relative before:absolute before:left-8 before:top-4 before:bottom-4 before:w-px before:bg-white/5">
@@ -127,12 +125,12 @@ export default function SchedulePage() {
           {/* Past/History Section */}
           <section>
             <div className="flex items-center gap-3 mb-8">
-              <History className="text-white/20" size={20} />
+              <History className="text-gray-500" size={20} />
               <h3 className="text-[12px] font-black text-white/40 uppercase tracking-[3px]">Protocol History</h3>
             </div>
 
             {past.length === 0 ? (
-              <p className="text-white/10 text-[10px] uppercase font-bold text-center italic py-4">No historical records available</p>
+              <p className="text-gray-700 text-[10px] uppercase font-bold text-center italic py-4">No historical records available</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {past.map(a => (
@@ -142,7 +140,7 @@ export default function SchedulePage() {
                       {a.status === 'completed' ? <CheckCircle2 className="text-[#22c55e]" size={14} /> : <AlertCircle className="text-red-500" size={14} />}
                     </div>
                     <p className="text-xs font-bold text-white uppercase tracking-widest">{new Date(a.assessment_date).toLocaleDateString()}</p>
-                    <p className="text-[9px] text-white/20 uppercase mt-2 font-black">{a.status}</p>
+                    <p className="text-[9px] text-gray-500 uppercase mt-2 font-black">{a.status}</p>
                   </div>
                 ))}
               </div>
@@ -161,7 +159,7 @@ export default function SchedulePage() {
               Please arrive 15 minutes prior to your scheduled evaluation. Hydration markers will be tested as part of the metabolic baseline.
             </p>
             <div className="mt-8 pt-6 border-t border-white/5">
-               <div className="flex items-center gap-3 text-white/20">
+               <div className="flex items-center gap-3 text-gray-500">
                  <AlertCircle size={14} />
                  <span className="text-[9px] font-black uppercase tracking-[2px]">Cancellations require 24H notice</span>
                </div>
@@ -177,7 +175,7 @@ export default function SchedulePage() {
                 { label: 'Metabolic', freq: 'As Assigned' },
               ].map((item, i) => (
                 <div key={i} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0 grow">
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[2px]">{item.label}</span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[2px]">{item.label}</span>
                   <span className="text-[10px] font-black text-white uppercase tracking-[2px]">{item.freq}</span>
                 </div>
               ))}

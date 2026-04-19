@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Target, Save, Loader2, Minus, Plus, Users, Activity, TrendingDown, TrendingUp } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
 import { createPortal } from "react-dom";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface AdjustLoadModalProps {
   isOpen: boolean;
@@ -69,10 +67,10 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
                 </div>
                 <div>
                    <div className="text-blue-500 text-[10px] font-black tracking-[5px] uppercase mb-1">Operational Optimization</div>
-                   <h2 className={`${anton.className} text-4xl text-white tracking-wider uppercase`}>Intensity Calibration</h2>
+                   <h2 className={`font-display text-4xl text-white tracking-wider uppercase`}>Intensity Calibration</h2>
                 </div>
              </div>
-             <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-white/30 hover:text-white transition-all">
+             <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
                 <X size={28} />
              </button>
           </div>
@@ -82,8 +80,8 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
                 {/* Left: Global Metrics */}
                 <div className="lg:col-span-1 space-y-6">
                    <div className="p-8 bg-black/40 border border-white/5 rounded-3xl">
-                      <div className="text-white/20 text-[10px] font-black tracking-widest uppercase mb-4">SQUAD AVG LOAD</div>
-                      <div className="text-5xl font-['Anton'] text-white">542 <span className="text-xl text-white/20">AU</span></div>
+                      <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">SQUAD AVG LOAD</div>
+                      <div className="text-5xl font-display text-white">542 <span className="text-xl text-gray-500">AU</span></div>
                       <div className="flex items-center gap-2 mt-4 text-[#22c55e] text-[9px] font-black uppercase tracking-widest">
                          <TrendingDown size={12} /> -12% vs last cycle
                       </div>
@@ -91,7 +89,7 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
 
                    <div className="p-8 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl">
                       <div className="text-[#22c55e] text-[10px] font-black tracking-widest uppercase mb-4">OPTIMIZATION RANGE</div>
-                      <div className="text-2xl font-['Anton'] text-white">500 - 650 <span className="text-sm text-[#22c55e]">AU</span></div>
+                      <div className="text-2xl font-display text-white">500 - 650 <span className="text-sm text-[#22c55e]">AU</span></div>
                       <div className="h-2 w-full bg-white/5 rounded-full mt-4 relative overflow-hidden">
                          <div className="absolute top-0 left-1/4 right-3/4 h-full bg-[#22c55e]" />
                       </div>
@@ -100,24 +98,24 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
 
                 {/* Right: Session Adjustments */}
                 <div className="lg:col-span-2 space-y-6">
-                   <div className="text-white/20 text-[10px] font-black tracking-widest uppercase ml-1 flex items-center gap-2">
+                   <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase ml-1 flex items-center gap-2">
                       <Activity size={12} /> ACTIVE SQUAD OPS CALIBRATION
                    </div>
 
                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                       {sessions.length === 0 ? (
                         <div className="py-20 text-center border border-white/5 rounded-3xl bg-white/[0.01]">
-                           <span className="text-white/10 text-[10px] font-black tracking-[0.3em] uppercase">No sessions to calibrate</span>
+                           <span className="text-gray-700 text-[10px] font-black tracking-[0.3em] uppercase">No sessions to calibrate</span>
                         </div>
                       ) : sessions.map((s) => (
                         <div key={s.id} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl border-l-[6px] border-l-blue-500/40 group hover:bg-white/[0.05] transition-all">
                            <div className="flex justify-between items-start mb-6">
                               <div>
-                                 <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase mb-1">{s.title}</h4>
-                                 <div className="text-white/20 text-[9px] font-black uppercase tracking-widest">{s.session_type} // TARGET SET POINT</div>
+                                 <h4 className="text-white font-display text-lg tracking-wider uppercase mb-1">{s.title}</h4>
+                                 <div className="text-gray-500 text-[9px] font-black uppercase tracking-widest">{s.session_type} // TARGET SET POINT</div>
                               </div>
                               <div className="text-right">
-                                 <div className="text-2xl font-['Anton'] text-blue-400">{sessionTargets[s.id] || 0} AU</div>
+                                 <div className="text-2xl font-display text-blue-400">{sessionTargets[s.id] || 0} AU</div>
                               </div>
                            </div>
 
@@ -154,7 +152,7 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
 
                    <button 
                      disabled={loading}
-                     className="w-full bg-blue-500 text-black py-5 rounded-2xl font-['Anton'] text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-2xl flex items-center justify-center gap-3 mt-4"
+                     className="w-full bg-blue-500 text-black py-5 rounded-2xl font-display text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-2xl flex items-center justify-center gap-3 mt-4"
                    >
                       {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                       APPLY CALIBRATED TARGETS

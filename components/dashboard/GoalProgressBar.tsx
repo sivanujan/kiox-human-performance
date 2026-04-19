@@ -30,21 +30,21 @@ export default function GoalProgressBar({
     <div className="mb-6 last:mb-0">
       <div className="flex justify-between items-end mb-2">
         <div>
-          <div className="text-[10px] font-bold text-white/30 tracking-[2px] uppercase">
+          <div className="text-[10px] font-bold text-gray-400 tracking-[2px] uppercase">
             {label}
           </div>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-['Anton'] text-white">
+            <span className="text-xl font-display text-white">
               {current}{unit}
             </span>
-            <span className="text-[10px] font-bold text-white/10 uppercase">
+            <span className="text-[10px] font-bold text-gray-700 uppercase">
               Target: {target}{unit}
             </span>
           </div>
         </div>
         
         {change && (
-          <div className={`text-[10px] font-bold tracking-widest ${change.startsWith('+') ? 'text-[#22c55e]' : 'text-white/30'}`}>
+          <div className={`text-[10px] font-bold tracking-widest ${change.startsWith('+') ? 'text-[#22c55e]' : 'text-gray-400'}`}>
             {change}
           </div>
         )}

@@ -23,7 +23,7 @@ export default function MetricCard({
   const getTrendIcon = () => {
     if (trend === 'up' || trend === '↑') return <TrendingUp size={14} className="text-[#22c55e]" />
     if (trend === 'down' || trend === '↓') return <TrendingDown size={14} className="text-[#ef4444]" />
-    return <Minus size={14} className="text-white/20" />
+    return <Minus size={14} className="text-gray-500" />
   }
 
   return (
@@ -43,15 +43,15 @@ export default function MetricCard({
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="text-[9px] font-bold text-white/30 tracking-[2px] uppercase mb-1">
+        <div className="text-[9px] font-bold text-gray-400 tracking-[2px] uppercase mb-1">
           {label}
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl font-['Anton'] text-white tracking-wider">
+          <span className="text-2xl font-display text-white tracking-wider">
             {value}
           </span>
           {unit && (
-            <span className="text-[10px] font-bold text-white/20 uppercase">
+            <span className="text-[10px] font-bold text-gray-500 uppercase">
               {unit}
             </span>
           )}

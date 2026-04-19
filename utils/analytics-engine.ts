@@ -36,14 +36,23 @@ export async function recalculateAthleteMetrics(
       .limit(1)
       .single();
 
-    // 3. Calculate Derived Metrics
+    // 3. Fetch Active Clinical Logs (Injuries) - Any status that isn't 'Cleared' is active
+    const { data: activeInjuries } = await supabase
+      .from("athlete_injury_logs")
+      .select("id")
+      .eq("athlete_id", athleteId)
+      .neq("status", "Cleared");
+
+    const isInjured = (activeInjuries?.length || 0) > 0;
+
+    // 4. Calculate Derived Metrics
     
     // TRAINING LOAD: 7-day sum
     const currentWeeklyLoad = acuteLoad;
 
     // INJURY RISK (ACWR): Acute / (Chronic / 4)
-    let riskStatus = "LOW";
-    if (chronicLoad > 0) {
+    let riskStatus = isInjured ? "HIGH" : "LOW";
+    if (!isInjured && chronicLoad > 0) {
       const averageChronic = chronicLoad / 4;
       const acwr = acuteLoad / (averageChronic || 1);
       if (acwr > 1.5) riskStatus = "HIGH";
@@ -52,7 +61,9 @@ export async function recalculateAthleteMetrics(
 
     // RECOVERY INDEX: (0-100)
     let recoveryScore = 0;
-    if (latestWellness) {
+    if (isInjured) {
+      recoveryScore = 0; // SAFETY OVERRIDE
+    } else if (latestWellness) {
       const sleepWeight = (latestWellness.sleep_score || 0) / 10;
       const sorenessWeight = (10 - (latestWellness.soreness_score || 0)) / 10;
       
@@ -65,6 +76,9 @@ export async function recalculateAthleteMetrics(
 
       recoveryScore = Math.round(((sleepWeight + sorenessWeight + stressWeight + hydrationWeight) / 4) * 100);
     }
+
+    // TRAINING STATUS: Map to standard display
+    const trainingStatus = isInjured ? "INJURED" : (recoveryScore > 70 ? "READY" : "FATIGUE");
 
     // WEEKLY SCORE: (0-100) - Compliance based
     // (Days active in last 7 days)
@@ -80,6 +94,7 @@ export async function recalculateAthleteMetrics(
         injury_risk: riskStatus,
         recovery_index: recoveryScore,
         weekly_score: weeklyScore,
+        training_status: trainingStatus,
         updated_at: new Date().toISOString()
       })
       .eq("id", athleteId);

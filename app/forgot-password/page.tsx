@@ -5,13 +5,8 @@ import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, ArrowRight, ChevronLeft, Loader2, ShieldCheck } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function ForgotPasswordPage() {
   const { supabase, user, loading: authLoading } = useAuth();
@@ -67,15 +62,15 @@ export default function ForgotPasswordPage() {
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
               <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
             </div>
-            <span className={`${anton.className} text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
+            <span className={`font-display text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
           </Link>
         </div>
 
         {/* Card */}
         <div className="bg-[#111111] border border-white/10 rounded-[24px] overflow-hidden shadow-2xl p-8 md:p-12 text-center">
           <div className="mb-8">
-            <h2 className={`${anton.className} text-3xl text-white uppercase tracking-widest mb-2`}>Recover Access</h2>
-            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[2px]">Enter your email for the recovery link</p>
+            <h2 className={`font-display text-3xl text-white uppercase tracking-widest mb-2`}>Recover Access</h2>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">Enter your email for the recovery link</p>
           </div>
 
           {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest">{errorMsg}</div>}
@@ -86,7 +81,7 @@ export default function ForgotPasswordPage() {
               <div className="space-y-2">
                 <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
                   <input 
                     value={email} 
                     onChange={e => setEmail(e.target.value)} 
@@ -94,7 +89,7 @@ export default function ForgotPasswordPage() {
                     type="email" 
                     placeholder="name@example.com" 
                     disabled={successMsg !== ""}
-                    className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans disabled:opacity-50" 
+                    className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans disabled:opacity-50" 
                   />
                 </div>
               </div>
@@ -151,7 +146,7 @@ export default function ForgotPasswordPage() {
           )}
 
           <div className="mt-8 pt-8 border-t border-white/5">
-            <Link href="/signin" className="inline-flex items-center gap-2 text-[10px] font-bold text-white/20 hover:text-[#22c55e] uppercase tracking-widest transition-colors">
+            <Link href="/signin" className="inline-flex items-center gap-2 text-[10px] font-bold text-gray-500 hover:text-[#22c55e] uppercase tracking-widest transition-colors">
               <ChevronLeft size={14} /> Back to Sign In
             </Link>
           </div>

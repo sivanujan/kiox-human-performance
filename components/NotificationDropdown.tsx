@@ -152,7 +152,7 @@ export default function NotificationDropdown() {
             {loading ? (
               <div className="p-8 flex justify-center text-[#22c55e]"><Loader2 className="animate-spin" /></div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center text-white/20 text-[10px] font-bold uppercase tracking-widest italic">
+              <div className="p-8 text-center text-gray-500 text-[10px] font-bold uppercase tracking-widest italic">
                 No alerts detected.
               </div>
             ) : (
@@ -170,7 +170,7 @@ export default function NotificationDropdown() {
                         <h4 className={`text-[11px] font-black uppercase tracking-widest ${!notif.is_read ? 'text-[#22c55e]' : 'text-white/70'}`}>
                           {notif.title}
                         </h4>
-                        <span className="text-[8px] text-white/30 font-bold uppercase">
+                        <span className="text-[8px] text-gray-400 font-bold uppercase">
                           {new Date(notif.created_at).toLocaleDateString()}
                         </span>
                       </div>

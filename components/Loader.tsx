@@ -3,12 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function Loader() {
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +79,7 @@ export default function Loader() {
             {letters.map((letter, i) => (
               <motion.span
                 key={i}
-                className={anton.className}
+                className="font-display"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ 
@@ -124,7 +119,7 @@ export default function Loader() {
 
           {/* Human Performance text */}
           <motion.p
-            className={anton.className}
+            className="font-display"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2, duration: 0.4 }}

@@ -10,16 +10,12 @@ import {
   AlertCircle,
   Save,
   ShieldCheck,
-  Target,
-} from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
+  Target } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 interface AthleteProfileModalProps {
   isOpen: boolean;
@@ -44,8 +40,7 @@ export default function AthleteProfileModal({
     username: "",
     avatar_url: "",
     bio: "",
-    position_played: "",
-  });
+    position_played: "" });
 
   useEffect(() => {
     setMounted(true);
@@ -59,8 +54,7 @@ export default function AthleteProfileModal({
         username: profile.username || "",
         avatar_url: profile.avatar_url || "",
         bio: profile.bio || "",
-        position_played: profile.position_played || "",
-      });
+        position_played: profile.position_played || "" });
       setError(null);
       setSuccess(false);
     }
@@ -84,8 +78,7 @@ export default function AthleteProfileModal({
           avatar_url: formData.avatar_url,
           bio: formData.bio,
           position_played: formData.position_played,
-          updated_at: new Date().toISOString(),
-        })
+          updated_at: new Date().toISOString() })
         .eq("id", user.id);
 
       if (updateError) throw updateError;
@@ -118,8 +111,7 @@ export default function AthleteProfileModal({
             style={{
               backgroundImage:
                 "linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
+              backgroundSize: "40px 40px" }}
           />
 
           <div
@@ -138,7 +130,7 @@ export default function AthleteProfileModal({
               <button
                 onClick={onClose}
                 disabled={loading}
-                className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors disabled:opacity-50"
+                className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors disabled:opacity-50"
               >
                 <X size={24} />
               </button>
@@ -157,7 +149,7 @@ export default function AthleteProfileModal({
                     Elite Identity Verified
                   </div>
                   <h2
-                    className={`${anton.className} text-4xl text-white uppercase tracking-wider mb-1`}
+                    className={`font-display text-4xl text-white uppercase tracking-wider mb-1`}
                   >
                     Modify Unit Profile
                   </h2>
@@ -181,7 +173,7 @@ export default function AthleteProfileModal({
                     <CheckCircle2 size={40} className="animate-bounce" />
                   </div>
                   <h3
-                    className={`${anton.className} text-2xl text-white uppercase mb-2 tracking-widest`}
+                    className={`font-display text-2xl text-white uppercase mb-2 tracking-widest`}
                   >
                     Identity Synchronized
                   </h3>
@@ -195,11 +187,11 @@ export default function AthleteProfileModal({
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 border-b border-white/5 pb-2">
                        <UserIcon className="text-[#22c55e]" size={16} />
-                       <h3 className={`${plusJakarta.className} text-white text-xs font-bold uppercase tracking-[2px]`}>Core Identity</h3>
+                       <h3 className={`font-sans text-white text-xs font-bold uppercase tracking-[2px]`}>Core Identity</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">First Name</label>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">First Name</label>
                         <input
                           type="text"
                           required
@@ -209,7 +201,7 @@ export default function AthleteProfileModal({
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Last Name</label>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Last Name</label>
                         <input
                           type="text"
                           value={formData.last_name}
@@ -219,9 +211,9 @@ export default function AthleteProfileModal({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Personnel Tag (Username)</label>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Personnel Tag (Username)</label>
                       <div className="relative">
-                        <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input
                           type="text"
                           required
@@ -237,10 +229,10 @@ export default function AthleteProfileModal({
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 border-b border-white/5 pb-2">
                        <Target className="text-[#22c55e]" size={16} />
-                       <h3 className={`${plusJakarta.className} text-white text-xs font-bold uppercase tracking-[2px]`}>Operations & Biometrics</h3>
+                       <h3 className={`font-sans text-white text-xs font-bold uppercase tracking-[2px]`}>Operations & Biometrics</h3>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Tactical Position / Field Role</label>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Tactical Position / Field Role</label>
                         <input
                           type="text"
                           placeholder="e.g. Midfielder / Unit Captain"
@@ -250,7 +242,7 @@ export default function AthleteProfileModal({
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Biometric Summary (Bio)</label>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Biometric Summary (Bio)</label>
                         <textarea
                           rows={4}
                           placeholder="Brief mission profile or background briefing..."
@@ -265,7 +257,7 @@ export default function AthleteProfileModal({
                   <div className="space-y-4 pt-4">
                      <div className="flex items-center gap-3 border-b border-white/5 pb-2">
                         <ShieldCheck className="text-[#22c55e]" size={16} />
-                        <h3 className={`${plusJakarta.className} text-white text-xs font-bold uppercase tracking-[2px]`}>Security Protocols</h3>
+                        <h3 className={`font-sans text-white text-xs font-bold uppercase tracking-[2px]`}>Security Protocols</h3>
                      </div>
                      <button
                         type="button"
@@ -278,10 +270,10 @@ export default function AthleteProfileModal({
                            </div>
                            <div className="text-left">
                               <p className="text-[11px] font-bold text-white uppercase tracking-wider">Update Access Credentials</p>
-                              <p className="text-[9px] text-white/20 uppercase font-black tracking-widest">Modify your digital signature (Password)</p>
+                              <p className="text-[9px] text-gray-500 uppercase font-black tracking-widest">Modify your digital signature (Password)</p>
                            </div>
                         </div>
-                        <CheckCircle2 size={16} className="text-white/10 group-hover:text-[#22c55e] transition-colors" />
+                        <CheckCircle2 size={16} className="text-gray-700 group-hover:text-[#22c55e] transition-colors" />
                      </button>
                   </div>
                 </form>

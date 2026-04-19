@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, AlertCircle } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useSessions } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface CreateSessionModalProps {
   isOpen: boolean;
@@ -100,10 +98,10 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                 </div>
                 <div>
                    <div className="text-amber-500 text-[10px] font-black tracking-[5px] uppercase mb-1">Operational Scheduler</div>
-                   <h2 className={`${anton.className} text-4xl text-white tracking-wider uppercase`}>Initialize Training</h2>
+                   <h2 className={`font-display text-4xl text-white tracking-wider uppercase`}>Initialize Training</h2>
                 </div>
              </div>
-             <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-white/30 hover:text-white transition-all">
+             <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
                 <X size={28} />
              </button>
           </div>
@@ -113,7 +111,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                 {/* Left: Core Info */}
                 <div className="space-y-8">
                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1">Session Protocol (Title)</label>
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1">Session Protocol (Title)</label>
                       <input 
                         required
                         value={formData.title}
@@ -125,7 +123,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
 
                    <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1">Type</label>
+                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1">Type</label>
                          <select 
                            value={formData.session_type}
                            onChange={e => setFormData(prev => ({ ...prev, session_type: e.target.value as any }))}
@@ -139,7 +137,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                          </select>
                       </div>
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1">Target Intensity (AU)</label>
+                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1">Target Intensity (AU)</label>
                          <input 
                            type="number"
                            value={formData.target_load_au}
@@ -151,7 +149,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
 
                    <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1 flex items-center gap-2">
+                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1 flex items-center gap-2">
                             <Calendar size={12} /> Date
                          </label>
                          <input 
@@ -163,7 +161,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                          />
                       </div>
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1 flex items-center gap-2">
+                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1 flex items-center gap-2">
                             <Clock size={12} /> Time
                          </label>
                          <input 
@@ -177,7 +175,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                    </div>
 
                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1 flex items-center gap-2">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1 flex items-center gap-2">
                          <Activity size={12} /> Mission Objective (Notes)
                       </label>
                       <textarea 
@@ -192,7 +190,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                 {/* Right: Athlete Assignment */}
                 <div className="flex flex-col h-full">
                    <div className="flex justify-between items-center mb-6">
-                      <label className="text-[10px] font-black text-white/20 uppercase tracking-[3px] ml-1 flex items-center gap-2">
+                      <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1 flex items-center gap-2">
                          <Users size={12} /> Unit Assignment ({formData.assigned_athletes.length} SELECTED)
                       </label>
                    </div>
@@ -210,12 +208,12 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                                  : "bg-transparent border-transparent grayscale opacity-40 hover:opacity-100"
                              }`}
                            >
-                               <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center font-['Anton'] text-xs uppercase">
+                               <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center font-display text-xs uppercase">
                                  {athlete.first_name?.[0] || '?'}{athlete.last_name?.[0] || ''}
                               </div>
                               <div className="flex-1 text-left">
                                  <div className="text-white font-bold text-xs uppercase">{athlete.first_name || 'UNKNOWN'} {athlete.last_name || 'SUBJECT'}</div>
-                                 <div className="text-white/20 text-[8px] font-black tracking-widest uppercase">OPERATIONAL ACTIVE</div>
+                                 <div className="text-gray-500 text-[8px] font-black tracking-widest uppercase">OPERATIONAL ACTIVE</div>
                               </div>
                               {formData.assigned_athletes.includes(athlete.id) && (
                                 <Save size={14} className="text-amber-500" />
@@ -233,7 +231,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
 
                    <button 
                      disabled={loading}
-                     className="mt-8 w-full bg-amber-500 text-black py-5 rounded-2xl font-['Anton'] text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-2xl flex items-center justify-center gap-3"
+                     className="mt-8 w-full bg-amber-500 text-black py-5 rounded-2xl font-display text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-2xl flex items-center justify-center gap-3"
                    >
                       {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                       INITIALIZE SESSION PROTOCOL

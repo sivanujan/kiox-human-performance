@@ -2,13 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, User, Shield, Loader2, X, Target, Zap, Plus, Trash2, Settings2 } from "lucide-react";
-import { Anton } from "next/font/google";
-
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
+import { Mail, User, Shield, Loader2, Target, Zap, Trash2, Settings2, X, CheckCircle2, ChevronDown } from "lucide-react";
+import TacticalModal from "@/components/ui/TacticalModal";
 
 interface InviteStaffModalProps {
   isOpen: boolean;
@@ -36,6 +31,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
   useEffect(() => {
     if (isOpen) {
       fetchTeams();
+      setError(null);
     }
   }, [isOpen]);
 
@@ -75,7 +71,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
   };
 
   const handleDeleteTeam = async (id: string) => {
-    if (!confirm("Are you sure you want to decommission this unit? All assigned personnel will be unassigned.")) return;
+    if (!confirm("Are you sure you want to decommission this unit?")) return;
     setTeamActionLoading(true);
     try {
       const res = await fetch(`/api/admin/teams?id=${id}`, {
@@ -124,221 +120,175 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            className="relative w-full max-w-xl bg-[#111] border border-[#22c55e]/30 rounded-[32px] p-10 shadow-[0_0_50px_rgba(34,197,94,0.1)] overflow-hidden"
-          >
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none text-[#22c55e]">
-              <Zap size={150} />
+    <TacticalModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Invite Staff"
+      subtitle="Staff Onboarding Protocol"
+      loading={loading}
+    >
+      <div className="space-y-8">
+        {error && (
+          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+             <X size={14} className="flex-shrink-0" /> {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+                <input
+                  required
+                  value={formData.first_name}
+                  onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                  placeholder="AGENT_FIRST"
+                  className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+                />
+              </div>
             </div>
 
-            <div className="relative z-10">
-              <div className="flex justify-between items-start mb-10">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="text-[#22c55e]" size={16} />
-                    <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Staff Onboarding Protocol</span>
-                  </div>
-                  <h3 className={`${anton.className} text-4xl text-white uppercase tracking-wider`}>Invite Tactical Agent</h3>
-                </div>
-                <button 
-                  onClick={onClose}
-                  className="p-3 bg-white/5 border border-white/10 rounded-full text-white/40 hover:text-white transition-all hover:rotate-90"
-                >
-                  <X size={20} />
-                </button>
+            <div className="space-y-2">
+              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+                <input
+                  required
+                  value={formData.last_name}
+                  onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                  placeholder="AGENT_LAST"
+                  className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+                />
               </div>
+            </div>
+          </div>
 
-              {error && (
-                <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-                  <XCircleIcon size={14} /> {error}
+          <div className="space-y-2">
+            <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Tactical Communications</label>
+            <div className="relative">
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+              <input
+                required
+                type="email"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder="AGENT_MAIL@KIOX.COM"
+                className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center ml-1">
+              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px]">Unit Registry</label>
+              <button 
+                type="button"
+                onClick={() => setIsManageMode(!isManageMode)}
+                className="text-[#22c55e] text-[8px] font-black uppercase tracking-[2px] hover:text-white transition-colors flex items-center gap-1 active-scale"
+              >
+                <Settings2 size={10} /> {isManageMode ? "CLOSE" : "MANAGE"}
+              </button>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {isManageMode ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                  className="space-y-4 bg-black/60 border border-[#22c55e]/20 rounded-2xl p-4 md:p-6"
+                >
+                  <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
+                    {teams.map(team => (
+                      <div key={team.id} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5 group/unit">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">{team.name}</span>
+                        <button 
+                          type="button"
+                          onClick={() => handleDeleteTeam(team.id)}
+                          disabled={teamActionLoading}
+                          className="text-red-500/40 hover:text-red-500 transition-colors disabled:opacity-30 active-scale"
+                        >
+                          {teamActionLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : isAddingNewTeam ? (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="flex flex-col sm:flex-row gap-2"
+                >
+                   <input
+                    autoFocus
+                    value={newTeamName}
+                    onChange={e => setNewTeamName(e.target.value)}
+                    placeholder="UNIT_NAME"
+                    className="flex-1 bg-black/40 border border-[#22c55e]/30 rounded-2xl py-4 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none text-sm"
+                   />
+                   <div className="flex gap-2">
+                     <button 
+                      type="button"
+                      onClick={handleAddNewTeam}
+                      disabled={teamActionLoading || !newTeamName}
+                      className="flex-1 sm:flex-none px-6 py-4 bg-[#22c55e] text-black rounded-2xl hover:bg-white transition-all disabled:opacity-50 active-scale"
+                     >
+                       {teamActionLoading ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                     </button>
+                     <button 
+                      type="button"
+                      onClick={() => setIsAddingNewTeam(false)}
+                      className="flex-1 sm:flex-none px-6 py-4 bg-white/5 text-white rounded-2xl hover:bg-white/10 transition-all border border-white/10 active-scale"
+                     >
+                       <X size={18} />
+                     </button>
+                   </div>
+                </motion.div>
+              ) : (
+                <div className="relative">
+                  <select
+                    required
+                    value={formData.team_id}
+                    onChange={e => {
+                      if (e.target.value === "ADD_NEW") {
+                        setIsAddingNewTeam(true);
+                      } else {
+                        setFormData({ ...formData, team_id: e.target.value });
+                      }
+                    }}
+                    className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer text-sm"
+                  >
+                    <option value="" disabled>SELECT UNIT...</option>
+                    {teams.map(team => (
+                      <option key={team.id} value={team.id} className="bg-[#111]">{team.name.toUpperCase()}</option>
+                    ))}
+                    <option value="ADD_NEW" className="bg-[#22c55e]/20 text-[#22c55e] font-black">+ ADD NEW UNIT</option>
+                  </select>
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#22c55e]/40 pointer-events-none" size={16} />
                 </div>
               )}
+            </AnimatePresence>
+          </div>
 
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* First Name */}
-                  <div className="space-y-3">
-                    <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Agent Given Name</label>
-                    <div className="relative">
-                      <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
-                      <input
-                        required
-                        value={formData.first_name}
-                        onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                        placeholder="FIRST_NAME"
-                        className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-5 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Last Name */}
-                  <div className="space-y-3">
-                    <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Agent Surname</label>
-                    <div className="relative">
-                      <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
-                      <input
-                        required
-                        value={formData.last_name}
-                        onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                        placeholder="LAST_NAME"
-                        className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-5 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="space-y-3">
-                  <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px] ml-1">Tactical Communication Mail</label>
-                  <div className="relative">
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
-                    <input
-                      required
-                      type="email"
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="AGENT_EMAIL@KIOX.COM"
-                      className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-5 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-white/10"
-                    />
-                  </div>
-                </div>
-
-                {/* Unit Assignment */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center ml-1">
-                    <label className="text-white/30 text-[9px] font-black uppercase tracking-[3px]">Unit Assignment</label>
-                    <button 
-                      type="button"
-                      onClick={() => setIsManageMode(!isManageMode)}
-                      className="text-[#22c55e] text-[8px] font-black uppercase tracking-[2px] hover:text-white transition-colors flex items-center gap-1"
-                    >
-                      <Settings2 size={10} /> {isManageMode ? "CLOSE_REGISTRY" : "MANAGE_UNITS"}
-                    </button>
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {isManageMode ? (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        className="space-y-4 bg-black/60 border border-[#22c55e]/20 rounded-2xl p-6"
-                      >
-                        <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 scrollbar-hide">
-                          {teams.map(team => (
-                            <div key={team.id} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-                              <span className="text-[10px] font-bold text-white uppercase tracking-widest">{team.name}</span>
-                              <button 
-                                type="button"
-                                onClick={() => handleDeleteTeam(team.id)}
-                                disabled={teamActionLoading}
-                                className="text-red-500/40 hover:text-red-500 transition-colors disabled:opacity-30"
-                              >
-                                {teamActionLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    ) : isAddingNewTeam ? (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="flex gap-2"
-                      >
-                         <input
-                          autoFocus
-                          value={newTeamName}
-                          onChange={e => setNewTeamName(e.target.value)}
-                          placeholder="NEW_UNIT_NAME"
-                          className="flex-1 bg-black/40 border border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none"
-                         />
-                         <button 
-                          type="button"
-                          onClick={handleAddNewTeam}
-                          disabled={teamActionLoading}
-                          className="px-6 bg-[#22c55e] text-black rounded-2xl hover:bg-white transition-all disabled:opacity-50"
-                         >
-                           {teamActionLoading ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2Icon size={18} />}
-                         </button>
-                         <button 
-                          type="button"
-                          onClick={() => setIsAddingNewTeam(false)}
-                          className="px-6 bg-white/5 text-white rounded-2xl hover:bg-white/10 transition-all border border-white/10"
-                         >
-                           <X size={18} />
-                         </button>
-                      </motion.div>
-                    ) : (
-                      <div className="relative">
-                        <select
-                          required
-                          value={formData.team_id}
-                          onChange={e => {
-                            if (e.target.value === "ADD_NEW") {
-                              setIsAddingNewTeam(true);
-                            } else {
-                              setFormData({ ...formData, team_id: e.target.value });
-                            }
-                          }}
-                          className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-5 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer"
-                        >
-                          <option value="" disabled>SELECT UNIT...</option>
-                          {teams.map(team => (
-                            <option key={team.id} value={team.id} className="bg-[#111]">{team.name}</option>
-                          ))}
-                          <option value="ADD_NEW" className="bg-[#22c55e]/10 text-[#22c55e] font-black">+ CREATE NEW UNIT</option>
-                        </select>
-                        <ChevronDownIcon className="absolute right-6 top-1/2 -translate-y-1/2 text-[#22c55e]/40 pointer-events-none" size={16} />
-                      </div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading || isManageMode || isAddingNewTeam}
-                  className="w-full py-6 bg-[#22c55e] text-black text-xs font-black uppercase tracking-[5px] rounded-2xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-4 group disabled:opacity-50"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin" size={20} />
-                  ) : (
-                    <>
-                      INITIATE INVITATION <Target className="group-hover:scale-125 transition-transform" size={18} />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+          <button
+            type="submit"
+            disabled={loading || isManageMode || isAddingNewTeam}
+            className="w-full py-5 bg-[#22c55e] text-black text-[10px] md:text-xs font-black uppercase tracking-[4px] md:tracking-[5px] rounded-2xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-4 group disabled:opacity-50 active-scale"
+          >
+            {loading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              <>
+                INITIATE PROTOCOL <Target className="group-hover:scale-125 transition-transform shrink-0" size={18} />
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </TacticalModal>
   );
 }
-
-function XCircleIcon({ size }: { size: number }) {
-  return <div className="text-red-500"><X size={size} /></div>;
-}
-
-function CheckCircle2Icon({ size }: { size: number }) {
-  return <CheckCircle2 size={size} />;
-}
-
-import { CheckCircle2, ChevronDown as ChevronDownIcon } from "lucide-react";

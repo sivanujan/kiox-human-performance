@@ -16,13 +16,8 @@ import {
   ChevronDown,
   Loader2
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function AdminAnalytics() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
@@ -100,7 +95,7 @@ export default function AdminAnalytics() {
           <BarChart3 className="text-[#22c55e]" size={16} />
           <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Platform Intelligence</span>
         </div>
-        <h1 className={`${anton.className} text-5xl text-white uppercase tracking-wider`}>Enterprise Analytics</h1>
+        <h1 className={`font-display text-5xl text-white uppercase tracking-wider`}>Enterprise Analytics</h1>
       </div>
 
       {/* KPI Matrix */}
@@ -124,8 +119,8 @@ export default function AdminAnalytics() {
               </div>
               <div className="text-[8px] font-black text-[#00ff41] uppercase tracking-[2px]">{kpi.trend}</div>
             </div>
-            <div className={`${anton.className} text-4xl text-white mb-1`}>{kpi.value}</div>
-            <div className="text-[9px] font-black text-white/30 uppercase tracking-[3px]">{kpi.label}</div>
+            <div className={`font-display text-4xl text-white mb-1`}>{kpi.value}</div>
+            <div className="text-[9px] font-black text-gray-400 uppercase tracking-[3px]">{kpi.label}</div>
             
             {/* Ambient Glow */}
             <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-[#00ff41]/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -139,8 +134,8 @@ export default function AdminAnalytics() {
         <div className="lg:col-span-2 bg-[#111] border border-white/10 p-8 rounded-3xl relative overflow-hidden h-[400px]">
           <div className="flex justify-between items-center mb-8 relative z-10">
              <div>
-                <h3 className={`${anton.className} text-white text-xl tracking-wider`}>ATHLETE GROWTH MATRIX</h3>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[2px]">Organizational Performance Evolution</p>
+                <h3 className={`font-display text-white text-xl tracking-wider`}>ATHLETE GROWTH MATRIX</h3>
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[2px]">Organizational Performance Evolution</p>
              </div>
              <div className="flex gap-2">
                 <div className="px-3 py-1 bg-[#00ff41]/10 border border-[#00ff41]/30 rounded-lg text-[8px] font-black uppercase text-[#00ff41]">LIVE FEED</div>
@@ -165,7 +160,7 @@ export default function AdminAnalytics() {
 
         {/* System Pulse Panel */}
         <div className="bg-[#111] border border-white/10 p-8 rounded-3xl">
-           <h3 className={`${anton.className} text-[#00ff41] text-lg tracking-wider mb-6 flex items-center gap-3`}>
+           <h3 className={`font-display text-[#00ff41] text-lg tracking-wider mb-6 flex items-center gap-3`}>
               <Activity size={18} fill="currentColor" className="animate-pulse shadow-[0_0_10px_#00ff41]" /> SYSTEM PULSE
            </h3>
            
@@ -194,8 +189,8 @@ export default function AdminAnalytics() {
            </div>
 
            <div className="mt-8 pt-8 border-t border-white/5 text-center">
-              <p className="text-[10px] font-black text-white/20 uppercase tracking-[3px] mb-4">PLATFORM AUTHENTICITY SCORE</p>
-              <div className={`${anton.className} text-6xl text-white leading-none mb-4`}>100.0</div>
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] mb-4">PLATFORM AUTHENTICITY SCORE</p>
+              <div className={`font-display text-6xl text-white leading-none mb-4`}>100.0</div>
               <div className="inline-flex px-4 py-1.5 bg-[#00ff41]/10 border border-[#00ff41]/30 rounded-full">
                 <p className="text-[8px] font-black text-[#00ff41] uppercase tracking-[2px]">Verified Operational Excellence</p>
               </div>

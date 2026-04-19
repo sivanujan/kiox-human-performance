@@ -28,7 +28,7 @@ export default function WellnessCard({
       className="bg-black/30 border border-white/5 rounded-2xl p-5 group flex flex-col justify-between h-[120px] transition-all hover:border-white/10"
     >
       <div className="flex justify-between items-start mb-4">
-        <div className="text-[9px] font-bold text-white/30 tracking-[2px] uppercase">
+        <div className="text-[9px] font-bold text-gray-400 tracking-[2px] uppercase">
           {label}
         </div>
         <span className="text-xl group-hover:scale-110 transition-transform">{icon}</span>
@@ -36,7 +36,7 @@ export default function WellnessCard({
 
       <div>
         <div 
-          className="text-xl font-['Anton'] tracking-wider mb-2"
+          className="text-xl font-display tracking-wider mb-2"
           style={{ color: finalColor }}
         >
           {value}

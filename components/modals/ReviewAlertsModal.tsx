@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldAlert, CheckCircle2, Search, Filter, Clock, User, ClipboardList, Trash2, History } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAlerts } from "@/hooks/useAlerts";
 import { format } from "date-fns";
 import { createPortal } from "react-dom";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface ReviewAlertsModalProps {
   isOpen: boolean;
@@ -74,10 +72,10 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
               </div>
               <div>
                 <div className="text-red-500 text-[10px] font-black tracking-[5px] uppercase mb-1">CENTRAL RISK MANAGEMENT</div>
-                <h2 className={`${anton.className} text-4xl text-white tracking-widest uppercase`}>System Anomalies</h2>
+                <h2 className={`font-display text-4xl text-white tracking-widest uppercase`}>System Anomalies</h2>
               </div>
             </div>
-            <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-white/30 hover:text-white transition-all">
+            <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
               <X size={28} />
             </button>
           </div>
@@ -90,8 +88,8 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className={`px-8 py-3 rounded-xl text-[10px] font-['Anton'] tracking-[0.2em] transition-all ${
-                      activeTab === tab ? "bg-red-500 text-white shadow-lg" : "text-white/30 hover:text-white"
+                    className={`px-8 py-3 rounded-xl text-[10px] font-display tracking-[0.2em] transition-all ${
+                      activeTab === tab ? "bg-red-500 text-white shadow-lg" : "text-gray-400 hover:text-white"
                     }`}
                   >
                     {tab}
@@ -101,7 +99,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
 
               <div className="flex flex-wrap gap-4 w-full xl:w-auto">
                 <div className="relative flex-1 xl:w-64">
-                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                    <input 
                      placeholder="FILTER SUBJECT..."
                      value={search}
@@ -128,8 +126,8 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-4 scrollbar-hide">
               {filteredData.length === 0 ? (
                 <div className="py-32 text-center">
-                   <div className="text-white/5 font-['Anton'] text-8xl mb-6">ZERO</div>
-                   <div className="text-white/20 text-xs font-black uppercase tracking-[0.5em]">No log matches in this sector</div>
+                   <div className="text-white/5 font-display text-8xl mb-6">ZERO</div>
+                   <div className="text-gray-500 text-xs font-black uppercase tracking-[0.5em]">No log matches in this sector</div>
                 </div>
               ) : (
                 filteredData.map((alert) => (
@@ -140,14 +138,14 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
 
                     <div className="flex-1 text-center md:text-left">
                        <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 mb-3">
-                          <span className={`px-3 py-1 rounded-lg text-[9px] font-['Anton'] tracking-widest border ${getSeverityColor(alert.severity)}`}>
+                          <span className={`px-3 py-1 rounded-lg text-[9px] font-display tracking-widest border ${getSeverityColor(alert.severity)}`}>
                              {alert.severity}
                           </span>
-                          <span className="flex items-center gap-1.5 text-white/20 text-[10px] font-bold uppercase tracking-widest">
+                          <span className="flex items-center gap-1.5 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
                              <Clock size={12} /> {format(new Date(alert.triggered_at), "MMM d, HH:mm")}
                           </span>
                        </div>
-                       <h3 className="text-white font-['Anton'] text-2xl tracking-wider uppercase mb-1">
+                       <h3 className="text-white font-display text-2xl tracking-wider uppercase mb-1">
                           {alert.athlete?.first_name} {alert.athlete?.last_name}
                        </h3>
                        <p className="text-white/40 text-sm font-medium italic italic">"{alert.message}"</p>
@@ -159,7 +157,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                           <CheckCircle2 size={16} />
                           <span className="text-[10px] font-black uppercase tracking-widest">RESOLVED</span>
                         </div>
-                        <div className="text-white/20 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
                           BY {alert.resolver?.first_name} // {format(new Date(alert.resolved_at), "HH:mm")}
                         </div>
                       </div>
@@ -167,7 +165,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                       <button 
                         onClick={() => resolveAlert(alert.id)}
                         disabled={globalLoading}
-                        className="bg-red-500 text-white px-10 py-4 rounded-2xl font-['Anton'] text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl"
+                        className="bg-red-500 text-white px-10 py-4 rounded-2xl font-display text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl"
                       >
                         RESOLVE
                       </button>

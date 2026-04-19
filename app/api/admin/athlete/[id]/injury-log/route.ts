@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { recalculateAthleteMetrics } from "@/utils/analytics-engine";
 
 export async function POST(
   request: Request,
@@ -21,7 +22,7 @@ export async function POST(
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "superadmin" && profile?.role !== "staff") {
+  if (profile?.role !== "superadmin" && profile?.role !== "staff" && user.id !== athleteId) {
     return NextResponse.json({ error: "Access Denied" }, { status: 403 });
   }
 
@@ -45,6 +46,9 @@ export async function POST(
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // 5. Trigger Analytics Sync (Apply Safety First Override)
+  await recalculateAthleteMetrics(supabase, athleteId);
 
   // --- TRIGGER PUSH NOTIFICATION ---
   await supabase.from("system_notifications").insert({

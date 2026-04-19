@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Activity, ArrowRight, Loader2, Zap } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface SurveyAssignModalProps {
   isOpen: boolean;
@@ -18,8 +16,7 @@ export default function SurveyAssignModal({ isOpen, onClose, athleteId, athleteN
   const [formData, setFormData] = useState({
     surveyType: "Daily Wellness",
     dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Default to tomorrow
-    instructions: "",
-  });
+    instructions: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,8 +29,7 @@ export default function SurveyAssignModal({ isOpen, onClose, athleteId, athleteN
       const res = await fetch(`/api/admin/athlete/${athleteId}/survey-assign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+        body: JSON.stringify(formData) });
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -71,18 +67,18 @@ export default function SurveyAssignModal({ isOpen, onClose, athleteId, athleteN
               <div className="text-amber-500 text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
                 <Activity size={12} fill="currentColor" /> MONITORING PROTOCOL
               </div>
-              <h2 className={`${anton.className} text-2xl text-white tracking-wider uppercase`}>
+              <h2 className={`font-display text-2xl text-white tracking-wider uppercase`}>
                 ASSIGN WELLNESS SURVEY
               </h2>
             </div>
-            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-white/20 hover:text-white transition-all">
+            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-gray-500 hover:text-white transition-all">
               <X size={20} />
             </button>
           </div>
 
           <div className="p-8">
             <div className="mb-8 p-4 bg-white/5 border border-white/5 rounded-2xl">
-              <div className="text-white/20 text-[9px] font-black tracking-widest uppercase mb-1">TARGET SUBJECT</div>
+              <div className="text-gray-500 text-[9px] font-black tracking-widest uppercase mb-1">TARGET SUBJECT</div>
               <div className="text-white font-bold tracking-wide uppercase">{athleteName}</div>
             </div>
 

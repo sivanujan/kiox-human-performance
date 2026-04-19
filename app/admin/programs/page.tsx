@@ -15,14 +15,9 @@ import {
   CheckCircle2,
   Users
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 const CATEGORIES = ['Speed & Agility', 'Strength', 'Goalkeeper', 'Technique', 'Nutrition', 'Psychology', 'Full Program'];
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Elite'];
@@ -113,7 +108,7 @@ export default function ArchitectureMatrix() {
               <Layers className="text-[#22c55e]" size={16} />
               <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Elite Catalog Management</span>
             </div>
-            <h1 className={`${anton.className} text-5xl md:text-7xl text-white uppercase tracking-wider`}>Architecture Matrix</h1>
+            <h1 className={`font-display text-5xl md:text-7xl text-white uppercase tracking-wider`}>Architecture Matrix</h1>
           </div>
           <button 
             onClick={() => setIsAdding(!isAdding)}
@@ -235,7 +230,7 @@ export default function ArchitectureMatrix() {
                 </div>
                 <button 
                   onClick={() => handleDelete(program.id)}
-                  className="text-white/20 hover:text-red-500 transition-colors"
+                  className="text-gray-500 hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={18} />
                 </button>

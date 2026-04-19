@@ -14,9 +14,7 @@ import {
   ShieldCheck,
   Activity
 } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 interface BookSessionModalProps {
   isOpen: boolean;
@@ -110,7 +108,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                  </div>
                  <span className="text-[10px] font-black tracking-[3px] uppercase">DEPLOYMENT_INITIATION</span>
               </div>
-              <h2 className={`${anton.className} text-3xl text-white uppercase tracking-wider`}>
+              <h2 className={`font-display text-3xl text-white uppercase tracking-wider`}>
                 {session.title}
               </h2>
             </div>
@@ -123,14 +121,14 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
             {/* Info Grid */}
             <div className="grid grid-cols-2 gap-4">
                <div className="bg-white/[0.03] p-4 rounded-2xl border border-white/5">
-                  <div className="text-white/20 text-[9px] font-black uppercase tracking-widest mb-1">DEPLOYMENT WINDOW</div>
+                  <div className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">DEPLOYMENT WINDOW</div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
                      <Clock size={14} className="text-[#22c55e]" />
                      {session.start_time.slice(0, 5)} // {session.duration_minutes}m
                   </div>
                </div>
                <div className="bg-white/[0.03] p-4 rounded-2xl border border-white/5">
-                  <div className="text-white/20 text-[9px] font-black uppercase tracking-widest mb-1">OPERATIONAL HQ</div>
+                  <div className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">OPERATIONAL HQ</div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
                      <MapPin size={14} className="text-[#22c55e]" />
                      {session.location || 'MAIN FIELD'}
@@ -149,7 +147,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                         ATHLETE LOAD CONTEXT
                      </span>
                   </div>
-                  <span className="text-white font-['Anton'] text-lg">{currentLoad} AU</span>
+                  <span className="text-white font-display text-lg">{currentLoad} AU</span>
                </div>
                
                {isHighLoad ? (
@@ -160,7 +158,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                     </p>
                  </div>
                ) : (
-                 <p className="text-[10px] text-white/30 uppercase tracking-widest italic ml-8">
+                 <p className="text-[10px] text-gray-400 uppercase tracking-widest italic ml-8">
                     Operational load within safety margins. Auto-confirmation active.
                  </p>
                )}
@@ -168,7 +166,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
 
             {/* Note Field */}
             <div>
-              <label className="text-[9px] font-black text-white/20 uppercase tracking-[3px] mb-3 block">Deployment Notes (Optional)</label>
+              <label className="text-[9px] font-black text-gray-500 uppercase tracking-[3px] mb-3 block">Deployment Notes (Optional)</label>
               <textarea 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

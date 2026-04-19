@@ -14,11 +14,9 @@ import {
   Activity,
   ArrowRight
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { format } from "date-fns";
 import Avatar from "@/components/ui/Avatar";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function AdminBookingsPanel() {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -72,15 +70,15 @@ export default function AdminBookingsPanel() {
 
   return (
     <div className="bg-[#111] border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none uppercase">OPS</div>
+      <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-8xl pointer-events-none uppercase">OPS</div>
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 relative z-10">
         <div>
-          <h3 className="text-white font-['Anton'] text-xl tracking-wider uppercase flex items-center gap-3">
+          <h3 className="text-white font-display text-xl tracking-wider uppercase flex items-center gap-3">
             <Users size={20} className="text-[#22c55e]" /> DEPLOYMENT LOGS
           </h3>
-          <p className="text-white/30 text-[9px] font-black uppercase tracking-[3px] mt-1">Real-time athlete presence oversight</p>
+          <p className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] mt-1">Real-time athlete presence oversight</p>
         </div>
 
         <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">
@@ -106,7 +104,7 @@ export default function AdminBookingsPanel() {
       {/* Booking List */}
       <div className="space-y-4 relative z-10">
         {filteredBookings.length === 0 ? (
-          <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest italic border border-dashed border-white/10 rounded-2xl">
+          <div className="py-12 text-center text-gray-700 uppercase font-black text-[10px] tracking-widest italic border border-dashed border-white/10 rounded-2xl">
              No active requests requiring authorization
           </div>
         ) : (
@@ -123,17 +121,17 @@ export default function AdminBookingsPanel() {
                        }`}>
                           <Activity size={10} /> {b.athlete.weekly_load || 0} AU
                        </span>
-                       <span className="text-white/20 text-[8px] font-black uppercase tracking-[2px]">ID: {b.id.slice(0,8).toUpperCase()}</span>
+                       <span className="text-gray-500 text-[8px] font-black uppercase tracking-[2px]">ID: {b.id.slice(0,8).toUpperCase()}</span>
                     </div>
                   </div>
                </div>
 
                {/* Session Context */}
                <div className="flex-1 md:px-6 border-l md:border-l-white/5">
-                  <div className="text-white/20 text-[8px] font-black tracking-widest uppercase mb-1 flex items-center gap-2">
+                  <div className="text-gray-500 text-[8px] font-black tracking-widest uppercase mb-1 flex items-center gap-2">
                      <Calendar size={10} /> {format(new Date(b.session.scheduled_date), 'MMM d')} // {b.session.scheduled_time.slice(0, 5)}
                   </div>
-                  <div className="text-white/80 font-['Anton'] text-sm uppercase tracking-wider group-hover/item:text-[#22c55e] transition-colors line-clamp-1">
+                  <div className="text-white/80 font-display text-sm uppercase tracking-wider group-hover/item:text-[#22c55e] transition-colors line-clamp-1">
                      {b.session.title}
                   </div>
                </div>
@@ -174,7 +172,7 @@ export default function AdminBookingsPanel() {
 
       {filter === 'ALL' && bookings.length > 50 && (
         <div className="mt-6 pt-6 border-t border-white/5 flex justify-center">
-           <button className="text-[9px] font-black text-white/20 uppercase tracking-[3px] flex items-center gap-2 hover:text-[#22c55e] transition-all">
+           <button className="text-[9px] font-black text-gray-500 uppercase tracking-[3px] flex items-center gap-2 hover:text-[#22c55e] transition-all">
               VIEW HISTORICAL ARCHIVE <ArrowRight size={12} />
            </button>
         </div>

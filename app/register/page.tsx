@@ -10,15 +10,9 @@ import {
   Calendar, Activity, ShieldCheck,
   AlertCircle, Loader2, Eye, EyeOff
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-
-const anton = Anton({
-  weight: '400',
-  subsets: ['latin']
-});
+import { useRouter } from "next/navigation";
 
 const countries = [
   { name: "SRILANKA", code: "+94" },
@@ -211,8 +205,7 @@ export default function RegisterPage() {
           weight: profile.weight?.toString() || '',
           position: profile.position_played || '',
           goals: profile.training_goals || '',
-          medicalHistory: profile.medical_history || '',
-        }));
+          medicalHistory: profile.medical_history || '' }));
         
         // User is logged in and confirmed but profile incomplete (and is an athlete)
         if (step < 3) setStep(3);
@@ -245,8 +238,7 @@ export default function RegisterPage() {
       type: 'signup',
       email: formData.email,
       options: {
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/api/auth/callback` : undefined,
-      }
+        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/api/auth/callback` : undefined }
     });
 
     if (error) {
@@ -265,8 +257,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/admin/users", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id, confirmEmail: true }),
-    });
+      body: JSON.stringify({ userId: user.id, confirmEmail: true }) });
 
     if (res.ok) {
        setSuccessMsg("System Overridden. Initializing Profile Setup...");
@@ -312,8 +303,7 @@ export default function RegisterPage() {
         training_goals: formData.goals,
         medical_history: formData.medicalHistory,
         waiver_accepted: formData.waiverAccepted,
-        updated_at: new Date().toISOString(),
-      };
+        updated_at: new Date().toISOString() };
 
       const { error: upsertError } = await supabase.from('profiles').upsert(updates);
 
@@ -342,8 +332,7 @@ export default function RegisterPage() {
   const slideVariants: Variants = {
     initial: (direction: number) => ({
       x: direction > 0 ? 20 : -20,
-      opacity: 0,
-    }),
+      opacity: 0 }),
     animate: {
       x: 0,
       opacity: 1,
@@ -381,9 +370,9 @@ export default function RegisterPage() {
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
               <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
             </div>
-            <span className={`${anton.className} text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
+            <span className="font-display text-3xl text-white group-hover:text-[#22c55e] transition-colors">KIO-X</span>
           </Link>
-          <div className="mt-4 text-[10px] font-black tracking-[3px] text-[#22c55e] uppercase opacity-60">Step {step} of 5</div>
+          <div className="mt-4 font-label text-[#22c55e] opacity-60">Step {step} of 5</div>
         </div>
 
         {/* Card - Match to signin */}
@@ -399,7 +388,7 @@ export default function RegisterPage() {
 
           <div className="p-8 md:p-12">
             {errorMsg && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-[10px] font-bold uppercase tracking-widest text-center flex items-center justify-center gap-2">
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 font-label text-center flex items-center justify-center gap-2">
                 <AlertCircle size={14} /> {errorMsg}
               </motion.div>
             )}
@@ -408,30 +397,30 @@ export default function RegisterPage() {
               {step === 1 && (
                 <motion.div key="step1" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
-                    <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-1`}>Create Account</h2>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[1px]">Phase One: Access Credentials</p>
+                    <h2 className="font-display text-2xl text-white mb-1">Create Account</h2>
+                    <p className="font-label text-gray-500">Phase One: Access Credentials</p>
                   </div>
                   <form onSubmit={handleSignUp} className="space-y-6">
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Email Address</label>
-                      <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="email" value={formData.email} onChange={handleChange} required type="email" placeholder="name@example.com" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
-                      </div>
+                       <label className="block font-label text-[#22c55e] font-bold">Email Address</label>
+                       <div className="relative group">
+                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                         <input name="email" value={formData.email} onChange={handleChange} required type="email" placeholder="name@example.com" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
+                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Password</label>
+                      <label className="block font-label text-[#22c55e] font-bold">Password</label>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="password" value={formData.password} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <input name="password" value={formData.password} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
                       {/* Strength Bar */}
                       <div className="space-y-1.5 px-1">
                         <div className="flex justify-between items-center text-[8px] font-black tracking-[1px] uppercase">
-                          <span className="text-white/20">Security Level</span>
+                          <span className="text-gray-400">Security Level</span>
                           <span style={{ color: passwordStrength.color }}>{passwordStrength.label}</span>
                         </div>
                         <div className="h-[3px] w-full bg-white/5 rounded-full overflow-hidden">
@@ -445,23 +434,23 @@ export default function RegisterPage() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Confirm Password</label>
+                        <label className="block font-label text-[#22c55e] font-bold">Confirm Password</label>
                         {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                          <span className="text-[8px] font-black tracking-[1px] text-[#ef4444] uppercase animate-pulse">Mismatch</span>
+                          <span className="font-label text-[#ef4444] animate-pulse">Mismatch</span>
                         )}
                       </div>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <input name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
                     </div>
-                    <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                    <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
                       {loading ? <Loader2 className="animate-spin" /> : <>Next <ChevronRight size={18} /></>}
                     </button>
-                    <p className="text-center text-[10px] font-bold text-white/20 tracking-[2px] uppercase">
+                    <p className="text-center text-[10px] font-bold text-gray-500 tracking-[2px] uppercase">
                       Already have an account? <Link href="/signin" className="text-[#22c55e] hover:underline">Sign In</Link>
                     </p>
                   </form>
@@ -473,8 +462,8 @@ export default function RegisterPage() {
                   <div className="w-20 h-20 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(34,197,94,0.1)]">
                     <Mail className="text-[#22c55e]" size={32} />
                   </div>
-                  <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-4`}>Verify Email</h2>
-                   <p className="text-white/40 text-[12px] uppercase tracking-widest leading-relaxed mb-6">
+                  <h2 className="font-display text-2xl text-white mb-4">Verify Email</h2>
+                   <p className="text-gray-400 font-label leading-relaxed mb-6">
                     Transmission sent to <br /><span className="text-white font-bold">{formData.email}</span>
                   </p>
                   <div className="mb-10 p-5 bg-white/5 border border-white/5 rounded-2xl text-left space-y-4">
@@ -494,7 +483,7 @@ export default function RegisterPage() {
                      </div>
                   </div>
                     <div className="flex flex-col items-center gap-6">
-                      <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[3px] text-[#22c55e]">
+                      <div className="flex items-center gap-3 font-label text-[#22c55e]">
                         <Loader2 className="animate-spin" size={16} />
                         Waiting for uplink...
                       </div>
@@ -503,14 +492,14 @@ export default function RegisterPage() {
                          <button 
                            onClick={handleResendEmail} 
                            disabled={loading || resendTimer > 0} 
-                           className="w-full py-4 text-[10px] font-black uppercase tracking-[3px] border border-white/10 text-white/40 hover:text-white hover:border-[#22c55e]/50 disabled:opacity-30 transition-all rounded-xl"
+                           className="w-full py-4 font-label border border-white/10 text-gray-500 hover:text-white hover:border-[#22c55e]/50 disabled:opacity-30 transition-all rounded-xl"
                          >
                            {resendTimer > 0 ? `Resend Link In ${Math.floor(resendTimer/60)}:${(resendTimer%60).toString().padStart(2, '0')}` : "Resend Verification Email"}
                          </button>
 
                          <button 
                            onClick={prevStep} 
-                           className="w-full py-2 text-[8px] font-black uppercase tracking-[2px] text-white/20 hover:text-[#22c55e] transition-colors"
+                           className="w-full py-2 text-[8px] font-black uppercase tracking-[2px] text-gray-500 hover:text-[#22c55e] transition-colors"
                          >
                            Wrong email? Edit Address
                          </button>
@@ -535,31 +524,31 @@ export default function RegisterPage() {
               {step === 3 && (
                 <motion.div key="step3" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
-                    <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-1`}>Personal Identity</h2>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[1px]">Phase Three: Base Profile</p>
+                    <h2 className="font-display text-2xl text-white mb-1">Personal Identity</h2>
+                    <p className="font-label text-gray-500">Phase Three: Base Profile</p>
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                         <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">First Name <span className="text-red-500">*</span></label>
-                         <input name="firstName" value={formData.firstName} onChange={handleChange} required type="text" placeholder="First Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                         <label className="block font-label text-[#22c55e] font-bold">First Name <span className="text-red-500">*</span></label>
+                         <input name="firstName" value={formData.firstName} onChange={handleChange} required type="text" placeholder="First Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium" />
                       </div>
                       <div className="space-y-2">
-                         <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Last Name <span className="text-red-500">*</span></label>
-                         <input name="lastName" value={formData.lastName} onChange={handleChange} required type="text" placeholder="Last Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                         <label className="block font-label text-[#22c55e] font-bold">Last Name <span className="text-red-500">*</span></label>
+                         <input name="lastName" value={formData.lastName} onChange={handleChange} required type="text" placeholder="Last Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                       <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Username <span className="text-red-500">*</span></label>
+                       <label className="block font-label text-[#22c55e] font-bold">Username <span className="text-red-500">*</span></label>
                        <div className="relative group">
-                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                         <input name="username" value={formData.username} onChange={handleChange} required type="text" placeholder="CHOOSE_A_HANDLE" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm lowercase" />
+                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                         <input name="username" value={formData.username} onChange={handleChange} required type="text" placeholder="CHOOSE_A_HANDLE" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium lowercase" />
                        </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Date of Birth <span className="text-red-500">*</span></label>
+                      <label className="block font-label text-[#22c55e]">Date of Birth <span className="text-red-500">*</span></label>
                       <div className="relative group">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors pointer-events-none" size={18} />
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors pointer-events-none" size={18} />
                         <input 
                           name="dob" 
                           value={formData.dob} 
@@ -573,7 +562,7 @@ export default function RegisterPage() {
                     <button 
                       onClick={nextStep} 
                       disabled={!formData.firstName || !formData.lastName || !formData.dob || !formData.username}
-                      className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+                      className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
                     >
                       Continue <ChevronRight size={18} />
                     </button>
@@ -584,13 +573,13 @@ export default function RegisterPage() {
               {step === 4 && (
                 <motion.div key="step4" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
-                    <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-1`}>Connectivity</h2>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[1px]">Phase Four: Contact Details</p>
+                    <h2 className="font-display text-2xl text-white mb-1">Connectivity</h2>
+                    <p className="font-label text-gray-400">Phase Four: Contact Details</p>
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Phone Number <span className="text-red-500">*</span></label>
+                        <label className="block font-label text-[#22c55e]">Phone Number <span className="text-red-500">*</span></label>
                         <div className="flex gap-2">
                           <select 
                             name="countryCode" 
@@ -611,7 +600,7 @@ export default function RegisterPage() {
                             required 
                             type="tel" 
                             placeholder="77 123 4567" 
-                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" 
+                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium" 
                           />
                         </div>
                       </div>
@@ -620,33 +609,33 @@ export default function RegisterPage() {
                     <div className="space-y-4">
                       {/* Address Line 1 */}
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Address Line 1 <span className="text-red-500">*</span></label>
-                        <input name="addressLine1" value={formData.addressLine1} onChange={handleChange} required type="text" placeholder="Street address, P.O. box" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                        <label className="block font-label text-[#22c55e]">Address Line 1 <span className="text-red-500">*</span></label>
+                        <input name="addressLine1" value={formData.addressLine1} onChange={handleChange} required type="text" placeholder="Street address, P.O. box" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
                       </div>
 
                       {/* Address Line 2 */}
                       <div className="space-y-2">
-                        <label className="block text-[10px] font-black tracking-[2px] text-white/20 uppercase">Address Line 2 (Optional)</label>
-                        <input name="addressLine2" value={formData.addressLine2} onChange={handleChange} type="text" placeholder="Apartment, suite, unit" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                        <label className="block font-label text-gray-500">Address Line 2 (Optional)</label>
+                        <input name="addressLine2" value={formData.addressLine2} onChange={handleChange} type="text" placeholder="Apartment, suite, unit" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
                       </div>
 
                       {/* City & State */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">City <span className="text-red-500">*</span></label>
-                          <input name="city" value={formData.city} onChange={handleChange} required type="text" placeholder="City" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <label className="block font-label text-[#22c55e]">City <span className="text-red-500">*</span></label>
+                          <input name="city" value={formData.city} onChange={handleChange} required type="text" placeholder="City" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">State / Province <span className="text-red-500">*</span></label>
-                          <input name="state" value={formData.state} onChange={handleChange} required type="text" placeholder="State / Region" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <label className="block font-label text-[#22c55e]">State / Province <span className="text-red-500">*</span></label>
+                          <input name="state" value={formData.state} onChange={handleChange} required type="text" placeholder="State / Region" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
                         </div>
                       </div>
 
                       {/* Country - Now at the end */}
                       <div className="space-y-2 pt-2">
-                         <label className="block text-[10px] font-black tracking-[2px] text-white/20 uppercase">Country (Auto-locked)</label>
+                         <label className="block font-label text-gray-500">Country (Auto-locked)</label>
                          <div className="relative">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/10" size={16} />
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700" size={16} />
                             <input 
                               name="country" 
                               value={formData.country} 
@@ -657,9 +646,9 @@ export default function RegisterPage() {
                       </div>
                     </div>
                     <div className="pt-6 border-t border-white/5 space-y-4">
-                      <h3 className="text-[10px] font-black uppercase tracking-[2px] text-white/40">Emergency Contact <span className="text-red-500">*</span></h3>
+                      <h3 className="font-label text-white/40">Emergency Contact <span className="text-red-500">*</span></h3>
                       <div className="space-y-4">
-                        <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required type="text" placeholder="Contact Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                        <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required type="text" placeholder="Contact Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
                         <div className="flex gap-2">
                           <select 
                             name="emergencyCountryCode" 
@@ -680,20 +669,20 @@ export default function RegisterPage() {
                             required 
                             type="tel" 
                             placeholder="CONTACT PHONE" 
-                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" 
+                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" 
                           />
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-4">
-                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 text-white/40 font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all">
+                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 text-white/40 font-button py-4 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all">
                         <ChevronLeft size={18} />
                       </button>
                       <button 
                         type="button" 
                         onClick={nextStep} 
                         disabled={!formData.phone || !formData.addressLine1 || !formData.city || !formData.state || !formData.emergencyName || !formData.emergencyPhone}
-                        className="flex-[3] bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+                        className="flex-[3] bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
                       >
                         Continue <ChevronRight size={18} />
                       </button>
@@ -705,8 +694,8 @@ export default function RegisterPage() {
               {step === 5 && (
                 <motion.div key="step5" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
-                    <h2 className={`${anton.className} text-2xl text-white uppercase tracking-wider mb-1`}>Performance Registry</h2>
-                    <p className="text-[10px] font-bold text-white/30 uppercase tracking-[1px]">Phase Five: Athlete Statistics</p>
+                    <h2 className="font-display text-2xl text-white mb-1">Performance Registry</h2>
+                    <p className="font-label text-gray-500">Phase Five: Athlete Statistics</p>
                   </div>
 
                   {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-[2px] text-center">{errorMsg}</div>}
@@ -716,24 +705,24 @@ export default function RegisterPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Height (CM) <span className="text-red-500">*</span></label>
-                        <input name="height" value={formData.height} onChange={handleChange} required type="number" placeholder="185" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" />
+                        <input name="height" value={formData.height} onChange={handleChange} required type="number" placeholder="185" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" />
                       </div>
                       <div className="space-y-2">
                         <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Weight (KG) <span className="text-red-500">*</span></label>
-                        <input name="weight" value={formData.weight} onChange={handleChange} required type="number" placeholder="82" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" />
+                        <input name="weight" value={formData.weight} onChange={handleChange} required type="number" placeholder="82" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Position Played <span className="text-red-500">*</span></label>
-                      <input name="position" value={formData.position} onChange={handleChange} required type="text" placeholder="eg: Forward" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" />
+                       <label className="block font-label text-[#22c55e] font-bold uppercase tracking-widest text-[10px]">Position Played <span className="text-red-500">*</span></label>
+                       <input name="position" value={formData.position} onChange={handleChange} required type="text" placeholder="eg: Forward" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm font-medium" />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Main Goals <span className="text-red-500">*</span></label>
-                      <textarea name="goals" value={formData.goals} onChange={handleChange} required rows={2} placeholder="eg: Speed, Agility" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm resize-none" />
+                       <label className="block font-label text-[#22c55e] font-bold uppercase tracking-widest text-[10px]">Main Goals <span className="text-red-500">*</span></label>
+                       <textarea name="goals" value={formData.goals} onChange={handleChange} required rows={2} placeholder="eg: Speed, Agility" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm font-medium resize-none" />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-white/20 uppercase">Medical History (Optional)</label>
-                      <textarea name="medicalHistory" value={formData.medicalHistory} onChange={handleChange} rows={2} placeholder="Any previous injuries or conditions..." className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-white/10 focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm resize-none" />
+                      <label className="block text-[10px] font-black tracking-[2px] text-gray-500 uppercase">Medical History (Optional)</label>
+                      <textarea name="medicalHistory" value={formData.medicalHistory} onChange={handleChange} rows={2} placeholder="Any previous injuries or conditions..." className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm resize-none" />
                     </div>
                     
                     <div className="p-5 bg-white/5 border border-white/10 rounded-2xl">
@@ -742,7 +731,7 @@ export default function RegisterPage() {
                           <input type="checkbox" name="waiverAccepted" checked={formData.waiverAccepted} onChange={handleChange} className="w-4 h-4 appearance-none border border-white/20 rounded checked:bg-[#22c55e] checked:border-[#22c55e] transition-all cursor-pointer" />
                           {formData.waiverAccepted && <Check className="absolute top-[6px] left-[2px] text-black" size={12} strokeWidth={4} />}
                         </div>
-                        <p className="text-[8px] text-white/30 leading-relaxed font-bold uppercase tracking-widest">
+                        <p className="text-[8px] text-gray-400 leading-relaxed font-bold uppercase tracking-widest">
                           I voluntarily participate and assume full responsibility for any injury or damages and hereby release, indemnify, and hold harmless the KIO-X Performance Center.
                         </p>
                       </div>
@@ -775,7 +764,7 @@ export default function RegisterPage() {
         
         {/* Footer Info */}
         <div className="p-6 text-center border-t border-white/5">
-          <p className="text-[8px] font-black uppercase tracking-[4px] text-white/10">KIO-X Performance Protocol &copy; 2024</p>
+          <p className="text-[8px] font-black uppercase tracking-[4px] text-gray-700">KIO-X Performance Protocol &copy; 2024</p>
         </div>
       </motion.div>
     </main>

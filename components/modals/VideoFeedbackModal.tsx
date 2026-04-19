@@ -3,9 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, ArrowRight, Loader2, Zap, Video, Link as LinkIcon, UploadCloud, Play, Calendar, ExternalLink, Trash2 } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface VideoFeedbackModalProps {
   isOpen: boolean;
@@ -19,8 +17,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
     title: "",
     category: "Technique",
     notes: "",
-    externalUrl: "",
-  });
+    externalUrl: "" });
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
   const [loading, setLoading] = useState(false);
@@ -106,8 +103,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
     setDeletingId(videoId);
     try {
       const res = await fetch(`/api/admin/athlete/${athleteId}/video-feedback?videoId=${videoId}`, {
-        method: "DELETE",
-      });
+        method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete video");
       
       // Remove from UI
@@ -144,18 +140,18 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
               <div className="text-blue-500 text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
                 <Video size={12} fill="currentColor" /> TACTICAL PROTOCOL
               </div>
-              <h2 className={`${anton.className} text-2xl text-white tracking-wider uppercase`}>
+              <h2 className={`font-display text-2xl text-white tracking-wider uppercase`}>
                 UPLOAD VIDEO FEEDBACK
               </h2>
             </div>
-            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-white/20 hover:text-white transition-all">
+            <button onClick={onClose} className="p-3 rounded-full hover:bg-white/5 text-gray-500 hover:text-white transition-all">
               <X size={20} />
             </button>
           </div>
 
           <div className="p-8">
             <div className="mb-8 p-4 bg-white/5 border border-white/5 rounded-2xl">
-              <div className="text-white/20 text-[9px] font-black tracking-widest uppercase mb-1">TARGET SUBJECT</div>
+              <div className="text-gray-500 text-[9px] font-black tracking-widest uppercase mb-1">TARGET SUBJECT</div>
               <div className="text-white font-bold tracking-wide uppercase">{athleteName}</div>
             </div>
 
@@ -191,14 +187,14 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                   <button
                     type="button"
                     onClick={() => setUploadMethod("file")}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'file' ? 'bg-blue-500 text-white' : 'text-white/20 hover:text-white'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'file' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-white'}`}
                   >
                     <UploadCloud size={14} /> FILE UPLOAD
                   </button>
                   <button
                     type="button"
                     onClick={() => setUploadMethod("url")}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'url' ? 'bg-blue-500 text-white' : 'text-white/20 hover:text-white'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-black transition-all ${uploadMethod === 'url' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-white'}`}
                   >
                     <LinkIcon size={14} /> EXTERNAL URL
                   </button>
@@ -210,7 +206,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl p-8 flex flex-col items-center gap-2 cursor-pointer transition-all group bg-blue-500/5"
                 >
-                  <UploadCloud size={32} className="text-white/10 group-hover:text-blue-500 transition-colors" />
+                  <UploadCloud size={32} className="text-gray-700 group-hover:text-blue-500 transition-colors" />
                   <div className="text-[10px] font-black text-white/40 uppercase tracking-widest">
                     {videoFile ? videoFile.name : "SELECT MP4 / MOV (MAX 500MB)"}
                   </div>
@@ -268,13 +264,13 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
             {/* History Section */}
             <div className="mt-12 pt-8 border-t border-white/5 space-y-6">
               <div className="flex justify-between items-center">
-                <div className="text-white/20 text-[10px] font-black tracking-widest uppercase">RECENT TRANSMISSIONS</div>
+                <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">RECENT TRANSMISSIONS</div>
                 {historyLoading && <Loader2 size={12} className="animate-spin text-blue-500" />}
               </div>
 
               <div className="space-y-4">
                 {history.length === 0 ? (
-                  <div className="py-8 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-white/10 uppercase font-bold text-[9px] tracking-widest italic">
+                  <div className="py-8 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-gray-700 uppercase font-bold text-[9px] tracking-widest italic">
                     NO PREVIOUS TRANSMISSIONS FOUND
                   </div>
                 ) : (
@@ -287,7 +283,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                           </div>
                           <div>
                             <div className="text-white text-xs font-bold tracking-wide uppercase">{clip.title}</div>
-                            <div className="text-white/20 text-[8px] font-black tracking-wider uppercase mt-0.5">{clip.category}</div>
+                            <div className="text-gray-500 text-[8px] font-black tracking-wider uppercase mt-0.5">{clip.category}</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

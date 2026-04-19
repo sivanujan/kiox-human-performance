@@ -12,14 +12,11 @@ import {
   Save,
   ShieldCheck
 } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
 interface AdminProfileModalProps {
   isOpen: boolean;
@@ -123,7 +120,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                <button 
                  onClick={onClose}
                  disabled={loading}
-                 className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors disabled:opacity-50"
+                 className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors disabled:opacity-50"
                >
                  <X size={24} />
                </button>
@@ -139,7 +136,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                     <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
                       Personal Identity Matrix
                     </div>
-                    <h2 className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-1`}>
+                    <h2 className={`font-display text-3xl text-white uppercase tracking-wider mb-1`}>
                       Modify Administrator profile
                     </h2>
                   </div>
@@ -157,7 +154,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                   <div className="w-20 h-20 bg-[#22c55e]/10 border-2 border-[#22c55e] rounded-full flex items-center justify-center text-[#22c55e] mb-6">
                     <CheckCircle2 size={40} className="animate-bounce" />
                   </div>
-                  <h3 className={`${anton.className} text-2xl text-white uppercase mb-2 tracking-widest`}>Identity Synchronized</h3>
+                  <h3 className={`font-display text-2xl text-white uppercase mb-2 tracking-widest`}>Identity Synchronized</h3>
                   <p className="text-white/40 text-sm font-medium">Your administrative credentials have been updated globally.</p>
                 </motion.div>
               ) : (
@@ -165,9 +162,9 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">First Name</label>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">First Name</label>
                       <div className="relative">
-                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input 
                           type="text"
                           required
@@ -180,9 +177,9 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Last Name</label>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Last Name</label>
                       <div className="relative">
-                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input 
                           type="text"
                           required
@@ -196,9 +193,9 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
 
                   {/* Username */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">Operational Tag (Username)</label>
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Operational Tag (Username)</label>
                     <div className="relative">
-                      <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+                      <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                       <input 
                         type="text"
                         required

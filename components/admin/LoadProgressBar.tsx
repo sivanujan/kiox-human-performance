@@ -24,11 +24,11 @@ export default function LoadProgressBar({ current, target = 650, showLabels = tr
     <div className="w-full space-y-1.5">
       {showLabels && (
         <div className="flex justify-between items-end px-1">
-          <span className="text-[9px] font-black text-white/20 uppercase tracking-widest whitespace-nowrap">
-            {current} AU <span className="text-white/10">/ {target} TARGET</span>
+          <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap">
+            {current} AU <span className="text-gray-700">/ {target} TARGET</span>
           </span>
           <span 
-            className="text-[10px] font-['Anton'] tracking-wider"
+            className="text-[10px] font-display tracking-wider"
             style={{ color: color }}
           >
             {Math.round((current / target) * 100)}%

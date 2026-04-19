@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, X } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 const faqs = [
   {
@@ -137,7 +132,7 @@ export default function FAQModal({ isOpen, onClose }: { isOpen: boolean, onClose
                   <div className="h-[1px] w-[20px] bg-gradient-to-r from-transparent to-[#22c55e]"></div>
                   <span className="text-[#22c55e] text-[10px] tracking-[0.4em] font-medium uppercase font-sans">SUPPORT</span>
                 </div>
-                <h2 className={`${anton.className} text-white text-[28px] sm:text-[32px] font-black leading-none uppercase tracking-tight`}>
+                <h2 className={`font-display text-white text-[28px] sm:text-[32px] font-black leading-none uppercase tracking-tight`}>
                    FAQ <span className="text-[#22c55e]">& INFO</span>
                 </h2>
               </div>

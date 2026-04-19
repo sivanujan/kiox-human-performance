@@ -14,14 +14,9 @@ import {
   Loader2,
   Calendar
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 export default function CommandStaff() {
   const { user, profile, loading: authLoading, supabase } = useAuth();
@@ -77,7 +72,7 @@ export default function CommandStaff() {
             <Trophy className="text-[#22c55e]" size={16} />
             <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Elite Performance Command</span>
           </div>
-          <h1 className={`${anton.className} text-5xl md:text-7xl text-white uppercase tracking-wider`}>Command Staff</h1>
+          <h1 className={`font-display text-5xl md:text-7xl text-white uppercase tracking-wider`}>Command Staff</h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -97,7 +92,7 @@ export default function CommandStaff() {
                   </div>
 
                   <div className="flex justify-between items-start mb-8 relative z-10">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-['Anton'] text-[#22c55e]">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-display text-[#22c55e]">
                       {member.first_name ? member.first_name[0].toUpperCase() : 'S'}
                     </div>
                     <div className="text-right">
@@ -127,7 +122,7 @@ export default function CommandStaff() {
                     
                     <div className="space-y-3">
                       {assigned.length === 0 ? (
-                        <p className="text-[9px] font-bold text-white/20 uppercase tracking-[2px] italic">No active assignments</p>
+                        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[2px] italic">No active assignments</p>
                       ) : (
                         assigned.map((athlete, idx) => (
                           <div key={athlete.id} className="flex items-center justify-between bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-[#22c55e]/5 group/item transition-all">
@@ -135,7 +130,7 @@ export default function CommandStaff() {
                               <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
                               <span className="text-[10px] font-bold text-white uppercase tracking-wider">{athlete.first_name} {athlete.last_name}</span>
                             </div>
-                            <button className="text-white/20 group-hover/item:text-[#22c55e] transition-colors">
+                            <button className="text-gray-500 group-hover/item:text-[#22c55e] transition-colors">
                               <ChevronRight size={14} />
                             </button>
                           </div>

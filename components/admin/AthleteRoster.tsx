@@ -18,11 +18,10 @@ import {
   AlertCircle,
   Video
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAthleteRoster, AthleteStatus } from "@/hooks/useAthleteRoster";
 import LoadProgressBar from "./LoadProgressBar";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
+
 
 interface AthleteRosterProps {
   onSelectAthlete: (id: string) => void;
@@ -81,34 +80,34 @@ export default function AthleteRoster({
   return (
     <div className="bg-[#111] border border-white/5 rounded-[32px] overflow-hidden shadow-2xl flex flex-col h-full">
       {/* Header Section */}
-      <div className="px-10 py-8 border-b border-white/5 space-y-8 bg-white/[0.01]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="px-4 md:px-10 py-6 md:py-8 border-b border-white/5 space-y-6 md:space-y-8 bg-white/[0.01]">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#22c55e]">
-              <Users size={24} />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#22c55e] flex-shrink-0">
+              <Users className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <div className="text-[#22c55e] font-['Anton'] text-[10px] tracking-[0.4em] uppercase mb-1">Squad Inventory</div>
-              <h2 className={`${anton.className} text-2xl text-white tracking-widest uppercase`}>
-                Athlete Roster <span className="text-white/20 ml-2">({stats.total})</span>
+              <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">Squad Inventory</div>
+              <h2 className="font-display text-xl md:text-2xl text-white font-black tracking-wide uppercase truncate">
+                Athlete Roster <span className="text-gray-400 font-stat ml-2">({stats.total})</span>
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
               <input 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="SEARCH OPERATIVES..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-xs text-white font-bold tracking-widest uppercase focus:border-[#22c55e] outline-none transition-all placeholder:text-white/5"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-2.5 md:py-3 text-xs text-white font-label focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-500 shadow-xl"
               />
             </div>
             <select 
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] font-black text-white/40 uppercase tracking-widest focus:border-[#22c55e] outline-none cursor-pointer"
+              className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 md:py-3 text-[10px] font-label text-gray-400 focus:border-[#22c55e] outline-none cursor-pointer appearance-none text-center sm:text-left"
             >
               <option value="NAME">BY NAME</option>
               <option value="LOAD">BY LOAD</option>
@@ -119,28 +118,30 @@ export default function AthleteRoster({
         </div>
 
         {/* Summary Stats & Quick Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          {[
-            { id: 'ALL', label: 'SQUAD ALL', count: stats.total, color: 'white' },
-            { id: 'READY', label: 'READY', count: stats.ready, color: '#22c55e' },
-            { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b' },
-            { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444' },
-            { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444' },
-          ].map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => setStatusFilter(filter.id as any)}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${
-                statusFilter === filter.id 
-                  ? "bg-white/5 border-white/20 text-white" 
-                  : "bg-transparent border-transparent text-white/20 hover:text-white/40"
-              }`}
-            >
-              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: filter.color }} />
-              <span className="text-[10px] font-black tracking-widest uppercase">{filter.label}</span>
-              <span className="text-[10px] font-['Anton'] opacity-40">{filter.count}</span>
-            </button>
-          ))}
+        <div className="no-scrollbar overflow-x-auto">
+          <div className="flex items-center gap-3 pb-2 min-w-max">
+            {[
+              { id: 'ALL', label: 'SQUAD ALL', count: stats.total, color: 'white' },
+              { id: 'READY', label: 'READY', count: stats.ready, color: '#22c55e' },
+              { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b' },
+              { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444' },
+              { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444' },
+            ].map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => setStatusFilter(filter.id as any)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all active-scale ${
+                  statusFilter === filter.id 
+                    ? "bg-white/5 border-white/20 text-white" 
+                    : "bg-transparent border-transparent text-gray-500 hover:text-white/40"
+                }`}
+              >
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: filter.color }} />
+                <span className="font-label font-bold text-[10px] uppercase whitespace-nowrap">{filter.label}</span>
+                <span className="font-stat text-gray-400 font-bold text-[10px]">{filter.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -149,17 +150,17 @@ export default function AthleteRoster({
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <Loader2 className="animate-spin text-[#22c55e]" size={32} />
-            <div className="text-white/20 text-[10px] font-black tracking-widest uppercase">Syncing Roster...</div>
+            <div className="text-gray-400 font-label font-bold tracking-widest">Syncing Roster...</div>
           </div>
         ) : (
           <AnimatePresence>
             {athletes.length === 0 ? (
               <div className="py-32 flex flex-col items-center justify-center text-center">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-white/10 mb-6">
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mb-6 border border-white/5">
                   <AlertCircle size={40} />
                 </div>
-                <h3 className={`${anton.className} text-xl text-white/40 tracking-widest uppercase mb-2`}>No Athletes Detected</h3>
-                <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest max-w-[280px]">
+                <h3 className="font-display text-xl text-white font-black uppercase tracking-widest mb-2">No Athletes Detected</h3>
+                <p className="text-gray-400 font-label font-bold max-w-[280px]">
                   Ensure users are registered with the 'athlete' role to populate this unit inventory.
                 </p>
               </div>
@@ -169,64 +170,73 @@ export default function AthleteRoster({
                 const riskColor = getRiskColor(athlete.injury_risk);
                 
                 return (
-                  <motion.div
+                   <motion.div
                     key={athlete.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: i * 0.03 }}
-                    className={`relative flex items-center p-5 rounded-[24px] border border-white/5 hover:border-white/10 group transition-all cursor-pointer ${config.tint} border-l-[6px]`}
+                    className={`relative flex flex-col lg:flex-row lg:items-center p-4 md:p-5 rounded-[24px] border border-white/5 hover:border-white/10 group transition-all active-scale lg:active-scale-none overflow-hidden ${config.tint} border-l-[6px] gap-4 md:gap-6`}
                     style={{ borderLeftColor: riskColor }}
                     onClick={() => onSelectAthlete(athlete.id)}
                   >
-                    {/* IDENTITY */}
-                    <div className="flex items-center gap-6 min-w-[280px]">
-                      <div className="relative">
-                        <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center font-['Anton'] text-lg text-white/40 group-hover:text-[#22c55e] transition-colors shadow-2xl">
-                          {athlete.first_name?.[0] || '?'}{athlete.last_name?.[0] || ''}
+                    {/* IDENTITY & STATUS - STACKED ON MOBILE */}
+                    <div className="flex items-center justify-between lg:justify-start gap-4 md:gap-6 lg:min-w-[280px]">
+                      <div className="flex items-center gap-4 md:gap-6">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center font-display text-lg text-gray-500 group-hover:text-[#22c55e] transition-colors shadow-2xl">
+                            {athlete.first_name?.[0] || '?'}{athlete.last_name?.[0] || ''}
+                          </div>
+                          <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#111] bg-[#22c55e]`} title="Online Active" />
                         </div>
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-4 border-[#111] bg-[#22c55e]`} title="Online Active" />
+                        <div className="min-w-0">
+                          <h4 className="text-white font-display text-md md:text-lg leading-none mb-1.5 group-hover:text-[#22c55e] transition-colors truncate">
+                            {athlete.first_name} {athlete.last_name}
+                          </h4>
+                          <div className="font-label text-gray-500 text-[10px] md:text-xs truncate">
+                            <span className="hidden xs:inline">@{athlete.username} • </span>{athlete.sport}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase leading-none mb-1.5 group-hover:text-[#22c55e] transition-colors">
-                          {athlete.first_name} {athlete.last_name}
-                        </h4>
-                        <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest">
-                          @{athlete.username} • {athlete.sport} / {athlete.position_played}
-                        </div>
+
+                      {/* Status Tag - Visible on Mobile side by side */}
+                      <div className="lg:hidden">
+                        <span className={`px-3 py-1 rounded-lg font-label font-black text-[9px] tracking-widest leading-none border ${config.bg} border-white/5 text-white shadow-xl ${config.pulsing ? 'animate-pulse' : ''}`}>
+                             {config.label}
+                        </span>
                       </div>
                     </div>
 
-                    {/* PERFORMANCE LOAD */}
-                    <div className="flex-1 px-8 border-x border-white/5 max-w-[400px]">
-                      <div className="flex items-center justify-between mb-3 text-[9px] font-black uppercase tracking-[0.2em]">
-                         <div className="flex items-center gap-2 text-white/20">
-                            LOAD METRICS {athlete.load_trend === 'up' ? <TrendingUp size={10} className="text-[#ef4444]" /> : athlete.load_trend === 'down' ? <TrendingDown size={10} className="text-[#22c55e]" /> : <Minus size={10} className="text-white/10" />}
+                    {/* PERFORMANCE LOAD - FULL WIDTH ON MOBILE */}
+                    <div className="w-full lg:flex-1 lg:px-8 lg:border-x lg:border-white/5 lg:max-w-[400px]">
+                        <div className="flex items-center justify-between mb-2 lg:mb-3 font-label">
+                         <div className="flex items-center gap-2 text-gray-500 font-bold text-[10px]">
+                            LOAD METRICS {athlete.load_trend === 'up' ? <TrendingUp size={10} className="text-[#ef4444]" /> : athlete.load_trend === 'down' ? <TrendingDown size={10} className="text-[#22c55e]" /> : <Minus size={10} className="text-gray-500" />}
                          </div>
-                         <div className="text-white/40">{athlete.last_session ? `LAST: ${athlete.last_session.title.toUpperCase()}` : 'NO RECENT ACTIVITY'}</div>
+                         <div className="text-gray-500 font-bold text-[10px] hidden sm:block">{athlete.last_session ? `LAST: ${athlete.last_session.title.toUpperCase()}` : 'NO RECENT ACTIVITY'}</div>
                       </div>
                       <LoadProgressBar current={athlete.weekly_load} showLabels={false} />
-                      <div className="flex justify-between items-center mt-2 px-1">
-                         <span className="text-[9px] font-black text-white/10 tracking-[0.2em]">{athlete.weekly_load} AU / 650 TARGET</span>
-                         <span className="text-[9px] font-black text-[#22c55e] tracking-[0.2em] uppercase">OPTIMIZATION ZONE</span>
+                      <div className="flex justify-between items-center mt-2 px-0 md:px-1">
+                         <span className="font-label text-gray-500 font-bold text-[10px] truncate mr-2">{athlete.weekly_load} AU / 650 TARGET</span>
+                         <span className="font-label text-[#22c55e] font-black tracking-widest text-[9px] whitespace-nowrap">OPTIMIZATION ZONE</span>
                       </div>
                     </div>
 
-                    {/* STATUS & RISK */}
-                    <div className="px-8 shrink-0 min-w-[150px] space-y-3">
+                    {/* STATUS & RISK - DESKTOP ONLY ROWS */}
+                    <div className="hidden lg:flex px-8 shrink-0 min-w-[150px] flex-col gap-3">
                       <div className="flex items-center gap-3">
-                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black tracking-widest leading-none border ${config.bg} border-white/5 text-white shadow-xl ${config.pulsing ? 'animate-pulse' : ''}`}>
-                            {config.label}
-                         </span>
+                          <span className={`px-4 py-1.5 rounded-xl font-label font-bold tracking-widest leading-none border ${config.bg} border-white/5 text-white shadow-xl ${config.pulsing ? 'animate-pulse' : ''}`}>
+                             {config.label}
+                          </span>
                       </div>
                       <div className="flex items-center gap-2">
                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: riskColor }} />
-                         <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]" style={{ color: riskColor }}>{(athlete.injury_risk || 'LOW').toUpperCase()} RISK</span>
+                         <span className="font-label text-gray-500 text-[10px]" style={{ color: riskColor }}>{(athlete.injury_risk || 'LOW').toUpperCase()} RISK</span>
                       </div>
                     </div>
 
-                    {/* QUICK ACTIONS */}
-                    <div className="flex items-center gap-2 ml-auto">
+                    {/* QUICK ACTIONS - SCROLLABLE ON MOBILE */}
+                    <div className="flex items-center gap-2 lg:ml-auto no-scrollbar overflow-x-auto lg:overflow-visible pb-1 lg:pb-0">
                       {[
                         { icon: <UserIcon size={14} />, action: (e: any) => { e.stopPropagation(); onSelectAthlete(athlete.id); }, label: 'Profile' },
                         { icon: <Activity size={14} />, action: (e: any) => { e.stopPropagation(); onLogSession(athlete.id); }, label: 'Log Load' },
@@ -234,7 +244,7 @@ export default function AthleteRoster({
                         { 
                           icon: <BarChart3 size={14} />, 
                           action: (e: any) => { e.stopPropagation(); onAssess(athlete.id); }, 
-                          label: 'Initiate Assessment',
+                          label: 'Assess',
                           primary: true 
                         },
                         { icon: <Video size={14} />, action: (e: any) => { e.stopPropagation(); onViewAnalytics(athlete.id); }, label: 'Analytics' },
@@ -242,21 +252,23 @@ export default function AthleteRoster({
                         <button
                           key={idx}
                           onClick={btn.action}
-                          className={`flex items-center gap-2 h-10 px-3 rounded-xl border transition-all ${
+                          className={`flex-shrink-0 flex items-center gap-2 h-10 px-3 md:px-4 rounded-xl border transition-all active-scale ${
                             btn.primary 
-                              ? "bg-[#22c55e]/10 border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e] hover:text-black" 
-                              : "bg-white/5 border-white/10 text-white/20 hover:text-white hover:bg-white/10"
-                          }`}
-                          title={btn.label}
-                        >
-                           {btn.icon}
-                           {btn.primary && <span className="text-[8px] font-black uppercase tracking-wider">Assess</span>}
-                        </button>
-                      ))}
-                      <div className="w-px h-8 bg-white/5 mx-2" />
-                      <button className="w-10 h-10 rounded-xl flex items-center justify-center text-white/10 hover:text-white transition-all">
-                         <ArrowRight size={18} />
-                      </button>
+                               ? "bg-[#22c55e]/10 border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e] hover:text-black" 
+                               : "bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10"
+                           }`}
+                           title={btn.label}
+                         >
+                            {btn.icon}
+                            {(btn.primary || idx === 0) && <span className="font-label text-inherit font-black uppercase tracking-widest text-[10px]">{btn.label}</span>}
+                         </button>
+                       ))}
+                       <div className="hidden lg:flex items-center">
+                         <div className="w-px h-8 bg-white/5 mx-2" />
+                         <button className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white transition-all">
+                            <ArrowRight size={18} />
+                         </button>
+                       </div>
                     </div>
                   </motion.div>
                 );
@@ -267,13 +279,13 @@ export default function AthleteRoster({
       </div>
 
       {/* Footer Inventory Link */}
-      <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-between items-center">
-         <div className="flex gap-4">
-            <div className="text-[9px] font-black text-white/10 uppercase tracking-[3px]">REGISTRY: SQUAD_OMEGA_ACTIVE</div>
-            <div className="text-[9px] font-black text-white/10 uppercase tracking-[3px]">ENCRYPTION: AES_256_ACTIVE</div>
-         </div>
-         <button className={`${anton.className} text-[#22c55e] text-xs tracking-widest uppercase hover:tracking-[0.4em] transition-all flex items-center gap-3 group`}>
-            DETAILED TACTICAL INVENTORY <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+      <div className="px-4 md:px-8 py-6 md:py-8 border-t border-white/5 bg-white/[0.01] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center sm:items-start">
+             <div className="font-label text-gray-500 font-bold text-[9px] uppercase tracking-widest">REGISTRY: SQUAD_OMEGA_ACTIVE</div>
+             <div className="font-label text-gray-500 font-bold text-[9px] uppercase tracking-widest hidden xs:block">ENCRYPTION: AES_256_ACTIVE</div>
+          </div>
+         <button className="font-button text-[#22c55e] text-[10px] hover:tracking-[0.2em] transition-all flex items-center gap-3 group active-scale">
+            TACTICAL INVENTORY <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
          </button>
       </div>
     </div>

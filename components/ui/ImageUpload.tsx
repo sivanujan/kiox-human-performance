@@ -104,7 +104,7 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-1 text-white/30 group-hover:text-[#22c55e] transition-colors">
+          <div className="flex flex-col items-center gap-1 text-gray-400 group-hover:text-[#22c55e] transition-colors">
             <UploadCloud size={24} />
             <span className="text-[8px] font-black uppercase tracking-[1px]">UPLOAD</span>
           </div>

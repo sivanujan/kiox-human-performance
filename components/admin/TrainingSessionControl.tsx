@@ -45,7 +45,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
     switch (status) {
       case 'IN_PROGRESS': return "bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.4)] animate-pulse";
       case 'COMPLETED': return "bg-white/10 text-white/40 border border-white/10";
-      default: return "bg-transparent border border-white/20 text-white/30";
+      default: return "bg-transparent border border-white/20 text-gray-400";
     }
   };
 
@@ -62,13 +62,13 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
             <Clock size={24} />
           </div>
           <div>
-            <div className="text-[#22c55e] font-['Anton'] text-[10px] tracking-[0.3em] uppercase">Operational Control</div>
-            <h2 className="text-white font-['Anton'] text-xl tracking-wider uppercase">Training Session Control</h2>
+            <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase">Operational Control</div>
+            <h2 className="text-white font-display text-xl tracking-wider uppercase">Training Session Control</h2>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-white/20 font-black text-[10px] tracking-widest uppercase mb-1">CURRENT OPS DATE</div>
-          <div className="text-white font-['Anton'] text-lg tracking-widest">{format(new Date(), "MMMM dd, yyyy").toUpperCase()}</div>
+          <div className="text-gray-500 font-black text-[10px] tracking-widest uppercase mb-1">CURRENT OPS DATE</div>
+          <div className="text-white font-display text-lg tracking-widest">{format(new Date(), "MMMM dd, yyyy").toUpperCase()}</div>
         </div>
       </div>
 
@@ -76,17 +76,17 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
         {loading && sessions.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <Loader2 className="animate-spin text-[#22c55e]" size={32} />
-            <div className="text-white/20 text-[10px] font-black tracking-widest uppercase">Syncing Schedule...</div>
+            <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">Syncing Schedule...</div>
           </div>
         ) : sessions.length === 0 ? (
           <div className="py-24 text-center">
-            <div className="text-white/5 font-['Anton'] text-6xl mb-6 tracking-tighter items-center gap-3">
+            <div className="text-white/5 font-display text-6xl mb-6 tracking-tighter items-center gap-3">
                ZERO SQUAD OPS
             </div>
-            <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em] mb-10">NO SESSIONS SCHEDULED TODAY</p>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mb-10">NO SESSIONS SCHEDULED TODAY</p>
             <button 
               onClick={onCreate}
-              className="px-8 py-4 bg-[#22c55e] text-black font-['Anton'] text-xs tracking-widest rounded-2xl hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3 mx-auto group/new"
+              className="px-8 py-4 bg-[#22c55e] text-black font-display text-xs tracking-widest rounded-2xl hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3 mx-auto group/new"
             >
               <Plus size={18} className="group-hover/new:rotate-90 transition-transform" /> CREATE FIRST SESSION
             </button>
@@ -104,12 +104,12 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
                   <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${getStatusBadge(session.status)}`}>
                     {session.status}
                   </span>
-                  <span className="text-white/20 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="text-gray-500 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
                     <Clock size={10} /> {session.start_time.slice(0, 5)}
                   </span>
                 </div>
-                <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase mb-1 truncate">{session.title}</h4>
-                <div className="flex items-center gap-3 text-white/30 text-[10px] font-black tracking-widest uppercase">
+                <h4 className="text-white font-display text-lg tracking-wider uppercase mb-1 truncate">{session.title}</h4>
+                <div className="flex items-center gap-3 text-gray-400 text-[10px] font-black tracking-widest uppercase">
                    <div className="flex items-center gap-1.5"><MapPin size={12} /> {session.location || 'HQ FIELD'}</div>
                    <div className="flex items-center gap-1.5"><Activity size={12} /> {session.duration_minutes} MIN</div>
                 </div>
@@ -119,7 +119,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
                 {session.status === 'SCHEDULED' && (
                   <button 
                     onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
-                    className="h-12 px-6 bg-[#22c55e] text-black rounded-xl font-['Anton'] text-[10px] tracking-widest uppercase hover:bg-white transition-all shadow-lg flex items-center gap-2"
+                    className="h-12 px-6 bg-[#22c55e] text-black rounded-xl font-display text-[10px] tracking-widest uppercase hover:bg-white transition-all shadow-lg flex items-center gap-2"
                   >
                     <Play size={14} fill="currentColor" /> START
                   </button>
@@ -140,13 +140,13 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
           <button 
             onClick={onAdjustLoad}
-            className="bg-transparent border-2 border-white/10 text-white/40 py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white/5 hover:text-white hover:border-white transition-all uppercase flex items-center justify-center gap-3"
+            className="bg-transparent border-2 border-white/10 text-white/40 py-4 rounded-2xl font-display text-xs tracking-[0.2em] hover:bg-white/5 hover:text-white hover:border-white transition-all uppercase flex items-center justify-center gap-3"
           >
             ADJUST TRAINING LOAD <ArrowRight size={16} />
           </button>
           <button 
             onClick={onCreate}
-            className="bg-[#22c55e] text-black py-4 rounded-2xl font-['Anton'] text-xs tracking-[0.2em] hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl"
+            className="bg-[#22c55e] text-black py-4 rounded-2xl font-display text-xs tracking-[0.2em] hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl"
           >
             CREATE NEW SESSION <ArrowRight size={16} />
           </button>
@@ -154,7 +154,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
       )}
       {!isSuperAdmin && (
         <div className="relative z-10 pt-4 border-t border-white/5">
-           <p className="text-white/20 text-[9px] font-black uppercase tracking-[3px] text-center italic">
+           <p className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] text-center italic">
               Administrative Control Locked // Superadmin Clearance Required for Session Modification
            </p>
         </div>

@@ -5,14 +5,8 @@ import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
-
-const anton = Anton({
-  weight: '400',
-  subsets: ['latin']
-});
 
 export default function SignInPage() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -126,7 +120,7 @@ export default function SignInPage() {
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
               <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
             </div>
-            <span className={`${anton.className} text-3xl tracking-[4px] text-white group-hover:text-[#22c55e] transition-colors`}>KIO-X</span>
+            <span className="font-display text-3xl text-white group-hover:text-[#22c55e] transition-colors">KIO-X</span>
           </Link>
         </div>
 
@@ -134,37 +128,37 @@ export default function SignInPage() {
         <div className="bg-[#111111] border border-white/10 rounded-[24px] overflow-hidden shadow-2xl">
           {/* Tabs */}
           <div className="flex border-b border-white/5">
-            <button className="flex-1 py-5 text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase transition-all relative">
+            <button className="flex-1 py-5 font-label text-[#22c55e] transition-all relative">
               Sign In
               <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#22c55e]" />
             </button>
-            <Link href="/register" className="flex-1 py-5 text-[10px] font-black tracking-[2px] text-gray-500 hover:text-gray-300 uppercase transition-all relative flex items-center justify-center">
+            <Link href="/register" className="flex-1 py-5 font-label text-gray-400 hover:text-white transition-all relative flex items-center justify-center font-bold tracking-widest uppercase">
               Register
             </Link>
           </div>
 
           <div className="p-8 md:p-12">
-            {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-[10px] font-bold uppercase tracking-widest text-center flex items-center justify-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
-            {successMsg && <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-xl text-green-500 text-[10px] font-bold uppercase tracking-widest text-center">{successMsg}</div>}
+            {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 font-label text-center flex items-center justify-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
+            {successMsg && <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-xl text-green-500 font-label text-center">{successMsg}</div>}
 
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
               <form className="space-y-6" onSubmit={handleSignIn}>
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Email Address</label>
+                  <label className="block font-label text-[#22c55e]">Email Address</label>
                   <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={email} onChange={e => setEmail(e.target.value)} required type="email" placeholder="name@example.com" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                    <input value={email} onChange={e => setEmail(e.target.value)} required type="email" placeholder="name@example.com" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Password</label>
-                    <Link href="/forgot-password" className="text-[10px] font-bold text-[#22c55e]/60 hover:text-[#22c55e] uppercase tracking-widest transition-colors">Forgot Password?</Link>
+                    <label className="block font-label text-[#22c55e] font-bold">Password</label>
+                    <Link href="/forgot-password" className="font-label text-[#22c55e] opacity-60 hover:opacity-100 transition-opacity font-bold">Forgot Password?</Link>
                   </div>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={password} onChange={e => setPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                    <input value={password} onChange={e => setPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                 </div>
 
@@ -184,11 +178,11 @@ export default function SignInPage() {
                         </svg>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 group-hover:text-white tracking-widest uppercase transition-colors">Remember Me</span>
+                    <span className="font-label text-gray-400 font-bold group-hover:text-white transition-colors">Remember Me</span>
                   </label>
                 </div>
 
-                <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
                   {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={18} />
                 </button>
               </form>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,7 +19,6 @@ import {
   ShieldAlert,
   Target
 } from "lucide-react";
-import { Anton, Orbitron } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 // Dashboard Components
@@ -47,12 +46,7 @@ import CreateSessionModal from "@/components/modals/CreateSessionModal";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import AdjustLoadModal from "@/components/modals/AdjustLoadModal";
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
-const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function AdminDashboard() {
   const { user, profile, loading: authLoading, signOut, supabase } = useAuth();
@@ -91,9 +85,13 @@ export default function AdminDashboard() {
 
   const router = useRouter();
 
+  const fetchingRef = useRef(false);
+
   useEffect(() => {
     setIsHydrated(true);
-    if (!authLoading) {
+    
+    // Only proceed if auth is settled and we aren't already fetching
+    if (!authLoading && !fetchingRef.current) {
         if (!user) {
             router.push("/signin");
         } else if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
@@ -102,10 +100,13 @@ export default function AdminDashboard() {
             fetchAdminData();
         }
     }
-  }, [user, profile, authLoading]);
+  }, [user?.id, profile?.role, authLoading]); // Use primitive values to avoid reference change loops
 
   const fetchAdminData = async () => {
-    setLoading(true);
+    // Only show full loader if we have no athletes yet
+    if (athletes.length === 0) setLoading(true);
+    fetchingRef.current = true;
+    
     try {
       const today = new Date().toISOString().split('T')[0];
       
@@ -159,6 +160,7 @@ export default function AdminDashboard() {
       console.error("Admin Matrix Sync Error:", error);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   };
 
@@ -200,7 +202,7 @@ export default function AdminDashboard() {
           <div className="w-20 h-20 rounded-full border-2 border-[#22c55e]/10 animate-ping absolute inset-0" />
           <div className="w-20 h-20 rounded-full border-t-2 border-[#22c55e] animate-spin" />
         </div>
-        <div className="text-[10px] font-black text-[#22c55e] uppercase tracking-[0.5em] animate-pulse">
+        <div className="font-label text-[#22c55e] animate-pulse">
           Syncing Operational Matrix...
         </div>
       </div>
@@ -211,41 +213,40 @@ export default function AdminDashboard() {
     total: athletes.length,
     pending: athletes.filter(a => a.status === 'pending').length,
     active: athletes.filter(a => a.status === 'active' || a.status === 'approved').length,
-    trainingToday: todaySessions.length,
-  };
+    trainingToday: todaySessions.length };
 
   return (
-    <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-10 relative">
+    <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       
       {/* ========================
           ADMIN HEADER
           ======================== */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#22c55e]/30 to-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-2xl font-['Anton'] text-[#22c55e]">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-xl md:text-2xl font-display text-[#22c55e]">
             {profile?.first_name ? profile.first_name[0].toUpperCase() : 'A'}
           </div>
           <div>
-            <div className="text-[#22c55e] text-[10px] tracking-[0.3em] font-['Anton'] uppercase">
+            <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">
               Operations Control // Admin Oversight
             </div>
-            <div className="text-white font-['Anton'] text-2xl tracking-wider">
+            <div className="text-white font-display text-2xl md:text-4xl font-black tracking-tight leading-none uppercase">
               {profile?.role === 'superadmin' ? 'SYSTEM ADMIN' : 'CHIEF'} {profile?.last_name?.toUpperCase() || 'OFFICER'}
             </div>
-            <div className="text-white/20 text-[11px] uppercase tracking-widest font-bold">
+            <div className="text-gray-400 font-label mt-1 text-[9px] md:text-xs">
               KIO-X COMMAND CORE
             </div>
           </div>
         </div>
 
         <div className="relative w-full md:w-[320px]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
           <input
             placeholder="ACCESS LOGS & DATA..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-4 pl-12 pr-4 text-white text-xs font-['Anton'] tracking-widest focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-white/10"
+            className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-3 md:py-4 pl-12 pr-4 text-white text-xs md:text-sm font-label focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-gray-500 shadow-2xl"
           />
         </div>
       </div>
@@ -262,25 +263,25 @@ export default function AdminDashboard() {
         ]} />
 
         {/* 2. STAFF PROTOCOL LOGS (PROMINENT POSITION) */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl flex flex-col relative z-10">
-           <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-8 flex items-center gap-3">
-              <MessageSquare size={18} /> STAFF PROTOCOL LOGS
-           </div>
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+            <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8">
+               <MessageSquare size={18} /> STAFF PROTOCOL LOGS
+            </div>
            
-           <div className="flex gap-2 mb-8">
-              <input 
-                placeholder="ADD STAFF PROTOCOL NOTE (SELECT PLAYER BELOW FOR ATHLETE RECORD)..."
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-bold uppercase placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]"
-              />
-              <button 
-                onClick={handleAddNote}
-                disabled={isSavingNote}
-                className="bg-[#22c55e] text-black font-['Anton'] text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center"
-              >
-                {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
-              </button>
+           <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
+               <input 
+                 placeholder="ADD STAFF PROTOCOL NOTE..."
+                 value={newNote}
+                 onChange={(e) => setNewNote(e.target.value)}
+                 className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
+               />
+               <button 
+                 onClick={handleAddNote}
+                 disabled={isSavingNote}
+                 className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
+               >
+                 {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
+               </button>
            </div>
 
            <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
@@ -292,7 +293,7 @@ export default function AdminDashboard() {
                 const query = searchQuery.toLowerCase();
                 return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
               }).length === 0 ? (
-                <div className="py-12 text-center text-white/10 uppercase font-black text-[10px] tracking-widest">
+                <div className="py-12 text-center text-gray-700 uppercase font-black text-[10px] tracking-widest">
                   {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
                 </div>
               ) : (
@@ -306,18 +307,18 @@ export default function AdminDashboard() {
                 }).map((note, i) => (
                   <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px]">
+                      <div className="font-label text-[#22c55e] font-bold">
                         {note.user_id ? "Athlete Record" : "General Protocol"}
                       </div>
-                      <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">{new Date(note.created_at).toLocaleDateString()}</span>
+                      <span className="text-gray-400 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-white/60 text-xs leading-relaxed italic">"{note.note}"</p>
+                    <p className="text-gray-100 text-xs leading-relaxed italic font-sans font-medium">"{note.note}"</p>
                     <div className="flex justify-between items-center mt-3">
-                       <span className="text-[#22c55e] text-[10px] font-['Anton'] tracking-wider uppercase opacity-50">
+                       <span className="text-[#22c55e] font-label font-bold">
                          {note.added_by?.first_name} {note.added_by?.last_name}
                        </span>
                        {note.user_id && (
-                         <span className="text-white/20 text-[9px] font-bold uppercase tracking-[1px]">
+                         <span className="text-gray-400 font-label">
                            Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
                          </span>
                        )}
@@ -357,22 +358,21 @@ export default function AdminDashboard() {
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
         {/* 8. INDIVIDUAL ATHLETE MANAGEMENT */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-10 opacity-5 font-['Anton'] text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COMMAND</div>
-           
-           <div className="relative z-10 max-w-2xl">
-              <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase mb-6 flex items-center gap-3">
-                 <Target size={18} /> INDIVIDUAL ATHLETE MANAGEMENT
-              </div>
+         <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-10 opacity-5 font-display text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COMMAND</div>
+                      <div className="relative z-10 max-w-2xl">
+               <div className="text-[#22c55e] font-display text-2xl font-black mb-6 flex items-center gap-3 tracking-widest">
+                  <Target size={24} /> INDIVIDUAL ATHLETE MANAGEMENT
+               </div>
 
               <div className="space-y-8">
-                <div className="space-y-3">
-                   <label className="text-white/40 text-[11px] font-black uppercase tracking-[4px] ml-1">ATHLETE IDENTIFICATION</label>
-                   <select
-                    value={selectedAthlete}
-                    onChange={(e) => setSelectedAthlete(e.target.value)}
-                    className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-['Anton'] uppercase tracking-[3px] focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
-                   >
+                 <div className="space-y-3">
+                    <label className="text-gray-400 font-label ml-1">ATHLETE IDENTIFICATION</label>
+                    <select
+                     value={selectedAthlete}
+                     onChange={(e) => setSelectedAthlete(e.target.value)}
+                     className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-display focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
+                    >
                     <option value="">SELECT PLAYER...</option>
                     {athletes.filter(a => 
                       `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
@@ -401,9 +401,9 @@ export default function AdminDashboard() {
                           onClick={btn.action}
                           className="flex flex-col items-center gap-4 bg-white/[0.03] border border-white/10 p-6 rounded-[24px] hover:bg-[#22c55e]/15 hover:border-[#22c55e]/50 hover:shadow-[0_10px_30px_rgba(34,197,94,0.15)] transition-all text-[#22c55e] group/btn shadow-lg"
                         >
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
-                          <span className="text-[11px] font-['Anton'] tracking-[3px] text-white/70 group-hover/btn:text-white transition-colors">{btn.label}</span>
-                        </button>
+                           <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
+                           <span className="font-label text-gray-300 font-bold group-hover/btn:text-white transition-colors uppercase tracking-widest">{btn.label}</span>
+                         </button>
                       ))}
                     </motion.div>
                   )}
@@ -416,47 +416,49 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 pt-4">
           <Link 
             href="/admin/users"
-            className="bg-[#111] border border-[#22c55e]/10 rounded-[28px] p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl"
+            className="bg-[#111] border border-[#22c55e]/10 rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl active-scale"
           >
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform">
-                <UsersIcon size={28} />
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform flex-shrink-0">
+                <UsersIcon className="w-6 h-6 md:w-7 md:h-7" />
               </div>
-              <div>
-                <div className="text-[#22c55e] text-[9px] font-black uppercase tracking-[4px] mb-1">Squad Database</div>
-                <div className={`${anton.className} text-xl text-white uppercase tracking-widest`}>Global Registry Management</div>
-                <div className="text-white/20 text-[10px] uppercase font-bold tracking-[2px] mt-1">Invite Staff // Verify Athletes</div>
-              </div>
+               <div>
+                 <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Squad Database</div>
+                 <div className="font-display text-lg md:text-2xl text-white font-black tracking-wide uppercase">Registry</div>
+                 <div className="text-gray-400 font-label mt-0.5 text-[9px] hidden xs:block">Invite Staff // Verify Athletes</div>
+               </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:bg-[#22c55e] group-hover:text-black transition-all">
-              <ArrowRight size={20} />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:bg-[#22c55e] group-hover:text-black transition-all flex-shrink-0">
+              <ArrowRight size={18} />
             </div>
           </Link>
 
           <div className="bg-[#111] border border-white/5 rounded-[28px] p-8 flex items-center justify-between opacity-50 cursor-not-allowed">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/10">
-                <Plus size={28} />
-              </div>
-              <div>
-                <div className="text-white/20 text-[9px] font-black uppercase tracking-[4px] mb-1">Asset Control</div>
-                <div className={`${anton.className} text-xl text-white/40 uppercase tracking-widest`}>Equipment Inventory</div>
-                <div className="text-white/10 text-[10px] uppercase font-bold tracking-[2px] mt-1">Coming Soon // Tactical Gear</div>
-              </div>
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500">
+                  <Plus size={28} />
+                </div>
+                 <div>
+                   <div className="text-[#22c55e] font-label font-black mb-1 opacity-60">Asset Control</div>
+                   <div className="font-display text-2xl text-white/40 font-black tracking-wide uppercase">Equipment Inventory</div>
+                   <div className="text-gray-400 font-label font-black mt-2 tracking-[0.2em] uppercase text-[9px] border border-white/5 px-3 py-1 rounded-md w-fit bg-white/[0.02]">
+                     Coming Soon // Tactical Gear
+                   </div>
+                 </div>
             </div>
           </div>
         </div>
 
         {/* FOOTER SECTION: WELLNESS */}
-        <div className="pb-10 relative z-10 w-full lg:w-1/2">
-          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl">
+        <div className="pb-10 relative z-10 w-full lg:w-3/5">
+          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
-                <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
-                   <Activity size={18} /> SQUAD WELLNESS STATUS
-                </div>
-                <div className="text-[#22c55e] font-['Anton'] text-xl tracking-widest">
-                  {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : 'NO DATA RECEIVED'}
-                </div>
+                 <div className="text-[#22c55e] font-display text-sm flex items-center gap-3">
+                    <Activity size={18} /> SQUAD WELLNESS STATUS
+                 </div>
+                 <div className="text-[#22c55e] font-stat text-xl">
+                   {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : 'NO DATA RECEIVED'}
+                 </div>
              </div>
              <ProgressBar value={wellnessStats.readyPercent} height={8} />
              <div className="mt-8 space-y-4">
@@ -465,14 +467,14 @@ export default function AdminDashboard() {
                   { label: 'EXTREME SORENESS', count: wellnessStats.extremeSoreness, icon: '🩹', color: '#ef4444' },
                   { label: 'HYDRATION ISSUES', count: wellnessStats.hydrationFlags, icon: '💧', color: '#8b5cf6' },
                 ].map((issue, i) => (
-                  <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
-                    <div className="flex items-center gap-3 text-white/30 text-xs font-bold uppercase tracking-wider group-hover:text-white transition-colors">
-                      <span className="text-lg">{issue.icon}</span> {issue.label}
-                    </div>
-                    <div className="px-3 py-1 bg-black/40 text-[11px] font-['Anton'] tracking-widest rounded-full" style={{ color: issue.color }}>
-                      {logsExist ? `${issue.count} SUBJECTS` : '---'}
-                    </div>
-                  </div>
+                   <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
+                     <div className="flex items-center gap-3 text-gray-400 font-label font-bold group-hover:text-white transition-colors">
+                       <span className="text-lg">{issue.icon}</span> {issue.label}
+                     </div>
+                     <div className="px-3 py-1 bg-black/40 font-stat rounded-full" style={{ color: issue.color }}>
+                       {logsExist ? `${issue.count} SUBJECTS` : '---'}
+                     </div>
+                   </div>
                 ))}
              </div>
           </div>
@@ -481,7 +483,7 @@ export default function AdminDashboard() {
 
       {/* Modals */}
       <TrainingPlanModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
-      <InjuryLogModal isOpen={isInjuryModalOpen} onClose={() => setIsInjuryModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
+      <InjuryLogModal isOpen={isInjuryModalOpen} onClose={() => setIsInjuryModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} onSuccess={fetchAdminData} />
       <SurveyAssignModal isOpen={isSurveyModalOpen} onClose={() => setIsSurveyModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
       <VideoFeedbackModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
       <TrainingLoadExpandedModal isOpen={isLoadModalOpen} onClose={() => setIsLoadModalOpen(false)} athletes={athletes} />

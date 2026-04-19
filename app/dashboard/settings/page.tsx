@@ -17,11 +17,8 @@ import {
   AlertCircle,
   Save
 } from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'] });
 
 export default function SettingsPage() {
   const { user, profile, supabase } = useAuth();
@@ -48,7 +45,7 @@ export default function SettingsPage() {
   return (
     <div className="p-10 max-w-4xl">
       <div className="mb-12">
-        <h2 className={`${plusJakarta.className} text-5xl text-white font-bold uppercase tracking-wider mb-2`}>System Settings</h2>
+        <h2 className={`font-sans text-5xl text-white font-bold uppercase tracking-wider mb-2`}>System Settings</h2>
         <p className="text-white/40 text-[11px] font-bold uppercase tracking-[3px]">Manage your account security and portal preferences</p>
       </div>
 
@@ -63,7 +60,7 @@ export default function SettingsPage() {
            <div className="space-y-6">
               <div className="flex items-center justify-between p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
                  <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-[#22c55e]">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#22c55e]">
                        <Mail size={20} />
                     </div>
                     <div>
@@ -76,7 +73,7 @@ export default function SettingsPage() {
 
               <div className="flex items-center justify-between p-6 bg-black/40 border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
                  <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-red-500">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-red-500">
                        <Lock size={20} />
                     </div>
                     <div>
@@ -132,7 +129,7 @@ export default function SettingsPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
            <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
               <div className="flex items-center gap-3 mb-6">
-                 <Globe className="text-white/20" size={16} />
+                 <Globe className="text-gray-500" size={16} />
                  <h4 className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">Regional Interface</h4>
               </div>
               <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/80 uppercase tracking-widest font-bold">
@@ -141,7 +138,7 @@ export default function SettingsPage() {
            </div>
            <div className="bg-[#111] border border-white/5 rounded-3xl p-8">
               <div className="flex items-center gap-3 mb-6">
-                 <Eye className="text-white/20" size={16} />
+                 <Eye className="text-gray-500" size={16} />
                  <h4 className="text-[11px] font-bold text-white/40 uppercase tracking-[2px]">UI Intensity</h4>
               </div>
               <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/80 uppercase tracking-widest font-bold">

@@ -6,13 +6,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2, Check, AlertCircle } from "lucide-react";
-import { Anton } from "next/font/google";
 import { useAuth } from "@/components/providers/AuthProvider";
 
-const anton = Anton({ 
-  weight: '400', 
-  subsets: ['latin'] 
-});
 
 export default function ResetPasswordPage() {
   const { supabase, user, loading: authLoading } = useAuth();
@@ -120,14 +115,14 @@ export default function ResetPasswordPage() {
              <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
                 <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
              </div>
-             <span className={`${anton.className} text-3xl tracking-[4px] text-white`}>KIO-X</span>
+             <span className={`font-display text-3xl tracking-[4px] text-white`}>KIO-X</span>
           </Link>
         </div>
 
         <div className="bg-[#111111] border border-white/10 rounded-[24px] overflow-hidden shadow-2xl p-8 md:p-12">
           <div className="mb-8 text-center">
-            <h2 className={`${anton.className} text-3xl text-white uppercase tracking-widest mb-2`}>New Protocol</h2>
-            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[2px]">Set your new elite security credentials</p>
+            <h2 className={`font-display text-3xl text-white uppercase tracking-widest mb-2`}>New Protocol</h2>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">Set your new elite security credentials</p>
           </div>
 
           {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{errorMsg}</div>}
@@ -139,9 +134,9 @@ export default function ResetPasswordPage() {
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">New Password</label>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={password} onChange={handlePasswordChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                    <input value={password} onChange={handlePasswordChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                   
                   {/* Strength Indicator */}
@@ -150,7 +145,7 @@ export default function ResetPasswordPage() {
                       <motion.div initial={{ width: 0 }} animate={{ width: `${passwordStrength.score}%`, backgroundColor: passwordStrength.color }} className="h-full transition-all duration-500" />
                     </div>
                     <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-[1px]">
-                      <span className="text-white/20">Security Strength</span>
+                      <span className="text-gray-500">Security Strength</span>
                       <span style={{ color: passwordStrength.color }}>{passwordStrength.label}</span>
                     </div>
                   </div>
@@ -164,8 +159,8 @@ export default function ResetPasswordPage() {
                     )}
                   </div>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-white/10 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                    <input value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
                   </div>
                 </div>
               </div>

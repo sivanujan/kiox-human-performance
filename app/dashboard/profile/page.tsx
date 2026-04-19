@@ -17,19 +17,8 @@ import {
   AlertCircle,
   MoveVertical
 } from "lucide-react";
-import { Anton, Orbitron, Rajdhani } from "next/font/google";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const anton = Anton({ 
-  weight: '400', 
-  subsets: ['latin'] 
-});
-
-const orbitron = Orbitron({ subsets: ["latin"] });
-const rajdhani = Rajdhani({ 
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"] 
-});
 
 export default function ProfilePage() {
   const { user, profile, refreshProfile, supabase } = useAuth();
@@ -120,12 +109,12 @@ export default function ProfilePage() {
   };
 
   const inputClasses = "w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#00ff41] focus:ring-1 focus:ring-[#00ff41] transition-all outline-none placeholder:text-white/5 font-medium";
-  const labelClasses = `${rajdhani.className} text-[11px] font-black text-[#00ff41] uppercase tracking-[3px] mb-2.5 block`;
+  const labelClasses = `font-sans text-[11px] font-black text-[#00ff41] uppercase tracking-[3px] mb-2.5 block`;
 
   return (
     <div className="p-10 w-full min-h-screen">
       <div className="mb-12">
-        <h2 className={`${orbitron.className} text-5xl text-white uppercase tracking-[0.1em] mb-3`}>Identity Registry</h2>
+        <h2 className={`font-display text-5xl text-white uppercase tracking-[0.1em] mb-3`}>Identity Registry</h2>
         <div className="flex items-center gap-4">
           <div className="h-[1px] w-20 bg-[#00ff41]/30" />
           <p className="text-[#00ff41] text-[10px] font-black uppercase tracking-[5px] opacity-80">Manage your athlete profile and performance metadata</p>
@@ -150,8 +139,8 @@ export default function ProfilePage() {
                 initialUrl={profile?.avatar_url}
               />
               <div>
-                <h3 className={`${orbitron.className} text-[14px] font-black text-white uppercase tracking-[4px]`}>Personal Information</h3>
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[2px]">Update your biometric and identity credentials</p>
+                <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Personal Information</h3>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">Update your biometric and identity credentials</p>
               </div>
             </div>
             
@@ -213,7 +202,7 @@ export default function ProfilePage() {
               <div className="w-10 h-10 rounded-xl bg-[#00ff41]/5 border border-[#00ff41]/20 flex items-center justify-center text-[#00ff41]">
                 <Target size={20} />
               </div>
-              <h3 className={`${orbitron.className} text-[14px] font-black text-white uppercase tracking-[4px]`}>Performance Vitals</h3>
+              <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Performance Vitals</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -313,7 +302,7 @@ export default function ProfilePage() {
             <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40">
               <Phone size={20} />
             </div>
-            <h3 className={`${orbitron.className} text-[14px] font-black text-white/60 uppercase tracking-[4px]`}>Connectivity Matrix</h3>
+            <h3 className={`font-display text-[14px] font-black text-white/60 uppercase tracking-[4px]`}>Connectivity Matrix</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

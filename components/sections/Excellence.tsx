@@ -50,18 +50,15 @@ const FloatingParticle = ({ index }: { index: number }) => {
         width: data.current.size,
         height: data.current.size,
         left: `${data.current.initialX}%`,
-        top: `${data.current.initialY}%`,
-      }}
+        top: `${data.current.initialY}%` }}
       animate={{
         x: [0, data.current.targetX, 0],
         y: [0, data.current.targetY, 0],
-        opacity: [0.2, 0.5, 0.2],
-      }}
+        opacity: [0.2, 0.5, 0.2] }}
       transition={{
         duration: data.current.duration,
         repeat: Infinity,
-        ease: "linear",
-      }}
+        ease: "linear" }}
     />
   );
 };

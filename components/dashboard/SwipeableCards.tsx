@@ -33,11 +33,11 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
             </div>
 
             <div>
-              <div className="text-[10px] font-bold text-white/30 tracking-[2px] uppercase mb-3">
+              <div className="text-[10px] font-bold text-gray-400 tracking-[2px] uppercase mb-3">
                 {card.label}
               </div>
               <div 
-                className="text-2xl font-['Anton'] tracking-wider"
+                className="text-2xl font-display tracking-wider"
                 style={{ color: card.color, textShadow: `0 0 20px ${card.color}40` }}
               >
                 {card.value}
@@ -52,12 +52,12 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
                        key={idx} 
                        size={10} 
                        fill={idx < card.stars! ? card.color : 'transparent'} 
-                       className={idx < card.stars! ? '' : 'text-white/10'}
+                       className={idx < card.stars! ? '' : 'text-gray-700'}
                      />
                    ))}
                  </div>
                ) : (
-                 <div className="text-[10px] text-white/20 uppercase font-black tracking-widest">
+                 <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
                    Live Status
                  </div>
                )}

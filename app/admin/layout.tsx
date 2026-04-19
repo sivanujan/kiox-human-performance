@@ -22,69 +22,58 @@ import {
   Zap,
   Plus,
   ArrowRight,
-  Camera
+  Camera,
+  Menu,
+  X as CloseIcon
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import AddAthleteModal from "@/components/modals/AddAthleteModal";
 import AdminProfileModal from "@/components/modals/AdminProfileModal";
 import Avatar from "@/components/ui/Avatar";
 
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 const adminNavItems = [
   { 
     icon: <Zap size={18} />, 
     label: 'CONTROL CENTER',
     href: '/admin',
-    section: 'MAIN',
-  },
+    section: 'MAIN' },
   { 
     icon: <Users size={18} />, 
     label: 'USER INVENTORY',
     href: '/admin/users',
     section: 'MANAGEMENT',
-    showBadge: true,
-  },
+    showBadge: true },
   { 
     icon: <Plus size={18} />, 
     label: 'ADD ATHLETE',
     href: '/admin/users?action=add',
-    section: 'MANAGEMENT',
-  },
+    section: 'MANAGEMENT' },
   { 
     icon: <Clipboard size={18} />, 
     label: 'PROGRAMS',
     href: '/admin/programs',
-    section: 'MANAGEMENT',
-  },
+    section: 'MANAGEMENT' },
   { 
     icon: <Trophy size={18} />, 
     label: 'COMMAND STAFF',
     href: '/admin/staff',
-    section: 'MANAGEMENT',
-  },
+    section: 'MANAGEMENT' },
   { 
     icon: <Calendar size={18} />, 
     label: 'SCHEDULES',
     href: '/admin/schedules',
-    section: 'OPERATIONS',
-  },
+    section: 'OPERATIONS' },
   { 
     icon: <BarChart3 size={18} />, 
     label: 'ANALYTICS',
     href: '/admin/analytics',
-    section: 'OPERATIONS',
-  },
+    section: 'OPERATIONS' },
   { 
     icon: <Settings size={18} />, 
     label: 'SETTINGS',
     href: '/admin/settings',
-    section: 'SYSTEM',
-  },
+    section: 'SYSTEM' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -94,6 +83,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [pendingCount, setPendingCount] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAdminProfileOpen, setIsAdminProfileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!loading && user) {
@@ -136,23 +131,43 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const sections = ['MAIN', 'MANAGEMENT', 'OPERATIONS', 'SYSTEM'];
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex">
+    <div className="min-h-screen bg-[#080808] text-white flex overflow-hidden">
+      {/* Sidebar Overlay - Mobile Only */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[140] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-[260px] h-screen bg-[#0a0a0a] border-r border-[#22c55e]/15 fixed left-0 top-0 z-[100] flex flex-col overflow-y-auto">
+      <aside className={`
+        fixed inset-y-0 left-0 z-[150] w-[260px] bg-[#0a0a0a] border-r border-[#22c55e]/15 
+        flex flex-col overflow-y-auto transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo */}
-        <div className="p-6 border-b border-[#22c55e]/10">
+        <div className="p-6 border-b border-[#22c55e]/10 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden">
                 <Image src="/newlogo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
              </div>
-             <span className={`${anton.className} text-2xl tracking-widest text-white`}>KIO-X</span>
+             <span className={`font-display text-2xl tracking-widest text-white`}>KIO-X</span>
           </Link>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-white transition-colors">
+            <CloseIcon size={20} />
+          </button>
         </div>
 
         {/* Profile Block */}
         <motion.div 
           onClick={() => setIsAdminProfileOpen(true)}
-          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
+          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.1)" }}
           className="p-5 border-b border-[#22c55e]/10 cursor-pointer transition-colors group"
           title="Click to Modify Profile"
         >
@@ -173,7 +188,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                <Zap size={12} fill="currentColor" />
             </div>
           </div>
-          <div className={`${anton.className} text-[15px] text-white mb-0.5 uppercase tracking-wide group-hover:text-[#22c55e] transition-colors`}>
+          <div className={`font-display text-[15px] text-white mb-0.5 uppercase tracking-wide group-hover:text-[#22c55e] transition-colors`}>
             {profile?.first_name} {profile?.last_name || 'KIO-X ADMIN'}
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22c55e]/10 border border-[#22c55e] text-[#22c55e] rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
@@ -186,7 +201,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {sections.map((section) => (
             <div key={section}>
               {section !== 'MAIN' && (
-                <div className={`${anton.className} text-[#333] text-[10px] tracking-[0.3em] px-5 py-4 pb-1 uppercase`}>
+                <div className={`font-display text-[#333] text-[10px] tracking-[0.3em] px-5 py-4 pb-1 uppercase`}>
                   {section}
                 </div>
               )}
@@ -201,6 +216,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         e.preventDefault();
                         setIsAddModalOpen(true);
                       }
+                      setSidebarOpen(false);
                     }}
                     className={`flex items-center gap-3 px-5 py-3 text-[12px] font-black tracking-[0.1em] uppercase transition-all border-l-[3px] ${
                       isActive 
@@ -226,7 +242,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-6 border-t border-[#22c55e]/10">
           <button
             onClick={handleSignOut}
-            className="w-full py-3 border border-white/10 rounded-xl text-[10px] text-[#555] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all"
+            className="active-scale w-full py-3 border border-white/10 rounded-xl text-[10px] text-[#555] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all"
           >
             <LogOut size={14} /> Sign Out
           </button>
@@ -234,37 +250,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-[260px] min-h-screen relative">
+      <main className="flex-1 lg:ml-[260px] min-h-screen relative overflow-y-auto">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
           backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
-        {/* Top Header Bar */}
-        <header className="sticky top-0 z-[50] bg-[#080808]/95 backdrop-blur-xl border-b border-[#22c55e]/10 px-10 h-[80px] flex items-center justify-between">
-          <div>
-            <div className={`text-[#22c55e] text-[12px] font-bold tracking-[0.2em] uppercase mb-0.5`}>Elite Access Authority</div>
-            <h1 className={`${anton.className} text-2xl text-white uppercase tracking-wider`}>
-              Control Center
-            </h1>
+        {/* Responsive Header Bar */}
+        <header className="sticky top-0 z-[100] bg-[#080808]/95 backdrop-blur-xl border-b border-[#22c55e]/10 px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-[#22c55e] active-scale transition-all"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="hidden xs:block">
+              <div className={`text-[#22c55e] text-[9px] md:text-[12px] font-bold tracking-[0.2em] uppercase mb-0.5`}>Elite Access Authority</div>
+              <h1 className={`font-display text-lg md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] md:max-w-none`}>
+                {pathname === '/admin' ? 'Control Center' : pathname.split('/').pop()?.replace(/-/g, ' ')}
+              </h1>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <NotificationDropdown />
             {/* Quick Add Button */}
             <button 
               onClick={() => setIsAddModalOpen(true)}
-              className={`px-6 py-2.5 bg-[#22c55e] text-black text-[15px] font-black tracking-wide uppercase rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)]`}
+              className={`active-scale px-4 md:px-6 py-2 md:py-2.5 bg-[#22c55e] text-black text-[12px] md:text-[15px] font-black tracking-wide uppercase rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)]`}
             >
-              Add Athlete
+              <span className="hidden xs:inline">Add Athlete</span>
+              <Plus className="xs:hidden" size={20} />
             </button>
-
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="relative z-10 px-10 py-8">
+        <div className="relative z-10 px-4 md:px-10 py-6 md:py-8">
           {children}
         </div>
 
@@ -278,7 +302,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
         <AdminProfileModal isOpen={isAdminProfileOpen} onClose={() => setIsAdminProfileOpen(false)} />
       </main>
-
     </div>
   );
 }

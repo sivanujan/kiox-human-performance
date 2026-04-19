@@ -9,16 +9,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Save,
-  ShieldCheck,
-} from "lucide-react";
-import { Anton, Plus_Jakarta_Sans } from "next/font/google";
+  ShieldCheck } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 interface StaffProfileModalProps {
   isOpen: boolean;
@@ -27,8 +23,7 @@ interface StaffProfileModalProps {
 
 export default function StaffProfileModal({
   isOpen,
-  onClose,
-}: StaffProfileModalProps) {
+  onClose }: StaffProfileModalProps) {
   const { user, profile, refreshProfile, supabase } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,8 +34,7 @@ export default function StaffProfileModal({
     first_name: "",
     last_name: "",
     username: "",
-    avatar_url: "",
-  });
+    avatar_url: "" });
 
   useEffect(() => {
     setMounted(true);
@@ -52,8 +46,7 @@ export default function StaffProfileModal({
         first_name: profile.first_name || "",
         last_name: profile.last_name || "",
         username: profile.username || "",
-        avatar_url: profile.avatar_url || "",
-      });
+        avatar_url: profile.avatar_url || "" });
       setError(null);
       setSuccess(false);
     }
@@ -75,8 +68,7 @@ export default function StaffProfileModal({
           last_name: formData.last_name,
           username: formData.username,
           avatar_url: formData.avatar_url,
-          updated_at: new Date().toISOString(),
-        })
+          updated_at: new Date().toISOString() })
         .eq("id", user.id);
 
       if (updateError) throw updateError;
@@ -109,8 +101,7 @@ export default function StaffProfileModal({
             style={{
               backgroundImage:
                 "linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
-            }}
+              backgroundSize: "40px 40px" }}
           />
 
           {/* Close backdrop */}
@@ -131,7 +122,7 @@ export default function StaffProfileModal({
               <button
                 onClick={onClose}
                 disabled={loading}
-                className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors disabled:opacity-50"
+                className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors disabled:opacity-50"
               >
                 <X size={24} />
               </button>
@@ -150,11 +141,11 @@ export default function StaffProfileModal({
                     Staff Identity Matrix
                   </div>
                   <h2
-                    className={`${anton.className} text-3xl text-white uppercase tracking-wider mb-1`}
+                    className={`font-display text-3xl text-white uppercase tracking-wider mb-1`}
                   >
                     Modify Staff Profile
                   </h2>
-                  <p className="text-white/30 text-[10px] font-bold uppercase tracking-[2px]">
+                  <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[2px]">
                     {profile?.role === "superadmin"
                       ? "Super Admin"
                       : "Performance Staff"}
@@ -175,7 +166,7 @@ export default function StaffProfileModal({
                     <CheckCircle2 size={40} className="animate-bounce" />
                   </div>
                   <h3
-                    className={`${anton.className} text-2xl text-white uppercase mb-2 tracking-widest`}
+                    className={`font-display text-2xl text-white uppercase mb-2 tracking-widest`}
                   >
                     Identity Synchronized
                   </h3>
@@ -188,12 +179,12 @@ export default function StaffProfileModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
                         First Name
                       </label>
                       <div className="relative">
                         <UserIcon
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                           size={16}
                         />
                         <input
@@ -203,8 +194,7 @@ export default function StaffProfileModal({
                           onChange={(e) =>
                             setFormData((p) => ({
                               ...p,
-                              first_name: e.target.value,
-                            }))
+                              first_name: e.target.value }))
                           }
                           className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
                         />
@@ -213,12 +203,12 @@ export default function StaffProfileModal({
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
                         Last Name
                       </label>
                       <div className="relative">
                         <UserIcon
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                           size={16}
                         />
                         <input
@@ -227,8 +217,7 @@ export default function StaffProfileModal({
                           onChange={(e) =>
                             setFormData((p) => ({
                               ...p,
-                              last_name: e.target.value,
-                            }))
+                              last_name: e.target.value }))
                           }
                           className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
                         />
@@ -238,12 +227,12 @@ export default function StaffProfileModal({
 
                   {/* Username */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-white/20 uppercase tracking-[2px] ml-1">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
                       Operational Tag (Username)
                     </label>
                     <div className="relative">
                       <Fingerprint
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
                         size={16}
                       />
                       <input
@@ -255,8 +244,7 @@ export default function StaffProfileModal({
                             ...p,
                             username: e.target.value
                               .toLowerCase()
-                              .replace(/\s/g, "_"),
-                          }))
+                              .replace(/\s/g, "_") }))
                         }
                         className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all lowercase placeholder:text-white/5 font-bold"
                       />

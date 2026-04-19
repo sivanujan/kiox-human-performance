@@ -12,8 +12,7 @@ export default function ProgressBar({
   value,
   color = '#22c55e',
   height = 6,
-  showValue = false,
-}: ProgressBarProps) {
+  showValue = false }: ProgressBarProps) {
   // Clamp value between 0 and 100
   const clampedValue = Math.min(100, Math.max(0, value))
 
@@ -21,7 +20,7 @@ export default function ProgressBar({
     <div className="w-full">
       {showValue && (
         <div className="flex justify-end mb-1">
-          <span className="text-[10px] font-['Anton'] text-[#22c55e] tracking-widest">{clampedValue}%</span>
+          <span className="text-[10px] font-display text-[#22c55e] tracking-widest">{clampedValue}%</span>
         </div>
       )}
       <div 

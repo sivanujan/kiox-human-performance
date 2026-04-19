@@ -2,12 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Anton } from "next/font/google";
-
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'] 
-});
 
 const stats = [
   { number: "1000+", label: "Athletes Trained" },
@@ -63,8 +57,7 @@ export default function StatsBar() {
       className="w-full bg-[#111111] py-[40px] relative z-20"
       style={{
         borderTop: "1px solid rgba(34,197,94,0.2)",
-        borderBottom: "1px solid rgba(34,197,94,0.2)",
-      }}
+        borderBottom: "1px solid rgba(34,197,94,0.2)" }}
     >
       <div className="container mx-auto px-4 max-w-[1400px]">
         <div className="grid grid-cols-2 lg:grid-cols-4 w-full">
@@ -81,17 +74,17 @@ export default function StatsBar() {
                 transition={{ duration: 0.6, delay: index * 0.15 }}
                 className={`flex flex-col items-center justify-center py-6 lg:py-4 px-2 ${borderClasses[index]}`}
               >
-                <div className={`text-[#22c55e] text-[36px] font-bold ${anton.className} leading-[1.1] mb-1`}>
+                <div className="text-[#22c55e] text-[48px] lg:text-[56px] font-stat font-black leading-none mb-2 tracking-tighter">
                   {isNumeric ? (
                     <CountUp end={numericValue} suffix={suffix} inView={isInView} />
                   ) : (
                     <span>{stat.number}</span>
                   )}
                 </div>
-                <div className="text-[13px] tracking-widest uppercase text-[#888888] font-medium text-center">
+                <div className="font-label text-gray-200 text-center font-black tracking-[0.2em] text-[11px]">
                   {stat.label}<br />
                   {stat.number === "Worldwide" && (
-                    <span className="text-[#22c55e] text-[10px] lowercase tracking-normal">on every continent</span>
+                    <span className="text-[#22c55e] text-[9px] lowercase tracking-widest font-mono font-bold">READY FOR DEPLOYMENT</span>
                   )}
                 </div>
               </motion.div>

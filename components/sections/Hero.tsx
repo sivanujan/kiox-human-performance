@@ -25,8 +25,7 @@ export default function Hero() {
         ty2: (Math.random() * 400 - 200) + 'px',
         size: Math.random() * 80 + 40,
         delay: 5 + Math.random() * 0.5,
-        duration: 1.5 + Math.random() * 1,
-      }))
+        duration: 1.5 + Math.random() * 1 }))
     );
   }, []);
 

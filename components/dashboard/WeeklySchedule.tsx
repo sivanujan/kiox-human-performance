@@ -17,10 +17,8 @@ import {
   Zap,
   Target
 } from "lucide-react";
-import { Anton } from "next/font/google";
 import BookSessionModal from "@/components/modals/BookSessionModal";
 
-const anton = Anton({ weight: '400', subsets: ['latin'] });
 
 export default function WeeklySchedule() {
   const supabase = createClient();
@@ -66,7 +64,7 @@ export default function WeeklySchedule() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-white/30 font-['Anton'] text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
+        <h3 className="text-gray-400 font-display text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
           <CalendarIcon size={14} /> DEP_OPS SCHEDULE // CURRENT WEEK
         </h3>
         <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full">
@@ -80,14 +78,14 @@ export default function WeeklySchedule() {
             {/* Day Column */}
             <div className="w-16 shrink-0 flex flex-col items-center justify-center py-2 border-r border-white/5">
               <span className="text-[10px] font-black text-[#22c55e] tracking-widest leading-none mb-1">{dayObj.day}</span>
-              <span className="text-sm font-['Anton'] text-white/40">{format(dayObj.date, 'dd')}</span>
+              <span className="text-sm font-display text-white/40">{format(dayObj.date, 'dd')}</span>
             </div>
 
             {/* Sessions Column */}
             <div className="flex-1 min-w-0">
               {dayObj.sessions.length === 0 ? (
                 <div className="flex items-center gap-3 h-full">
-                   <span className="text-[10px] font-black text-white/10 uppercase tracking-[2px] italic py-2">No active operations detected</span>
+                   <span className="text-[10px] font-black text-gray-700 uppercase tracking-[2px] italic py-2">No active operations detected</span>
                 </div>
               ) : (
                 <div className="space-y-2">

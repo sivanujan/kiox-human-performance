@@ -16,10 +16,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { createPortal } from "react-dom";
-import { Orbitron, Anton } from "next/font/google";
 
-const orbitron = Orbitron({ subsets: ["latin"] });
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface WellnessCheckinModalProps {
   isOpen: boolean;
@@ -48,8 +45,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
       const res = await fetch(`/api/athlete/${athleteId}/wellness/checkin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+        body: JSON.stringify(formData) });
 
       if (res.ok) {
         onSuccess();
@@ -94,8 +90,8 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                 <Activity className="text-[#22c55e]" size={24} />
               </div>
               <div>
-                <div className="text-[#22c55e] text-[10px] font-['Anton'] tracking-[0.3em] uppercase">SYSTEM_CHECK_01</div>
-                <h3 className={`${anton.className} text-2xl text-white tracking-wider uppercase`}>Daily Protocol Initialization</h3>
+                <div className="text-[#22c55e] text-[10px] font-display tracking-[0.3em] uppercase">SYSTEM_CHECK_01</div>
+                <h3 className={`font-display text-2xl text-white tracking-wider uppercase`}>Daily Protocol Initialization</h3>
               </div>
             </div>
             <button
@@ -122,7 +118,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                         <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
                           <Moon size={14} className="text-blue-500" /> Sleep Quality
                         </label>
-                        <span className="text-[#22c55e] font-['Anton'] text-lg">{formData.sleep_score}/10</span>
+                        <span className="text-[#22c55e] font-display text-lg">{formData.sleep_score}/10</span>
                       </div>
                       <input 
                         type="range" min="1" max="10" 
@@ -130,7 +126,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                         onChange={(e) => setFormData({...formData, sleep_score: parseInt(e.target.value)})}
                         className="w-full h-1 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
                       />
-                      <div className="flex justify-between text-[8px] font-bold text-white/10 uppercase tracking-widest">
+                      <div className="flex justify-between text-[8px] font-bold text-gray-700 uppercase tracking-widest">
                         <span>Restless</span>
                         <span>Optimal</span>
                       </div>
@@ -142,7 +138,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                         <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
                           <TrendingDown size={14} className="text-amber-500" /> Physical Soreness
                         </label>
-                        <span className="text-amber-500 font-['Anton'] text-lg">{formData.soreness_score}/10</span>
+                        <span className="text-amber-500 font-display text-lg">{formData.soreness_score}/10</span>
                       </div>
                       <input 
                         type="range" min="1" max="10" 
@@ -150,7 +146,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                         onChange={(e) => setFormData({...formData, soreness_score: parseInt(e.target.value)})}
                         className="w-full h-1 bg-white/5 rounded-lg appearance-none cursor-pointer accent-amber-500"
                       />
-                      <div className="flex justify-between text-[8px] font-bold text-white/10 uppercase tracking-widest">
+                      <div className="flex justify-between text-[8px] font-bold text-gray-700 uppercase tracking-widest">
                         <span>No Pain</span>
                         <span>Acute Fatigue</span>
                       </div>
@@ -226,7 +222,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                           type="number"
                           value={formData.hrv_ms || ''}
                           onChange={(e) => setFormData({...formData, hrv_ms: e.target.value === '' ? 0 : parseInt(e.target.value)})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-['Anton'] text-2xl text-[#22c55e] outline-none focus:border-[#22c55e]/50"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-display text-2xl text-[#22c55e] outline-none focus:border-[#22c55e]/50"
                         />
                       </div>
 
@@ -239,7 +235,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                           type="number"
                           value={formData.resting_hr_bpm || ''}
                           onChange={(e) => setFormData({...formData, resting_hr_bpm: e.target.value === '' ? 0 : parseInt(e.target.value)})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-['Anton'] text-2xl text-red-500 outline-none focus:border-red-500/50"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-display text-2xl text-red-500 outline-none focus:border-red-500/50"
                         />
                       </div>
                    </div>
@@ -263,7 +259,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                       </button>
                       <button
                         disabled={loading}
-                        className="flex-[2] py-4 bg-[#22c55e] hover:bg-white text-black rounded-2xl font-['Anton'] text-xs tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(34,197,94,0.3)]"
+                        className="flex-[2] py-4 bg-[#22c55e] hover:bg-white text-black rounded-2xl font-display text-xs tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(34,197,94,0.3)]"
                       >
                         {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                         Confirm Daily Baseline

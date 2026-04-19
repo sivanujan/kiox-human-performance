@@ -15,9 +15,7 @@ import {
   TrendingUp,
   BarChart3
 } from "lucide-react";
-import { Anton } from "next/font/google";
 
-const anton = Anton({ weight: "400", subsets: ["latin"] });
 
 interface AthleteAssessmentModalProps {
   isOpen: boolean;
@@ -136,8 +134,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           type: 'PHYSICAL',
           metrics: physicalForm,
           date: physicalForm.date
-        }),
-      });
+        }) });
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -167,8 +164,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           type: 'MATCH',
           metrics: matchForm,
           date: matchForm.date
-        }),
-      });
+        }) });
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -197,8 +193,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           type: 'COGNITIVE',
           metrics: cognitiveForm,
           date: cognitiveForm.date
-        }),
-      });
+        }) });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setSuccess(true);
@@ -220,8 +215,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           type: 'PROGRAM',
           metrics: programForm,
           date: programForm.date
-        }),
-      });
+        }) });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setSuccess(true);
@@ -256,15 +250,15 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <div className="text-[#22c55e] text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
                 <BarChart3 size={14} fill="currentColor" /> SQUAD PERFORMANCE MATRIX
               </div>
-              <h2 className={`${anton.className} text-3xl text-white tracking-wider uppercase`}>
+              <h2 className={`font-display text-3xl text-white tracking-wider uppercase`}>
                 INITIATE ASSESSMENT
               </h2>
               <div className="mt-2 flex items-center gap-3">
-                 <span className="text-white/20 text-[9px] font-black uppercase tracking-widest">SUBJ:</span>
+                 <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest">SUBJ:</span>
                  <span className="text-white font-bold text-xs uppercase tracking-wide px-3 py-1 bg-white/5 rounded-full border border-white/5">{athleteName}</span>
               </div>
             </div>
-            <button onClick={onClose} className="p-4 rounded-full bg-white/5 text-white/30 hover:text-white transition-all self-end md:self-auto">
+            <button onClick={onClose} className="p-4 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all self-end md:self-auto">
               <X size={24} />
             </button>
           </div>
@@ -274,40 +268,40 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
             <div className="flex flex-wrap gap-2 mb-10 bg-black/40 border border-white/5 p-1.5 rounded-3xl w-fit">
               <button 
                 onClick={() => setActiveTab('PHYSICAL')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-['Anton'] tracking-[2px] uppercase transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
                   activeTab === 'PHYSICAL' 
                     ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-white/30 hover:text-white hover:bg-white/5"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Activity size={12} /> PHYSICAL
               </button>
               <button 
                 onClick={() => setActiveTab('MATCH')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-['Anton'] tracking-[2px] uppercase transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
                   activeTab === 'MATCH' 
                     ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-white/30 hover:text-white hover:bg-white/5"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Target size={12} /> MATCH
               </button>
               <button 
                 onClick={() => setActiveTab('COGNITIVE')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-['Anton'] tracking-[2px] uppercase transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
                   activeTab === 'COGNITIVE' 
                     ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-white/30 hover:text-white hover:bg-white/5"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <Zap size={12} /> COGNITIVE
               </button>
               <button 
                 onClick={() => setActiveTab('PROGRAM')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-['Anton'] tracking-[2px] uppercase transition-all flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
                   activeTab === 'PROGRAM' 
                     ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-white/30 hover:text-white hover:bg-white/5"
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
               >
                 <ShieldCheck size={12} /> PROGRAM
@@ -325,7 +319,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: 34.5"
                       value={physicalForm.top_speed}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, top_speed: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -335,7 +329,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: 12.4"
                       value={physicalForm.distance}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, distance: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -345,7 +339,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: 28"
                       value={physicalForm.sprints}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, sprints: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -355,7 +349,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: 850"
                       value={physicalForm.power}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, power: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -365,7 +359,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: 62.1"
                       value={physicalForm.vo2_max}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, vo2_max: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -390,7 +384,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Session Intensity</label>
-                        <span className="text-white font-['Anton'] text-xl">{physicalForm.intensity}</span>
+                        <span className="text-white font-display text-xl">{physicalForm.intensity}</span>
                       </div>
                       <input 
                         type="range" min="1" max="10" step="1"
@@ -398,7 +392,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         onChange={(e) => setPhysicalForm({ ...physicalForm, intensity: e.target.value })}
                         className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
                       />
-                      <div className="flex justify-between text-[8px] font-black text-white/20 uppercase tracking-widest">
+                      <div className="flex justify-between text-[8px] font-black text-gray-500 uppercase tracking-widest">
                         <span>RECOVERY</span>
                         <span>OPTIMAL</span>
                         <span>MAXIMAL</span>
@@ -412,7 +406,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         placeholder="60"
                         value={physicalForm.duration}
                         onChange={(e) => setPhysicalForm({ ...physicalForm, duration: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                       />
                     </div>
                   </div>
@@ -447,7 +441,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       placeholder="EX: LIVERPOOL ACADEMY"
                       value={matchForm.opponent}
                       onChange={(e) => setMatchForm({ ...matchForm, opponent: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-6">
@@ -458,7 +452,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         placeholder="0"
                         value={matchForm.goals}
                         onChange={(e) => setMatchForm({ ...matchForm, goals: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-['Anton'] focus:border-[#22c55e] outline-none"
+                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
                       />
                     </div>
                     <div className="space-y-2">
@@ -468,7 +462,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         placeholder="0"
                         value={matchForm.assists}
                         onChange={(e) => setMatchForm({ ...matchForm, assists: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-['Anton'] focus:border-[#22c55e] outline-none"
+                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
                       />
                     </div>
                     <div className="space-y-2">
@@ -478,7 +472,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         placeholder="0.0"
                         value={matchForm.xg}
                         onChange={(e) => setMatchForm({ ...matchForm, xg: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-['Anton'] focus:border-[#22c55e] outline-none"
+                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
                       />
                     </div>
                   </div>
@@ -495,7 +489,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           type={f.type || 'number'}
                           value={f.value}
                           onChange={(e) => f.setter(e.target.value)}
-                          className={`w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 text-white text-center font-['Anton'] focus:border-[#22c55e] outline-none ${f.type === 'date' ? 'text-[10px] font-sans font-bold px-2' : 'text-xl px-6'}`}
+                          className={`w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 text-white text-center font-display focus:border-[#22c55e] outline-none ${f.type === 'date' ? 'text-[10px] font-sans font-bold px-2' : 'text-xl px-6'}`}
                         />
                       </div>
                     ))}
@@ -531,7 +525,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         type="number" placeholder="EX: 240"
                         value={cognitiveForm.reaction_time}
                         onChange={(e) => setCognitiveForm({ ...cognitiveForm, reaction_time: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display focus:outline-none focus:border-[#22c55e] transition-all"
                       />
                     </div>
                     <div className="space-y-2">
@@ -549,7 +543,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Decision Score (0-10)</label>
-                        <span className="text-white font-['Anton'] text-xl">{cognitiveForm.decision_score}</span>
+                        <span className="text-white font-display text-xl">{cognitiveForm.decision_score}</span>
                       </div>
                       <input 
                         type="range" min="0" max="10" step="1"
@@ -561,7 +555,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Focus Score (%)</label>
-                        <span className="text-white font-['Anton'] text-xl">{cognitiveForm.focus_score}%</span>
+                        <span className="text-white font-display text-xl">{cognitiveForm.focus_score}%</span>
                       </div>
                       <input 
                         type="range" min="0" max="100" step="1"
@@ -609,7 +603,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         placeholder="EX: ELITE STRIDE MECHANICS"
                         value={programForm.title}
                         onChange={(e) => setProgramForm({ ...programForm, title: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-['Anton'] focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display focus:outline-none focus:border-[#22c55e] transition-all"
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
