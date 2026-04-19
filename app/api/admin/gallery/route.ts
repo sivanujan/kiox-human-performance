@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const filePath = join(uploadDir, fileName);
     const publicUrl = `/uploads/gallery/${fileName}`;
 
-    // 3. Write File to Dish
+    // 3. Write File to Disk
     await writeFile(filePath, buffer);
 
     // 4. Save to Database (Use Admin Client to bypass RLS for now)
@@ -66,6 +66,7 @@ export async function POST(request: Request) {
         title,
         file_path: publicUrl,
         type,
+        category: formData.get('category') as string || 'TRAINING',
         display_order: newOrder
       })
       .select()

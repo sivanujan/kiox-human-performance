@@ -70,6 +70,11 @@ const adminNavItems = [
     href: '/admin/analytics',
     section: 'OPERATIONS' },
   { 
+    icon: <Camera size={18} />, 
+    label: 'GALLERY',
+    href: '/gallery',
+    section: 'OPERATIONS' },
+  { 
     icon: <Settings size={18} />, 
     label: 'SETTINGS',
     href: '/admin/settings',

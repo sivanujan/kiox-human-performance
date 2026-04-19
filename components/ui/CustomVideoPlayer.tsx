@@ -36,9 +36,15 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
-        videoRef.current.play();
-        setIsPlaying(true);
-        showToast("▶ Playing");
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            setIsPlaying(true);
+            showToast("▶ Playing");
+          }).catch(error => {
+            console.error("Playback failed:", error);
+          });
+        }
       } else {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -193,7 +199,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
         if (isPlaying) setShowControls(false);
         setHoverTime(null);
       }}
-      className="relative w-full h-[60vh] md:h-[80vh] bg-black overflow-hidden group select-none"
+      className="relative w-full h-full bg-black overflow-hidden group select-none"
     >
       {/* Blurred Background for Portrait */}
       {type === 'portrait' && (
@@ -254,10 +260,9 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
         )}
       </AnimatePresence>
 
-      {/* Top Bar (Title & Back) */}
-      <motion.div 
-        animate={{ opacity: showControls ? 1 : 0, y: showControls ? 0 : -20 }}
-        className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-50 bg-gradient-to-b from-black/80 to-transparent"
+      {/* Top Bar (Title & Back) - FIXED TO ALWAYS VISIBLE */}
+      <div 
+        className="absolute top-0 left-0 right-0 p-8 flex items-center justify-between z-[110] bg-gradient-to-b from-black/80 to-transparent"
       >
         <button 
           onClick={onBack}
@@ -278,7 +283,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
         </div>
         
         <div className="w-32" /> {/* Spacer */}
-      </motion.div>
+      </div>
 
       {/* Keyboard Shortcut Toast */}
       <AnimatePresence>

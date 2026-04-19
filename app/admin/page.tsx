@@ -17,7 +17,8 @@ import {
   Clipboard,
   MessageSquare,
   ShieldAlert,
-  Target
+  Target,
+  Camera
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -433,20 +434,24 @@ export default function AdminDashboard() {
             </div>
           </Link>
 
-          <div className="bg-[#111] border border-white/5 rounded-[28px] p-8 flex items-center justify-between opacity-50 cursor-not-allowed">
-            <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-500">
-                  <Plus size={28} />
-                </div>
-                 <div>
-                   <div className="text-[#22c55e] font-label font-black mb-1 opacity-60">Asset Control</div>
-                   <div className="font-display text-2xl text-white/40 font-black tracking-wide uppercase">Equipment Inventory</div>
-                   <div className="text-gray-400 font-label font-black mt-2 tracking-[0.2em] uppercase text-[9px] border border-white/5 px-3 py-1 rounded-md w-fit bg-white/[0.02]">
-                     Coming Soon // Tactical Gear
-                   </div>
-                 </div>
+          <Link 
+            href="/gallery"
+            className="bg-[#111] border border-[#22c55e]/10 rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl active-scale"
+          >
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform flex-shrink-0">
+                <Camera className="w-6 h-6 md:w-7 md:h-7" />
+              </div>
+               <div>
+                 <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Asset Control</div>
+                 <div className="font-display text-lg md:text-2xl text-white font-black tracking-wide uppercase">Media Archive</div>
+                 <div className="text-gray-400 font-label mt-0.5 text-[9px] hidden xs:block">Manage Tactical Videos // Gallery</div>
+               </div>
             </div>
-          </div>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:bg-[#22c55e] group-hover:text-black transition-all flex-shrink-0">
+              <ArrowRight size={18} />
+            </div>
+          </Link>
         </div>
 
         {/* FOOTER SECTION: WELLNESS */}
