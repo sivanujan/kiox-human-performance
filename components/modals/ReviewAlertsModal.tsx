@@ -21,6 +21,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("ALL");
   const [loading, setLoading] = useState(false);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -37,6 +38,32 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
     const data = await getResolvedHistory();
     setHistory(data);
     setLoading(false);
+  };
+
+  const handleAction = async (alert: any) => {
+    setResolvingId(alert.id);
+    try {
+      if (alert.alert_type === 'MEDICAL_CLEARANCE_REQUEST') {
+        const res = await fetch(`/api/admin/athlete/${alert.athlete_id}/injury/clearance-approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ alertId: alert.id })
+        });
+        if (res.ok) {
+          await resolveAlert(alert.id);
+        }
+      } else {
+        await resolveAlert(alert.id);
+      }
+      
+      if (activeTab === "RESOLVED") {
+        loadHistory();
+      }
+    } catch (e) {
+      console.error("Resolution failed:", e);
+    } finally {
+      setResolvingId(null);
+    }
   };
 
   const filteredData = (activeTab === "ACTIVE" ? alerts : history).filter(a => {
@@ -163,11 +190,15 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                       </div>
                     ) : (
                       <button 
-                        onClick={() => resolveAlert(alert.id)}
-                        disabled={globalLoading}
-                        className="bg-red-500 text-white px-10 py-4 rounded-2xl font-display text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl"
+                        onClick={() => handleAction(alert)}
+                        disabled={resolvingId !== null}
+                        className="bg-red-500 text-white min-w-[140px] px-8 py-4 rounded-2xl font-display text-sm tracking-widest hover:bg-white hover:text-red-500 transition-all uppercase shadow-xl flex items-center justify-center gap-2"
                       >
-                        RESOLVE
+                        {resolvingId === alert.id ? (
+                          <Loader2 className="animate-spin" size={18} />
+                        ) : (
+                          "RESOLVE"
+                        )}
                       </button>
                     )}
                   </div>
@@ -185,11 +216,12 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
 
 function getEmoji(type: string) {
   switch (type) {
-    case 'FATIGUE': return '⚠️';
+    case 'FATIGUE': return '🔋';
     case 'HYDRATION': return '💧';
     case 'INJURY_RISK': return '🩺';
     case 'SLEEP': return '😴';
-    case 'OVERLOAD': return '🔴';
+    case 'OVERLOAD': return '🔥';
+    case 'MEDICAL_CLEARANCE_REQUEST': return '✅';
     default: return '🚩';
   }
 }
