@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShieldAlert, CheckCircle2, Search, Filter, Clock, User, ClipboardList, Trash2, History } from "lucide-react";
+import { X, ShieldAlert, CheckCircle2, Search, Filter, Clock, User, ClipboardList, Trash2, History, Loader2 } from "lucide-react";
 import { useAlerts } from "@/hooks/useAlerts";
 import { format } from "date-fns";
 import { createPortal } from "react-dom";
