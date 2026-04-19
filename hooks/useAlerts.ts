@@ -80,6 +80,22 @@ export function useAlerts() {
   // 4. Resolve ALL active alerts at once (bulk clear)
   const resolveAllAlerts = async (resolverId?: string) => {
     try {
+      // First, handle any MEDICAL_CLEARANCE_REQUEST alerts specially
+      // by calling the clearance-approve API so injuries are also cleared
+      const clearanceAlerts = alerts.filter(a => a.alert_type === 'MEDICAL_CLEARANCE_REQUEST');
+      for (const ca of clearanceAlerts) {
+        try {
+          await fetch(`/api/admin/athlete/${ca.athlete_id}/injury/clearance-approve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ alertId: ca.id })
+          });
+        } catch (e) {
+          console.error(`Could not auto-approve clearance for ${ca.athlete_id}:`, e);
+        }
+      }
+
+      // Now bulk-resolve all remaining alerts
       const updatePayload: any = {
         is_resolved: true,
         resolved_at: new Date().toISOString(),

@@ -63,7 +63,8 @@ export default function DashboardOverview() {
     activeInjuries: [],
     pendingSurveys: [],
     videoFeedback: [],
-    trainerNotes: []
+    trainerNotes: [],
+    clearanceRequest: null
   });
   const [loading, setLoading] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -78,13 +79,43 @@ export default function DashboardOverview() {
     if (!authLoading && user) {
       fetchDashboardData();
       fetchAthleteSessions();
+
+      // Listen for admin resolving the clearance request in real-time
+      const channel = supabase
+        .channel(`clearance_watch_${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'athlete_alerts',
+            filter: `athlete_id=eq.${user.id}`
+          },
+          (payload) => {
+            // When any alert for this athlete is updated (e.g., resolved by admin), re-fetch
+            if (payload.new?.is_resolved === true) {
+              fetchDashboardData();
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user, authLoading]);
 
-  // Sync internal clearance message with API state
+  // Sync clearance button state with server — reset when admin resolves the request
   useEffect(() => {
     if (performanceData.clearanceRequest) {
       setClearanceMessage('Request Pending');
+    } else if (performanceData.clearanceRequest === null && !performanceData.activeInjuries?.length) {
+      // No pending request AND no injuries — fully reset the button
+      setClearanceMessage(null);
+    } else if (performanceData.clearanceRequest === null) {
+      // Admin resolved the request (injuries still active, but request cleared)
+      setClearanceMessage(null);
     }
   }, [performanceData.clearanceRequest]);
 
