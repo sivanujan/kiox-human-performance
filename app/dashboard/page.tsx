@@ -171,8 +171,12 @@ export default function DashboardOverview() {
   const readinessScore = Math.round(((metrics?.sleep_score || 0) + (10 - (metrics?.soreness || 0))) / 20 * 100);
   
   // Safety First: Active injury overrides readiness to "NOT READY"
-  const hasActiveInjury = (performanceData.activeInjuries && performanceData.activeInjuries.length > 0) || 
-                          performanceData.profileStatus === 'INJURED';
+  const hasActiveInjury = Boolean(
+    (performanceData.activeInjuries && performanceData.activeInjuries.length > 0) || 
+    performanceData.profileStatus?.toUpperCase() === 'INJURED' ||
+    metrics?.training_status?.toUpperCase() === 'INJURED' ||
+    metrics?.injury_risk?.toUpperCase() === 'HIGH'
+  );
   const isReady = readinessScore > 70 && !hasActiveInjury;
   
   // Status Labels
