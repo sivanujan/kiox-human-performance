@@ -2,6 +2,7 @@
 
 import { ShieldAlert, ArrowRight, Clock, CheckCircle2, FlaskConical, Activity, Thermometer, Moon } from "lucide-react";
 import { useAlerts } from "@/hooks/useAlerts";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 
@@ -10,6 +11,7 @@ interface AlertsFlagsWidgetProps {
 }
 
 export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProps) {
+  const { user } = useAuth();
   const { alerts, loading, resolveAlert } = useAlerts();
 
   const getAlertIcon = (type: string) => {
@@ -42,13 +44,17 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
           body: JSON.stringify({ alertId: alert.id })
         });
         if (res.ok) {
-          resolveAlert(alert.id);
+          await resolveAlert(alert.id, user?.id);
+        } else {
+          const err = await res.json();
+          alert(`Clearance Error: ${err.error}`);
         }
       } catch (e) {
         console.error("Clearance approval failed:", e);
       }
     } else {
-      resolveAlert(alert.id);
+      const result = await resolveAlert(alert.id, user?.id);
+      if (!result.success) alert(`Sync Warning: ${result.error}`);
     }
   };
 

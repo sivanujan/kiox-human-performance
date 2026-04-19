@@ -14,7 +14,7 @@ export function useAlerts() {
         .from("athlete_alerts")
         .select(`
           *,
-          athlete:profiles(id, first_name, last_name)
+          athlete:profiles!athlete_id(id, first_name, last_name)
         `)
         .eq("is_resolved", false)
         .order("triggered_at", { ascending: false });
@@ -51,17 +51,15 @@ export function useAlerts() {
   }, []);
 
   // 3. Resolve Alert Action
-  const resolveAlert = async (alertId: string) => {
+  const resolveAlert = async (alertId: string, resolverId?: string) => {
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
       const { error } = await supabase
         .from("athlete_alerts")
         .update({
           is_resolved: true,
           resolved_at: new Date().toISOString(),
-          resolved_by: user?.id
+          resolved_by: resolverId
         })
         .eq("id", alertId);
 
@@ -82,7 +80,7 @@ export function useAlerts() {
         .from("athlete_alerts")
         .select(`
           *,
-          athlete:profiles(id, first_name, last_name),
+          athlete:profiles!athlete_id(id, first_name, last_name),
           resolver:profiles!resolved_by(id, first_name, last_name)
         `)
         .eq("is_resolved", true)

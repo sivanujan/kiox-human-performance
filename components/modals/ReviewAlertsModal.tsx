@@ -14,6 +14,7 @@ interface ReviewAlertsModalProps {
 }
 
 export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModalProps) {
+  const { user } = useAuth();
   const { alerts, resolveAlert, getResolvedHistory, loading: globalLoading } = useAlerts();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "RESOLVED">("ACTIVE");
@@ -50,10 +51,15 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
           body: JSON.stringify({ alertId: alert.id })
         });
         if (res.ok) {
-          await resolveAlert(alert.id);
+          const result = await resolveAlert(alert.id, user?.id);
+          if (!result.success) alert(`Sync Warning: ${result.error}`);
+        } else {
+          const errData = await res.json();
+          alert(`Clearance Error: ${errData.error || 'System failed to approve clearance'}`);
         }
       } else {
-        await resolveAlert(alert.id);
+        const result = await resolveAlert(alert.id, user?.id);
+        if (!result.success) alert(`Resolution Error: ${result.error}`);
       }
       
       if (activeTab === "RESOLVED") {
