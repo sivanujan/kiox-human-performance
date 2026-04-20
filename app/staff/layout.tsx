@@ -4,7 +4,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import StaffProfileModal from "@/components/modals/StaffProfileModal";
 import { 
   Loader2, 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, ArrowRight, ChevronLeft, Loader2, ShieldCheck } from "lucide-react";
+import { Mail, ArrowRight, ChevronLeft, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 

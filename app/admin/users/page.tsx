@@ -18,7 +18,9 @@ import {
   Zap,
   Target,
   User,
-  ExternalLink
+  ExternalLink,
+  History,
+  ShieldAlert
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
