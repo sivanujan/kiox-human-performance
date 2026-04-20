@@ -27,7 +27,7 @@ function isProfileComplete(profile: any): boolean {
 
 const PROFILE_FIELDS = 'first_name, last_name, username, date_of_birth, phone_number, address, country, emergency_contact_name, emergency_contact_phone, height, weight, position_played, training_goals, role';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,

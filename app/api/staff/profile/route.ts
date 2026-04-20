@@ -23,7 +23,7 @@ export async function PATCH(request: Request) {
     }
 
     // 2. Process Updates
-    const { first_name, last_name, username, phone_number, password } = await request.json();
+    const { first_name, last_name, username, phone_number, password, avatar_url } = await request.json();
     
     const adminClient = createAdminClient();
 

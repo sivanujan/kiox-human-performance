@@ -37,15 +37,18 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   
   // Transform into the dashboard format
-  const formattedAlerts = alerts.map(a => ({
-    id: a.id,
-    userId: a.athlete?.id,
-    athleteName: `${a.athlete?.first_name} ${a.athlete?.last_name}`,
-    type: a.alert_type.toLowerCase(),
-    severity: a.severity,
-    message: a.message,
-    time: a.triggered_at
-  }));
+  const formattedAlerts = alerts.map(a => {
+    const athlete = Array.isArray(a.athlete) ? a.athlete[0] : (a.athlete as any);
+    return {
+      id: a.id,
+      userId: athlete?.id,
+      athleteName: athlete ? `${athlete.first_name} ${athlete.last_name}` : 'Unknown Athlete',
+      type: a.alert_type.toLowerCase(),
+      severity: a.severity,
+      message: a.message,
+      time: a.triggered_at
+    };
+  });
 
   return NextResponse.json(formattedAlerts);
 }

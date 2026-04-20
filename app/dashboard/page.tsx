@@ -91,7 +91,7 @@ export default function DashboardOverview() {
             table: 'athlete_alerts',
             filter: `athlete_id=eq.${user.id}`
           },
-          (payload) => {
+          (payload: any) => {
             // When any alert for this athlete is updated (e.g., resolved by admin), re-fetch
             if (payload.new?.is_resolved === true) {
               fetchDashboardData();

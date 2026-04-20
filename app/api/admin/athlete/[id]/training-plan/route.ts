@@ -17,7 +17,7 @@ export async function POST(
   // 2. Role Check
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, first_name")
     .eq("id", user.id)
     .single();
 
