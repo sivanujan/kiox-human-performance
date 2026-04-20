@@ -15,6 +15,7 @@ export interface TrainingSession {
   assigned_athletes: string[];
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   target_load_au?: number;
+  assigned_by?: string;
   notes?: string;
 }
 

@@ -42,7 +42,7 @@ export default function NotificationProvider({ children }: { children: React.Rea
           table: "system_notifications",
           filter: `recipient_id=eq.${userId}`,
         },
-        (payload) => {
+        (payload: any) => {
           console.log("New Notification Received:", payload.new);
           const newNotif = payload.new;
 

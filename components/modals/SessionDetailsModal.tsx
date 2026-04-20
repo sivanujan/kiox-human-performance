@@ -40,7 +40,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
     
     // Initialize logs for all assigned athletes if they don't exist
     const logs = session.assigned_athletes.map(id => {
-      const existing = data?.find(d => d.athlete_id === id);
+      const existing = data?.find((d: any) => d.athlete_id === id);
       return existing || {
         athlete_id: id,
         actual_load_au: session.target_load_au || 450,

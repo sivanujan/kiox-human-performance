@@ -63,13 +63,13 @@ export function useAthleteRoster() {
     }
 
     // 1.5 Fetch Wellness Logs separately to avoid relationship issues
-    const profileIds = (profiles || []).map(p => p.id);
+    const profileIds = (profiles || []).map((p: any) => p.id);
     const { data: wellnessLogs } = await supabase
       .from('wellness_logs')
       .select('user_id, sleep_score, soreness_score, created_at')
       .in('user_id', profileIds);
 
-    const processed = (profiles || []).map(p => {
+    const processed = (profiles || []).map((p: any) => {
       // 1. Resolve Status
       const activeInjuries = p.athlete_injury_logs?.filter((l: any) => l.status !== 'Cleared') || [];
       const isInjured = activeInjuries.some((l: any) => l.severity === 'High');

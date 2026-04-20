@@ -29,7 +29,7 @@ export function useLiveMonitor() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "athlete_live_metrics" },
-        (payload) => {
+        (payload: any) => {
           handleNewMetric(payload.new);
         }
       )
@@ -72,7 +72,7 @@ export function useLiveMonitor() {
         .limit(10);
 
       const latest = metrics?.[0] || { heart_rate: 0, speed: 0 };
-      const hrHistory = metrics?.map(m => m.heart_rate).reverse() || [];
+      const hrHistory = metrics?.map((m: any) => m.heart_rate).reverse() || [];
 
       initialData[athlete.id] = {
         athlete_id: athlete.id,
