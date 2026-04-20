@@ -53,7 +53,7 @@ export default function NotificationDropdown() {
           table: "system_notifications",
           filter: `recipient_id=eq.${user.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === 'INSERT') {
             setNotifications(prev => [payload.new, ...prev]);
             playNotificationSound();
