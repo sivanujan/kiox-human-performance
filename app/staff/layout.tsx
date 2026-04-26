@@ -18,6 +18,7 @@ import {
   Camera,
   Bell,
   Menu,
+  Calendar,
   X as CloseIcon
 } from "lucide-react";
 import Image from "next/image";
@@ -27,6 +28,7 @@ import Image from "next/image";
 const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'CONTROL CENTER', href: '/staff' },
   { icon: <Zap size={18} />, label: 'OPERATIONAL BLUEPRINT', href: '/staff/blueprint' },
+  { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
   { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },
 ];
 

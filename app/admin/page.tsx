@@ -41,6 +41,7 @@ import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
 import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
+import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
 
 // Operational Modals
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
@@ -353,6 +354,7 @@ export default function AdminDashboard() {
           />
 
           <div className="space-y-8">
+            <AdminBookingsPanel />
             <LiveTrainingMonitor />
             <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
           </div>

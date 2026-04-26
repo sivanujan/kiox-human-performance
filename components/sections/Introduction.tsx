@@ -6,10 +6,12 @@ import { Instagram, Play, ArrowRight, ExternalLink, X } from "lucide-react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 
 
+const PLACEHOLDER_VIDEO = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
 const videos = [
   {
     id: "intro-1",
-    src: "/v2/video (1).mp4",
+    src: PLACEHOLDER_VIDEO,
     type: 'portrait' as const,
     category: "TRAINING",
     title: "PERFORMANCE ELITE",
@@ -18,7 +20,7 @@ const videos = [
   },
   {
     id: "intro-2",
-    src: "/v2/video (2).mp4",
+    src: PLACEHOLDER_VIDEO,
     type: 'portrait' as const,
     category: "PERFORMANCE",
     title: "CORE STABILITY",
@@ -27,7 +29,7 @@ const videos = [
   },
   {
     id: "intro-3",
-    src: "/v2/video (3).mp4",
+    src: PLACEHOLDER_VIDEO,
     type: 'portrait' as const,
     category: "MINDSET",
     title: "ELITE PROTOCOL",

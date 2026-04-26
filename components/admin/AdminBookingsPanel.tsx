@@ -121,7 +121,7 @@ export default function AdminBookingsPanel() {
                        }`}>
                           <Activity size={10} /> {b.athlete.weekly_load || 0} AU
                        </span>
-                       <span className="text-gray-500 text-[8px] font-black uppercase tracking-[2px]">ID: {b.id.slice(0,8).toUpperCase()}</span>
+                       <span className="text-gray-500 text-[8px] font-black uppercase tracking-[2px]">ID: {b.id?.slice(0,8).toUpperCase() || 'UNKNOWN'}</span>
                     </div>
                   </div>
                </div>
@@ -129,7 +129,7 @@ export default function AdminBookingsPanel() {
                {/* Session Context */}
                <div className="flex-1 md:px-6 border-l md:border-l-white/5">
                   <div className="text-gray-500 text-[8px] font-black tracking-widest uppercase mb-1 flex items-center gap-2">
-                     <Calendar size={10} /> {format(new Date(b.session.scheduled_date), 'MMM d')} // {b.session.scheduled_time.slice(0, 5)}
+                     <Calendar size={10} /> {b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d') : 'TBD'} // {(b.session?.start_time || b.session?.scheduled_time || '00:00:00').slice(0, 5)}
                   </div>
                   <div className="text-white/80 font-display text-sm uppercase tracking-wider group-hover/item:text-[#22c55e] transition-colors line-clamp-1">
                      {b.session.title}

@@ -92,12 +92,46 @@ export async function POST(request: Request) {
 
     // 4. Create notification if pending
     if (initialStatus === 'PENDING') {
+        const athleteName = profileRes.data.first_name || 'Athlete';
+        const sessionTitle = sessionRes.data.title || 'Session';
+        
         await supabase.from('athlete_notifications').insert({
             athlete_id: user.id,
             type: 'APPROVAL_REQUIRED',
-            message: `Your booking for ${sessionRes.data.title} requires coach approval due to high weekly load (${weeklyLoad} AU).`,
+            message: `Your booking for ${sessionTitle} requires coach approval due to high weekly load (${weeklyLoad} AU).`,
             related_id: data.id
         });
+
+        // Notify Coach if assigned
+        if (sessionRes.data.coach_id) {
+            await supabase.from('staff_notifications').insert({
+                staff_id: sessionRes.data.coach_id,
+                type: 'NEW_BOOKING',
+                message: `High Load Alert: ${athleteName} requested ${sessionTitle} (${weeklyLoad} AU). Approval Required.`,
+                related_id: data.id
+            });
+
+            // Send Email to Coach
+            const { data: coachProfile } = await supabase
+                .from('profiles')
+                .select('email, first_name')
+                .eq('id', sessionRes.data.coach_id)
+                .single();
+
+            if (coachProfile?.email) {
+                const { sendEmail, getBookingRequestTemplate } = require('@/utils/email');
+                await sendEmail({
+                    to: coachProfile.email,
+                    subject: `Approval Required: ${athleteName} // High Load`,
+                    html: getBookingRequestTemplate(
+                        athleteName,
+                        sessionRes.data.scheduled_date,
+                        sessionRes.data.start_time,
+                        sessionTitle
+                    )
+                });
+            }
+        }
     }
 
     return NextResponse.json({ success: true, data });

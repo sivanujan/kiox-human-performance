@@ -31,7 +31,7 @@ const athleteNavItems = [
   { icon: <Clipboard size={18} />, label: 'MY PROGRAM', href: '/dashboard/program' },
   { icon: <Calendar size={18} />, label: 'SCHEDULE', href: '/dashboard/schedule' },
   { icon: <BarChart3 size={18} />, label: 'PROGRESS', href: '/dashboard/progress' },
-  { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking', badge: 'NEW' },
+  { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking/coach', badge: 'NEW' },
   { icon: <Camera size={18} />, label: 'GALLERY', href: '/gallery' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
 ];

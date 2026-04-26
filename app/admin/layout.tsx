@@ -61,8 +61,18 @@ const adminNavItems = [
     section: 'MANAGEMENT' },
   { 
     icon: <Calendar size={18} />, 
+    label: 'AVAILABILITY',
+    href: '/admin/availability',
+    section: 'MANAGEMENT' },
+  { 
+    icon: <Calendar size={18} />, 
     label: 'SCHEDULES',
     href: '/admin/schedules',
+    section: 'OPERATIONS' },
+  { 
+    icon: <Zap size={18} />, 
+    label: 'SESSION REQUESTS',
+    href: '/admin/bookings',
     section: 'OPERATIONS' },
   { 
     icon: <BarChart3 size={18} />, 

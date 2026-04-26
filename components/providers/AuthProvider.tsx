@@ -24,8 +24,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const userRef = useRef<User | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
-  
   const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   const fetchProfile = async (uid: string) => {
@@ -37,11 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if (error) {
+        console.error("Profile fetch error:", error);
         setProfile(null);
       } else {
         setProfile(data);
       }
     } catch (err) {
+      console.error("Profile fetch exception:", err);
       setProfile(null);
     }
   };
@@ -49,8 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     if (currentUser) {
+      userRef.current = currentUser;
       setUser(currentUser);
       await fetchProfile(currentUser.id);
+    } else {
+      userRef.current = null;
+      setUser(null);
+      setProfile(null);
     }
   };
 
@@ -59,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       
       // 1. Clear local state identity immediately to stop background activity
+      userRef.current = null;
       setUser(null);
       setProfile(null);
 
@@ -96,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!mounted) return;
 
         const initialUser = session?.user ?? null;
+        userRef.current = initialUser;
         setUser(initialUser);
 
         if (initialUser) {
@@ -103,14 +112,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         // 2. Setup listener for future changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (!mounted) return;
 
           const currentUser = session?.user ?? null;
           
-          // Only update and fetch if the user has actually changed to avoid redundant locks
-          if (currentUser?.id !== user?.id) {
+          // Use ref to compare against the absolute latest state, bypassing closure staleness
+          if (currentUser?.id !== userRef.current?.id || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+            userRef.current = currentUser;
             setUser(currentUser);
+            
             if (currentUser) {
               await fetchProfile(currentUser.id);
             } else {

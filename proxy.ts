@@ -61,6 +61,11 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
+  // For API routes: just refresh the session token so RLS (auth.uid()) works, then continue
+  if (path.startsWith('/api/')) {
+    return response;
+  }
+
   // Protected routes
   const isAdminPath = path.startsWith('/admin');
   const isStaffPath = path.startsWith('/staff');
@@ -138,5 +143,6 @@ export const config = {
     '/staff/:path*',
     '/dashboard/:path*',
     '/register',
+    '/api/:path*',
   ],
 };

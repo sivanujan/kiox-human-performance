@@ -19,7 +19,7 @@ function SignInContent() {
 
   const [rememberMe, setRememberMe] = useState(true);
 
-  const { supabase, user, profile, loading: authLoading } = useAuth();
+  const { supabase, user, profile, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -82,7 +82,7 @@ function SignInContent() {
       // Store rememberMe preference before signing in
       localStorage.setItem("kiox_remember_me", rememberMe.toString());
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
         // Handle specific fetch/network errors
@@ -92,8 +92,30 @@ function SignInContent() {
           setErrorMsg(error.message);
         }
         setLoading(false);
+        return;
       }
-      // If no error, the redirection useEffect will kick in
+
+      // Success!
+      setSuccessMsg("Protocol Verified. Initiating redirection...");
+      
+      // Force an immediate profile refresh in the context
+      // This ensures that when we redirect, the target page's AuthProvider is already populated
+      await refreshProfile();
+      
+      // Get the profile we just fetched (or fetch it here directly if context hasn't updated yet)
+      const { data: profileData } = await supabase.from('profiles').select('role').eq('id', data.user?.id).single();
+      
+      if (profileData) {
+        if (profileData.role === 'superadmin' || profileData.role === 'staff') {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
+      } else {
+        // Fallback to dashboard if profile not found immediately
+        router.push("/dashboard");
+      }
+      
     } catch (err: any) {
       console.error("Authentication Runtime Exception:", err);
       if (err.message?.includes('fetch') || err.name === 'TypeError') {

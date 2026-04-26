@@ -44,6 +44,7 @@ import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
+import CoachScheduleWidget from "@/app/components/CoachScheduleWidget";
 
 // Operational Modals
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
@@ -348,6 +349,7 @@ export default function StaffPortal() {
 
           <div className="space-y-8">
             <AdminBookingsPanel />
+            <CoachScheduleWidget coach={profile} />
             <LiveTrainingMonitor />
             <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
           </div>

@@ -43,6 +43,7 @@ import Avatar from "@/components/ui/Avatar";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import WeeklySchedule from "@/components/dashboard/WeeklySchedule";
 import WellnessCheckinModal from "@/components/modals/WellnessCheckinModal";
+import CoachingTeamSection from "@/app/components/CoachingTeamSection";
 
 const anton = Anton({ 
   weight: '400', 
@@ -697,6 +698,9 @@ export default function DashboardOverview() {
 
           {/* PERSONAL TRAINING LOAD */}
           <AthleteLoadCard athleteId={user?.id || ''} currentAu={metrics?.weekly_load || 0} />
+
+          {/* COACHING TEAM AVAILABILITY */}
+          <CoachingTeamSection />
 
           {/* VIDEO & TACTICAL FEEDBACK */}
           <CollapsibleSection title="🎬 TACTICAL REVIEW" defaultOpen={true}>
