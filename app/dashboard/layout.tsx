@@ -24,15 +24,15 @@ import {
   Camera
 } from "lucide-react";
 import Image from "next/image";
+import Avatar from "@/components/ui/Avatar";
 
 const athleteNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'OVERVIEW', href: '/dashboard' },
   { icon: <UserIcon size={18} />, label: 'MY PROFILE', href: '/dashboard/profile' },
   { icon: <Clipboard size={18} />, label: 'MY PROGRAM', href: '/dashboard/program' },
-  { icon: <Calendar size={18} />, label: 'SCHEDULE', href: '/dashboard/schedule' },
+  { icon: <Calendar size={18} />, label: 'CALENDAR', href: '/dashboard/calendar' },
   { icon: <BarChart3 size={18} />, label: 'PROGRESS', href: '/dashboard/progress' },
   { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking/coach', badge: 'NEW' },
-  { icon: <Camera size={18} />, label: 'GALLERY', href: '/gallery' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
 ];
 
@@ -127,13 +127,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">
-              <div className="w-20 h-20 rounded-2xl bg-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center font-display text-4xl text-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-2xl" />
-                ) : (
-                  profile?.first_name?.[0] || 'A'
-                )}
-              </div>
+              <Avatar 
+                src={profile?.avatar_url}
+                name={userName}
+                size="xl"
+                className="rounded-2xl border-2 border-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+              />
               <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e]">
                 <Activity size={12} fill="currentColor" />
               </div>
@@ -222,9 +221,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
                   <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">{status}</div>
                </div>
-               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-black text-xs group-hover:bg-[#22c55e] group-hover:text-black transition-all">
-                  {profile?.first_name?.[0] || 'U'}
-               </div>
+               <Avatar 
+                  src={profile?.avatar_url}
+                  name={userName}
+                  size="md"
+                  className="group-hover:border-[#22c55e] transition-all"
+               />
             </Link>
           </div>
         </header>

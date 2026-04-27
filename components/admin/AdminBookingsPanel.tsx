@@ -12,7 +12,8 @@ import {
   ChevronRight,
   User,
   Activity,
-  ArrowRight
+  ArrowRight,
+  Globe
 } from "lucide-react";
 import { format } from "date-fns";
 import Avatar from "@/components/ui/Avatar";
@@ -114,14 +115,21 @@ export default function AdminBookingsPanel() {
                <div className="flex items-center gap-4">
                   <Avatar src={b.athlete.avatar_url} name={`${b.athlete.first_name} ${b.athlete.last_name}`} size="md" role="athlete" />
                   <div>
-                    <h4 className="text-white font-bold text-sm tracking-wide uppercase">{b.athlete.first_name} {b.athlete.last_name}</h4>
+                    <h4 className="text-white font-bold text-sm tracking-wide uppercase flex items-center gap-2">
+                       {b.athlete.first_name} {b.athlete.last_name}
+                       {b.athlete.country_code && (
+                         <span className="text-[10px] text-gray-500 font-black">[{b.athlete.country_code}]</span>
+                       )}
+                    </h4>
                     <div className="flex items-center gap-3 mt-1">
                        <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
                          b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-[#22c55e]'
                        }`}>
                           <Activity size={10} /> {b.athlete.weekly_load || 0} AU
                        </span>
-                       <span className="text-gray-500 text-[8px] font-black uppercase tracking-[2px]">ID: {b.id?.slice(0,8).toUpperCase() || 'UNKNOWN'}</span>
+                       <span className="text-gray-500 text-[8px] font-black uppercase tracking-[2px] flex items-center gap-1">
+                          <Globe size={10} /> {b.athlete.timezone?.split('/')[1]?.replace('_', ' ') || 'UTC'}
+                       </span>
                     </div>
                   </div>
                </div>
@@ -129,11 +137,16 @@ export default function AdminBookingsPanel() {
                {/* Session Context */}
                <div className="flex-1 md:px-6 border-l md:border-l-white/5">
                   <div className="text-gray-500 text-[8px] font-black tracking-widest uppercase mb-1 flex items-center gap-2">
-                     <Calendar size={10} /> {b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d') : 'TBD'} // {(b.session?.start_time || b.session?.scheduled_time || '00:00:00').slice(0, 5)}
+                     <Calendar size={10} /> {b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d') : 'TBD'} // {b.session?.start_time?.slice(0, 5) || 'TBD'}
                   </div>
                   <div className="text-white/80 font-display text-sm uppercase tracking-wider group-hover/item:text-[#22c55e] transition-colors line-clamp-1">
                      {b.session.title}
                   </div>
+                  {b.session_time_athlete_local && (
+                    <div className="mt-1 text-[9px] font-bold text-[#22c55e]/60 uppercase tracking-widest flex items-center gap-2">
+                       <Clock size={10} /> Athlete Local: {b.session_time_athlete_local}
+                    </div>
+                  )}
                </div>
 
                {/* Stats & Actions */}

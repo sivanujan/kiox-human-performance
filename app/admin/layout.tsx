@@ -299,6 +299,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="hidden xs:inline">Add Athlete</span>
               <Plus className="xs:hidden" size={20} />
             </button>
+            <button 
+              onClick={() => setIsAdminProfileOpen(true)}
+              className="hidden xs:flex items-center gap-3 group ml-2"
+            >
+               <Avatar 
+                  src={profile?.avatar_url}
+                  name={`${profile?.first_name} ${profile?.last_name}`}
+                  size="md"
+                  className="group-hover:border-[#22c55e] transition-all"
+               />
+            </button>
           </div>
         </header>
 

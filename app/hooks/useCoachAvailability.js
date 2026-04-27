@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export function useCoachAvailability() {
@@ -8,11 +8,17 @@ export function useCoachAvailability() {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const isFetching = useRef(false);
 
-  const fetchCoaches = async () => {
+  const fetchCoaches = useCallback(async () => {
+    if (isFetching.current) return;
+    isFetching.current = true;
     setLoading(true);
+    
     try {
-      // Fetch all staff members from profiles
+      console.log('[Matrix] Synchronizing operational staff...');
+      
+      // 1. Fetch profiles
       const { data: staffProfiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -20,37 +26,63 @@ export function useCoachAvailability() {
 
       if (profileError) throw profileError;
 
-      // Fetch availability and schedule for these coaches
-      const { data: availability, error: availError } = await supabase
-        .from('coach_availability')
-        .select('*');
+      // 2. Fetch metadata
+      const [availRes, schedRes] = await Promise.all([
+        supabase.from('coach_availability').select('*'),
+        supabase.from('coach_schedule').select('*')
+      ]);
 
-      if (availError) throw availError;
+      if (availRes.error) throw availRes.error;
+      if (schedRes.error) throw schedRes.error;
 
-      const { data: schedules, error: schedError } = await supabase
-        .from('coach_schedule')
-        .select('*');
-
-      if (schedError) throw schedError;
-
-      // Merge data
-      const mergedCoaches = staffProfiles.map(profile => ({
+      // 3. Merge
+      const mergedCoaches = (staffProfiles || []).map(profile => ({
         ...profile,
-        availability: availability.find(a => a.coach_id === profile.id) || null,
-        schedule: schedules.filter(s => s.coach_id === profile.id) || []
+        availability: availRes.data?.find(a => a.coach_id === profile.id) || null,
+        schedule: schedRes.data?.filter(s => s.coach_id === profile.id) || []
       }));
 
       setCoaches(mergedCoaches);
+      setError(null);
+      console.log(`[Matrix] Synchronization complete. ${mergedCoaches.length} units detected.`);
     } catch (err) {
-      console.error('Error fetching coach availability:', err);
+      console.error('[Matrix] Synchronization failure:', err);
       setError(err);
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchCoaches();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        fetchCoaches();
+      }
+    });
+
+    const availChannel = supabase
+      .channel('avail-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_availability' }, () => fetchCoaches())
+      .subscribe();
+
+    const schedChannel = supabase
+      .channel('sched-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_schedule' }, () => fetchCoaches())
+      .subscribe();
+
+  return () => {
+      subscription.unsubscribe();
+      supabase.removeChannel(availChannel);
+      supabase.removeChannel(schedChannel);
+    };
+  }, [fetchCoaches, supabase]);
 
   const saveSchedule = async (coachId, scheduleData, params = {}) => {
     try {
+      setLoading(true);
       // 1. Update schedule
       const { error: schedError } = await supabase
         .from('coach_schedule')
@@ -68,16 +100,19 @@ export function useCoachAvailability() {
 
       if (schedError) throw schedError;
 
-      // 2. Update availability metadata
-      const { data: { user } } = await supabase.auth.getUser();
+      // 2. Update metadata
+      const { data: { session } } = await supabase.auth.getSession();
       const { error: availError } = await supabase
         .from('coach_availability')
         .upsert({ 
           coach_id: coachId,
-          updated_by: user?.id,
+          updated_by: session?.user?.id,
           updated_at: new Date().toISOString(),
           session_duration: params.session_duration || 60,
-          max_capacity: params.max_capacity || 1
+          max_capacity: params.max_capacity || 1,
+          timezone: params.timezone || 'UTC',
+          country: params.country || null,
+          country_code: params.country_code || null
         }, { onConflict: 'coach_id' });
 
       if (availError) throw availError;
@@ -85,34 +120,12 @@ export function useCoachAvailability() {
       await fetchCoaches();
       return { success: true };
     } catch (err) {
-      console.error('Error saving schedule:', err);
-      return { success: false, error: err };
+      console.error('Save failed:', err);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchCoaches();
-
-    // Set up real-time subscriptions
-    const availChannel = supabase
-      .channel('coach-availability-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_availability' }, () => {
-        fetchCoaches();
-      })
-      .subscribe();
-
-    const schedChannel = supabase
-      .channel('coach-schedule-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'coach_schedule' }, () => {
-        fetchCoaches();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(availChannel);
-      supabase.removeChannel(schedChannel);
-    };
-  }, []);
 
   return { coaches, loading, error, refetch: fetchCoaches, saveSchedule };
 }

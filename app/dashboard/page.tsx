@@ -44,6 +44,8 @@ import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import WeeklySchedule from "@/components/dashboard/WeeklySchedule";
 import WellnessCheckinModal from "@/components/modals/WellnessCheckinModal";
 import CoachingTeamSection from "@/app/components/CoachingTeamSection";
+import TimeDisplay from "@/components/ui/TimeDisplay";
+import { useTimezone } from "@/hooks/useTimezone";
 
 const anton = Anton({ 
   weight: '400', 
@@ -54,6 +56,7 @@ const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function DashboardOverview() {
   const { user, profile, loading: authLoading } = useAuth();
+  const { formatTimeOnly, userTimezone } = useTimezone();
   const supabase = createClient();
   const [metrics, setMetrics] = useState<any>(null);
   const [schedule, setSchedule] = useState<any[]>([]);
@@ -193,7 +196,7 @@ export default function DashboardOverview() {
   const nextSession = sessionToDisplay
     ? { 
         session: sessionToDisplay.title, 
-        time: format(new Date(`2000-01-01T${sessionToDisplay.start_time}`), "h:mm aa"),
+        time: formatTimeOnly(sessionToDisplay.start_time, (sessionToDisplay as any).coach_timezone || 'UTC'),
         isToday: sessionToDisplay.scheduled_date === todayStr,
         date: format(new Date(sessionToDisplay.scheduled_date + 'T00:00:00'), "MMM d")
       }
@@ -676,7 +679,7 @@ export default function DashboardOverview() {
                            {s.status}
                          </span>
                          <span className="text-white/20 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                            <Clock size={10} /> {s.start_time.slice(0, 5)}
+                            <Clock size={10} /> {formatTimeOnly(s.start_time, (s as any).coach_timezone || 'UTC')}
                          </span>
                       </div>
                       <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase truncate group-hover:text-[#22c55e] transition-colors">{s.title}</h4>

@@ -22,12 +22,14 @@ import {
   X as CloseIcon
 } from "lucide-react";
 import Image from "next/image";
+import StaffNotificationDropdown from "@/components/StaffNotificationDropdown";
+import Avatar from "@/components/ui/Avatar";
 
 
 
 const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'CONTROL CENTER', href: '/staff' },
-  { icon: <Zap size={18} />, label: 'OPERATIONAL BLUEPRINT', href: '/staff/blueprint' },
+  { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
   { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },
 ];
@@ -124,17 +126,16 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         >
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">
-              <div className={`w-20 h-20 rounded-2xl bg-[#22c55e]/10 border-2 border-[#22c55e] flex items-center justify-center font-display text-4xl text-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]`}>
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover rounded-2xl" />
-                ) : (
-                  profile?.first_name?.[0] || 'C'
-                )}
-                {/* Upload Overlay */}
-                <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-                   <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
-                   <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
-                </div>
+              <Avatar 
+                src={profile?.avatar_url}
+                name={userName}
+                size="xl"
+                className="rounded-2xl border-2 border-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+              />
+              {/* Upload Overlay */}
+              <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+                 <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
+                 <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e] z-20">
                 <ShieldCheck size={14} fill="currentColor" />
@@ -217,10 +218,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
-            <button className="relative w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-[#22c55e] hover:border-[#22c55e]/30 transition-all active-scale">
-               <Bell size={18} />
-               <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-[#22c55e] shadow-[0_0_5px_#22c55e]" />
-            </button>
+            <StaffNotificationDropdown />
             <button 
               onClick={() => setIsProfileOpen(true)}
               className="flex items-center gap-3 group px-4 py-2 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all active-scale"
@@ -229,13 +227,12 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                   <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
                   <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">Operational Staff</div>
                </div>
-               <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] font-black text-sm group-hover:bg-[#22c55e] group-hover:text-black transition-all overflow-hidden">
-                  {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    profile?.first_name?.[0] || 'S'
-                  )}
-               </div>
+               <Avatar 
+                  src={profile?.avatar_url}
+                  name={userName}
+                  size="md"
+                  className="group-hover:border-[#22c55e] transition-all"
+               />
             </button>
           </div>
         </header>

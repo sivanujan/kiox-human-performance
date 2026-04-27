@@ -62,7 +62,10 @@ export async function GET(request: Request) {
       current = slotEnd;
     }
 
-    return NextResponse.json({ slots });
+    return NextResponse.json({ 
+      slots,
+      coach_timezone: availRes.data?.timezone || 'UTC'
+    });
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

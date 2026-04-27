@@ -15,9 +15,14 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  MoveVertical
+  MoveVertical,
+  Globe,
+  Clock
 } from "lucide-react";
 import ImageUpload from "@/components/ui/ImageUpload";
+import { useTimezone } from "@/hooks/useTimezone";
+import { TIMEZONE_LIST } from "@/lib/timezone";
+import TimezoneSearchPicker from "@/components/ui/TimezoneSearchPicker";
 
 
 export default function ProfilePage() {
@@ -341,7 +346,67 @@ export default function ProfilePage() {
             </div>
           </div>
         </motion.section>
+
+        {/* Section: Timezone Registry */}
+        <TimezoneSection labelClasses={labelClasses} inputClasses={inputClasses} />
       </form>
     </div>
+  );
+}
+
+function TimezoneSection({ labelClasses, inputClasses }: { labelClasses: string, inputClasses: string }) {
+  const { userTimezone, setTimezone, getCurrentLocalTime } = useTimezone();
+  const [localTime, setLocalTime] = useState(getCurrentLocalTime());
+
+  useEffect(() => {
+    const interval = setInterval(() => setLocalTime(getCurrentLocalTime()), 1000);
+    return () => clearInterval(interval);
+  }, [getCurrentLocalTime]);
+
+  return (
+    <motion.section 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="bg-[#111]/80 border border-[#22c55e]/20 rounded-2xl p-10 relative overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+        <Globe size={120} />
+      </div>
+
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e]">
+            <Globe size={20} />
+          </div>
+          <div>
+            <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Temporal Registry</h3>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px]">Synchronize your operational clock with global standards</p>
+          </div>
+        </div>
+        
+        <div className="bg-black/50 border border-white/10 px-6 py-3 rounded-xl flex items-center gap-4">
+          <Clock size={16} className="text-[#22c55e]" />
+          <div className="text-xl font-mono font-bold text-white tracking-widest">{localTime}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <label className={labelClasses}>Primary Operational Timezone</label>
+          <TimezoneSearchPicker 
+            value={userTimezone}
+            onChange={(val) => setTimezone(val)}
+          />
+        </div>
+        <div className="flex items-center">
+          <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-xl">
+            <p className="text-[10px] text-gray-400 leading-relaxed uppercase font-bold tracking-wider">
+              <span className="text-[#22c55e]">NOTE:</span> Your timezone is used to synchronize session schedules, notifications, and performance reporting. Automatic detection is enabled by default based on your current deployment IP.
+            </p>
+          </div>
+        </div>
+      </div>
+    </motion.section>
   );
 }

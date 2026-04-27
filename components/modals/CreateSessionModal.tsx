@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, AlertCircle } from "lucide-react";
+import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, AlertCircle, Globe } from "lucide-react";
 import { useSessions } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useTimezone } from "@/hooks/useTimezone";
+import { convertTimeOnly, getOffsetLabel } from "@/lib/timezone";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 
@@ -17,6 +19,7 @@ interface CreateSessionModalProps {
 
 export default function CreateSessionModal({ isOpen, onClose, athletes }: CreateSessionModalProps) {
   const { user } = useAuth();
+  const { userTimezone } = useTimezone();
   const { createSession, loading } = useSessions();
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +54,8 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
       const res = await createSession({
         ...formData,
         start_time: `${formData.start_time}:00`, // Ensure HH:mm:ss format
-        assigned_by: user?.id
+        assigned_by: user?.id,
+        coach_timezone: userTimezone
       });
       
       if (res.success) {
@@ -171,6 +175,31 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                            onChange={e => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-xs font-bold focus:border-amber-500 outline-none"
                          />
+                      </div>
+                   </div>
+
+                   {/* Timezone Preview */}
+                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                         <div className="text-[9px] font-black text-amber-500 uppercase tracking-[3px]">Global Preview</div>
+                         <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <Globe size={10} /> Local: {userTimezone.split('/')[1]?.replace('_', ' ')} ({getOffsetLabel(userTimezone)})
+                         </div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                         {[
+                            { name: 'Colombo', tz: 'Asia/Colombo' },
+                            { name: 'London', tz: 'Europe/London' },
+                            { name: 'New York', tz: 'America/New_York' },
+                            { name: 'Sydney', tz: 'Australia/Sydney' }
+                         ].map(zone => (
+                            <div key={zone.tz} className="flex flex-col gap-1">
+                               <span className="text-[8px] font-black text-gray-600 uppercase tracking-tighter">{zone.name}</span>
+                               <span className="text-xs font-mono font-bold text-gray-300">
+                                  {convertTimeOnly(formData.start_time, userTimezone, zone.tz)}
+                               </span>
+                            </div>
+                         ))}
                       </div>
                    </div>
 

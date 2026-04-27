@@ -29,7 +29,10 @@ export async function GET() {
     .eq('id', user.id)
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.warn("Metrics fetch failed (likely missing columns):", error.message);
+    return NextResponse.json(null); // Prevent dashboard crash
+  }
   return NextResponse.json(metrics);
 }
 

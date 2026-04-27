@@ -16,16 +16,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, addDays, startOfToday } from "date-fns";
 import { useCoachAvailability } from "@/app/hooks/useCoachAvailability";
 import Avatar from "@/components/ui/Avatar";
+import { useTimezone } from "@/hooks/useTimezone";
+import TimezoneMismatch from "@/components/ui/TimezoneMismatch";
+import { getOffsetLabel } from "@/lib/timezone";
 
 export default function CoachBookingPage() {
   const { coaches, loading: loadingCoaches, error } = useCoachAvailability();
   const [selectedCoach, setSelectedCoach] = useState(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [slots, setSlots] = useState([]);
+  const [coachTimezone, setCoachTimezone] = useState('UTC');
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [bookingInProgress, setBookingInProgress] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { userTimezone, formatTimeOnly } = useTimezone();
 
   useEffect(() => {
     if (selectedCoach && selectedDate) {
@@ -39,6 +44,7 @@ export default function CoachBookingPage() {
       const res = await fetch(`/api/bookings/slots?coachId=${selectedCoach.id}&date=${selectedDate}`);
       const data = await res.json();
       setSlots(data.slots || []);
+      setCoachTimezone(data.coach_timezone || 'UTC');
     } catch (err) {
       console.error("Failed to fetch slots:", err);
     } finally {
@@ -96,6 +102,12 @@ export default function CoachBookingPage() {
       <div>
         <h2 className="font-display text-5xl text-white uppercase tracking-wider">Tactical Coach Selection</h2>
         <p className="text-[#22c55e] text-[10px] font-black uppercase tracking-[4px] mt-2 italic">Matrix Access // Human Performance Optimization</p>
+        <div className="mt-4 flex items-center gap-2">
+           <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Viewing times in:</span>
+           <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-lg text-[#22c55e] text-[9px] font-black uppercase tracking-wider">
+              {userTimezone} ({getOffsetLabel(userTimezone)})
+           </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -186,6 +198,12 @@ export default function CoachBookingPage() {
                         <Clock size={14} className="text-[#22c55e]" /> AVAILABLE TIME SEGMENTS
                       </h3>
 
+                      {slots.length > 0 && (
+                        <div className="mb-6">
+                           <TimezoneMismatch date={selectedDate} time={slots[0].start_time} coachTimezone={coachTimezone} />
+                        </div>
+                      )}
+
                       {successMessage && (
                         <div className="mb-8 p-4 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-xs font-black uppercase tracking-widest text-center flex items-center justify-center gap-3">
                            <CheckCircle2 size={16} /> {successMessage}
@@ -219,7 +237,10 @@ export default function CoachBookingPage() {
                                 <div>
                                    <div className="flex items-center gap-3 mb-1">
                                       <span className={`text-sm font-display tracking-wider ${slot.is_available ? 'text-white group-hover:text-[#22c55e]' : 'text-gray-500'}`}>
-                                        {slot.display_time}
+                                        {formatTimeOnly(slot.start_time, coachTimezone)}
+                                      </span>
+                                      <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">
+                                         ({slot.display_time} Coach)
                                       </span>
                                       {slot.is_available && (
                                         <div className="px-2 py-0.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded text-[8px] font-black text-[#22c55e] uppercase tracking-widest">

@@ -57,7 +57,7 @@ export async function GET() {
   const athleteIds = [...new Set(bookings.map((b: any) => b.athlete_id).filter(Boolean))];
   const { data: athletes } = await adminDb
     .from('profiles')
-    .select('id, first_name, last_name, avatar_url, weekly_load')
+    .select('id, first_name, last_name, avatar_url, weekly_load, timezone, country, country_code')
     .in('id', athleteIds);
 
   // Merge athlete data into bookings

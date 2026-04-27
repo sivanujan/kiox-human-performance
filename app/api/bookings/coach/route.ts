@@ -3,6 +3,7 @@ import { createServiceClient } from '@/utils/supabase/service';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { sendEmail, getBookingRequestTemplate } from '@/utils/email';
+import { convertTimeOnly } from '@/lib/timezone';
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -19,10 +20,11 @@ export async function POST(request: Request) {
     const { coachId, date, startTime, duration, title } = await request.json();
 
     // 1. Get Coach and Athlete details
-    const [coachRes, athleteRes, adminRes] = await Promise.all([
+    const [coachRes, athleteRes, adminRes, coachAvailRes] = await Promise.all([
       adminDb.from('profiles').select('*').eq('id', coachId).single(),
       adminDb.from('profiles').select('*').eq('id', user.id).single(),
-      adminDb.from('profiles').select('*').eq('role', 'superadmin')
+      adminDb.from('profiles').select('*').eq('role', 'superadmin'),
+      adminDb.from('coach_availability').select('timezone').eq('coach_id', coachId).maybeSingle()
     ]);
 
     if (coachRes.error) {
@@ -32,6 +34,9 @@ export async function POST(request: Request) {
 
     const coachProfile = coachRes.data;
     const athleteProfile = athleteRes.data;
+    const coachAvail = coachAvailRes?.data; 
+    const coachTimezone = coachAvail?.timezone || 'UTC';
+    const athleteTimezone = athleteProfile?.timezone || 'UTC';
 
     // 2. Find or Create the training session
     let sessionId;
@@ -56,7 +61,8 @@ export async function POST(request: Request) {
           title: title || `Session with Coach ${coachProfile?.first_name || 'Staff'}`,
           session_type: 'CUSTOM',
           status: 'SCHEDULED',
-          assigned_by: user.id
+          assigned_by: user.id,
+          coach_timezone: coachTimezone
         })
         .select()
         .single();
@@ -75,7 +81,9 @@ export async function POST(request: Request) {
         session_id: sessionId,
         athlete_id: user.id,
         booked_by: user.id,
-        status: 'PENDING' 
+        status: 'PENDING',
+        athlete_timezone: athleteTimezone,
+        session_time_athlete_local: convertTimeOnly(startTime, coachTimezone, athleteTimezone)
       })
       .select()
       .single();

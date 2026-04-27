@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Clock, Calendar, Check, X, Loader2 } from 'lucide-react';
+import { Save, Clock, Calendar, Check, X, Loader2, Globe } from 'lucide-react';
+import { TIMEZONE_LIST, getCurrentTimeIn, getFriendlyTimezone } from '@/lib/timezone';
+import TimezoneSearchPicker from '@/components/ui/TimezoneSearchPicker';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -12,6 +14,17 @@ export default function CoachAvailabilityEditor({ coach, onSave }) {
   const [message, setMessage] = useState(null);
   const [sessionDuration, setSessionDuration] = useState(60);
   const [maxCapacity, setMaxCapacity] = useState(1);
+  const [coachTimezone, setCoachTimezone] = useState('UTC');
+  const [coachCountry, setCoachCountry] = useState('');
+  const [coachCountryCode, setCoachCountryCode] = useState('');
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => setCurrentTime(getCurrentTimeIn(coachTimezone));
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, [coachTimezone]);
 
   useEffect(() => {
     if (coach) {
@@ -28,6 +41,9 @@ export default function CoachAvailabilityEditor({ coach, onSave }) {
       setSchedule(initialSchedule);
       setSessionDuration(coach.availability?.session_duration || 60);
       setMaxCapacity(coach.availability?.max_capacity || 1);
+      setCoachTimezone(coach.availability?.timezone || 'UTC');
+      setCoachCountry(coach.availability?.country || '');
+      setCoachCountryCode(coach.availability?.country_code || '');
     }
   }, [coach]);
 
@@ -46,17 +62,26 @@ export default function CoachAvailabilityEditor({ coach, onSave }) {
   const handleSave = async () => {
     setIsSaving(true);
     setMessage(null);
-    const result = await onSave(coach.id, schedule, {
-      session_duration: sessionDuration || 60,
-      max_capacity: maxCapacity || 1
-    });
-    setIsSaving(false);
-    
-    if (result.success) {
-      setMessage({ type: 'success', text: 'Availability updated successfully' });
-      setTimeout(() => setMessage(null), 3000);
-    } else {
-      setMessage({ type: 'error', text: 'Failed to update availability' });
+    try {
+      const result = await onSave(coach.id, schedule, {
+        session_duration: sessionDuration || 60,
+        max_capacity: maxCapacity || 1,
+        timezone: coachTimezone,
+        country: coachCountry,
+        country_code: coachCountryCode
+      });
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: 'Availability updated successfully' });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to update availability' });
+      }
+    } catch (err) {
+      console.error('handleSave error:', err);
+      setMessage({ type: 'error', text: 'An unexpected error occurred during transmission.' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -107,6 +132,37 @@ export default function CoachAvailabilityEditor({ coach, onSave }) {
               onChange={(e) => setMaxCapacity(e.target.value === '' ? '' : parseInt(e.target.value))}
               className="w-full bg-black/40 border border-[#22c55e]/20 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:border-[#22c55e] focus:outline-none transition-all"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Timezone & Country Registry */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-[#0a0a0a] border border-white/5 rounded-2xl">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest block ml-1">
+            Operational Timezone
+          </label>
+          <div className="relative">
+            <TimezoneSearchPicker 
+              value={coachTimezone}
+              onChange={(val, data) => {
+                setCoachTimezone(val);
+                if (data) {
+                  setCoachCountry(data.country);
+                  setCoachCountryCode(data.code);
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-xl p-4 flex flex-col justify-center">
+          <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Coach Local Time</div>
+          <div className="text-xl font-mono font-bold text-[#22c55e] tracking-widest">
+            {currentTime} <span className="text-[10px] text-gray-500 ml-2">{coachTimezone.split('/')[1]?.replace('_', ' ')}</span>
+          </div>
+          <div className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">
+             Deploy Base: {coachCountry || 'Global Registry'} {coachCountryCode && `[${coachCountryCode}]`}
           </div>
         </div>
       </div>

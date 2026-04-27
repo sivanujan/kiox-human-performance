@@ -3,15 +3,18 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { format, startOfWeek, endOfWeek, addDays } from 'date-fns';
 
-export async function GET() {
+export async function GET(request: Request) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
+
+  const { searchParams } = new URL(request.url);
+  const targetDate = searchParams.get('date') ? new Date(searchParams.get('date')!) : new Date();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const start = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
-  const end = format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+  const start = format(targetDate, 'yyyy-MM-dd');
+  const end = format(addDays(targetDate, 7), 'yyyy-MM-dd');
 
   // Fetch all sessions for the week and the user's bookings
   const [sessionsRes, bookingsRes] = await Promise.all([
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
 
     // 1. Fetch user load & session details
     const [profileRes, sessionRes] = await Promise.all([
-      supabase.from('profiles').select('weekly_load').eq('id', user.id).single(),
+      supabase.from('profiles').select('first_name, last_name, weekly_load').eq('id', user.id).single(),
       supabase.from('training_sessions').select('*').eq('id', sessionId).single()
     ]);
 
@@ -67,13 +70,23 @@ export async function POST(request: Request) {
 
     const weeklyLoad = profileRes.data.weekly_load || 0;
     
+    // 1.5 Capacity Check
+    const { count: confirmedCount } = await supabase
+      .from('session_bookings')
+      .select('*', { count: 'exact', head: true })
+      .eq('session_id', sessionId)
+      .eq('status', 'CONFIRMED');
+
+    const maxCapacity = sessionRes.data.max_capacity || 20;
+    if ((confirmedCount || 0) >= maxCapacity) {
+      throw new Error("SESSION FULL: Maximum operational capacity reached.");
+    }
+
     // 2. Determine initial status based on load
-    // If load > 600, it goes to PENDING (needs coach review)
-    // Otherwise it goes to CONFIRMED (subject to capacity trigger)
     const initialStatus = weeklyLoad > 600 ? 'PENDING' : 'CONFIRMED';
 
     // 3. Create booking
-    const { data, error } = await supabase
+    const { data: booking, error: bookingError } = await supabase
       .from('session_bookings')
       .insert({
         session_id: sessionId,
@@ -85,56 +98,66 @@ export async function POST(request: Request) {
       .select()
       .single();
 
-    if (error) {
-       if (error.code === '23505') throw new Error("You already have an active booking for this session.");
-       throw error;
+    if (bookingError) {
+       if (bookingError.code === '23505') throw new Error("You already have an active booking for this session.");
+       throw bookingError;
     }
 
-    // 4. Create notification if pending
+    const athleteName = `${profileRes.data.first_name} ${profileRes.data.last_name || ''}`;
+    const sessionTitle = sessionRes.data.title || 'Session';
+
+    // 4. Notifications & Emails
     if (initialStatus === 'PENDING') {
-        const athleteName = profileRes.data.first_name || 'Athlete';
-        const sessionTitle = sessionRes.data.title || 'Session';
-        
+        // Notify Coach of pending booking
+        const coachId = sessionRes.data.assigned_by;
+        if (coachId) {
+          await supabase.from('staff_notifications').insert({
+            staff_id: coachId,
+            type: 'NEW_BOOKING',
+            message: `${athleteName} has requested to join ${sessionTitle} (Approval Required).`,
+            related_id: booking.id
+          });
+        }
         await supabase.from('athlete_notifications').insert({
             athlete_id: user.id,
             type: 'APPROVAL_REQUIRED',
             message: `Your booking for ${sessionTitle} requires coach approval due to high weekly load (${weeklyLoad} AU).`,
-            related_id: data.id
+            related_id: booking.id
         });
+    } else {
+        // CONFIRMED - Send Confirmation Email to Athlete
+        const { sendEmail } = require('@/utils/email');
+        const userEmail = profileRes.data.email || user.email;
+        if (userEmail) {
+          await sendEmail({
+            to: userEmail,
+            subject: `BOOKING CONFIRMED: ${sessionTitle}`,
+            html: `
+              <div style="font-family: sans-serif; background: #000; color: #fff; padding: 40px; border-radius: 20px;">
+                <h1 style="color: #22c55e;">MISSION CONFIRMED</h1>
+                <p>Your spot for <strong>${sessionTitle}</strong> has been secured.</p>
+                <hr style="border: 1px solid #333; margin: 20px 0;">
+                <p><strong>DATE:</strong> ${sessionRes.data.scheduled_date}</p>
+                <p><strong>TIME:</strong> ${sessionRes.data.start_time}</p>
+                <p><strong>LOCATION:</strong> ${sessionRes.data.location || 'KIO-X MATRIX'}</p>
+              </div>
+            `
+          });
+        }
 
-        // Notify Coach if assigned
-        if (sessionRes.data.coach_id) {
-            await supabase.from('staff_notifications').insert({
-                staff_id: sessionRes.data.coach_id,
-                type: 'NEW_BOOKING',
-                message: `High Load Alert: ${athleteName} requested ${sessionTitle} (${weeklyLoad} AU). Approval Required.`,
-                related_id: data.id
-            });
-
-            // Send Email to Coach
-            const { data: coachProfile } = await supabase
-                .from('profiles')
-                .select('email, first_name')
-                .eq('id', sessionRes.data.coach_id)
-                .single();
-
-            if (coachProfile?.email) {
-                const { sendEmail, getBookingRequestTemplate } = require('@/utils/email');
-                await sendEmail({
-                    to: coachProfile.email,
-                    subject: `Approval Required: ${athleteName} // High Load`,
-                    html: getBookingRequestTemplate(
-                        athleteName,
-                        sessionRes.data.scheduled_date,
-                        sessionRes.data.start_time,
-                        sessionTitle
-                    )
-                });
-            }
+        // Notify Coach of new confirmed booking
+        const coachId = sessionRes.data.assigned_by; // For special sessions, assigned_by is the creator
+        if (coachId) {
+          await supabase.from('staff_notifications').insert({
+            staff_id: coachId,
+            type: 'NEW_BOOKING',
+            message: `${athleteName} has joined ${sessionTitle}. Capacity: ${confirmedCount! + 1}/${maxCapacity}`,
+            related_id: booking.id
+          });
         }
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: booking });
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

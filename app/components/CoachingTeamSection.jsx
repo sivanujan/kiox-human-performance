@@ -5,6 +5,8 @@ import { useOnlineStatus } from '@/app/hooks/useOnlineStatus';
 import CoachStatusDot from './CoachStatusDot';
 import { motion } from 'framer-motion';
 import { User, MessageSquare } from 'lucide-react';
+import Avatar from '@/components/ui/Avatar';
+import { useTimezone } from '@/hooks/useTimezone';
 
 const DAYS_SHORT = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const DAYS_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -20,6 +22,20 @@ const formatTime = (timeStr) => {
 
 function CoachCard({ coach }) {
   const { isOnline, todaySchedule } = useOnlineStatus(coach.schedule);
+  const { userTimezone, formatTimeOnly } = useTimezone();
+  const coachTimezone = coach.availability?.timezone || 'UTC';
+  const isDifferentTimezone = userTimezone !== coachTimezone;
+
+  const displayTimeRange = () => {
+    if (!todaySchedule?.is_working) return 'Not available today';
+    
+    const coachRange = `${formatTime(todaySchedule.start_time)} - ${formatTime(todaySchedule.end_time)}`;
+    if (!isDifferentTimezone) return coachRange;
+
+    const athleteStart = formatTimeOnly(todaySchedule.start_time, coachTimezone);
+    const athleteEnd = formatTimeOnly(todaySchedule.end_time, coachTimezone);
+    return `${athleteStart} - ${athleteEnd} (Local)`;
+  };
 
   return (
     <motion.div 
@@ -28,20 +44,26 @@ function CoachCard({ coach }) {
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e] font-display text-xl overflow-hidden">
-            {coach.avatar_url ? (
-              <img src={coach.avatar_url} alt={coach.first_name} className="w-full h-full object-cover" />
-            ) : (
-              coach.first_name?.[0]
-            )}
-          </div>
+          <Avatar 
+            src={coach.avatar_url} 
+            name={coach.first_name} 
+            size="md" 
+            role="staff" 
+          />
           <div>
             <h4 className="text-white font-display text-sm tracking-wider uppercase group-hover:text-[#22c55e] transition-colors">
               {coach.first_name} {coach.last_name}
             </h4>
-            <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest mt-0.5">
-              Coaching Staff
-            </p>
+            <div className="flex items-center gap-2">
+               <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">
+                 Coaching Staff
+               </p>
+               {isDifferentTimezone && coach.availability?.country_code && (
+                 <span className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-gray-400">
+                    {coach.availability.country_code}
+                 </span>
+               )}
+            </div>
           </div>
         </div>
         <CoachStatusDot isOnline={isOnline} />
@@ -51,7 +73,7 @@ function CoachCard({ coach }) {
         <div className="flex items-center justify-between">
           <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Today's Ops:</span>
           <span className={`text-[10px] font-bold uppercase ${isOnline ? 'text-[#22c55e]' : 'text-gray-400'}`}>
-            {todaySchedule?.is_working ? `${formatTime(todaySchedule.start_time)} - ${formatTime(todaySchedule.end_time)}` : 'Not available today'}
+            {displayTimeRange()}
           </span>
         </div>
 

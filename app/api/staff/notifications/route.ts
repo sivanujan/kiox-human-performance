@@ -12,20 +12,19 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data: schedule, error } = await supabase
-    .from('weekly_schedules')
+  // Fetch both staff-specific and system-wide notifications for this user
+  const { data, error } = await supabase
+    .from('staff_notifications')
     .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true });
+    .eq('staff_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
 
-  if (error) {
-    console.warn("Schedule table missing or fetch failed:", error.message);
-    return NextResponse.json([]); // Return empty array to prevent dashboard crash
-  }
-  return NextResponse.json(schedule);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
-export async function POST(request: Request) {
+export async function PATCH(request: Request) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -33,10 +32,13 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { day, session, time, type } = await request.json();
+    const { notificationId, isRead } = await request.json();
+
     const { data, error } = await supabase
-      .from('weekly_schedules')
-      .insert({ user_id: user.id, day, session, time, type })
+      .from('staff_notifications')
+      .update({ is_read: isRead })
+      .eq('id', notificationId)
+      .eq('staff_id', user.id)
       .select()
       .single();
 
