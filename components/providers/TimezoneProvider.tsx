@@ -58,12 +58,21 @@ export function TimezoneProvider({ children }: { children: React.ReactNode }) {
           setUserTimezone(browserTz);
           setIsDetecting(false);
           
+          // Try to get country from our curated list as a baseline
+          const { getFullTimezoneList } = require('@/lib/timezone');
+          const tzList = getFullTimezoneList();
+          const localMatch = tzList.find((t: any) => t.value === browserTz);
+          if (localMatch) {
+             setUserCountry(localMatch.country);
+             setUserCountryCode(localMatch.code);
+          }
+
           // Optionally still fetch IP info for country/code but don't let it override the browser TZ
           fetch('/api/detect-timezone')
             .then(res => res.json())
             .then(data => {
-              if (data.country) setUserCountry(data.country);
-              if (data.country_code) setUserCountryCode(data.country_code);
+              if (data.country && data.country !== 'Universal') setUserCountry(data.country);
+              if (data.country_code && data.country_code !== 'UN') setUserCountryCode(data.country_code);
               if (user) syncWithDB(browserTz, data.country, data.country_code);
             })
             .catch(() => {});
@@ -76,9 +85,22 @@ export function TimezoneProvider({ children }: { children: React.ReactNode }) {
         const data = await res.json();
         if (data.timezone) {
           setUserTimezone(data.timezone);
-          setUserCountry(data.country || null);
-          setUserCountryCode(data.country_code || null);
-          if (user) await syncWithDB(data.timezone, data.country, data.country_code);
+          
+          let country = data.country;
+          let code = data.country_code;
+          
+          if (!country || country === 'Universal') {
+             const { getFullTimezoneList } = require('@/lib/timezone');
+             const match = getFullTimezoneList().find((t: any) => t.value === data.timezone);
+             if (match) {
+                country = match.country;
+                code = match.code;
+             }
+          }
+          
+          setUserCountry(country || null);
+          setUserCountryCode(code || null);
+          if (user) await syncWithDB(data.timezone, country, code);
         }
       } catch (err) {
         console.error('Timezone initialization error:', err);
