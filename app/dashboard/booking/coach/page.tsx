@@ -21,7 +21,7 @@ import TimezoneMismatch from "@/components/ui/TimezoneMismatch";
 import { getOffsetLabel } from "@/lib/timezone";
 
 export default function CoachBookingPage() {
-  const { coaches, loading: loadingCoaches, error } = useCoachAvailability();
+  const { coaches, loading: loadingCoaches, error } = useCoachAvailability() as any;
   const [selectedCoach, setSelectedCoach] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [slots, setSlots] = useState<any[]>([]);
