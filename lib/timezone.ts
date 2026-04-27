@@ -49,17 +49,17 @@ export function convertTime(
     const [hours, minutes] = timeString.split(':').map(Number);
     const [year, month, day] = dateString.split('-').map(Number);
     
-    // Create a date object. Note: month is 0-indexed in JS Date
-    const baseDate = new Date(year, month - 1, day, hours, minutes);
+    // 1. Create a UTC date at that numeric time
+    const utcRef = new Date(Date.UTC(year, month - 1, day, hours, minutes));
     
-    // Find the offset difference between fromTimezone and UTC
-    const fromOffset = getOffsetMinutesFor(fromTimezone, baseDate);
+    // 2. Adjust for fromTimezone offset
+    const fromOffset = getOffsetMinutesFor(fromTimezone, utcRef);
     
-    // Create UTC date: Subtract the offset from the local time to get UTC
-    // e.g. 10:00 AM GMT-4 -> 10:00 - (-4) = 14:00 UTC
-    const utcDate = new Date(baseDate.getTime() - (fromOffset * 60 * 1000));
+    // 3. Calculate true UTC date
+    // If fromTimezone is GMT+2 (+120), then 10:00 in fromTimezone is 08:00 UTC
+    const correctedUtc = new Date(utcRef.getTime() - (fromOffset * 60 * 1000));
 
-    // Format in target timezone
+    // 4. Format in target timezone
     return new Intl.DateTimeFormat('en-US', {
       timeZone: toTimezone,
       weekday: 'short',
@@ -68,7 +68,7 @@ export function convertTime(
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
-    }).format(utcDate);
+    }).format(correctedUtc);
   } catch (e) {
     console.error('convertTime error:', e);
     return `${dateString} ${timeString}`;
@@ -85,21 +85,21 @@ export function convertTimeOnly(
     const [hours, minutes] = timeString.split(':').map(Number);
     const now = new Date();
     
-    // We use today as a reference date for DST purposes
-    const baseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+    // 1. Create a date object at numeric HH:mm UTC
+    const utcRef = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes));
     
-    // Get offset of source timezone
-    const fromOffset = getOffsetMinutesFor(fromTimezone, baseDate);
+    // 2. Get offset of source timezone at this UTC time
+    const fromOffset = getOffsetMinutesFor(fromTimezone, utcRef);
     
-    // Calculate UTC time
-    const utcDate = new Date(baseDate.getTime() - (fromOffset * 60 * 1000));
+    // 3. Calculate true UTC date
+    const correctedUtc = new Date(utcRef.getTime() - (fromOffset * 60 * 1000));
 
     return new Intl.DateTimeFormat('en-US', {
       timeZone: toTimezone,
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
-    }).format(utcDate);
+    }).format(correctedUtc);
   } catch (e) {
     console.error('convertTimeOnly error:', e);
     return timeString;
