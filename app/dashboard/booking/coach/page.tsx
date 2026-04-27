@@ -30,7 +30,7 @@ export default function CoachBookingPage() {
   const [bookingInProgress, setBookingInProgress] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const { userTimezone, formatTimeOnly } = useTimezone();
+  const { userTimezone, userCountry, formatTimeOnly } = useTimezone();
 
   useEffect(() => {
     if (selectedCoach && selectedDate) {
@@ -106,9 +106,10 @@ export default function CoachBookingPage() {
         <p className="text-[#22c55e] text-[10px] font-black uppercase tracking-[4px] mt-2 italic">Matrix Access // Human Performance Optimization</p>
         <div className="mt-4 flex items-center gap-2">
            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Viewing times in:</span>
-           <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-lg text-[#22c55e] text-[9px] font-black uppercase tracking-wider">
-              {userTimezone} ({getOffsetLabel(userTimezone)})
-           </span>
+            <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-lg text-[#22c55e] text-[9px] font-black uppercase tracking-wider flex items-center gap-2">
+               {userTimezone} ({getOffsetLabel(userTimezone)})
+               {userCountry && <span className="opacity-50 font-black">| {userCountry}</span>}
+            </span>
         </div>
       </div>
 
@@ -242,7 +243,7 @@ export default function CoachBookingPage() {
                                         {formatTimeOnly(slot.start_time, coachTimezone)}
                                       </span>
                                       <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">
-                                         ({slot.display_time} Coach)
+                                         ({slot.display_time} Coach{selectedCoach?.country ? `, ${selectedCoach.country}` : ''})
                                       </span>
                                       {slot.is_available && (
                                         <div className="px-2 py-0.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded text-[8px] font-black text-[#22c55e] uppercase tracking-widest">
