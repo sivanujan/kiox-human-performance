@@ -17,6 +17,7 @@ export interface TrainingSession {
   target_load_au?: number;
   assigned_by?: string;
   notes?: string;
+  coach_timezone?: string;
 }
 
 export function useSessions() {
