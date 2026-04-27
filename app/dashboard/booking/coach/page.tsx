@@ -24,11 +24,11 @@ export default function CoachBookingPage() {
   const { coaches, loading: loadingCoaches, error } = useCoachAvailability();
   const [selectedCoach, setSelectedCoach] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [slots, setSlots] = useState([]);
+  const [slots, setSlots] = useState<any[]>([]);
   const [coachTimezone, setCoachTimezone] = useState('UTC');
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [bookingInProgress, setBookingInProgress] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { userTimezone, formatTimeOnly } = useTimezone();
 
