@@ -260,7 +260,7 @@ export default function CoachBookingPage() {
                                   <button 
                                     onClick={() => handleBook(slot)}
                                     disabled={bookingInProgress}
-                                    className="px-6 py-2.5 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white transition-all transform active:scale-95 shadow-[0_5px_15px_rgba(34,197,94,0.2)]"
+                                    className="px-4 py-2 bg-[#22c55e] text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-white transition-all transform active:scale-95 shadow-[0_5px_15px_rgba(34,197,94,0.1)] whitespace-nowrap"
                                   >
                                     {bookingInProgress ? 'INIT...' : 'BOOK NOW'}
                                   </button>
