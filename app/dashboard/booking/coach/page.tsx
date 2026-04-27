@@ -83,7 +83,7 @@ export default function CoachBookingPage() {
     }
   };
 
-  const filteredCoaches = coaches.filter(c => 
+  const filteredCoaches = coaches.filter((c: any) => 
     `${c.first_name} ${c.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -130,7 +130,7 @@ export default function CoachBookingPage() {
             {loadingCoaches ? (
               [1,2,3].map(i => <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />)
             ) : (
-              filteredCoaches.map((coach) => (
+              filteredCoaches.map((coach: any) => (
                 <button 
                   key={coach.id}
                   onClick={() => setSelectedCoach(coach)}
@@ -227,7 +227,7 @@ export default function CoachBookingPage() {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           {slots.map((slot, i) => (
+                           {slots.map((slot: any, i: number) => (
                              <div 
                                key={i}
                                className={`p-5 rounded-2xl border transition-all flex items-center justify-between group ${
