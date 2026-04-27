@@ -22,7 +22,7 @@ import { getOffsetLabel } from "@/lib/timezone";
 
 export default function CoachBookingPage() {
   const { coaches, loading: loadingCoaches, error } = useCoachAvailability();
-  const [selectedCoach, setSelectedCoach] = useState(null);
+  const [selectedCoach, setSelectedCoach] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [slots, setSlots] = useState([]);
   const [coachTimezone, setCoachTimezone] = useState('UTC');
@@ -39,6 +39,7 @@ export default function CoachBookingPage() {
   }, [selectedCoach, selectedDate]);
 
   const fetchSlots = async () => {
+    if (!selectedCoach) return;
     setLoadingSlots(true);
     try {
       const res = await fetch(`/api/bookings/slots?coachId=${selectedCoach.id}&date=${selectedDate}`);
@@ -52,7 +53,8 @@ export default function CoachBookingPage() {
     }
   };
 
-  const handleBook = async (slot) => {
+  const handleBook = async (slot: any) => {
+    if (!selectedCoach) return;
     setBookingInProgress(true);
     try {
       const res = await fetch('/api/bookings/coach', {
