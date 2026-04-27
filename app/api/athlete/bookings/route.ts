@@ -127,7 +127,7 @@ export async function POST(request: Request) {
     } else {
         // CONFIRMED - Send Confirmation Email to Athlete
         const { sendEmail } = require('@/utils/email');
-        const userEmail = profileRes.data.email || user.email;
+        const userEmail = user.email;
         if (userEmail) {
           await sendEmail({
             to: userEmail,
