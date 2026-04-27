@@ -10,6 +10,9 @@ interface TimezoneOption {
   label: string;
   offset: number;
   displayOffset: string;
+  region: string;
+  country?: string;
+  code?: string;
 }
 
 interface TimezoneSearchPickerProps {
