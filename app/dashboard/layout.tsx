@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Avatar from "@/components/ui/Avatar";
+import { useTrainingReminders } from "@/hooks/useTrainingReminders";
 
 const athleteNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'OVERVIEW', href: '/dashboard' },
@@ -42,6 +43,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [teams, setTeams] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Initialize training reminders
+  useTrainingReminders();
 
   useEffect(() => {
     if (!loading) {

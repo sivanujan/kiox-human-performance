@@ -20,7 +20,8 @@ import {
   Target,
   LogOut,
   Settings,
-  BarChart3
+  BarChart3,
+  Layers
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -36,6 +37,7 @@ import VideoFeedbackModal from "@/components/modals/VideoFeedbackModal";
 import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedModal";
 import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
 import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
+import ManageScheduleModal from "@/components/modals/ManageScheduleModal";
 
 // Admin UI Components
 import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
@@ -61,6 +63,10 @@ export default function StaffPortal() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [todaySessions, setTodaySessions] = useState<any[]>([]);
   const [staffNotes, setStaffNotes] = useState<any[]>([]);
+  const [enrolledAthletes, setEnrolledAthletes] = useState<any[]>([]);
+  const [myPrograms, setMyPrograms] = useState<any[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<any | null>(null);
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [selectedAthlete, setSelectedAthlete] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,6 +87,7 @@ export default function StaffPortal() {
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
   const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   
   // Operational State
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
@@ -157,6 +164,25 @@ export default function StaffPortal() {
           type: s.session_type.toLowerCase()
         }));
         setTodaySessions(mappedSessions);
+      }
+
+      // Fetch Enrolled Athletes for this Coach
+      const enrollRes = await fetch("/api/admin/enrollments");
+      const enrollData = await enrollRes.json();
+      if (!enrollData.error) {
+        // Filter for active enrollments where this staff is the coach
+        // We need to fetch the program details to check coach_id
+        const myEnrollments = enrollData.filter((e: any) => 
+          e.status === 'active' && e.program?.coach_id === user?.id
+        );
+        setEnrolledAthletes(myEnrollments);
+      }
+
+      // Fetch Programs assigned to this coach
+      const progRes = await fetch("/api/admin/programs");
+      const progData = await progRes.json();
+      if (!progData.error) {
+        setMyPrograms(progData.filter((p: any) => p.coach_id === user?.id));
       }
     } catch (error) {
       console.error("Staff Matrix Sync Error:", error);
@@ -320,6 +346,127 @@ export default function StaffPortal() {
                        )}
                     </div>
                   </div>
+                ))
+              )}
+           </div>
+        </div>
+        
+        
+        {/* NEW: ASSIGNED ARCHITECTURES SECTION */}
+        <div id="assigned-architectures" className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">
+           <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/arch:opacity-10 transition-opacity">MATRIX</div>
+           <div className="flex items-center justify-between mb-8">
+              <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+                 <ShieldAlert className="animate-pulse" size={18} /> My Assigned Architectures
+              </div>
+              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
+                 {myPrograms.length} TOTAL PROTOCOLS
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myPrograms.length === 0 ? (
+                 <div className="col-span-full py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl bg-black/20">
+                    NO OPERATIONAL ARCHITECTURES ASSIGNED TO YOUR IDENTITY
+                 </div>
+              ) : (
+                myPrograms.map((prog, i) => (
+                  <motion.div 
+                    key={prog.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-black/40 border border-white/5 rounded-2xl p-6 hover:border-[#22c55e]/30 transition-all cursor-pointer group/card relative"
+                    onClick={() => {
+                      setSelectedProgram(prog);
+                      setIsProgramModalOpen(true);
+                    }}
+                  >
+                    <div className="flex flex-col h-full">
+                       <div className="flex justify-between items-start mb-4">
+                          <div className="w-10 h-10 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center">
+                             <Target className="text-[#22c55e]" size={18} />
+                          </div>
+                          <span className="text-[8px] font-black bg-[#22c55e] text-black px-2 py-0.5 rounded uppercase tracking-tighter">Active</span>
+                       </div>
+                       
+                       <h4 className="text-white font-bold uppercase tracking-wider text-sm mb-2 group-hover:text-[#22c55e] transition-colors">{prog.title}</h4>
+                       <p className="text-gray-500 text-[10px] font-medium leading-relaxed line-clamp-2 mb-6">
+                         {prog.description}
+                       </p>
+
+                       <div className="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                          <div className="space-y-1">
+                             <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">Category</p>
+                             <p className="text-[9px] text-[#22c55e] font-black uppercase">{prog.category}</p>
+                          </div>
+                          <div className="space-y-1">
+                             <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">Duration</p>
+                             <p className="text-[9px] text-white font-black uppercase">{prog.duration}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProgram(prog);
+                            setIsScheduleModalOpen(true);
+                          }}
+                          className="mt-4 w-full flex items-center justify-center gap-2 py-2 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl text-[8px] font-black text-[#22c55e] uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                        >
+                           <Zap size={10} /> Configure Matrix
+                        </button>
+                     </div>
+                  </motion.div>
+                ))
+              )}
+           </div>
+        </div>
+
+        {/* NEW: PROTOCOL ASSIGNMENTS SECTION */}
+
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl relative overflow-hidden group/proto">
+           <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/proto:opacity-10 transition-opacity">PROTO</div>
+           <div id="protocol-assignments" className="flex items-center justify-between mb-8">
+              <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+                 <Layers className="animate-pulse" size={18} /> Protocol Assignments
+              </div>
+              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
+                 {enrolledAthletes.length} ACTIVE ENROLLEES
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enrolledAthletes.length === 0 ? (
+                 <div className="col-span-full py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl bg-black/20">
+                    NO ATHLETES CURRENTLY INITIALIZED IN YOUR PROTOCOLS
+                 </div>
+              ) : (
+                enrolledAthletes.map((enroll, i) => (
+                  <motion.div 
+                    key={enroll.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-black/40 border border-white/5 rounded-2xl p-6 hover:border-[#22c55e]/30 transition-all cursor-pointer group/card"
+                    onClick={() => {
+                      setSelectedAthlete(enroll.user_id);
+                      document.getElementById('management-core')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                       <div className="w-12 h-12 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center overflow-hidden">
+                          <Zap className="text-[#22c55e]" size={20} />
+                       </div>
+                       <div>
+                          <h4 className="text-white font-bold uppercase tracking-wider text-sm">{athletes.find(a => a.id === enroll.user_id)?.first_name} {athletes.find(a => a.id === enroll.user_id)?.last_name}</h4>
+                          <p className="text-[#22c55e] text-[9px] font-black uppercase tracking-[2px]">{enroll.program?.title}</p>
+                       </div>
+                    </div>
+                    <div className="flex justify-between items-center text-[8px] font-black text-gray-500 uppercase tracking-widest pt-4 border-t border-white/5">
+                       <span>Phase: {enroll.program?.level}</span>
+                       <span className="text-[#22c55e] group-hover/card:translate-x-1 transition-transform flex items-center gap-1">Manage <ArrowRight size={10} /></span>
+                    </div>
+                  </motion.div>
                 ))
               )}
            </div>
@@ -516,6 +663,104 @@ export default function StaffPortal() {
         athleteId={selectedAthlete}
         athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
       />
+
+      <ManageScheduleModal 
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        program={selectedProgram}
+      />
+
+      {/* Program Detail Modal */}
+      <AnimatePresence>
+        {isProgramModalOpen && selectedProgram && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-24">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProgramModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#0a0a0a] border border-[#22c55e]/20 rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none font-display text-9xl">OP</div>
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                       <Zap className="text-[#22c55e]" size={14} />
+                       <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px]">Architecture Specification</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">{selectedProgram.title}</h3>
+                  </div>
+                  <button 
+                    onClick={() => setIsProgramModalOpen(false)}
+                    className="p-3 bg-white/5 border border-white/10 rounded-full text-gray-500 hover:text-white hover:border-white/20 transition-all"
+                  >
+                    <ArrowRight className="rotate-45" size={20} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                   <div className="space-y-8">
+                      <div className="space-y-4">
+                         <h5 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Protocol Description</h5>
+                         <p className="text-sm text-gray-300 leading-relaxed font-sans italic">
+                            "{selectedProgram.description}"
+                         </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <h5 className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Target Phase</h5>
+                            <div className="px-3 py-2 bg-black border border-white/10 rounded-xl text-[11px] font-bold text-white uppercase">{selectedProgram.level}</div>
+                         </div>
+                         <div className="space-y-2">
+                            <h5 className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Operational Category</h5>
+                            <div className="px-3 py-2 bg-black border border-[#22c55e]/20 rounded-xl text-[11px] font-bold text-[#22c55e] uppercase">{selectedProgram.category}</div>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="space-y-8">
+                      <div className="bg-[#111] border border-white/5 rounded-2xl p-6 space-y-6">
+                         <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Timeline</span>
+                            <span className="text-[10px] font-bold text-white uppercase">{selectedProgram.duration}</span>
+                         </div>
+                         <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Enrolment Cap</span>
+                            <span className="text-[10px] font-bold text-white uppercase">{selectedProgram.max_athletes} Agents</span>
+                         </div>
+                         <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Valuation</span>
+                            <span className="text-[10px] font-bold text-[#22c55e] uppercase">${selectedProgram.price} USD</span>
+                         </div>
+                      </div>
+
+                      <div className="pt-4">
+                         <button 
+                           onClick={() => {
+                             setIsProgramModalOpen(false);
+                             document.getElementById('protocol-assignments')?.scrollIntoView({ behavior: 'smooth' });
+                           }}
+                           className="w-full bg-[#22c55e] text-black py-4 rounded-xl font-black text-[11px] uppercase tracking-[2px] hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
+                         >
+                           Manage Assigned Units <ArrowRight size={14} />
+                         </button>
+                      </div>
+                   </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <CreateSessionModal 
         isOpen={isCreateSessionOpen}

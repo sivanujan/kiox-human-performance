@@ -19,7 +19,7 @@ interface CreateSessionModalProps {
 
 export default function CreateSessionModal({ isOpen, onClose, athletes }: CreateSessionModalProps) {
   const { user } = useAuth();
-  const { userTimezone } = useTimezone();
+  const { userTimezone, userCountry } = useTimezone();
   const { createSession, loading } = useSessions();
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -179,13 +179,14 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                    </div>
 
                    {/* Timezone Preview */}
-                   <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                         <div className="text-[9px] font-black text-amber-500 uppercase tracking-[3px]">Global Preview</div>
-                         <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <Globe size={10} /> Local: {userTimezone.split('/')[1]?.replace('_', ' ')} ({getOffsetLabel(userTimezone)})
-                         </div>
-                      </div>
+                    <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-4">
+                       <div className="flex items-center justify-between">
+                          <div className="text-[9px] font-black text-amber-500 uppercase tracking-[3px]">Global Preview</div>
+                          <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 text-[9px] font-black uppercase tracking-wider flex items-center gap-2">
+                             <Globe size={10} /> {userTimezone} ({getOffsetLabel(userTimezone)})
+                             {userCountry && <span className="opacity-50 font-black">| {userCountry}</span>}
+                          </div>
+                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                          {[
                             { name: 'Colombo', tz: 'Asia/Colombo' },

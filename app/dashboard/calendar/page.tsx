@@ -16,12 +16,15 @@ import {
   isToday
 } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Zap, Target, Users, Clock, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Zap, Target, Users, Clock, Loader2, Calendar as CalendarIcon, ShieldCheck } from "lucide-react";
+import { useTimezone } from "@/hooks/useTimezone";
 
 export default function AthleteCalendarPage() {
   const supabase = createClient();
+  const { formatTimeOnly } = useTimezone();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sessions, setSessions] = useState<any[]>([]);
+  const [programSchedule, setProgramSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
 
@@ -35,11 +38,29 @@ export default function AthleteCalendarPage() {
       const start = format(startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 }), 'yyyy-MM-dd');
       const end = format(endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
+      // 1. Fetch normal bookings
       const res = await fetch(`/api/athlete/calendar?start=${start}&end=${end}`);
       const data = await res.json();
-      
-      if (data.error) throw new Error(data.error);
-      setSessions(data || []);
+      if (!data.error) setSessions(data || []);
+
+      // 2. Fetch user's program schedule
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: enrollments } = await supabase
+          .from('user_programs')
+          .select('program_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single();
+        
+        if (enrollments) {
+          const progRes = await fetch(`/api/coach/program-schedule?programId=${enrollments.program_id}`);
+          const progData = await progRes.json();
+          if (!progData.error) setProgramSchedule(progData);
+        } else {
+          setProgramSchedule([]);
+        }
+      }
     } catch (err) {
       console.error("Calendar fetch error:", err);
     } finally {
@@ -57,7 +78,26 @@ export default function AthleteCalendarPage() {
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
-  const selectedDaySessions = sessions.filter(s => isSameDay(new Date(s.scheduled_date), selectedDay!));
+  // Helper to get all sessions for a specific day (including virtual program sessions)
+  const getSessionsForDay = (day: Date) => {
+    const dayIdx = day.getDay();
+    const dayStr = format(day, 'yyyy-MM-dd');
+
+    const daySessions = sessions.filter(s => format(new Date(s.scheduled_date), 'yyyy-MM-dd') === dayStr);
+    
+    const progSessions = programSchedule
+      .filter(s => s.day_of_week === dayIdx)
+      .map(s => ({
+        ...s,
+        is_program: true,
+        scheduled_date: dayStr,
+        coach_timezone: s.program?.coach?.timezone || 'UTC'
+      }));
+
+    return [...daySessions, ...progSessions].sort((a, b) => a.start_time.localeCompare(b.start_time));
+  };
+
+  const selectedDaySessions = getSessionsForDay(selectedDay!);
 
   return (
     <div className="p-4 md:p-10 space-y-10">
@@ -112,7 +152,7 @@ export default function AthleteCalendarPage() {
                 const isCurrentMonth = isSameMonth(day, monthStart);
                 const isTodayDate = isToday(day);
                 const isSelected = selectedDay && isSameDay(day, selectedDay);
-                const daySessions = sessions.filter(s => isSameDay(new Date(s.scheduled_date), day));
+                const daySessions = getSessionsForDay(day);
                 
                 return (
                   <motion.div 
@@ -146,7 +186,7 @@ export default function AthleteCalendarPage() {
                            px-2 py-1 rounded text-[8px] font-black uppercase tracking-wider truncate
                            ${s.is_special ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20'}
                          `}>
-                           {s.start_time.slice(0, 5)} {s.title}
+                           {formatTimeOnly(s.start_time, s.coach_timezone || 'UTC')} {s.title}
                          </div>
                        ))}
                        {daySessions.length > 2 && (
@@ -190,17 +230,21 @@ export default function AthleteCalendarPage() {
                     selectedDaySessions.map((session) => (
                       <div key={session.id} className="p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:border-[#22c55e]/30 transition-all group">
                          <div className="flex items-center gap-3 mb-3">
-                            <div className={`p-2 rounded-lg ${session.is_special ? 'bg-amber-500/10 text-amber-500 pulse-amber' : 'bg-[#22c55e]/10 text-[#22c55e]'}`}>
-                               {session.is_special ? <Zap size={14} /> : <Target size={14} />}
-                            </div>
-                            <span className={`text-[8px] font-black uppercase tracking-widest ${session.is_special ? 'text-amber-500' : 'text-[#22c55e]'}`}>
-                               {session.is_special ? 'Special Ops' : session.session_type}
-                            </span>
+                             <div className={`p-2 rounded-lg ${
+                               session.is_program ? 'bg-[#22c55e]/20 text-[#22c55e]' :
+                               session.is_special ? 'bg-amber-500/10 text-amber-500 pulse-amber' : 
+                               'bg-[#22c55e]/10 text-[#22c55e]'
+                             }`}>
+                                {session.is_program ? <ShieldCheck size={14} /> : session.is_special ? <Zap size={14} /> : <Target size={14} />}
+                             </div>
+                             <span className={`text-[8px] font-black uppercase tracking-widest ${session.is_special ? 'text-amber-500' : 'text-[#22c55e]'}`}>
+                                {session.is_program ? 'Protocol Core' : session.is_special ? 'Special Ops' : session.session_type || 'Training'}
+                             </span>
                          </div>
                          <h4 className="text-white font-display text-lg uppercase tracking-wider mb-4 group-hover:text-[#22c55e] transition-colors">{session.title}</h4>
                          <div className="flex items-center justify-between pt-4 border-t border-white/5">
                             <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
-                               <Clock size={12} className="text-[#22c55e]" /> {session.start_time.slice(0, 5)}
+                                <Clock size={12} className="text-[#22c55e]" /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
                             </div>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
                                <Users size={12} className="text-[#22c55e]" /> {session.max_capacity || 20} MAX

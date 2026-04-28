@@ -70,12 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setProfile(null);
 
-      // 2. Parallel sign out (Client + Server)
-      // We don't 'await' them strictly to prevent one hang from blocking the entire redirect
-      Promise.all([
+      // 2. Parallel sign out (Client + Server) with await
+      // We use Promise.allSettled to ensure we attempt both even if one fails
+      // This is critical: if we don't await, the redirect happens before cookies are cleared
+      await Promise.allSettled([
         supabase.auth.signOut(),
         fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
-      ]).catch(err => console.error("Sign-out async warning:", err));
+      ]);
       
       // 3. Force immediate hard redirect
       // Using window.location.href ensures a complete cache and state purge
@@ -85,10 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Sign-out protocol failure:", err);
       window.location.href = "/signin";
     } finally {
-      // Small delay to ensure redirect is triggered before loading state could potentially flip back
-      setTimeout(() => {
-        if (typeof window !== 'undefined') setLoading(false);
-      }, 100);
+      // Ensure loading is false if redirect somehow fails to trigger immediately
+      if (typeof window !== 'undefined') setLoading(false);
     }
   };
 

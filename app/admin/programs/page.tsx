@@ -13,7 +13,10 @@ import {
   DollarSign,
   Loader2,
   CheckCircle2,
-  Users
+  Users,
+  Calendar,
+  X,
+  Edit2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -30,26 +33,58 @@ export default function ArchitectureMatrix() {
   const [newProgram, setNewProgram] = useState({
     title: "",
     description: "",
-    duration: "",
+    startDate: "",
+    endDate: "",
     level: "Intermediate",
     category: "Speed & Agility",
     price: "",
-    max_athletes: ""
+    max_athletes: "",
+    coach_id: "",
+    weekly_commitment: 4,
+    recovery_blocks: 3,
+    session_time: "",
+    syllabus: [] as { title: string; status: string; duration?: string }[]
   });
+  const [staff, setStaff] = useState<any[]>([]);
   const [btnLoading, setBtnLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Schedule Management
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [activeProgram, setActiveProgram] = useState<any | null>(null);
+  const [programSchedule, setProgramSchedule] = useState<any[]>([]);
+  const [newSchedule, setNewSchedule] = useState({
+    day_of_week: 1,
+    start_time: "10:00",
+    title: "",
+    duration_minutes: 60
+  });
 
   const router = useRouter();
 
   useEffect(() => {
     if (!authLoading) {
-      if (user && profile?.role === 'superadmin') {
+      if (user && (profile?.role === 'superadmin' || profile?.role === 'staff')) {
         fetchPrograms();
+        fetchStaff();
       } else if (!user || profile) {
         // If auth is settled but user isn't superadmin or doesn't exist, stop loading
         setLoading(false);
       }
     }
   }, [user, profile, authLoading, router]);
+
+  const fetchStaff = async () => {
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      if (!data.error) {
+        setStaff(data.filter((u: any) => u.role === 'staff' || u.role === 'superadmin'));
+      }
+    } catch (error) {
+      console.error("Staff Fetch Error:", error);
+    }
+  };
 
   const fetchPrograms = async () => {
     try {
@@ -66,27 +101,106 @@ export default function ArchitectureMatrix() {
   const handleAddProgram = async (e: React.FormEvent) => {
     e.preventDefault();
     setBtnLoading(true);
-    const res = await fetch("/api/admin/programs", {
-      method: "POST",
+
+    const programData = {
+      ...newProgram,
+      duration: newProgram.startDate && newProgram.endDate 
+        ? `${new Date(newProgram.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(newProgram.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+        : "TBD",
+      price: parseFloat(newProgram.price) || 0,
+      max_athletes: parseInt(newProgram.max_athletes) || 0
+    };
+
+    const url = "/api/admin/programs";
+    const method = editingId ? "PATCH" : "POST";
+    const body = editingId ? { ...programData, id: editingId } : programData;
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...newProgram,
-        price: parseFloat(newProgram.price) || 0,
-        max_athletes: parseInt(newProgram.max_athletes) || 0
-      })
+      body: JSON.stringify(body)
     });
 
     if (res.ok) {
       setIsAdding(false);
-      setNewProgram({ title: "", description: "", duration: "", level: "Intermediate", category: "Speed & Agility", price: "", max_athletes: "" });
+      setEditingId(null);
+      setNewProgram({ title: "", description: "", startDate: "", endDate: "", level: "Intermediate", category: "Speed & Agility", price: "", max_athletes: "", coach_id: "", weekly_commitment: 4, recovery_blocks: 3, session_time: "", syllabus: [] });
       fetchPrograms();
     }
     setBtnLoading(false);
   };
 
+  const handleEditClick = (program: any) => {
+    let parsedStart = "";
+    let parsedEnd = "";
+    
+    if (program.duration && program.duration.includes(" - ")) {
+      try {
+        const parts = program.duration.split(" - ");
+        if (parts.length === 2) {
+          const endDateStr = parts[1];
+          const yearMatch = endDateStr.match(/\d{4}/);
+          const year = yearMatch ? yearMatch[0] : new Date().getFullYear();
+          
+          const startDateStr = `${parts[0]} ${year}`;
+          const sDate = new Date(startDateStr);
+          const eDate = new Date(endDateStr);
+          
+          if (!isNaN(sDate.getTime())) parsedStart = sDate.toISOString().split("T")[0];
+          if (!isNaN(eDate.getTime())) parsedEnd = eDate.toISOString().split("T")[0];
+        }
+      } catch (e) {
+        console.error("Failed to parse duration dates:", e);
+      }
+    }
+
+    setEditingId(program.id);
+    setNewProgram({
+      title: program.title,
+      description: program.description,
+      startDate: parsedStart,
+      endDate: parsedEnd,
+      level: program.level,
+      category: program.category,
+      price: program.price.toString(),
+      max_athletes: program.max_athletes.toString(),
+      coach_id: program.coach_id || "",
+      weekly_commitment: program.weekly_commitment || 4,
+      recovery_blocks: program.recovery_blocks || 3,
+      session_time: program.session_time || "",
+      syllabus: program.syllabus || []
+    });
+    setIsAdding(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDelete = async (id: string) => {
     const res = await fetch(`/api/admin/programs?id=${id}`, { method: "DELETE" });
     if (res.ok) fetchPrograms();
+  };
+
+  const fetchSchedule = async (programId: string) => {
+    const res = await fetch(`/api/coach/program-schedule?programId=${programId}`);
+    const data = await res.json();
+    if (!data.error) setProgramSchedule(data);
+  };
+
+  const handleAddSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch("/api/coach/program-schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...newSchedule, program_id: activeProgram.id })
+    });
+    if (res.ok) {
+      setNewSchedule({ day_of_week: 1, start_time: "10:00", title: "", duration_minutes: 60 });
+      fetchSchedule(activeProgram.id);
+    }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    const res = await fetch(`/api/coach/program-schedule?id=${id}`, { method: "DELETE" });
+    if (res.ok) fetchSchedule(activeProgram.id);
   };
 
   if (loading) {
@@ -111,7 +225,10 @@ export default function ArchitectureMatrix() {
             <h1 className={`font-display text-5xl md:text-7xl text-white uppercase tracking-wider`}>Architecture Matrix</h1>
           </div>
           <button 
-            onClick={() => setIsAdding(!isAdding)}
+            onClick={() => {
+              setIsAdding(!isAdding);
+              if (isAdding) setEditingId(null);
+            }}
             className="px-8 py-4 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[2px] rounded-xl flex items-center gap-2 hover:bg-[#4ade80] transition-all"
           >
             {isAdding ? "Cancel Matrix" : <><Plus size={18} /> New Architecture</>}
@@ -127,6 +244,11 @@ export default function ArchitectureMatrix() {
               className="mb-12 overflow-hidden"
             >
               <form onSubmit={handleAddProgram} className="bg-[#111] border border-[#22c55e]/20 p-8 rounded-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="col-span-full mb-4">
+                  <h2 className="text-[#22c55e] font-display text-2xl uppercase tracking-tighter">
+                    {editingId ? "Modify Existing Architecture" : "Initialize New Architecture"}
+                  </h2>
+                </div>
                 <div className="space-y-4">
                   <div>
                     <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Program Title</label>
@@ -170,17 +292,42 @@ export default function ArchitectureMatrix() {
                       </select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Duration</label>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Start Date</label>
                       <input 
+                        type="date"
                         required
-                        value={newProgram.duration}
-                        onChange={e => setNewProgram({...newProgram, duration: e.target.value})}
-                        placeholder="e.g. 12 Weeks"
+                        value={newProgram.startDate}
+                        onChange={e => setNewProgram({...newProgram, startDate: e.target.value})}
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                        style={{ colorScheme: 'dark' }}
                       />
                     </div>
+                    <div>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">End Date</label>
+                      <input 
+                        type="date"
+                        required
+                        value={newProgram.endDate}
+                        onChange={e => setNewProgram({...newProgram, endDate: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                        style={{ colorScheme: 'dark' }}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Daily Time</label>
+                      <input 
+                        type="time"
+                        required
+                        value={newProgram.session_time}
+                        onChange={e => setNewProgram({...newProgram, session_time: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                        style={{ colorScheme: 'dark' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Program Price ($)</label>
                       <input
@@ -203,11 +350,113 @@ export default function ArchitectureMatrix() {
                       />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Weekly Commitment (Sessions)</label>
+                      <input
+                        required
+                        type="number"
+                        value={newProgram.weekly_commitment}
+                        onChange={e => setNewProgram({...newProgram, weekly_commitment: parseInt(e.target.value) || 0})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Recovery Blocks (Units)</label>
+                      <input
+                        required
+                        type="number"
+                        value={newProgram.recovery_blocks}
+                        onChange={e => setNewProgram({...newProgram, recovery_blocks: parseInt(e.target.value) || 0})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                      />
+                    </div>
+                  </div>
+                    <div>
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Assign Lead Coach</label>
+                      <select 
+                        required
+                        value={newProgram.coach_id}
+                        onChange={e => setNewProgram({...newProgram, coach_id: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none uppercase"
+                      >
+                        <option value="">Select Supervisor...</option>
+                        {staff.map(s => (
+                          <option key={s.id} value={s.id}>{s.first_name} {s.last_name} (@{s.username})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="col-span-full border-t border-white/5 pt-6 mt-2">
+                      <div className="flex justify-between items-center mb-4">
+                        <label className="text-[10px] font-black text-[#22c55e] uppercase tracking-[2px]">Program Syllabus / Phases</label>
+                        <button 
+                          type="button"
+                          onClick={() => setNewProgram({...newProgram, syllabus: [...newProgram.syllabus, { title: "", status: "locked", duration: "" }]})}
+                          className="text-[9px] font-black text-[#22c55e] border border-[#22c55e]/30 px-3 py-1 rounded-lg uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                        >
+                          + Add Phase
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {newProgram.syllabus.map((phase, idx) => (
+                          <div key={idx} className="flex gap-3 items-center bg-black/20 p-3 rounded-xl border border-white/5 flex-wrap md:flex-nowrap">
+                            <input 
+                              placeholder="Phase Title (e.g. Initial Adaptation)"
+                              value={phase.title}
+                              onChange={e => {
+                                const updated = [...newProgram.syllabus];
+                                updated[idx].title = e.target.value;
+                                setNewProgram({...newProgram, syllabus: updated});
+                              }}
+                              className="flex-1 min-w-[150px] bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#22c55e] outline-none"
+                            />
+                            <input 
+                              placeholder="Duration (e.g. 4 Weeks)"
+                              value={phase.duration || ""}
+                              onChange={e => {
+                                const updated = [...newProgram.syllabus];
+                                updated[idx].duration = e.target.value;
+                                setNewProgram({...newProgram, syllabus: updated});
+                              }}
+                              className="w-[120px] bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#22c55e] outline-none"
+                            />
+                            <select 
+                              value={phase.status}
+                              onChange={e => {
+                                const updated = [...newProgram.syllabus];
+                                updated[idx].status = e.target.value;
+                                setNewProgram({...newProgram, syllabus: updated});
+                              }}
+                              className="bg-black/40 border border-white/10 rounded-lg px-2 py-2 text-[10px] text-white focus:border-[#22c55e] outline-none uppercase"
+                            >
+                              <option value="completed">Completed</option>
+                              <option value="active">Active</option>
+                              <option value="locked">Locked</option>
+                            </select>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const updated = [...newProgram.syllabus];
+                                updated.splice(idx, 1);
+                                setNewProgram({...newProgram, syllabus: updated});
+                              }}
+                              className="text-gray-500 hover:text-red-500 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        {newProgram.syllabus.length === 0 && (
+                          <p className="text-[9px] text-white/20 uppercase tracking-widest text-center py-4 border border-dashed border-white/5 rounded-xl">No phases defined for this architecture.</p>
+                        )}
+                      </div>
+                    </div>
                   <button 
                     disabled={btnLoading}
                     className="w-full py-4 bg-white text-black text-[11px] font-black uppercase tracking-[2px] rounded-xl flex items-center justify-center gap-2 hover:bg-[#22c55e] transition-all disabled:opacity-50"
                   >
-                    {btnLoading ? <Loader2 className="animate-spin" /> : <><CheckCircle2 size={18} /> Initialize Architecture</>}
+                    {btnLoading ? <Loader2 className="animate-spin" /> : <>{editingId ? <CheckCircle2 size={18} /> : <Plus size={18} />} {editingId ? "Update Architecture" : "Initialize Architecture"}</>}
                   </button>
                 </div>
               </form>
@@ -216,7 +465,9 @@ export default function ArchitectureMatrix() {
         </AnimatePresence>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {programs.map((program, i) => (
+          {programs
+            .filter(program => profile?.role === 'superadmin' || program.coach_id === user?.id)
+            .map((program, i) => (
             <motion.div 
               key={program.id}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -228,12 +479,26 @@ export default function ArchitectureMatrix() {
                 <div className="w-12 h-12 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center">
                   <Package className="text-[#22c55e]" size={20} />
                 </div>
-                <button 
-                  onClick={() => handleDelete(program.id)}
-                  className="text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {(profile?.role === 'superadmin' || program.coach_id === user?.id) && (
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => handleEditClick(program)}
+                      className="text-gray-500 hover:text-[#22c55e] transition-colors"
+                      title="Edit Architecture"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    {profile?.role === 'superadmin' && (
+                      <button 
+                        onClick={() => handleDelete(program.id)}
+                        className="text-gray-500 hover:text-red-500 transition-colors"
+                        title="Delete Architecture"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3 mb-2">
@@ -258,10 +523,132 @@ export default function ArchitectureMatrix() {
                   <span className="text-[10px] font-black uppercase tracking-[1px] text-white/60">{program.max_athletes}</span>
                 </div>
               </div>
+
+              {(profile?.role === 'superadmin' || program.coach_id === user?.id) && (
+                <button 
+                  onClick={() => {
+                    setActiveProgram(program);
+                    setIsScheduleModalOpen(true);
+                    fetchSchedule(program.id);
+                  }}
+                  className="w-full mt-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black text-[#22c55e] uppercase tracking-[3px] hover:bg-[#22c55e] hover:text-black transition-all flex items-center justify-center gap-2"
+                >
+                  <Calendar size={14} /> Manage Schedule
+                </button>
+              )}
             </motion.div>
           ))}
         </div>
       </div>
+
+      {/* Schedule Modal */}
+      <AnimatePresence>
+        {isScheduleModalOpen && activeProgram && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+              onClick={() => setIsScheduleModalOpen(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-4xl bg-[#111] border border-white/10 rounded-[32px] p-10 overflow-hidden max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex justify-between items-start mb-10">
+                <div>
+                  <h3 className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px] mb-2">Protocol Scheduling</h3>
+                  <h2 className="text-3xl font-bold text-white uppercase tracking-tight">{activeProgram.title}</h2>
+                </div>
+                <button onClick={() => setIsScheduleModalOpen(false)} className="p-2 bg-white/5 rounded-full text-white/40 hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* New Entry Form */}
+                <form onSubmit={handleAddSchedule} className="space-y-6">
+                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[3px]">Add Recurring Session</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Day of Week</label>
+                      <select 
+                        value={newSchedule.day_of_week}
+                        onChange={e => setNewSchedule({...newSchedule, day_of_week: parseInt(e.target.value)})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                      >
+                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((d, i) => (
+                          <option key={i} value={i}>{d.toUpperCase()}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Start Time</label>
+                      <input 
+                        type="time"
+                        value={newSchedule.start_time}
+                        onChange={e => setNewSchedule({...newSchedule, start_time: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                        style={{ colorScheme: 'dark' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Session Title</label>
+                    <input 
+                      required
+                      placeholder="e.g. Tactical Conditioning"
+                      value={newSchedule.title}
+                      onChange={e => setNewSchedule({...newSchedule, title: e.target.value})}
+                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                    />
+                  </div>
+
+                  <button className="w-full py-4 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-white transition-all">
+                    Initialize Session
+                  </button>
+                </form>
+
+                {/* Existing Schedule */}
+                <div className="space-y-6">
+                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[3px]">Architecture Sequence</h4>
+                  <div className="space-y-3">
+                    {programSchedule.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between p-4 bg-black/40 border border-white/5 rounded-2xl group">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e] text-xs font-black">
+                            {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][s.day_of_week]}
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white uppercase tracking-wider">{s.title}</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-[2px]">{s.start_time.substring(0, 5)} // {s.duration_minutes} MIN</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleDeleteSchedule(s.id)}
+                          className="p-2 text-gray-600 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    {programSchedule.length === 0 && (
+                      <div className="py-12 text-center text-gray-700 font-black uppercase text-[10px] tracking-[3px] border-2 border-dashed border-white/5 rounded-3xl">
+                        Sequence Null: No Sessions Defined
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

@@ -539,3 +539,169 @@ export function getBookingConfirmationTemplate(name: string, date: string, time:
   `;
 }
 
+export function getProgramApprovalTemplate(athleteName: string, programTitle: string) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>KIO-X Protocol Initialized</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #080808;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          color: #ffffff;
+        }
+        
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #0a0a0a;
+          border: 1px solid #22c55e33;
+          border-radius: 24px;
+          overflow: hidden;
+          margin-top: 40px;
+          margin-bottom: 40px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        .header {
+          padding: 60px 40px;
+          background: linear-gradient(135deg, #22c55e11 0%, #000000 100%);
+          border-bottom: 1px solid #22c55e11;
+          text-align: center;
+        }
+        
+        .logo {
+          font-weight: 900;
+          font-size: 32px;
+          letter-spacing: 0.3em;
+          color: #ffffff;
+          margin-bottom: 10px;
+          text-transform: uppercase;
+        }
+        
+        .badge {
+          display: inline-block;
+          padding: 4px 12px;
+          background-color: #22c55e1a;
+          border: 1px solid #22c55e;
+          color: #22c55e;
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: 2px;
+          border-radius: 100px;
+          text-transform: uppercase;
+        }
+        
+        .content {
+          padding: 60px 40px;
+          text-align: center;
+        }
+        
+        h1 {
+          font-size: 36px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: -0.02em;
+          margin-bottom: 24px;
+          line-height: 1.1;
+        }
+        
+        p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #888888;
+          margin-bottom: 32px;
+        }
+        
+        .program-card {
+          background-color: #111111;
+          border: 1px solid #22c55e22;
+          border-radius: 16px;
+          padding: 32px;
+          margin-bottom: 40px;
+          text-align: center;
+        }
+        
+        .label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #444444;
+          text-transform: uppercase;
+          letter-spacing: 4px;
+          margin-bottom: 12px;
+        }
+        
+        .value {
+          font-size: 24px;
+          font-weight: 900;
+          color: #ffffff;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .btn {
+          display: inline-block;
+          padding: 20px 40px;
+          background-color: #22c55e;
+          color: #000000 !important;
+          text-decoration: none;
+          font-weight: 900;
+          font-size: 14px;
+          letter-spacing: 2px;
+          border-radius: 16px;
+          text-transform: uppercase;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 20px rgba(34,197,94,0.3);
+        }
+        
+        .footer {
+          padding: 40px;
+          background-color: #050505;
+          text-align: center;
+          border-top: 1px solid #ffffff08;
+        }
+        
+        .footer-text {
+          font-size: 12px;
+          color: #333333;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">KIO-X</div>
+          <div class="badge">Matrix Access Granted</div>
+        </div>
+        
+        <div class="content">
+          <h1>Protocol Initialized</h1>
+          <p>Agent <strong>${athleteName}</strong>, your request for tactical matrix deployment has been verified. You now have full access to the operational architecture.</p>
+          
+          <div class="program-card">
+            <div class="label">ACTIVE PROTOCOL</div>
+            <div class="value">${programTitle}</div>
+          </div>
+          
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/program" class="btn">Access Protocol</a>
+          
+          <p style="margin-top: 40px; font-size: 14px; color: #666666;">Check your "Tactical Schedule" in the dashboard to see your assigned training blocks.</p>
+        </div>
+        
+        <div class="footer">
+          <div class="footer-text">KIO-X HUMAN PERFORMANCE // ELITE DIVISION</div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}

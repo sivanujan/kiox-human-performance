@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Activity
 } from "lucide-react";
+import { useTimezone } from "@/hooks/useTimezone";
 
 
 interface BookSessionModalProps {
@@ -24,6 +25,7 @@ interface BookSessionModalProps {
 }
 
 export default function BookSessionModal({ isOpen, onClose, session, onSuccess }: BookSessionModalProps) {
+  const { formatTimeOnly } = useTimezone();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<any>(null);
@@ -124,7 +126,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                   <div className="text-gray-500 text-[9px] font-black uppercase tracking-widest mb-1">DEPLOYMENT WINDOW</div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
                      <Clock size={14} className="text-[#22c55e]" />
-                     {session.start_time.slice(0, 5)} // {session.duration_minutes}m
+                     {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')} // {session.duration_minutes}m
                   </div>
                </div>
                <div className="bg-white/[0.03] p-4 rounded-2xl border border-white/5">

@@ -119,14 +119,22 @@ export default function StaffNotificationDropdown() {
                   key={notif.id} 
                   className={`p-4 border-b border-white/5 relative group transition-colors hover:bg-white/5 ${notif.is_read ? 'opacity-60' : 'bg-[#22c55e]/5'}`}
                 >
-                  <div className="flex gap-3">
+                  <div 
+                    className="flex gap-3 cursor-pointer"
+                    onClick={() => {
+                      if (notif.type === 'PROGRAM_ASSIGNED') {
+                        window.location.href = '/staff#assigned-architectures';
+                        setIsOpen(false);
+                      }
+                    }}
+                  >
                     <div className="flex-shrink-0 mt-1">
                       {!notif.is_read ? <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]" /> : <div className="w-2 h-2 rounded-full bg-white/10" />}
                     </div>
                     <div className="flex-1 pr-8">
                       <div className="flex justify-between items-center mb-1">
                         <h4 className={`text-[11px] font-black uppercase tracking-widest ${!notif.is_read ? 'text-amber-500' : 'text-white/70'}`}>
-                          {notif.type.replace('_', ' ')}
+                          {notif.type.replace(/_/g, ' ')}
                         </h4>
                         <span className="text-[8px] text-gray-400 font-bold uppercase">
                           {new Date(notif.created_at).toLocaleDateString()}

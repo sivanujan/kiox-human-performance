@@ -127,17 +127,43 @@ export default function DashboardOverview() {
     if (!supabase || !user) return;
     const today = format(new Date(), "yyyy-MM-dd");
     
-    const { data, error } = await supabase
+    // 1. Fetch sessions directly assigned to the athlete
+    const { data: assignedData } = await supabase
       .from("training_sessions")
       .select("*")
-      .gte("scheduled_date", today) // Get today and future
-      .contains("assigned_athletes", [user.id])
-      .order("scheduled_date", { ascending: true })
-      .order("start_time", { ascending: true });
+      .gte("scheduled_date", today)
+      .contains("assigned_athletes", [user.id]);
 
-    if (!error && data) {
-      setTodaySessions(data as TrainingSession[]);
+    // 2. Fetch sessions the athlete has explicitly booked
+    const { data: bookedData } = await supabase
+      .from("session_bookings")
+      .select("session_id, status, training_sessions(*)")
+      .eq("athlete_id", user.id)
+      .in("status", ["CONFIRMED", "PENDING"]);
+
+    // Extract valid future sessions from bookings
+    const bookedSessions = (bookedData || [])
+      .map(b => b.training_sessions)
+      .filter(s => s && s.scheduled_date >= today);
+
+    // Merge and Deduplicate by session ID
+    const sessionMap = new Map();
+    if (assignedData) {
+      assignedData.forEach(s => sessionMap.set(s.id, s));
     }
+    bookedSessions.forEach(s => sessionMap.set(s.id, s));
+
+    const mergedSessions = Array.from(sessionMap.values());
+    
+    // Sort chronologically
+    mergedSessions.sort((a, b) => {
+      if (a.scheduled_date === b.scheduled_date) {
+        return a.start_time.localeCompare(b.start_time);
+      }
+      return a.scheduled_date.localeCompare(b.scheduled_date);
+    });
+
+    setTodaySessions(mergedSessions as TrainingSession[]);
   };
 
   const fetchDashboardData = async () => {

@@ -19,6 +19,7 @@ import {
   Bell,
   Menu,
   Calendar,
+  Layers,
   X as CloseIcon
 } from "lucide-react";
 import Image from "next/image";
@@ -29,6 +30,7 @@ import Avatar from "@/components/ui/Avatar";
 
 const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'CONTROL CENTER', href: '/staff' },
+  { icon: <Layers size={18} />, label: 'PROGRAMS MATRIX', href: '/staff/programs' },
   { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
   { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },

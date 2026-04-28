@@ -51,12 +51,14 @@ export default function UserInventory() {
   const [assessmentDate, setAssessmentDate] = useState("");
   const [assessmentType, setAssessmentType] = useState("Initial Evaluation");
   const [actionLoading, setActionLoading] = useState(false);
+  const [enrollmentRequests, setEnrollmentRequests] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'inventory' | 'requests'>('inventory');
 
   const router = useRouter();
 
   useEffect(() => {
     if (!authLoading) {
-      if (user && profile?.role === 'superadmin') {
+      if (user && (profile?.role === 'superadmin' || profile?.role === 'staff')) {
         fetchProfiles();
         fetchTeams();
       } else if (!user || profile) {
@@ -77,12 +79,40 @@ export default function UserInventory() {
     const data = await res.json();
     if (!data.error) setProfiles(data);
     
-    // Also fetch programs for the assignment modal
+    // Fetch programs and filter based on role
     const progRes = await fetch("/api/admin/programs");
     const progData = await progRes.json();
-    if (!progData.error) setPrograms(progData);
+    if (!progData.error) {
+      if (profile?.role === 'superadmin') {
+        setPrograms(progData);
+      } else {
+        setPrograms(progData.filter((p: any) => p.coach_id === user?.id));
+      }
+    }
+
+    // Fetch enrollment requests
+    const enrollRes = await fetch("/api/admin/enrollments");
+    const enrollData = await enrollRes.json();
+    if (!enrollData.error) {
+      setEnrollmentRequests(enrollData.filter((e: any) => e.payment_status === 'pending' || e.approval_status === 'requested'));
+    }
     
     setLoading(false);
+  };
+
+  const handleEnrollmentAction = async (id: string, action: 'approve' | 'reject') => {
+    const res = await fetch("/api/admin/enrollments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, action })
+    });
+    
+    if (res.ok) {
+      fetchProfiles();
+    } else {
+      const err = await res.json();
+      alert(err.error);
+    }
   };
 
   const fetchTeams = async () => {
@@ -214,43 +244,71 @@ export default function UserInventory() {
                 <h1 className="font-display text-4xl md:text-6xl text-white font-black uppercase tracking-tight">Inventory</h1>
             </div>
             
-            <button 
-                onClick={() => setIsInviteModalOpen(true)}
-                className="hidden lg:flex items-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale"
-            >
-                <Zap size={14} /> Invite Agent
-            </button>
+            {profile?.role === 'superadmin' && (
+              <button 
+                  onClick={() => setIsInviteModalOpen(true)}
+                  className="hidden lg:flex items-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale"
+              >
+                  <Zap size={14} /> Invite Agent
+              </button>
+            )}
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-            <input 
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Filter Database..."
-              className="w-full sm:w-64 bg-[#111] border border-white/10 rounded-xl pl-12 pr-4 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none transition-all font-label placeholder:text-gray-500"
-            />
-          </div>
-          <select 
-            value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
-            className="w-full sm:w-auto bg-[#111] border border-white/10 rounded-xl px-6 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none font-label cursor-pointer appearance-none text-center sm:text-left"
-          >
-            <option value="all">Every Role</option>
-            <option value="athlete">Athletes</option>
-            <option value="staff">Staff</option>
-            <option value="superadmin">Super Admin</option>
-          </select>
+          {activeTab === 'inventory' && (
+            <>
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <input 
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Filter Database..."
+                  className="w-full sm:w-64 bg-[#111] border border-white/10 rounded-xl pl-12 pr-4 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none transition-all font-label placeholder:text-gray-500"
+                />
+              </div>
+              <select 
+                value={roleFilter}
+                onChange={e => setRoleFilter(e.target.value)}
+                className="w-full sm:w-auto bg-[#111] border border-white/10 rounded-xl px-6 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none font-label cursor-pointer appearance-none text-center sm:text-left"
+              >
+                <option value="all">Every Role</option>
+                <option value="athlete">Athletes</option>
+                <option value="staff">Staff</option>
+                <option value="superadmin">Super Admin</option>
+              </select>
+            </>
+          )}
         </div>
       </div>
 
-      <button 
-        onClick={() => setIsInviteModalOpen(true)}
-        className="lg:hidden w-full flex items-center justify-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all active-scale"
-      >
-        <Zap size={14} /> Invite Tactical Agent
-      </button>
+      <div className="flex gap-4 border-b border-white/5 pb-1">
+        <button 
+          onClick={() => setActiveTab('inventory')}
+          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'inventory' ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white'}`}
+        >
+          Agent Inventory
+          {activeTab === 'inventory' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+        </button>
+        <button 
+          onClick={() => setActiveTab('requests')}
+          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'requests' ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white'}`}
+        >
+          Protocol Requests
+          {enrollmentRequests.length > 0 && (
+            <span className="ml-2 px-1.5 py-0.5 bg-[#22c55e] text-black text-[8px] rounded-full">{enrollmentRequests.length}</span>
+          )}
+          {activeTab === 'requests' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+        </button>
+      </div>
+
+      {activeTab === 'inventory' ? (
+        <>
+          <button 
+            onClick={() => setIsInviteModalOpen(true)}
+            className="lg:hidden w-full flex items-center justify-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all active-scale"
+          >
+            <Zap size={14} /> Invite Tactical Agent
+          </button>
 
       {/* Table Management View - Desktop Only */}
       <div className="hidden lg:block bg-[#111] border border-white/5 rounded-3xl overflow-hidden relative shadow-2xl">
@@ -332,7 +390,7 @@ export default function UserInventory() {
                     {/* System Status toggles */}
                     <td className="px-4 py-5">
                       <div className="flex justify-center flex-wrap gap-1">
-                        {STATUSES.map(status => (
+                        {profile?.role === 'superadmin' ? STATUSES.map(status => (
                           <button 
                             key={status}
                             onClick={() => handleUpdate(user_profile.id, { status })}
@@ -340,7 +398,11 @@ export default function UserInventory() {
                           >
                             {status}
                           </button>
-                        ))}
+                        )) : (
+                          <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border ${user_profile.status === 'active' ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20' : 'bg-white/5 text-white/40 border-white/10'}`}>
+                             {user_profile.status}
+                          </span>
+                        )}
                       </div>
                     </td>
 
@@ -476,15 +538,75 @@ export default function UserInventory() {
                 ) : (
                   <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">System Level</span>
                 )}
-             </div>
           </div>
-        ))}
-        {filteredProfiles.length === 0 && (
-          <div className="py-20 text-center text-gray-600 font-black uppercase text-xs tracking-widest border-2 border-dashed border-white/5 rounded-3xl">
-            No Agents Found In Database
+        </div>
+      ))}
+    </div>
+  </>
+) : (
+  <div className="bg-[#111] border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[#22c55e]/5 border-b border-[#22c55e]/10">
+                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Athlete</th>
+                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Requested Matrix</th>
+                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Transfer Reference</th>
+                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase text-right">Verification</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {enrollmentRequests.map((req) => {
+                    const athleteProfile = profiles.find(p => p.id === req.user_id);
+                    return (
+                      <tr key={req.id} className="hover:bg-white/[0.01] transition-colors group">
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <Avatar src={athleteProfile?.avatar_url} name={athleteProfile ? `${athleteProfile.first_name} ${athleteProfile.last_name}` : 'Unknown'} size="sm" />
+                            <div>
+                              <p className="text-sm font-bold text-white uppercase">{athleteProfile?.first_name} {athleteProfile?.last_name}</p>
+                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">@{athleteProfile?.username}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <p className="text-sm font-bold text-[#22c55e] uppercase tracking-wider">{req.program?.title}</p>
+                          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{req.program?.category}</p>
+                        </td>
+                        <td className="px-6 py-5 font-mono text-xs text-white/60 tracking-widest uppercase">
+                          {req.payment_reference || 'NO_REF_PROVIDED'}
+                        </td>
+                        <td className="px-6 py-5 text-right">
+                          <div className="flex justify-end gap-3">
+                            <button 
+                              onClick={() => handleEnrollmentAction(req.id, 'reject')}
+                              className="px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                            >
+                              Deny
+                            </button>
+                            <button 
+                              onClick={() => handleEnrollmentAction(req.id, 'approve')}
+                              className="px-6 py-2 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                            >
+                              Confirm Transfer
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {enrollmentRequests.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="py-20 text-center text-gray-600 font-black uppercase text-xs tracking-widest">
+                        Queue Clear: No Pending Transfers
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-      </div>
 
       {/* Invite Modal */}
       <InviteStaffModal 
