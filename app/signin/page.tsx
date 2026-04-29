@@ -34,11 +34,19 @@ function SignInContent() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (isHydrated && !authLoading && user && profile) {
-      if (profile.role === 'superadmin' || profile.role === 'staff') {
-        router.push("/admin");
+    if (isHydrated && !authLoading && user) {
+      console.log("Sign-in page: User detected, checking profile status...", { hasProfile: !!profile });
+      
+      if (profile) {
+        if (profile.role === 'superadmin' || profile.role === 'staff') {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
       } else {
-        router.push("/dashboard");
+        // Logged in but NO PROFILE? They need to finish registration.
+        console.log("Sign-in page: No profile found. Redirecting to registry...");
+        router.push("/register");
       }
     }
   }, [user, profile, authLoading, router, isHydrated]);
@@ -112,8 +120,9 @@ function SignInContent() {
           router.push("/dashboard");
         }
       } else {
-        // Fallback to dashboard if profile not found immediately
-        router.push("/dashboard");
+        // Fallback to register if profile not found immediately
+        console.log("Sign-in success: No profile detected yet, sending to registry.");
+        router.push("/register");
       }
       
     } catch (err: any) {
@@ -207,6 +216,19 @@ function SignInContent() {
                 <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
                   {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={18} />
                 </button>
+
+                <div className="pt-4 text-center">
+                  <button 
+                    type="button" 
+                    onClick={async () => {
+                      localStorage.clear();
+                      await signOut();
+                    }}
+                    className="text-[9px] font-black text-white/20 hover:text-red-500 uppercase tracking-[3px] transition-colors"
+                  >
+                    Stuck in a loop? Reset Session Protocol
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>

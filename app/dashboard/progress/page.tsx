@@ -83,14 +83,14 @@ export default function ProgressPage() {
 
   const distribution = [
     { label: 'Mechanical Load', val: Math.min(100, Math.round(((metricsData?.weekly_load || 0) / 650) * 100)), icon: <Dumbbell size={14} /> },
-    { label: 'Physiological Strain', val: metricsData?.stress_level === 'high' ? 85 : metricsData?.stress_level === 'moderate' ? 50 : 25, icon: <Activity size={14} /> },
+    { label: 'Physiological Strain', val: metricsData?.stress_level === 'high' ? 85 : metricsData?.stress_level === 'moderate' ? 50 : metricsData?.stress_level === 'low' ? 25 : 0, icon: <Activity size={14} /> },
     { label: 'Focus / Accuracy', val: metricsData?.focus_score || 0, icon: <Target size={14} /> },
   ];
 
   // Process history for the chart (grouped by date or just last 9 points)
   const chartPoints = historyData.length > 0 
     ? historyData.slice(-9).map(h => Math.round((h.power_output_watts / 1000) * 100)) // Normalize watts to %
-    : [30, 45, 38, 52, 60, 55, 76, 82, 88]; // Fallback to demo if empty
+    : [0, 0, 0, 0, 0, 0, 0, 0, 0]; // Show empty baseline for new users
   
   const chartLabels = historyData.length > 0
     ? historyData.slice(-9).map(h => new Date(h.date).toLocaleDateString('en-US', { month: 'short' }))

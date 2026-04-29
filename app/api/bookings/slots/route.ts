@@ -31,11 +31,14 @@ export async function GET(request: Request) {
 
     const duration = availRes.data?.session_duration || 60;
     const maxCapacity = availRes.data?.max_capacity || 1;
-    const startTime = scheduleRes.data.start_time; // HH:mm:ss
-    const endTime = scheduleRes.data.end_time;
+    const startTime = scheduleRes.data?.start_time || '09:00:00';
+    const endTime = scheduleRes.data?.end_time || '17:00:00';
 
     // 2. Generate Slots
     const slots = [];
+    const now = new Date();
+    
+    // Create actual Date objects for the loop
     let current = parseISO(`${date}T${startTime}`);
     const end = parseISO(`${date}T${endTime}`);
 
@@ -44,6 +47,7 @@ export async function GET(request: Request) {
       if (isAfter(slotEnd, end)) break;
 
       const timeStr = format(current, 'HH:mm:ss');
+      const isPast = isBefore(current, now);
       
       // Check if a session already exists for this slot
       const existingSession = sessionsRes.data?.find(s => s.start_time === timeStr);
@@ -55,7 +59,7 @@ export async function GET(request: Request) {
         display_time: format(current, 'hh:mm a'),
         max_capacity: maxCapacity,
         current_bookings: confirmedBookings,
-        is_available: confirmedBookings < maxCapacity,
+        is_available: confirmedBookings < maxCapacity && !isPast,
         session_id: existingSession?.id || null
       });
 

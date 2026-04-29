@@ -4,26 +4,22 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { format, addMinutes, isBefore, isAfter } from 'date-fns';
 import { convertTimeOnly } from '@/lib/timezone';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export function useTrainingReminders() {
+  const { user, profile } = useAuth();
   const supabase = createClient();
   const [lastNotified, setLastNotified] = useState<string | null>(null);
   const [userTz, setUserTz] = useState('UTC');
 
   useEffect(() => {
-    // Get user timezone once
-    const getTz = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: profile } = await supabase.from('profiles').select('timezone').eq('id', user.id).single();
-      if (profile?.timezone) setUserTz(profile.timezone);
-    };
-    getTz();
-  }, []);
+    if (profile?.timezone) {
+      setUserTz(profile.timezone);
+    }
+  }, [profile]);
 
   useEffect(() => {
     const checkSchedule = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       // 1. Get active program
@@ -32,7 +28,7 @@ export function useTrainingReminders() {
         .select('program_id')
         .eq('user_id', user.id)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
       if (!enrollment) return;
 

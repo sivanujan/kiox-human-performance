@@ -143,8 +143,12 @@ export default function WeeklySchedule() {
                 <span className="text-[10px] font-bold text-white/5 uppercase tracking-[0.4em] ml-2">No active operations detected</span>
               ) : (
                 <div className="space-y-3">
-                  {dayObj.sessions.map((session: any) => (
-                    <div key={session.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/[0.03] p-5 rounded-2xl border transition-all ${session.is_program ? 'border-[#22c55e]/20 bg-[#22c55e]/5' : 'border-white/5 group-hover:border-[#22c55e]/30'}`}>
+                  {dayObj.sessions.map((session: any) => {
+                    const sessionDateTime = new Date(`${session.scheduled_date}T${session.start_time}`);
+                    const isPast = sessionDateTime < new Date();
+                    
+                    return (
+                    <div key={session.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/[0.03] p-5 rounded-2xl border transition-all ${session.is_program ? 'border-[#22c55e]/20 bg-[#22c55e]/5' : 'border-white/5 group-hover:border-[#22c55e]/30'} ${isPast ? 'opacity-50' : ''}`}>
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-xl ${session.is_program ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.4)]' : session.is_special ? 'bg-amber-500/10 text-amber-500 animate-pulse' : 'bg-[#22c55e]/10 text-[#22c55e]'}`}>
                            {session.is_program ? <ShieldCheck size={18} /> : session.is_special ? <Zap size={18} /> : <Target size={18} />}
@@ -194,15 +198,15 @@ export default function WeeklySchedule() {
                               setSelectedSession(session);
                               setIsModalOpen(true);
                             }}
-                            disabled={session.confirmed_count >= (session.max_capacity || 20)}
+                            disabled={isPast || session.confirmed_count >= (session.max_capacity || 20)}
                             className="w-full md:w-auto px-6 py-2 bg-[#22c55e] hover:bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:bg-white/10 disabled:text-white/20"
                           >
-                            {session.confirmed_count >= (session.max_capacity || 20) ? 'Session Full' : 'Book Session'}
+                            {isPast ? 'Session Closed' : session.confirmed_count >= (session.max_capacity || 20) ? 'Session Full' : 'Book Session'}
                           </button>
                         )}
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>

@@ -159,6 +159,7 @@ export default function CreateSessionModal({ isOpen, onClose, athletes }: Create
                          <input 
                            type="date"
                            required
+                           min={format(new Date(), "yyyy-MM-dd")}
                            value={formData.scheduled_date}
                            onChange={e => setFormData(prev => ({ ...prev, scheduled_date: e.target.value }))}
                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-white text-xs font-bold focus:border-amber-500 outline-none"

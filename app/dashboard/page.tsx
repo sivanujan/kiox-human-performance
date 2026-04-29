@@ -76,6 +76,7 @@ export default function DashboardOverview() {
   const [isCheckinModalOpen, setIsCheckinModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<TrainingSession | null>(null);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [lastSession, setLastSession] = useState<TrainingSession | null>(null);
   const [clearanceLoading, setClearanceLoading] = useState(false);
   const [clearanceMessage, setClearanceMessage] = useState<string | null>(null);
 
@@ -163,6 +164,20 @@ export default function DashboardOverview() {
       return a.scheduled_date.localeCompare(b.scheduled_date);
     });
 
+    // Fetch the most recent past session (strictly before today)
+    const { data: pastData } = await supabase
+      .from("training_sessions")
+      .select("*")
+      .lt("scheduled_date", today)
+      .contains("assigned_athletes", [user.id])
+      .order("scheduled_date", { ascending: false })
+      .order("start_time", { ascending: false })
+      .limit(1);
+
+    if (pastData && pastData.length > 0) {
+      setLastSession(pastData[0] as TrainingSession);
+    }
+
     setTodaySessions(mergedSessions as TrainingSession[]);
   };
 
@@ -215,18 +230,28 @@ export default function DashboardOverview() {
   const futureSessions = todaySessions.filter(s => s.scheduled_date > todayStr);
 
   const upcomingToday = todaySessionsFiltered.filter(s => s.start_time > currentTimeStr)[0];
+  const passedToday = [...todaySessionsFiltered].filter(s => s.start_time <= currentTimeStr).sort((a, b) => b.start_time.localeCompare(a.start_time))[0];
   const nextFuture = futureSessions[0];
 
   const sessionToDisplay = upcomingToday || nextFuture;
+
+  const effectiveLastSession = passedToday || lastSession;
 
   const nextSession = sessionToDisplay
     ? { 
         session: sessionToDisplay.title, 
         time: formatTimeOnly(sessionToDisplay.start_time, (sessionToDisplay as any).coach_timezone || 'UTC'),
         isToday: sessionToDisplay.scheduled_date === todayStr,
-        date: format(new Date(sessionToDisplay.scheduled_date + 'T00:00:00'), "MMM d")
+        date: sessionToDisplay.scheduled_date === todayStr ? "TODAY" : format(new Date(sessionToDisplay.scheduled_date + 'T00:00:00'), "MMM d")
       }
-    : (schedule.find(s => s.type !== 'rest') || { session: 'No Session Scheduled', time: '--:--' });
+    : effectiveLastSession 
+      ? {
+          session: effectiveLastSession.title,
+          time: formatTimeOnly(effectiveLastSession.start_time, (effectiveLastSession as any).coach_timezone || 'UTC'),
+          isToday: false,
+          date: `LAST: ${format(new Date(effectiveLastSession.scheduled_date + 'T00:00:00'), "MMM d")}`
+        }
+      : (schedule.find(s => s.type !== 'rest') || { session: 'No Session Scheduled', time: '--:--' });
 
   // --- LOGIC: READINESS & SAFETY ---
   const readinessScore = Math.round(((metrics?.sleep_score || 0) + (10 - (metrics?.soreness || 0))) / 20 * 100);
@@ -377,7 +402,7 @@ export default function DashboardOverview() {
              {nextSession.session}
            </div>
            <div className="text-[#22c55e] font-display text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
-             {!nextSession.isToday && <span className="text-white/10 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
+             {nextSession.date && <span className="text-white/50 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
              {nextSession.time}
            </div>
            <div className="absolute bottom-2 right-4 text-[40px] opacity-5 font-display pointer-events-none">

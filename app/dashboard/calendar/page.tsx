@@ -13,7 +13,9 @@ import {
   isSameDay, 
   addMonths, 
   subMonths,
-  isToday
+  isToday,
+  isBefore,
+  startOfToday
 } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Zap, Target, Users, Clock, Loader2, Calendar as CalendarIcon, ShieldCheck } from "lucide-react";
@@ -38,23 +40,28 @@ export default function AthleteCalendarPage() {
       const start = format(startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 }), 'yyyy-MM-dd');
       const end = format(endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
-      // 1. Fetch normal bookings
-      const res = await fetch(`/api/athlete/calendar?start=${start}&end=${end}`);
-      const data = await res.json();
-      if (!data.error) setSessions(data || []);
+      // 1. Fetch normal bookings and user info in parallel
+      const [sessionsRes, userRes] = await Promise.all([
+        fetch(`/api/athlete/calendar?start=${start}&end=${end}`).then(res => res.json()),
+        supabase.auth.getUser()
+      ]);
 
-      // 2. Fetch user's program schedule
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!sessionsRes.error) {
+        setSessions(sessionsRes || []);
+      }
+
+      // 2. Fetch user's program schedule if logged in
+      const user = userRes.data?.user;
       if (user) {
-        const { data: enrollments } = await supabase
+        const { data: enrollment } = await supabase
           .from('user_programs')
           .select('program_id')
           .eq('user_id', user.id)
           .eq('status', 'active')
-          .single();
+          .maybeSingle();
         
-        if (enrollments) {
-          const progRes = await fetch(`/api/coach/program-schedule?programId=${enrollments.program_id}`);
+        if (enrollment) {
+          const progRes = await fetch(`/api/coach/program-schedule?programId=${enrollment.program_id}`);
           const progData = await progRes.json();
           if (!progData.error) setProgramSchedule(progData);
         } else {
@@ -152,6 +159,7 @@ export default function AthleteCalendarPage() {
                 const isCurrentMonth = isSameMonth(day, monthStart);
                 const isTodayDate = isToday(day);
                 const isSelected = selectedDay && isSameDay(day, selectedDay);
+                const isPastDate = isBefore(day, startOfToday()) && !isTodayDate;
                 const daySessions = getSessionsForDay(day);
                 
                 return (
@@ -160,7 +168,7 @@ export default function AthleteCalendarPage() {
                     onClick={() => setSelectedDay(day)}
                     className={`
                       min-h-[140px] p-4 border-r border-b border-white/5 cursor-pointer transition-all relative group
-                      ${!isCurrentMonth ? 'opacity-20 grayscale' : 'hover:bg-white/[0.02]'}
+                      ${!isCurrentMonth ? 'opacity-20 grayscale' : isPastDate ? 'opacity-40 grayscale-[0.8]' : 'hover:bg-white/[0.02]'}
                       ${isSelected ? 'bg-[#22c55e]/5' : ''}
                     `}
                   >
@@ -181,14 +189,18 @@ export default function AthleteCalendarPage() {
                     </div>
 
                     <div className="space-y-1 overflow-hidden">
-                       {daySessions.slice(0, 2).map((s, si) => (
-                         <div key={si} className={`
-                           px-2 py-1 rounded text-[8px] font-black uppercase tracking-wider truncate
-                           ${s.is_special ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20'}
-                         `}>
-                           {formatTimeOnly(s.start_time, s.coach_timezone || 'UTC')} {s.title}
-                         </div>
-                       ))}
+                       {daySessions.slice(0, 2).map((s, si) => {
+                          const isSessionPast = isBefore(new Date(`${s.scheduled_date}T${s.start_time}`), new Date());
+                          return (
+                          <div key={si} className={`
+                            px-2 py-1 rounded text-[8px] font-black uppercase tracking-wider truncate
+                            ${isSessionPast ? 'bg-white/5 text-white/40 border border-white/10' : 
+                              s.is_special ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 
+                              'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20'}
+                          `}>
+                            {formatTimeOnly(s.start_time, s.coach_timezone || 'UTC')} {s.title}
+                          </div>
+                        )})}
                        {daySessions.length > 2 && (
                          <div className="text-[7px] font-black text-gray-500 text-center mt-1">
                            + {daySessions.length - 2} MORE
@@ -227,31 +239,39 @@ export default function AthleteCalendarPage() {
                        <p className="text-white/20 text-[10px] font-black uppercase tracking-[3px]">No Operations Scheduled</p>
                     </div>
                   ) : (
-                    selectedDaySessions.map((session) => (
-                      <div key={session.id} className="p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:border-[#22c55e]/30 transition-all group">
+                    selectedDaySessions.map((session) => {
+                      const isSessionPast = isBefore(new Date(`${session.scheduled_date}T${session.start_time}`), new Date());
+                      return (
+                      <div key={session.id} className={`p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:border-[#22c55e]/30 transition-all group ${isSessionPast ? 'opacity-60' : ''}`}>
                          <div className="flex items-center gap-3 mb-3">
                              <div className={`p-2 rounded-lg ${
+                               isSessionPast ? 'bg-white/10 text-gray-500' :
                                session.is_program ? 'bg-[#22c55e]/20 text-[#22c55e]' :
                                session.is_special ? 'bg-amber-500/10 text-amber-500 pulse-amber' : 
                                'bg-[#22c55e]/10 text-[#22c55e]'
                              }`}>
                                 {session.is_program ? <ShieldCheck size={14} /> : session.is_special ? <Zap size={14} /> : <Target size={14} />}
                              </div>
-                             <span className={`text-[8px] font-black uppercase tracking-widest ${session.is_special ? 'text-amber-500' : 'text-[#22c55e]'}`}>
+                             <span className={`text-[8px] font-black uppercase tracking-widest ${isSessionPast ? 'text-gray-500' : session.is_special ? 'text-amber-500' : 'text-[#22c55e]'}`}>
                                 {session.is_program ? 'Protocol Core' : session.is_special ? 'Special Ops' : session.session_type || 'Training'}
                              </span>
+                             {isSessionPast && (
+                               <span className="ml-auto px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[7px] font-black text-gray-500 uppercase tracking-widest">
+                                  SESSION ENDED
+                               </span>
+                             )}
                          </div>
-                         <h4 className="text-white font-display text-lg uppercase tracking-wider mb-4 group-hover:text-[#22c55e] transition-colors">{session.title}</h4>
+                         <h4 className={`font-display text-lg uppercase tracking-wider mb-4 transition-colors ${isSessionPast ? 'text-gray-500' : 'text-white group-hover:text-[#22c55e]'}`}>{session.title}</h4>
                          <div className="flex items-center justify-between pt-4 border-t border-white/5">
                             <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
-                                <Clock size={12} className="text-[#22c55e]" /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
+                                <Clock size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
                             </div>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
-                               <Users size={12} className="text-[#22c55e]" /> {session.max_capacity || 20} MAX
+                               <Users size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {session.max_capacity || 20} MAX
                             </div>
                          </div>
                       </div>
-                    ))
+                    )})
                   )}
                </div>
             </motion.div>
