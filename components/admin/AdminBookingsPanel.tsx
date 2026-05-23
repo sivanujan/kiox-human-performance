@@ -77,9 +77,9 @@ export default function AdminBookingsPanel() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 relative z-10">
         <div>
           <h3 className="text-white font-display text-xl tracking-wider uppercase flex items-center gap-3">
-            <Users size={20} className="text-[#22c55e]" /> DEPLOYMENT LOGS
+            <Users size={20} className="text-[#22c55e]" /> SESSION REQUESTS
           </h3>
-          <p className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] mt-1">Real-time athlete presence oversight</p>
+          <p className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] mt-1">Manage upcoming athlete sessions</p>
         </div>
 
         <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">

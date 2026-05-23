@@ -35,12 +35,12 @@ import Avatar from "@/components/ui/Avatar";
 const adminNavItems = [
   { 
     icon: <Zap size={18} />, 
-    label: 'CONTROL CENTER',
+    label: 'DASHBOARD',
     href: '/admin',
     section: 'MAIN' },
   { 
     icon: <Users size={18} />, 
-    label: 'USER INVENTORY',
+    label: 'MY ATHLETES',
     href: '/admin/users',
     section: 'MANAGEMENT',
     showBadge: true },

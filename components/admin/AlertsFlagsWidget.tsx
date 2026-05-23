@@ -71,8 +71,8 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
             <ShieldAlert size={24} />
           </div>
           <div>
-            <div className="text-red-500 font-display text-[10px] tracking-[0.3em] uppercase">Security Level 04</div>
-            <h2 className="text-white font-display text-xl tracking-wider uppercase">Critical Flags & Alerts</h2>
+            <div className="text-red-500 font-display text-[10px] tracking-[0.3em] uppercase">System Alerts</div>
+            <h2 className="text-white font-display text-xl tracking-wider uppercase">Alerts</h2>
           </div>
         </div>
         <div className="px-4 py-1.5 bg-red-500 text-white text-[10px] font-black rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse">

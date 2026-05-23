@@ -83,7 +83,10 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
             <div className="text-white/5 font-display text-6xl mb-6 tracking-tighter items-center gap-3">
                ZERO SQUAD OPS
             </div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mb-10">NO SESSIONS SCHEDULED TODAY</p>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">NO SESSIONS SCHEDULED TODAY</p>
+            <div className="max-w-md mx-auto mb-8 p-4 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-2xl text-[#22c55e] text-xs font-sans tracking-wide">
+               Tip: Create a session to start tracking your athletes' performance.
+            </div>
             <button 
               onClick={onCreate}
               className="px-8 py-4 bg-[#22c55e] text-black font-display text-xs tracking-widest rounded-2xl hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3 mx-auto group/new"

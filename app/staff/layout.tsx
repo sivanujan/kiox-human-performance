@@ -29,7 +29,7 @@ import Avatar from "@/components/ui/Avatar";
 
 
 const staffNavItems = [
-  { icon: <LayoutDashboard size={18} />, label: 'CONTROL CENTER', href: '/staff' },
+  { icon: <LayoutDashboard size={18} />, label: 'DASHBOARD', href: '/staff' },
   { icon: <Layers size={18} />, label: 'PROGRAMS MATRIX', href: '/staff/programs' },
   { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
@@ -212,7 +212,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             </button>
              <div className="w-1 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e] hidden xs:block" />
              <div className="hidden xs:block">
-                <div className="text-[#22c55e] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5">Tactical Command Hub</div>
+                <div className="text-[#22c55e] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5">Dashboard</div>
                 <h1 className={`font-display text-lg md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] md:max-w-none`}>
                   System Online // <span className="text-[#22c55e]">{profile?.first_name || 'Staff'}</span>
                 </h1>

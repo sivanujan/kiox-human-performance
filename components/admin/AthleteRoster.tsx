@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, 
@@ -57,6 +57,19 @@ export default function AthleteRoster({
     setSortBy
   } = useAthleteRoster();
 
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+
+  const getStatusTooltip = (status: AthleteStatus) => {
+    switch (status) {
+      case 'READY': return 'Ready: Fully fit and cleared for all training activities.';
+      case 'MONITOR': return 'Monitor: Under close observation due to moderate fatigue or recovery.';
+      case 'ALERT': return 'Alert: High injury risk; recommend immediate workload reduction.';
+      case 'INJURED': return 'Injured: Active injury logged. Regular training is restricted until cleared.';
+      case 'REST': return 'Rest: Scheduled active recovery or rest protocol.';
+      default: return '';
+    }
+  };
+
   // Sync with external search query if provided
   useEffect(() => {
     if (externalSearchQuery !== undefined) {
@@ -100,9 +113,9 @@ export default function AthleteRoster({
               <Users className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">Squad Inventory</div>
+              <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">My Athletes</div>
               <h2 className="font-display text-xl md:text-2xl text-white font-black tracking-wide uppercase truncate">
-                Athlete Roster <span className="text-gray-400 font-stat ml-2">({stats.total})</span>
+                My Athletes <span className="text-gray-400 font-stat ml-2">({stats.total})</span>
               </h2>
             </div>
           </div>
@@ -113,7 +126,7 @@ export default function AthleteRoster({
               <input 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="SEARCH OPERATIVES..."
+                placeholder="Search athletes..."
                 className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-2.5 md:py-3 text-xs text-white font-label focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-500 shadow-xl"
               />
             </div>
@@ -133,7 +146,7 @@ export default function AthleteRoster({
         {/* Summary Stats & Quick Filters */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
           {[
-            { id: 'ALL', label: 'SQUAD ALL', count: stats.total, color: 'white' },
+            { id: 'ALL', label: 'ALL ATHLETES', count: stats.total, color: 'white' },
             { id: 'READY', label: 'READY', count: stats.ready, color: '#22c55e' },
             { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b' },
             { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444' },
@@ -186,7 +199,7 @@ export default function AthleteRoster({
                       key={athlete.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 p-4 rounded-xl bg-[#111] border border-gray-800 hover:border-gray-700 transition-all overflow-hidden w-full"
+                      className="flex items-center gap-3 p-4 rounded-xl bg-[#111] border border-gray-800 hover:border-gray-700 transition-all relative w-full"
                       style={{ borderLeft: `3px solid ${getBorderColor(athlete)}` }}
                     >
                       {/* SECTION 1 — Avatar (fixed width, never shrinks) */}
@@ -230,8 +243,8 @@ export default function AthleteRoster({
                       <div className="flex-1 min-w-0 px-2">
                         {/* Header row */}
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="font-mono text-xs text-gray-500 tracking-widest uppercase">
-                            LOAD METRICS
+                          <span className="font-mono text-xs text-gray-400 font-bold uppercase">
+                            Training Load: <span className="text-white">{athlete.weekly_load}</span> / 650
                             <span className={`ml-1 text-xs ${
                               athlete.load_trend === 'up' ? 'text-red-400' : 
                               athlete.load_trend === 'down' ? 'text-green-400' : 
@@ -261,24 +274,21 @@ export default function AthleteRoster({
                             }}
                           />
                         </div>
-
-                        {/* Load value */}
-                        <div className="font-mono text-xs text-gray-400 tracking-wider mt-1 truncate">
-                          <span className="text-white font-bold">{athlete.weekly_load}</span>
-                          {' AU / 650 TARGET OPTIMIZATION ZONE'}
-                        </div>
                       </div>
 
                       {/* SECTION 4 — Status (fixed width) */}
                       <div className="flex-shrink-0 w-[100px] flex flex-col items-center gap-1.5">
                         {/* Availability badge */}
-                        <span className={`px-3 py-1 rounded font-mono text-xs font-bold tracking-widest uppercase w-full text-center ${
-                          athlete.computed_status === 'READY' ? 'bg-green-500/20 text-green-400 border border-green-500/50' :
-                          athlete.computed_status === 'MONITOR' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' :
-                          athlete.computed_status === 'ALERT' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
-                          athlete.computed_status === 'INJURED' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
-                          'bg-gray-500/20 text-gray-400 border border-gray-500/50'
-                        }`}>
+                        <span 
+                          title={getStatusTooltip(athlete.computed_status as any)}
+                          className={`px-3 py-1 rounded font-mono text-xs font-bold tracking-widest uppercase w-full text-center cursor-help ${
+                            athlete.computed_status === 'READY' ? 'bg-green-500/20 text-green-400 border border-green-500/50' :
+                            athlete.computed_status === 'MONITOR' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' :
+                            athlete.computed_status === 'ALERT' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
+                            athlete.computed_status === 'INJURED' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
+                            'bg-gray-500/20 text-gray-400 border border-gray-500/50'
+                          }`}
+                        >
                           {athlete.computed_status}
                         </span>
 
@@ -298,52 +308,86 @@ export default function AthleteRoster({
                       </div>
 
                       {/* SECTION 5 — Actions (fixed width, never shrinks or hides) */}
-                      <div className="flex-shrink-0 flex items-center gap-2">
-                        {/* Training Plan button */}
+                      <div className="flex-shrink-0 flex items-center gap-2 relative">
+                        {/* Training Plan View button */}
                         <button
                           title="Configure Training Plan"
                           onClick={() => onSelectAthlete(athlete.id)}
-                          className="flex items-center gap-1.5 px-3 py-2 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 border border-[#22c55e]/30 hover:border-[#22c55e]/50 rounded-xl font-mono text-[10px] text-[#22c55e] hover:text-[#4ade80] transition-all touch-manipulation min-h-[36px]"
+                          className="flex items-center gap-1.5 px-4 py-2 bg-[#22c55e] hover:bg-white text-black font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(34,197,94,0.2)]"
                         >
-                          <span className="text-xs">📋</span>
-                          <span className="hidden xl:block tracking-widest uppercase">Training Plan</span>
+                          View
                         </button>
 
-                        {/* Log session button */}
+                        {/* Dropdown trigger */}
                         <button
-                          title="Log Training Session"
-                          onClick={() => onLogSession(athlete.id)}
-                          className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl text-gray-400 hover:text-yellow-400 transition-all touch-manipulation"
+                          title="More Actions"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdownId(activeDropdownId === athlete.id ? null : athlete.id);
+                          }}
+                          className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl text-gray-400 hover:text-white transition-all touch-manipulation"
                         >
-                          <Zap size={14} />
+                          <MoreVertical size={14} />
                         </button>
 
-                        {/* Log injury button */}
-                        <button
-                          title="Register Injury Record"
-                          onClick={() => onLogInjury(athlete.id)}
-                          className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl text-gray-400 hover:text-red-400 transition-all touch-manipulation"
-                        >
-                          <Stethoscope size={14} />
-                        </button>
-
-                        {/* Assessment button */}
-                        <button
-                          title="Run Performance Assessment"
-                          onClick={() => onAssess(athlete.id)}
-                          className="w-9 h-9 flex items-center justify-center bg-[#22c55e]/10 hover:bg-[#22c55e]/20 border border-[#22c55e]/20 hover:border-[#22c55e]/40 rounded-xl text-[#22c55e] transition-all touch-manipulation shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                        >
-                          <BarChart3 size={14} />
-                        </button>
-
-                        {/* Analytics button */}
-                        <button
-                          title="View Multimedia Analytics"
-                          onClick={() => onViewAnalytics(athlete.id)}
-                          className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl text-gray-400 hover:text-blue-400 transition-all touch-manipulation"
-                        >
-                          <Video size={14} />
-                        </button>
+                        {/* Dropdown overlay */}
+                        {activeDropdownId === athlete.id && (
+                          <>
+                            <div 
+                              className="fixed inset-0 z-40 bg-transparent" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveDropdownId(null);
+                              }}
+                            />
+                            <div className="absolute right-0 top-full mt-2 w-56 bg-[#161616] border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onLogSession(athlete.id);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                              >
+                                <Zap size={14} className="text-yellow-400" />
+                                <span>Log Training Session</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onLogInjury(athlete.id);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                              >
+                                <Stethoscope size={14} className="text-red-400" />
+                                <span>Register Injury Record</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onAssess(athlete.id);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                              >
+                                <BarChart3 size={14} className="text-[#22c55e]" />
+                                <span>Performance Assessment</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onViewAnalytics(athlete.id);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                              >
+                                <Video size={14} className="text-blue-400" />
+                                <span>Video Analytics</span>
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   );

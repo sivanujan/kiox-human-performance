@@ -45,7 +45,7 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
             </div>
 
             <div className="flex items-center justify-between mt-auto">
-               {card.stars !== undefined ? (
+               {card.stars !== undefined && (
                  <div className="flex gap-1">
                    {[...Array(5)].map((_, idx) => (
                      <Star 
@@ -56,12 +56,8 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
                      />
                    ))}
                  </div>
-               ) : (
-                 <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
-                   Live Status
-                 </div>
                )}
-               <span className="text-lg">{card.icon}</span>
+               <span className="text-lg ml-auto">{card.icon}</span>
             </div>
           </motion.div>
         ))}

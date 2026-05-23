@@ -21,8 +21,8 @@ export default function LiveTrainingMonitor() {
             <Zap className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" />
           </div>
           <div>
-            <div className="text-[#22c55e] font-display text-[9px] md:text-[10px] tracking-[0.3em] uppercase">Tactical Telemetry</div>
-            <h2 className="text-white font-display text-lg md:text-xl tracking-wider uppercase">Live Monitor</h2>
+            <div className="text-[#22c55e] font-display text-[9px] md:text-[10px] tracking-[0.3em] uppercase">Live Monitor</div>
+            <h2 className="text-white font-display text-lg md:text-xl tracking-wider uppercase">Live Session Monitor</h2>
           </div>
         </div>
         
@@ -57,7 +57,7 @@ export default function LiveTrainingMonitor() {
       </div>
 
       <button className="relative z-10 w-full bg-transparent border-2 border-[#22c55e]/20 text-[#22c55e] py-4 rounded-2xl font-display text-xs tracking-[0.2em] hover:bg-[#22c55e] hover:text-black hover:border-[#22c55e] transition-all uppercase flex items-center justify-center gap-3 group/btn">
-        VIEW FULL TELEMETRY GRID 
+        VIEW ALL LIVE SESSIONS 
         <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
       </button>
     </div>

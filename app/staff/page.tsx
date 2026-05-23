@@ -59,6 +59,19 @@ export default function StaffPortal() {
   const { user, profile, loading: authLoading, signOut, supabase } = useAuth();
   const [isHydrated, setIsHydrated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem("kiox_onboarding_dismissed");
+    if (!dismissed) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleDismissOnboarding = () => {
+    localStorage.setItem("kiox_onboarding_dismissed", "true");
+    setShowOnboarding(false);
+  };
   const [athletes, setAthletes] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [todaySessions, setTodaySessions] = useState<any[]>([]);
@@ -266,7 +279,7 @@ export default function StaffPortal() {
           <div className="relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
             <input
-              placeholder="SEARCH SQUAD DATA..."
+              placeholder="Search athletes or logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-3 md:py-4 pl-12 pr-4 text-white text-xs md:text-sm font-label focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-gray-600 shadow-2xl"
@@ -274,20 +287,58 @@ export default function StaffPortal() {
           </div>
         </div>
 
+        {/* Onboarding Banner */}
+        {showOnboarding && (
+          <div className="bg-[#111] border border-[#22c55e]/20 rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden group/onboard z-10">
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover/onboard:opacity-[0.04] transition-opacity">
+              <Zap size={140} className="text-[#22c55e]" />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative z-10">
+              <div>
+                <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase mb-1">Onboarding Guide</div>
+                <h2 className="text-white font-display text-lg md:text-xl font-black uppercase tracking-wider">Getting Started</h2>
+                <p className="text-gray-400 text-xs mt-1 font-sans">Follow these steps to initialize your trainer dashboard and start tracking performance.</p>
+              </div>
+              <button 
+                onClick={handleDismissOnboarding}
+                className="px-4 py-2 border border-white/10 hover:border-white/20 hover:bg-white/5 rounded-xl text-[10px] text-gray-400 hover:text-white transition-all uppercase font-label font-bold"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 relative z-10">
+              {[
+                { step: "Step 1", title: "Add your athletes", desc: "Register active athletes to populate your roster and track recovery." },
+                { step: "Step 2", title: "Create a training program", desc: "Design customized training protocols under Training Programs." },
+                { step: "Step 3", title: "Schedule a session", desc: "Book live training sessions to gather active load metrics and recovery data." }
+              ].map((item, index) => (
+                <div key={index} className="p-4 bg-black/40 border border-white/5 rounded-xl">
+                  <span className="text-[9px] font-black text-[#22c55e] uppercase tracking-widest">{item.step}</span>
+                  <h4 className="text-white font-bold uppercase tracking-wider text-xs mt-1 mb-2">{item.title}</h4>
+                  <p className="text-gray-400 text-[11px] leading-relaxed font-sans">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ========================
             INDIVIDUAL MANAGEMENT SECTION
             ======================== */}
         {/* 1. TEAM OVERVIEW CARDS */}
         <SwipeableCards cards={[
-          { label: 'ASSIGNED SQUAD', value: teamStats.total, icon: '👥', color: '#22c55e' },
+          { label: 'My Athletes', value: teamStats.total, icon: '👥', color: '#22c55e' },
           { label: 'PENDING TASKS', value: teamStats.pending, icon: '🔐', color: '#f59e0b' },
-          { label: 'ACTIVE UNIT', value: teamStats.active, icon: '✅', color: '#22c55e' },
+          { label: 'Active Athletes', value: teamStats.active, icon: '✅', color: '#22c55e' },
         ]} />
 
         {/* 2. STAFF PROTOCOL LOGS (MOVED FOR VISIBILITY) */}
         <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
            <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
-              <MessageSquare size={18} /> Protocol Logs
+              <MessageSquare size={18} /> Notes / Activity Log
            </div>
            
            <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
@@ -357,10 +408,10 @@ export default function StaffPortal() {
            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/arch:opacity-10 transition-opacity">MATRIX</div>
            <div className="flex items-center justify-between mb-8">
               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
-                 <ShieldAlert className="animate-pulse" size={18} /> My Assigned Architectures
+                 <ShieldAlert className="animate-pulse" size={18} /> My Training Programs
               </div>
               <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
-                 {myPrograms.length} TOTAL PROTOCOLS
+                 {myPrograms.length} TOTAL PROGRAMS
               </div>
            </div>
 
@@ -428,17 +479,17 @@ export default function StaffPortal() {
            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/proto:opacity-10 transition-opacity">PROTO</div>
            <div id="protocol-assignments" className="flex items-center justify-between mb-8">
               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
-                 <Layers className="animate-pulse" size={18} /> Protocol Assignments
+                 <Layers className="animate-pulse" size={18} /> Assigned Athletes
               </div>
               <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
-                 {enrolledAthletes.length} ACTIVE ENROLLEES
+                 {enrolledAthletes.length} ACTIVE ATHLETES
               </div>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {enrolledAthletes.length === 0 ? (
                  <div className="col-span-full py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl bg-black/20">
-                    NO ATHLETES CURRENTLY INITIALIZED IN YOUR PROTOCOLS
+                    NO ATHLETES CURRENTLY ASSIGNED TO YOUR PROGRAMS
                  </div>
               ) : (
                 enrolledAthletes.map((enroll, i) => (
@@ -517,13 +568,18 @@ export default function StaffPortal() {
           <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
                 <div className="text-[#22c55e] font-display text-sm flex items-center gap-3">
-                   <Activity size={18} /> SQUAD WELLNESS STATUS
+                   <Activity size={18} /> ATHLETE WELLNESS
                 </div>
                  <div className="text-[#22c55e] font-stat text-xl">
                    {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : <span className="font-display text-white/40 font-black tracking-[0.2em] italic">NO DATA RECEIVED</span>}
                  </div>
              </div>
              <ProgressBar value={wellnessStats.readyPercent} height={8} />
+             {!logsExist && (
+               <div className="mt-6 p-4 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-2xl text-[#22c55e] text-xs font-sans tracking-wide">
+                  Tip: Create a session to start tracking your athletes' performance.
+               </div>
+             )}
              <div className="mt-8 space-y-4">
                 {[
                   { label: 'SLEEP ANOMALIES', count: wellnessStats.sleepAnomalies, icon: '😴', color: '#f59e0b' },
