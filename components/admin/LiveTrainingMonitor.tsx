@@ -34,17 +34,17 @@ export default function LiveTrainingMonitor() {
         </div>
       </div>
 
-      <div className="space-y-4 mb-10 relative z-10 min-h-[300px]">
+      <div className={`space-y-4 mb-6 relative z-10 ${athletes.length === 0 ? '' : 'min-h-[300px]'}`}>
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-4">
             <Loader2 className="text-[#22c55e] animate-spin" size={32} />
             <div className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Establishing Sensor Link...</div>
           </div>
         ) : athletes.length === 0 ? (
-          <div className="py-24 text-center">
-            <div className="text-white/5 font-display text-5xl mb-4">INACTIVE</div>
-            <div className="text-gray-700 uppercase font-black text-[10px] tracking-[0.4em]">
-              NO ACTIVE TRAINING SESSIONS DETECTED
+          <div className="py-6 flex flex-col items-center justify-center gap-2 text-center">
+            <Activity className="text-gray-600 animate-pulse" size={24} />
+            <div className="text-gray-500 text-xs font-mono tracking-wider">
+              No active training sessions
             </div>
           </div>
         ) : (

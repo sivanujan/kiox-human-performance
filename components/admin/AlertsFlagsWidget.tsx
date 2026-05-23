@@ -80,17 +80,17 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
         </div>
       </div>
 
-      <div className="space-y-4 mb-10 relative z-10 min-h-[300px]">
+      <div className={`space-y-4 mb-6 relative z-10 ${alerts.length === 0 ? '' : 'min-h-[300px]'}`}>
         <AnimatePresence mode="popLayout">
           {alerts.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="py-20 text-center"
+              className="py-6 flex flex-col items-center justify-center gap-2 text-center"
             >
-              <div className="text-white/5 font-display text-5xl mb-4">CLEAR</div>
-              <div className="text-gray-700 uppercase font-black text-[10px] tracking-[0.4em]">
-                NO CRITICAL SYSTEM FLAGS DETECTED
+              <ShieldAlert className="text-gray-600 animate-pulse" size={24} />
+              <div className="text-gray-500 text-xs font-mono tracking-wider">
+                No alerts detected
               </div>
             </motion.div>
           ) : (
