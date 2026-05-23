@@ -9,7 +9,7 @@ export default function LiveTrainingMonitor() {
   const { athletes, loading } = useLiveMonitor();
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#22c55e]/15 rounded-[24px] md:rounded-[32px] p-5 md:p-8 shadow-2xl relative overflow-hidden group">
+    <div className="w-full bg-[#0a0a0a] border border-[#22c55e]/15 rounded-[24px] md:rounded-[32px] p-5 md:p-8 shadow-2xl relative overflow-hidden group">
       {/* Background Pulse Effect */}
       <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
         <Activity className="w-[120px] h-[120px] md:w-[160px] md:h-[160px] text-[#22c55e]" />

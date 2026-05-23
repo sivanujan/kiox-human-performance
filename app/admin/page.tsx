@@ -395,17 +395,19 @@ export default function AdminDashboard() {
 
         {/* 4, 5, 6. OPERATIONS GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
-          <TrainingSessionControl 
-            onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
-            onAdjustLoad={() => setIsAdjustLoadOpen(true)}
-            onCreate={() => setIsCreateSessionOpen(true)}
-            isSuperAdmin={profile?.role === 'superadmin'}
-          />
+          <div className="space-y-8 w-full">
+            <TrainingSessionControl 
+              onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
+              onAdjustLoad={() => setIsAdjustLoadOpen(true)}
+              onCreate={() => setIsCreateSessionOpen(true)}
+              isSuperAdmin={profile?.role === 'superadmin'}
+            />
+            <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
+          </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 w-full">
             <AdminBookingsPanel />
             <LiveTrainingMonitor />
-            <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
           </div>
         </div>
 

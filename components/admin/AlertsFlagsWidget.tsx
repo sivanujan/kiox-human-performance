@@ -59,7 +59,7 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
   };
 
   return (
-    <div className="bg-red-500/[0.03] border border-red-500/15 rounded-[24px] md:rounded-[32px] p-5 md:p-8 shadow-2xl h-fit relative overflow-hidden group">
+    <div className="w-full bg-red-500/[0.03] border border-red-500/15 rounded-[24px] md:rounded-[32px] p-5 md:p-8 shadow-2xl h-fit relative overflow-hidden group">
       {/* Background Accent */}
       <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
         <ShieldAlert size={120} className="text-red-500" />

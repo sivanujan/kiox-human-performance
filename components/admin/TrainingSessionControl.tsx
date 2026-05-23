@@ -50,7 +50,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
   };
 
   return (
-    <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 shadow-2xl relative overflow-hidden group">
+    <div className="w-full bg-[#111] border border-white/5 rounded-[32px] p-8 shadow-2xl relative overflow-hidden group">
       {/* Static Background Decoration */}
       <div className="absolute top-0 right-0 p-10 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
         <Calendar size={140} className="text-white" />

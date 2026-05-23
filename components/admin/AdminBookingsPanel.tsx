@@ -70,7 +70,7 @@ export default function AdminBookingsPanel() {
   }
 
   return (
-    <div className="bg-[#111] border border-white/5 rounded-[24px] md:rounded-[32px] p-5 md:p-8 relative overflow-hidden group">
+    <div className="w-full bg-[#111] border border-white/5 rounded-[24px] md:rounded-[32px] p-5 md:p-8 relative overflow-hidden group">
       <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-8xl pointer-events-none uppercase">OPS</div>
       
       {/* Header */}
