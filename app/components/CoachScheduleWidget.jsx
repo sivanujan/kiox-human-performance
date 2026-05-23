@@ -96,7 +96,7 @@ export default function CoachScheduleWidget({ coach: initialCoach }) {
   );
 
   return (
-    <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-6 relative overflow-hidden">
+    <div className="w-full bg-[#111] border border-[#22c55e]/20 rounded-3xl p-6 relative overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <div className="text-[#22c55e] font-display text-sm tracking-[0.2em] uppercase flex items-center gap-3">
           <Calendar size={18} /> MY SCHEDULE

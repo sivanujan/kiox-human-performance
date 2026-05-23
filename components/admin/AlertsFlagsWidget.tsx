@@ -65,18 +65,20 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
         <ShieldAlert size={120} className="text-red-500" />
       </div>
 
-      <div className="flex justify-between items-center mb-10 relative z-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500">
+          <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
             <ShieldAlert size={24} />
           </div>
           <div>
             <div className="text-red-500 font-display text-[10px] tracking-[0.3em] uppercase">System Alerts</div>
-            <h2 className="text-white font-display text-xl tracking-wider uppercase">Alerts</h2>
+            <div className="flex items-center gap-3 mt-1">
+              <h2 className="text-white font-display text-xl tracking-wider uppercase">Alerts</h2>
+              <div className="px-3 py-1 bg-red-500 text-white text-[9px] font-black rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse shrink-0">
+                {alerts.length} ANOMALIES
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="px-4 py-1.5 bg-red-500 text-white text-[10px] font-black rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse">
-          {alerts.length} ANOMALIES
         </div>
       </div>
 

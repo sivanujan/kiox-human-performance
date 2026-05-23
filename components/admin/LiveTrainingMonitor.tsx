@@ -15,21 +15,18 @@ export default function LiveTrainingMonitor() {
         <Activity className="w-[120px] h-[120px] md:w-[160px] md:h-[160px] text-[#22c55e]" />
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 md:mb-10 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[#22c55e]/10 flex items-center justify-center text-[#22c55e]">
-            <Zap className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" />
-          </div>
-          <div>
-            <div className="text-[#22c55e] font-display text-[9px] md:text-[10px] tracking-[0.3em] uppercase">Live Monitor</div>
-            <h2 className="text-white font-display text-lg md:text-xl tracking-wider uppercase">Live Session Monitor</h2>
-          </div>
+      <div className="flex flex-row items-center gap-4 mb-8 md:mb-10 relative z-10">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[#22c55e]/10 flex items-center justify-center text-[#22c55e] shrink-0">
+          <Zap className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" />
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-black border border-[#22c55e]/20 rounded-full">
-            <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse shadow-[0_0_10px_#22c55e]" />
-            <span className="text-[9px] font-black text-[#22c55e] tracking-widest">REAL-TIME</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-[#22c55e] font-display text-[9px] md:text-[10px] tracking-[0.3em] uppercase">Live Monitor</div>
+          <div className="flex flex-wrap items-center gap-3 mt-1">
+            <h2 className="text-white font-display text-lg md:text-xl tracking-wider uppercase">Live Session Monitor</h2>
+            <div className="flex items-center gap-2 px-3 py-1 bg-black border border-[#22c55e]/20 rounded-full shrink-0">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse shadow-[0_0_10px_#22c55e]" />
+              <span className="text-[8px] font-black text-[#22c55e] tracking-widest">REAL-TIME</span>
+            </div>
           </div>
         </div>
       </div>
