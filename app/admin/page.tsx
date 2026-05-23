@@ -492,10 +492,22 @@ export default function AdminDashboard() {
       </div>
 
       {/* Modals */}
-      <TrainingPlanModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
-      <InjuryLogModal isOpen={isInjuryModalOpen} onClose={() => setIsInjuryModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} onSuccess={fetchAdminData} />
-      <SurveyAssignModal isOpen={isSurveyModalOpen} onClose={() => setIsSurveyModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
-      <VideoFeedbackModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} athleteId={selectedAthlete} athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")} />
+      <TrainingPlanModal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} athleteId={selectedAthlete} athleteName={(() => {
+        const a = athletes.find(x => x.id === selectedAthlete);
+        return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+      })()} />
+      <InjuryLogModal isOpen={isInjuryModalOpen} onClose={() => setIsInjuryModalOpen(false)} athleteId={selectedAthlete} athleteName={(() => {
+        const a = athletes.find(x => x.id === selectedAthlete);
+        return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+      })()} onSuccess={fetchAdminData} />
+      <SurveyAssignModal isOpen={isSurveyModalOpen} onClose={() => setIsSurveyModalOpen(false)} athleteId={selectedAthlete} athleteName={(() => {
+        const a = athletes.find(x => x.id === selectedAthlete);
+        return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+      })()} />
+      <VideoFeedbackModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} athleteId={selectedAthlete} athleteName={(() => {
+        const a = athletes.find(x => x.id === selectedAthlete);
+        return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+      })()} />
       <TrainingLoadExpandedModal isOpen={isLoadModalOpen} onClose={() => setIsLoadModalOpen(false)} athletes={athletes} />
       <ReviewAlertsModal isOpen={isAlertsModalOpen} onClose={() => setIsAlertsModalOpen(false)} />
       <CreateSessionModal isOpen={isCreateSessionOpen} onClose={() => setIsCreateSessionOpen(false)} athletes={athletes} />
@@ -505,7 +517,10 @@ export default function AdminDashboard() {
         isOpen={isAssessmentModalOpen}
         onClose={() => setIsAssessmentModalOpen(false)}
         athleteId={selectedAthlete}
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
       />
     </div>
   );

@@ -38,14 +38,72 @@ const athleteNavItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut, supabase } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [teams, setTeams] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasActiveInjury, setHasActiveInjury] = useState(false);
 
   // Initialize training reminders
   useTrainingReminders();
+
+  // Check and watch active injuries in real-time
+  useEffect(() => {
+    if (user && supabase) {
+      const checkInjury = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('athlete_injury_logs')
+            .select('id')
+            .eq('athlete_id', user.id)
+            .neq('status', 'Cleared')
+            .limit(1);
+          
+          if (!error && data && data.length > 0) {
+            setHasActiveInjury(true);
+          } else {
+            // Also fallback check on profile
+            if (profile?.training_status?.toUpperCase() === 'INJURED' || profile?.injury_risk?.toUpperCase() === 'HIGH') {
+              setHasActiveInjury(true);
+            } else {
+              setHasActiveInjury(false);
+            }
+          }
+        } catch (e) {
+          console.error("Layout Injury Check Error:", e);
+        }
+      };
+      
+      checkInjury();
+      
+      // Setup realtime listener for injury logs and profiles table changes
+      const channel = supabase
+        .channel(`injury_layout_watch_${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'athlete_injury_logs', filter: `athlete_id=eq.${user.id}` },
+          () => { checkInjury(); }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
+          () => { checkInjury(); }
+        )
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user?.id, profile?.training_status, profile?.injury_risk, supabase]);
+
+  // Route security redirection: Redirect injured user to dashboard overview if they try to access other routes
+  useEffect(() => {
+    if (hasActiveInjury && pathname !== '/dashboard') {
+      router.push('/dashboard');
+    }
+  }, [hasActiveInjury, pathname, router]);
 
   useEffect(() => {
     if (!loading) {
@@ -161,21 +219,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-4 mb-4">Operational Menu</div>
           {athleteNavItems.map((item, i) => {
             const isActive = pathname === item.href;
+            const isDisabled = hasActiveInjury && item.href !== '/dashboard';
             return (
               <Link
                 key={i}
-                href={item.href}
+                href={isDisabled ? '#' : item.href}
+                onClick={(e) => {
+                  if (isDisabled) {
+                    e.preventDefault();
+                  }
+                }}
                 className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
                   isActive 
                     ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
-                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                    : isDisabled
+                      ? 'text-white/10 cursor-not-allowed opacity-20 hover:bg-transparent pointer-events-none'
+                      : 'text-white/40 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span className={isActive ? 'text-black' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
+                <span className={isActive ? 'text-black' : isDisabled ? 'text-red-500/30' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
                 {item.label}
-                {item.badge && (
+                {item.badge && !isDisabled && (
                   <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
                     {item.badge}
+                  </span>
+                )}
+                {isDisabled && (
+                  <span className="ml-auto text-[7px] font-black tracking-widest text-red-500/60 bg-red-500/10 border border-red-500/25 px-1.5 py-0.5 rounded uppercase">
+                     Locked
                   </span>
                 )}
                 {isActive && <ChevronRight size={14} className="ml-auto" />}

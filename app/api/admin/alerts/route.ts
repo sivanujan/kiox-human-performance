@@ -32,6 +32,7 @@ export async function GET() {
       athlete:profiles(id, first_name, last_name)
     `)
     .eq('is_resolved', false)
+    .eq('alert_type', 'MEDICAL_CLEARANCE_REQUEST')
     .order('triggered_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   BarChart3
 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 
 interface AthleteAssessmentModalProps {
@@ -25,11 +26,45 @@ interface AthleteAssessmentModalProps {
 }
 
 export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, athleteName }: AthleteAssessmentModalProps) {
+  const [resolvedAthleteName, setResolvedAthleteName] = useState(athleteName);
   const [activeTab, setActiveTab] = useState<'PHYSICAL' | 'MATCH' | 'COGNITIVE' | 'PROGRAM'>('PHYSICAL');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    const fetchAthleteName = async () => {
+      const cleanName = (athleteName || "").trim().toLowerCase();
+      const isUndefined = !cleanName || cleanName === "undefined" || cleanName === "undefined undefined" || cleanName === "undefined ";
+      
+      if (isUndefined && athleteId) {
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", athleteId)
+            .single();
+          
+          if (!error && data) {
+            setResolvedAthleteName(`${data.first_name || ""} ${data.last_name || ""}`.trim());
+          } else {
+            setResolvedAthleteName("Athlete Profile");
+          }
+        } catch (err) {
+          console.error("Failed to fetch athlete name in modal:", err);
+          setResolvedAthleteName("Athlete Profile");
+        }
+      } else {
+        setResolvedAthleteName(athleteName);
+      }
+    };
+
+    if (isOpen) {
+      fetchAthleteName();
+    }
+  }, [isOpen, athleteId, athleteName]);
   
   // Fetch current metrics on open
   useEffect(() => {
@@ -255,7 +290,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               </h2>
               <div className="mt-2 flex items-center gap-3">
                  <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest">SUBJ:</span>
-                 <span className="text-white font-bold text-xs uppercase tracking-wide px-3 py-1 bg-white/5 rounded-full border border-white/5">{athleteName}</span>
+                 <span className="text-white font-bold text-xs uppercase tracking-wide px-3 py-1 bg-white/5 rounded-full border border-white/5">{resolvedAthleteName}</span>
               </div>
             </div>
             <button onClick={onClose} className="p-4 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all self-end md:self-auto">

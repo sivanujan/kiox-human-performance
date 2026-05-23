@@ -79,6 +79,7 @@ export default function DashboardOverview() {
   const [lastSession, setLastSession] = useState<TrainingSession | null>(null);
   const [clearanceLoading, setClearanceLoading] = useState(false);
   const [clearanceMessage, setClearanceMessage] = useState<string | null>(null);
+  const [declarationChecked, setDeclarationChecked] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -144,15 +145,15 @@ export default function DashboardOverview() {
 
     // Extract valid future sessions from bookings
     const bookedSessions = (bookedData || [])
-      .map(b => b.training_sessions)
-      .filter(s => s && s.scheduled_date >= today);
+      .map((b: any) => b.training_sessions)
+      .filter((s: any) => s && s.scheduled_date >= today);
 
     // Merge and Deduplicate by session ID
     const sessionMap = new Map();
     if (assignedData) {
-      assignedData.forEach(s => sessionMap.set(s.id, s));
+      assignedData.forEach((s: any) => sessionMap.set(s.id, s));
     }
-    bookedSessions.forEach(s => sessionMap.set(s.id, s));
+    bookedSessions.forEach((s: any) => sessionMap.set(s.id, s));
 
     const mergedSessions = Array.from(sessionMap.values());
     
@@ -282,46 +283,230 @@ export default function DashboardOverview() {
     }
   };
 
+  if (hasActiveInjury) {
+    return (
+      <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-8 relative">
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+        {/* 1. Header (glowing profile, restricted indicator) */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => setIsProfileModalOpen(true)}
+          className="relative group overflow-hidden bg-gradient-to-br from-red-500/[0.08] to-transparent border border-red-500/20 rounded-[24px] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all hover:bg-red-500/[0.12]"
+        >
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
+            <div className="relative shrink-0 group/avatar mx-auto sm:mx-0">
+              <Avatar 
+                  src={profile?.avatar_url}
+                  name={athleteName}
+                  role="athlete"
+                  size="xl"
+              />
+              <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-red-500">
+                 <Camera size={24} className="text-red-500 mb-1" />
+                 <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)] border-2 border-[#0a0a0a] flex items-center justify-center text-black">
+                 <ShieldCheck size={12} strokeWidth={3} />
+              </div>
+            </div>
+
+            <div>
+              <div className="text-red-500 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
+                Medical Restricted Access // Tactical Lock
+              </div>
+              <h2 className={`font-display text-3xl sm:text-4xl text-white tracking-wider mb-2 leading-none`}>
+                {athleteName.toUpperCase()}
+              </h2>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-3">
+                <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
+                   <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Training:</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
+                     RESTRICTED
+                   </span>
+                </div>
+                <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
+                   <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Prognosis:</span>
+                   <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                     Rehabilitating
+                   </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="w-full sm:w-auto bg-black/40 border border-white/5 rounded-2xl p-6 text-center sm:text-right relative min-w-[200px]">
+             <div className="text-red-500/30 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
+               LOCK STATUS
+             </div>
+             <div className="text-white font-display text-lg tracking-wider mb-2 uppercase">
+               SYSTEM RESTRICTED
+             </div>
+             <div className="text-red-500 font-display text-3xl drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+               SECURE LOCK
+             </div>
+          </div>
+        </motion.div>
+
+        {/* 2. Main Block Card: Clinical Deviation & Clearance Portal */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 z-10 relative">
+          
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* The Active Injury & Declaration Form */}
+            <div className="bg-[#111] border border-red-500/20 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none text-red-500">REHAB</div>
+              
+              <div className="relative z-10 space-y-8 text-left">
+                <div>
+                  <div className="text-red-500 font-['Anton'] text-sm tracking-widest uppercase flex items-center gap-2 mb-2">
+                    <ShieldCheck size={18} /> Active Injury Logged
+                  </div>
+                  <h3 className="text-white font-display text-2xl uppercase tracking-wide">
+                    {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
+                  </h3>
+                  <p className="text-white/40 text-[10px] md:text-xs font-mono uppercase tracking-wider mt-1">
+                    Prognosis Area: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Severity: {performanceData.activeInjuries[0]?.severity || 'High'}
+                  </p>
+                </div>
+
+                <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
+                  <div className="text-white/20 text-[9px] font-black tracking-[3px] uppercase mb-2">CLINICAL OBSERVATIONS</div>
+                  <p className="text-white/70 text-xs leading-relaxed italic">
+                    "{performanceData.activeInjuries[0]?.notes || 'No notes provided by staff.'}"
+                  </p>
+                </div>
+
+                {/* The Checkbox Declaration Form */}
+                <div className="pt-6 border-t border-white/5 space-y-6">
+                  <div className="flex items-start gap-4 p-4 bg-red-500/[0.03] border border-red-500/10 rounded-2xl hover:bg-red-500/[0.05] transition-all cursor-pointer select-none" onClick={() => setDeclarationChecked(!declarationChecked)}>
+                    <div className="flex items-center justify-center shrink-0 w-6.5 h-6.5 rounded-lg border-2 border-red-500/30 transition-all bg-black/40 mt-0.5 relative">
+                      {declarationChecked && (
+                        <div className="absolute inset-1 bg-red-500 rounded-md" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-xs uppercase tracking-wide mb-1">Recovery & Fitness Declaration</h4>
+                      <p className="text-white/50 text-[10.5px] leading-relaxed">
+                        I hereby formally declare that I have recovered from my injury, am currently pain-free, and am requesting administrative clearance to return to active tactical and training protocols.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={handleRequestClearance}
+                    disabled={clearanceLoading || clearanceMessage !== null || !declarationChecked}
+                    className="w-full py-5 bg-red-500 hover:bg-white hover:text-black text-white disabled:bg-red-500/20 disabled:text-red-500/40 disabled:cursor-not-allowed font-black text-xs rounded-2xl uppercase tracking-widest transition-all shadow-[0_15px_40px_rgba(239,68,68,0.2)] active-scale flex items-center justify-center gap-3"
+                  >
+                    {clearanceLoading ? (
+                      <>
+                        <Loader2 className="animate-spin" size={16} />
+                        TRANSMITTING REQUEST...
+                      </>
+                    ) : clearanceMessage ? (
+                      <>
+                        <Clock size={16} className="animate-pulse" />
+                        {clearanceMessage.toUpperCase()}
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={16} />
+                        Submit Clearance Request
+                      </>
+                    )}
+                  </button>
+
+                  {/* Feedback Message */}
+                  {(clearanceMessage || performanceData.clearanceRequest) && (
+                    <div className="p-4 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[10px] font-black uppercase tracking-widest text-center flex items-center justify-center gap-2 animate-pulse">
+                      <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                      Clearance Request Pending Command Staff Approval
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* General Recovery Protocol Tips for engagement */}
+            <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 text-left space-y-6">
+              <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+                <Activity size={18} /> Active Recovery Guidelines
+              </div>
+              <p className="text-white/40 text-[11px] leading-relaxed">
+                While under a medical restricted training block, you must prioritize low-intensity mobility and systemic preservation. Follow these recommended baselines:
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
+                  <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">1. Hydration Target</div>
+                  <div className="text-lg font-['Anton'] text-[#22c55e]">3.8 LITERS / DAY</div>
+                </div>
+                <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
+                  <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">2. Core Sleep Baseline</div>
+                  <div className="text-lg font-['Anton'] text-[#22c55e]">8.5 HOURS / NIGHT</div>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                {[
+                  '🤸 Light passive stretching & mobility (20 mins daily)',
+                  '🥩 High protein preservation intake (+1.8g per kg body weight)',
+                  '🧘 Mental visualization of operational tactics to sustain sharpness',
+                ].map((tip, idx) => (
+                  <div key={idx} className="flex items-center gap-3 text-white/60 text-[10px] uppercase tracking-wider bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                    {tip}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Coaching team to let them see who can approve them */}
+          <div className="space-y-6 text-left">
+            <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 space-y-8">
+              <div className="text-white/30 font-['Anton'] text-xs tracking-[0.3em] uppercase">
+                COMMAND CLEARANCE STAFF
+              </div>
+              <p className="text-white/40 text-[10.5px] leading-relaxed">
+                Only verified superadmins and coaching staff can approve recovery status and restore dashboard access.
+              </p>
+              <CoachingTeamSection gridClass="grid-cols-1" />
+            </div>
+
+            <AthleteAlertsCard athleteId={user?.id || ''} />
+          </div>
+        </div>
+
+        {/* Standard Modals */}
+        <AthleteProfileModal 
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onChangePassword={() => {
+            setIsProfileModalOpen(false);
+            setIsPassModalOpen(true);
+          }}
+        />
+        <ChangePasswordModal
+          isOpen={isPassModalOpen}
+          onClose={() => setIsPassModalOpen(false)}
+        />
+        <WellnessCheckinModal 
+          isOpen={isCheckinModalOpen}
+          onClose={() => setIsCheckinModalOpen(false)}
+          athleteId={user?.id || ""}
+          onSuccess={() => {
+            fetchDashboardData();
+            fetchAthleteSessions();
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-8 relative">
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-
-      {/* ========================
-          MEDICAL ADVISORY (CRITICAL)
-          ======================== */}
-      <AnimatePresence>
-        {hasActiveInjury && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden z-10"
-          >
-            <div className="bg-red-500/10 border border-red-500/30 rounded-[28px] p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 relative shadow-[0_0_30px_rgba(239,68,68,0.1)]">
-               <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500 shrink-0">
-                  <ShieldCheck size={28} />
-               </div>
-               <div className="flex-1 text-center md:text-left">
-                  <div className="text-red-500 text-[10px] font-black tracking-[3px] uppercase mb-1">Medical Advisory // Restricted Ops</div>
-                  <h3 className="text-white font-display text-xl md:text-2xl tracking-wide uppercase">
-                    Restricted: {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
-                  </h3>
-                  <p className="text-white/40 text-[10px] md:text-xs font-medium mt-1 uppercase tracking-wider">
-                    Location: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Logged at: {performanceData.activeInjuries[0]?.logged_at ? format(new Date(performanceData.activeInjuries[0]?.logged_at), "MMM d, HH:mm") : 'N/A'}
-                  </p>
-               </div>
-               <button 
-                onClick={handleRequestClearance}
-                disabled={clearanceLoading || clearanceMessage !== null}
-                className="w-full md:w-auto px-8 py-4 bg-red-500 text-white font-black text-[10px] md:text-xs rounded-xl uppercase tracking-widest hover:bg-white hover:text-red-500 transition-all shadow-2xl active-scale disabled:opacity-50"
-               >
-                 {clearanceLoading ? <Loader2 className="animate-spin" size={16} /> : 
-                  clearanceMessage ? clearanceMessage.toUpperCase() : "Request Medical Clearance"}
-               </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ========================
           SECTION 1: HEADER

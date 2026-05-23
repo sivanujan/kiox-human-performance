@@ -19,7 +19,7 @@ function SignInContent() {
 
   const [rememberMe, setRememberMe] = useState(true);
 
-  const { supabase, user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { supabase, user, profile, loading: authLoading, refreshProfile, signOut } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 

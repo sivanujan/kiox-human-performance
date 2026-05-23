@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, ArrowRight, Loader2, Zap, Video, Link as LinkIcon, UploadCloud, Play, Calendar, ExternalLink, Trash2 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 
 interface VideoFeedbackModalProps {
@@ -13,6 +14,7 @@ interface VideoFeedbackModalProps {
 }
 
 export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athleteName }: VideoFeedbackModalProps) {
+  const [resolvedAthleteName, setResolvedAthleteName] = useState(athleteName);
   const [formData, setFormData] = useState({
     title: "",
     category: "Technique",
@@ -27,6 +29,39 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
   const [historyLoading, setHistoryLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchAthleteName = async () => {
+      const cleanName = (athleteName || "").trim().toLowerCase();
+      const isUndefined = !cleanName || cleanName === "undefined" || cleanName === "undefined undefined" || cleanName === "undefined ";
+      
+      if (isUndefined && athleteId) {
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", athleteId)
+            .single();
+          
+          if (!error && data) {
+            setResolvedAthleteName(`${data.first_name || ""} ${data.last_name || ""}`.trim());
+          } else {
+            setResolvedAthleteName("Athlete Profile");
+          }
+        } catch (err) {
+          console.error("Failed to fetch athlete name in modal:", err);
+          setResolvedAthleteName("Athlete Profile");
+        }
+      } else {
+        setResolvedAthleteName(athleteName);
+      }
+    };
+
+    if (isOpen) {
+      fetchAthleteName();
+    }
+  }, [isOpen, athleteId, athleteName]);
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
@@ -167,7 +202,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                 TARGET SUBJECT
               </label>
               <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
-                {athleteName}
+                {resolvedAthleteName}
               </div>
             </div>
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldAlert, ArrowRight, Loader2, Zap } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 
 interface InjuryLogModalProps {
@@ -14,6 +15,7 @@ interface InjuryLogModalProps {
 }
 
 export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName, onSuccess }: InjuryLogModalProps) {
+  const [resolvedAthleteName, setResolvedAthleteName] = useState(athleteName);
   const [formData, setFormData] = useState({
     injuryType: "Muscle Strain",
     severity: "Low",
@@ -22,6 +24,39 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
     status: "Active Injury" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchAthleteName = async () => {
+      const cleanName = (athleteName || "").trim().toLowerCase();
+      const isUndefined = !cleanName || cleanName === "undefined" || cleanName === "undefined undefined" || cleanName === "undefined ";
+      
+      if (isUndefined && athleteId) {
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("first_name, last_name")
+            .eq("id", athleteId)
+            .single();
+          
+          if (!error && data) {
+            setResolvedAthleteName(`${data.first_name || ""} ${data.last_name || ""}`.trim());
+          } else {
+            setResolvedAthleteName("Athlete Profile");
+          }
+        } catch (err) {
+          console.error("Failed to fetch athlete name in modal:", err);
+          setResolvedAthleteName("Athlete Profile");
+        }
+      } else {
+        setResolvedAthleteName(athleteName);
+      }
+    };
+
+    if (isOpen) {
+      fetchAthleteName();
+    }
+  }, [isOpen, athleteId, athleteName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +133,7 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
                 TARGET SUBJECT
               </label>
               <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
-                {athleteName}
+                {resolvedAthleteName}
               </div>
             </div>
 

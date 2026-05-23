@@ -627,26 +627,38 @@ export default function StaffPortal() {
         isOpen={isPlanModalOpen} 
         onClose={() => setIsPlanModalOpen(false)} 
         athleteId={selectedAthlete} 
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
       />
       <InjuryLogModal 
         isOpen={isInjuryModalOpen} 
         onClose={() => setIsInjuryModalOpen(false)} 
         athleteId={selectedAthlete} 
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
         onSuccess={fetchAdminData}
       />
       <SurveyAssignModal 
         isOpen={isSurveyModalOpen} 
         onClose={() => setIsSurveyModalOpen(false)} 
         athleteId={selectedAthlete} 
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
       />
       <VideoFeedbackModal 
         isOpen={isVideoModalOpen} 
         onClose={() => setIsVideoModalOpen(false)} 
         athleteId={selectedAthlete} 
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
       />
       <TrainingLoadExpandedModal 
         isOpen={isLoadModalOpen} 
@@ -661,7 +673,10 @@ export default function StaffPortal() {
         isOpen={isAssessmentModalOpen}
         onClose={() => setIsAssessmentModalOpen(false)}
         athleteId={selectedAthlete}
-        athleteName={athletes.find(a => a.id === selectedAthlete)?.first_name + " " + (athletes.find(a => a.id === selectedAthlete)?.last_name || "")}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
       />
 
       <ManageScheduleModal 

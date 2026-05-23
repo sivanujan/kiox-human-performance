@@ -358,7 +358,7 @@ export default function MyProgramPage() {
           {/* Curriculum Modules */}
           <section className="space-y-4">
              <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[3px] mb-6 px-2">Syllabus Breakdown</h3>
-             {syllabus.map((m, i) => (
+             {syllabus.map((m: any, i: number) => (
                <div 
                  key={i}
                  className={`p-6 rounded-2xl border flex items-center justify-between transition-all ${

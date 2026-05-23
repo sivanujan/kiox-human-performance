@@ -105,11 +105,11 @@ function CoachCard({ coach }) {
   );
 }
 
-export default function CoachingTeamSection() {
+export default function CoachingTeamSection({ gridClass = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" }) {
   const { coaches, loading } = useCoachAvailability();
 
   if (loading) return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className={`grid gap-4 ${gridClass}`}>
       {[1, 2, 3].map(i => (
         <div key={i} className="h-40 bg-white/5 animate-pulse rounded-2xl" />
       ))}
@@ -124,7 +124,7 @@ export default function CoachingTeamSection() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid gap-4 ${gridClass}`}>
         {coaches.map((coach) => (
           <CoachCard key={coach.id} coach={coach} />
         ))}

@@ -17,6 +17,7 @@ export function useAlerts() {
           athlete:profiles!athlete_id(id, first_name, last_name)
         `)
         .eq("is_resolved", false)
+        .eq("alert_type", "MEDICAL_CLEARANCE_REQUEST")
         .order("triggered_at", { ascending: false });
 
       if (error) throw error;
@@ -131,6 +132,7 @@ export function useAlerts() {
           resolver:profiles!resolved_by(id, first_name, last_name)
         `)
         .eq("is_resolved", true)
+        .eq("alert_type", "MEDICAL_CLEARANCE_REQUEST")
         .order("resolved_at", { ascending: false });
 
       if (error) throw error;

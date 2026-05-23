@@ -40,82 +40,72 @@ export function useAthleteRoster() {
 
   const fetchRoster = async () => {
     setLoading(true);
-    
-    // Enhanced query with standardized joins
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select(`
-        id, first_name, last_name, username, position_played, avatar_url,
-        injury_risk, training_status, weekly_load,
-        athlete_injury_logs(severity, status),
-        athlete_alerts(id, severity, is_resolved),
-        session_athlete_loads(
-          actual_load_au,
-          training_sessions(title, scheduled_date)
-        )
-      `)
-      .eq('role', 'athlete');
+    try {
+      const res = await fetch('/api/admin/athletes');
+      if (!res.ok) {
+        console.error("Roster API response error:", res.statusText);
+        setLoading(false);
+        return;
+      }
+      
+      const profiles = await res.json();
+      if (profiles.error) {
+        console.error("Roster API returned data error:", profiles.error);
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      console.error("Roster Sync Error:", error.message, error.details, error.hint);
+      const processed = (profiles || []).map((p: any) => {
+        // 1. Resolve Status
+        const activeInjuries = p.athlete_injury_logs?.filter((l: any) => l.status !== 'Cleared') || [];
+        const isInjured = activeInjuries.some((l: any) => l.severity === 'High');
+        const criticalAlerts = p.athlete_alerts?.filter((a: any) => !a.is_resolved && a.severity === 'critical') || [];
+        const hasAlert = criticalAlerts.length > 0;
+        const isMonitoring = (p.weekly_load || 0) > 800;
+
+        let computedStatus: AthleteStatus = 'READY';
+        if (isInjured) computedStatus = 'INJURED';
+        else if (hasAlert) computedStatus = 'ALERT';
+        else if (isMonitoring) computedStatus = 'MONITOR';
+
+        // 2. Resolve Last Session
+        const sessions = (p.session_athlete_loads || [])
+          .map((l: any) => ({
+            title: l.training_sessions?.title,
+            date: l.training_sessions?.scheduled_date
+          }))
+          .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        // 3. Resolve Trend
+        const mockTrend: 'up' | 'down' | 'stable' = p.weekly_load > 600 ? 'up' : p.weekly_load < 300 ? 'down' : 'stable';
+
+        return {
+          ...p,
+          sport: 'Football', // Fallback
+          computed_status: computedStatus,
+          last_session: sessions[0],
+          load_trend: mockTrend,
+          alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,
+          recovery_score: (() => {
+            const athleteWellness = p.wellness_logs || [];
+            const sortedWellness = [...athleteWellness].sort((a: any, b: any) => 
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            const latest = sortedWellness[0];
+            if (!latest) return 0;
+            const sleep = latest.sleep_score || 0;
+            const soreness = latest.soreness_score || 0;
+            return Math.round(((sleep + (10 - soreness)) / 20) * 100);
+          })()
+        };
+      });
+
+      setAthletes(processed as any);
+    } catch (err) {
+      console.error("Unhandled error in fetchRoster:", err);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // 1.5 Fetch Wellness Logs separately to avoid relationship issues
-    const profileIds = (profiles || []).map((p: any) => p.id);
-    const { data: wellnessLogs } = await supabase
-      .from('wellness_logs')
-      .select('user_id, sleep_score, soreness_score, created_at')
-      .in('user_id', profileIds);
-
-    const processed = (profiles || []).map((p: any) => {
-      // 1. Resolve Status
-      const activeInjuries = p.athlete_injury_logs?.filter((l: any) => l.status !== 'Cleared') || [];
-      const isInjured = activeInjuries.some((l: any) => l.severity === 'High');
-      const criticalAlerts = p.athlete_alerts?.filter((a: any) => !a.is_resolved && a.severity === 'critical') || [];
-      const hasAlert = criticalAlerts.length > 0;
-      const isMonitoring = (p.weekly_load || 0) > 800;
-
-      let computedStatus: AthleteStatus = 'READY';
-      if (isInjured) computedStatus = 'INJURED';
-      else if (hasAlert) computedStatus = 'ALERT';
-      else if (isMonitoring) computedStatus = 'MONITOR';
-
-      // 2. Resolve Last Session
-      const sessions = p.session_athlete_loads
-        ?.map((l: any) => ({
-          title: l.training_sessions?.title,
-          date: l.training_sessions?.scheduled_date
-        }))
-        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
-
-      // 3. Resolve Trend (Mock logic for now, could be based on historical loads)
-      const mockTrend: 'up' | 'down' | 'stable' = p.weekly_load > 600 ? 'up' : p.weekly_load < 300 ? 'down' : 'stable';
-
-      return {
-        ...p,
-        sport: 'Football', // Fallback
-        computed_status: computedStatus,
-        last_session: sessions[0],
-        load_trend: mockTrend,
-        alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,
-        recovery_score: (() => {
-          const athleteWellness = (wellnessLogs || []).filter((w: any) => w.user_id === p.id);
-          const sortedWellness = athleteWellness.sort((a: any, b: any) => 
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
-          const latest = sortedWellness[0];
-          if (!latest) return 0;
-          const sleep = latest.sleep_score || 0;
-          const soreness = latest.soreness_score || 0;
-          return Math.round(((sleep + (10 - soreness)) / 20) * 100);
-        })()
-      };
-    });
-
-    setAthletes(processed as any);
-    setLoading(false);
   };
 
   const filteredAthletes = useMemo(() => {
