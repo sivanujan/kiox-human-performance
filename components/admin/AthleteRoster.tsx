@@ -299,13 +299,14 @@ export default function AthleteRoster({
 
                       {/* SECTION 5 — Actions (fixed width, never shrinks or hides) */}
                       <div className="flex-shrink-0 flex items-center gap-2">
-                        {/* Profile button */}
+                        {/* Training Plan button */}
                         <button
+                          title="Configure Training Plan"
                           onClick={() => onSelectAthlete(athlete.id)}
                           className="flex items-center gap-1.5 px-3 py-2 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 border border-[#22c55e]/30 hover:border-[#22c55e]/50 rounded-xl font-mono text-[10px] text-[#22c55e] hover:text-[#4ade80] transition-all touch-manipulation min-h-[36px]"
                         >
-                          <span className="text-xs">👤</span>
-                          <span className="hidden xl:block tracking-widest uppercase">Select Profile</span>
+                          <span className="text-xs">📋</span>
+                          <span className="hidden xl:block tracking-widest uppercase">Training Plan</span>
                         </button>
 
                         {/* Log session button */}

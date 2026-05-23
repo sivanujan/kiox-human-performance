@@ -476,7 +476,7 @@ export default function StaffPortal() {
         <AthleteRoster 
           onSelectAthlete={(id) => { 
             setSelectedAthlete(id); 
-            document.getElementById('management-core')?.scrollIntoView({ behavior: 'smooth' });
+            setIsPlanModalOpen(true);
           }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
@@ -505,85 +505,7 @@ export default function StaffPortal() {
         {/* 7. TRAINING LOAD MANAGEMENT */}
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
 
-        {/* 8. INDIVIDUAL ATHLETE MANAGEMENT (SQUAD MANAGEMENT CORE) */}
-        <div id="management-core" className="relative bg-[#111] border border-gray-800 rounded-2xl p-6 md:p-8 overflow-hidden mb-12">
-          
-          {/* COMMAND watermark */}
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 font-display text-[80px] lg:text-[120px] font-black text-white/[0.03] select-none pointer-events-none tracking-wider hidden md:block uppercase">
-            COMMAND
-          </div>
 
-          {/* Header */}
-          <div className="flex items-center gap-2 mb-6 relative z-10">
-            <span className="text-[#22c55e] text-sm group-hover:animate-pulse">⊙</span>
-            <h2 className="font-display text-base font-bold text-[#22c55e] tracking-[0.2em] uppercase">
-              INDIVIDUAL ATHLETE MANAGEMENT
-            </h2>
-          </div>
-
-          {/* Athlete Selector */}
-          <div className="mb-8 relative z-10 space-y-3">
-            <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block ml-1">
-              ATHLETE IDENTIFICATION
-            </label>
-            <div className="relative group">
-              <select 
-                value={selectedAthlete}
-                onChange={(e) => setSelectedAthlete(e.target.value)}
-                className="w-full md:w-[480px] bg-[#1a1a1a] border border-gray-800 focus:border-[#22c55e] focus:outline-none rounded-xl px-6 py-4 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all hover:border-gray-700 shadow-xl"
-              >
-                <option value="">SELECT PLAYER FROM REGISTRY...</option>
-                {athletes.filter(a => 
-                  `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
-                ).map(a => (
-                  <option key={a.id} value={a.id} className="bg-[#111]">
-                    {a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]
-                  </option>
-                ))}
-              </select>
-              <div className="absolute left-[445px] top-1/2 -translate-y-1/2 text-[#22c55e] pointer-events-none hidden md:block">
-                ▾
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons — 4 grid */}
-          <AnimatePresence>
-            {selectedAthlete && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 relative z-10"
-              >
-                {[
-                  { id: 'PLAN_UPDATE', icon: '📋', label: 'PLAN_UPDATE', desc: 'Training Plan', action: () => setIsPlanModalOpen(true) },
-                  { id: 'LOG_INJURY', icon: '🛡', label: 'LOG_INJURY', desc: 'Injury Log', action: () => setIsInjuryModalOpen(true) },
-                  { id: 'SURVEY_SEND', icon: '📊', label: 'SURVEY_SEND', desc: 'Wellness Survey', action: () => setIsSurveyModalOpen(true) },
-                  { id: 'CLIP_UPLOAD', icon: '▶', label: 'CLIP_UPLOAD', desc: 'Video Feedback', action: () => setIsVideoModalOpen(true) },
-                ].map(action => (
-                  <button
-                    key={action.id}
-                    onClick={action.action}
-                    className="flex flex-col items-center justify-center gap-3 bg-[#1a1a1a] hover:bg-[#22c55e]/10 border border-gray-800 hover:border-[#22c55e]/30 rounded-2xl p-6 transition-all duration-300 active:scale-95 group shadow-lg min-h-[120px]"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-gray-800 group-hover:bg-[#22c55e]/20 flex items-center justify-center text-[#22c55e] text-xl transition-all shadow-inner">
-                      {action.icon}
-                    </div>
-                    <div className="text-center">
-                      <div className="font-mono text-xs font-black text-[#22c55e] tracking-[0.2em]">
-                        {action.label}
-                      </div>
-                      <div className="font-mono text-[9px] text-gray-600 font-bold tracking-widest mt-1.5 hidden md:block uppercase group-hover:text-gray-400 transition-colors">
-                        {action.desc}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
         {/* 9. BOOKING PANELS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">

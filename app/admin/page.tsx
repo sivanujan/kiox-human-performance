@@ -335,7 +335,7 @@ export default function AdminDashboard() {
         <AthleteRoster 
           onSelectAthlete={(id) => { 
             setSelectedAthlete(id); 
-            document.getElementById('admin-management-core')?.scrollIntoView({ behavior: 'smooth' });
+            setIsPlanModalOpen(true);
           }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
@@ -360,63 +360,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* 7. TRAINING LOAD MANAGEMENT */}
         <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
-
-        {/* 8. INDIVIDUAL ATHLETE MANAGEMENT */}
-         <div id="admin-management-core" className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-10 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-10 opacity-5 font-display text-9xl pointer-events-none group-hover:opacity-10 transition-opacity">COMMAND</div>
-                      <div className="relative z-10 max-w-2xl">
-               <div className="text-[#22c55e] font-display text-2xl font-black mb-6 flex items-center gap-3 tracking-widest">
-                  <Target size={24} /> INDIVIDUAL ATHLETE MANAGEMENT
-               </div>
-
-              <div className="space-y-8">
-                 <div className="space-y-3">
-                    <label className="text-gray-400 font-label ml-1">ATHLETE IDENTIFICATION</label>
-                    <select
-                     value={selectedAthlete}
-                     onChange={(e) => setSelectedAthlete(e.target.value)}
-                     className="w-full bg-black/60 border-2 border-white/10 group-hover:border-[#22c55e]/40 rounded-2xl py-5 px-8 text-white text-base font-display focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none shadow-xl"
-                    >
-                    <option value="">SELECT PLAYER...</option>
-                    {athletes.filter(a => 
-                      `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(a => (
-                      <option key={a.id} value={a.id} className="bg-[#111]">{a.first_name} {a.last_name} [{a.sport?.toUpperCase()}]</option>
-                    ))}
-                   </select>
-                </div>
-
-                <AnimatePresence>
-                  {selectedAthlete && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6"
-                    >
-                      {[
-                        { label: 'PLAN_UPDATE', icon: <Clipboard size={22} />, action: () => setIsPlanModalOpen(true) },
-                        { label: 'LOG_INJURY', icon: <ShieldAlert size={22} />, action: () => setIsInjuryModalOpen(true) },
-                        { label: 'SURVEY_SEND', icon: <Activity size={22} />, action: () => setIsSurveyModalOpen(true) },
-                        { label: 'CLIP_UPLOAD', icon: <Plus size={22} />, action: () => setIsVideoModalOpen(true) },
-                      ].map((btn, i) => (
-                        <button 
-                          key={i} 
-                          onClick={btn.action}
-                          className="flex flex-col items-center gap-4 bg-white/[0.03] border border-white/10 p-6 rounded-[24px] hover:bg-[#22c55e]/15 hover:border-[#22c55e]/50 hover:shadow-[0_10px_30px_rgba(34,197,94,0.15)] transition-all text-[#22c55e] group/btn shadow-lg"
-                        >
-                           <div className="w-12 h-12 rounded-2xl bg-white/5 group-hover/btn:bg-[#22c55e]/20 flex items-center justify-center transition-colors">{btn.icon}</div>
-                           <span className="font-label text-gray-300 font-bold group-hover/btn:text-white transition-colors uppercase tracking-widest">{btn.label}</span>
-                         </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-           </div>
-        </div>
 
         {/* Global Registry Shortcuts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 pt-4">
