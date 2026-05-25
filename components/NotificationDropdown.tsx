@@ -4,12 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Check, Trash2, Loader2, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useAuth } from "./providers/AuthProvider";
+import { useRouter } from "next/navigation";
 
 export default function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const router = useRouter();
   const supabase = createClient();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -116,6 +118,29 @@ export default function NotificationDropdown() {
     await supabase.from("system_notifications").delete().eq("id", id);
   };
 
+  const handleNotificationClick = async (notif: any) => {
+    // Mark as read in state & DB if not already read
+    if (!notif.is_read) {
+      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+      await supabase.from("system_notifications").update({ is_read: true }).eq("id", notif.id);
+    }
+    
+    // Close dropdown
+    setIsOpen(false);
+
+    // Redirect to chat if it's a chat notification
+    if (notif.type === 'MESSAGE') {
+      const role = profile?.role;
+      let chatPath = "/dashboard/chat";
+      if (role === "superadmin") {
+        chatPath = "/admin/chat";
+      } else if (role === "staff" || role === "medical") {
+        chatPath = "/staff/chat";
+      }
+      router.push(chatPath);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
@@ -159,7 +184,8 @@ export default function NotificationDropdown() {
               notifications.map((notif) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-white/5 relative group transition-colors hover:bg-white/5 ${notif.is_read ? 'opacity-60' : 'bg-[#22c55e]/5'}`}
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`p-4 border-b border-white/5 relative group transition-colors hover:bg-white/5 cursor-pointer ${notif.is_read ? 'opacity-60' : 'bg-[#22c55e]/5'}`}
                 >
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 mt-1">

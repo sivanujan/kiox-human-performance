@@ -6,8 +6,12 @@ CREATE OR REPLACE FUNCTION public.is_admin_or_staff(user_uid UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.profiles 
-    WHERE id = user_uid AND (role = 'staff' OR role = 'superadmin')
+    SELECT 1 FROM auth.users 
+    WHERE id = user_uid AND (
+      raw_user_meta_data ->> 'role' = 'staff' OR 
+      raw_user_meta_data ->> 'role' = 'superadmin' OR
+      raw_user_meta_data ->> 'role' = 'medical'
+    )
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

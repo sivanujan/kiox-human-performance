@@ -95,7 +95,7 @@ export async function proxy(request: NextRequest) {
 
     if (profile?.role === 'superadmin') {
       return NextResponse.redirect(new URL('/admin', request.url));
-    } else if (profile?.role === 'staff') {
+    } else if (profile?.role === 'staff' || profile?.role === 'medical') {
       return NextResponse.redirect(new URL('/staff', request.url));
     }
     return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -124,7 +124,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
 
-      if (isStaffPath && (profile?.role !== 'staff' && profile?.role !== 'superadmin')) {
+      if (isStaffPath && (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     } catch (err) {

@@ -97,6 +97,83 @@ export default function RegisterPage() {
   const [lbsValue, setLbsValue] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
+  // New role and child linking state
+  const [chosenRole, setChosenRole] = useState<"athlete" | "staff" | "medical" | "parent">("athlete");
+  const [childQuery, setChildQuery] = useState("");
+  const [isVerifyingChild, setIsVerifyingChild] = useState(false);
+  const [verifiedChild, setVerifiedChild] = useState<{ id: string; name: string } | null>(null);
+  const [childError, setChildError] = useState("");
+  const [childOtp, setChildOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [obfuscatedChildEmail, setObfuscatedChildEmail] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccessMsg, setOtpSuccessMsg] = useState("");
+  const [pendingChild, setPendingChild] = useState<{ id: string; name: string } | null>(null);
+
+  const handleVerifyChild = async () => {
+    if (!childQuery.trim()) {
+      setChildError("Enter child's player email, username, or ID");
+      return;
+    }
+    setIsVerifyingChild(true);
+    setChildError("");
+    setVerifiedChild(null);
+    setPendingChild(null);
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setChildOtp("");
+    setOtpError("");
+    setOtpSuccessMsg("");
+    setObfuscatedChildEmail("");
+    
+    try {
+      const res = await fetch(`/api/auth/validate-player?query=${encodeURIComponent(childQuery.trim())}`);
+      const data = await res.json();
+      if (res.ok && data.id) {
+        setPendingChild(data);
+        setObfuscatedChildEmail(data.emailSentTo || "");
+        setIsOtpSent(true);
+      } else {
+        setChildError(data.error || "Player not found");
+      }
+    } catch (err) {
+      setChildError("Failed to connect to player lookup registry.");
+    } finally {
+      setIsVerifyingChild(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!childOtp.trim() || !pendingChild) {
+      setOtpError("Please enter the 6-digit verification code");
+      return;
+    }
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    setOtpSuccessMsg("");
+    try {
+      const res = await fetch("/api/auth/verify-child-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ childId: pendingChild.id, otp: childOtp.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setVerifiedChild(pendingChild);
+        setIsOtpVerified(true);
+        setOtpSuccessMsg("✓ VERIFICATION PASSCODE AUTHORIZED SUCCESSFULLY. LINK SECURED.");
+      } else {
+        setOtpError(data.error || "Invalid verification code");
+      }
+    } catch (err) {
+      setOtpError("Failed to verify authentication code.");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
   // Registration Data
   const [formData, setFormData] = useState({
     // Step 1
@@ -258,6 +335,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (chosenRole === "parent" && !verifiedChild) {
+      setErrorMsg("Please verify and link your child's Player account to proceed.");
+      return;
+    }
+
     setLoading(true);
     setErrorMsg("");
 
@@ -295,7 +377,8 @@ export default function RegisterPage() {
       options: {
         emailRedirectTo: redirectTo,
         data: {
-          full_name: `${formData.firstName} ${formData.lastName}`.trim()
+          role: chosenRole,
+          parent_of_email_or_id: chosenRole === 'parent' ? verifiedChild?.id : null
         }
       }
     });
@@ -333,10 +416,35 @@ export default function RegisterPage() {
       }
 
       if (profile) {
-        // 1. ADMIN/STAFF BYPASS: Managers should NEVER see the athlete onboarding flow
-        if (profile.role === 'superadmin' || profile.role === 'staff') {
-          router.push('/admin');
-          return;
+        // Sync chosenRole state with backend profile role to prevent state reset on page reload/verification link redirect
+        if (profile.role) {
+          setChosenRole(profile.role as any);
+        }
+
+        // Define profile completion required fields for non-athlete roles (up to step 4 details)
+        const nonAthleteRequired = [
+          'first_name', 'last_name', 'username', 'date_of_birth',
+          'phone_number', 'address', 'country'
+        ];
+
+        const isNonAthleteComplete = nonAthleteRequired.every((field: string) => {
+          const value = (profile as any)[field];
+          return value !== null && value !== undefined && value !== '';
+        });
+
+        // 1. NON-ATHLETE BYPASS: Staff, Medical, Parent should NEVER see the athlete onboarding flow
+        if (profile.role === 'superadmin' || profile.role === 'staff' || profile.role === 'medical') {
+          if (isNonAthleteComplete || profile.role === 'superadmin') {
+            router.push('/staff');
+            return;
+          }
+        }
+
+        if (profile.role === 'parent') {
+          if (isNonAthleteComplete) {
+            router.push('/dashboard');
+            return;
+          }
         }
 
         // 2. ATHLETE COMPLETION CHECK
@@ -487,14 +595,14 @@ export default function RegisterPage() {
         address: `${formData.addressLine1}${formData.addressLine2 ? ', ' + formData.addressLine2 : ''}, ${formData.city}, ${formData.state}`,
         country: formData.country,
         phone_number: `${formData.countryCode}${formData.phone}`.replace(/\s+/g, ''),
-        emergency_contact_name: formData.emergencyName,
-        emergency_contact_phone: `${formData.emergencyCountryCode}${formData.emergencyPhone}`.replace(/\s+/g, ''),
+        emergency_contact_name: chosenRole === 'athlete' ? formData.emergencyName : null,
+        emergency_contact_phone: chosenRole === 'athlete' ? `${formData.emergencyCountryCode}${formData.emergencyPhone}`.replace(/\s+/g, '') : null,
         username: formData.username.toLowerCase().trim(),
-        height: isNaN(h) ? null : h,
-        weight: isNaN(w) ? null : w,
-        position_played: formData.position,
-        training_goals: formData.goals,
-        medical_history: formData.medicalHistory,
+        height: chosenRole === 'athlete' ? (isNaN(h) ? null : h) : null,
+        weight: chosenRole === 'athlete' ? (isNaN(w) ? null : w) : null,
+        position_played: chosenRole === 'athlete' ? formData.position : null,
+        training_goals: chosenRole === 'athlete' ? formData.goals : null,
+        medical_history: chosenRole === 'athlete' ? formData.medicalHistory : null,
         waiver_accepted: formData.waiverAccepted,
         updated_at: new Date().toISOString()
       };
@@ -531,11 +639,15 @@ export default function RegisterPage() {
 
         // Redirect with a hard fallback
         setTimeout(() => {
-          router.push("/dashboard");
+          if (chosenRole === 'staff' || chosenRole === 'medical') {
+            router.push("/staff");
+          } else {
+            router.push("/dashboard");
+          }
           // Hard fallback if router fails
           setTimeout(() => {
-            if (window.location.pathname !== '/dashboard') {
-              window.location.href = "/dashboard";
+            if (window.location.pathname !== '/dashboard' && window.location.pathname !== '/staff') {
+              window.location.href = (chosenRole === 'staff' || chosenRole === 'medical') ? "/staff" : "/dashboard";
             }
           }, 2000);
         }, 1000);
@@ -621,6 +733,117 @@ export default function RegisterPage() {
                     <p className="font-label text-gray-500">Phase One: Access Credentials</p>
                   </div>
                   <form onSubmit={handleSignUp} className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="block font-label text-[#22c55e] font-bold">Select Role</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { value: "athlete", label: "Player" },
+                          { value: "staff", label: "Coach" },
+                          { value: "medical", label: "Medical Staff" },
+                          { value: "parent", label: "Parent" }
+                        ].map((r) => (
+                          <button
+                            key={r.value}
+                            type="button"
+                            onClick={() => {
+                              setChosenRole(r.value as any);
+                              setVerifiedChild(null);
+                              setChildQuery("");
+                              setChildError("");
+                            }}
+                            className={`py-3 px-4 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all ${
+                              chosenRole === r.value
+                                ? "bg-[#22c55e] text-black border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+                                : "bg-black/30 text-gray-400 border-white/10 hover:border-[#22c55e]/30"
+                            }`}
+                          >
+                            {r.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {chosenRole === "parent" && (
+                      <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <label className="block font-label text-[#22c55e] font-bold text-[10px] tracking-[1px] uppercase">
+                          Child's Player Email, Username or ID <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={childQuery}
+                            onChange={(e) => {
+                              setChildQuery(e.target.value);
+                              setVerifiedChild(null);
+                              setPendingChild(null);
+                              setChildError("");
+                              setIsOtpSent(false);
+                              setIsOtpVerified(false);
+                              setChildOtp("");
+                            }}
+                            placeholder="player@email.com or player_username"
+                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]/30 transition-all font-sans text-xs"
+                          />
+                          <button
+                            type="button"
+                            disabled={isVerifyingChild || !childQuery.trim()}
+                            onClick={handleVerifyChild}
+                            className="bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e] hover:text-black font-button px-4 rounded-xl text-[10px] tracking-[1px] transition-all disabled:opacity-30 flex items-center justify-center shrink-0"
+                          >
+                            {isVerifyingChild ? <Loader2 className="animate-spin" size={14} /> : "Verify"}
+                          </button>
+                        </div>
+                        {childError && (
+                          <p className="text-[10px] text-red-500 font-bold uppercase tracking-[1px] mt-1">
+                            {childError}
+                          </p>
+                        )}
+
+                        {/* OTP Verification Prompt */}
+                        {isOtpSent && !isOtpVerified && pendingChild && (
+                          <div className="pt-3 mt-3 border-t border-white/5 space-y-2">
+                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.5px] leading-relaxed">
+                              🔒 A 6-digit security code has been transmitted to <span className="text-white font-mono">{obfuscatedChildEmail}</span>. Enter it below to authorize this link.
+                            </p>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                maxLength={6}
+                                value={childOtp}
+                                onChange={(e) => {
+                                  setChildOtp(e.target.value.replace(/\D/g, ""));
+                                  setOtpError("");
+                                }}
+                                placeholder="ENTER 6-DIGIT OTP"
+                                className="flex-1 bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/30 transition-all font-mono text-center tracking-[4px] text-xs font-bold"
+                              />
+                              <button
+                                type="button"
+                                disabled={isVerifyingOtp || childOtp.length !== 6}
+                                onClick={handleVerifyOtp}
+                                className="bg-[#22c55e] text-black hover:bg-[#4ade80] font-button px-4 rounded-xl text-[10px] tracking-[1px] transition-all disabled:opacity-30 disabled:hover:bg-[#22c55e] disabled:hover:text-black flex items-center justify-center shrink-0 font-bold"
+                              >
+                                {isVerifyingOtp ? <Loader2 className="animate-spin" size={14} /> : "Verify Code"}
+                              </button>
+                            </div>
+                            {otpError && (
+                              <p className="text-[9px] text-red-500 font-bold uppercase tracking-[0.5px]">
+                                ⚠️ {otpError}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Success Linked Child State */}
+                        {isOtpVerified && verifiedChild && (
+                          <div className="text-[10px] text-[#22c55e] font-black uppercase tracking-[1px] mt-2 bg-[#22c55e]/10 border border-[#22c55e]/30 p-3 rounded-xl flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-ping" />
+                            ✓ LINKED CHILD: {verifiedChild.name}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <label className="block font-label text-[#22c55e] font-bold">Email Address</label>
                       <div className="relative group">
@@ -870,46 +1093,48 @@ export default function RegisterPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="pt-6 border-t border-white/5 space-y-4">
-                      <h3 className="font-label text-white/40">Emergency Contact <span className="text-red-500">*</span></h3>
-                      <div className="space-y-4">
-                        <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required type="text" placeholder="Contact Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
-                        <div className="flex gap-2">
-                          <select
-                            name="emergencyCountryCode"
-                            value={formData.emergencyCountryCode}
-                            onChange={handleChange}
-                            className="w-[140px] bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-[11px] appearance-none cursor-pointer"
-                          >
-                            {countries.map(c => (
-                              <option key={c.name} value={c.code} className="bg-[#111] text-white">
-                                {c.code} ({c.name.substring(0, 3)})
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            name="emergencyPhone"
-                            value={formData.emergencyPhone}
-                            onChange={handleChange}
-                            onInput={(e) => {
-                              e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
-                            }}
-                            maxLength={15}
-                            required
-                            type="tel"
-                            placeholder="CONTACT PHONE"
-                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm"
-                          />
+                    {chosenRole === 'athlete' && (
+                      <div className="pt-6 border-t border-white/5 space-y-4">
+                        <h3 className="font-label text-white/40">Emergency Contact <span className="text-red-500">*</span></h3>
+                        <div className="space-y-4">
+                          <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required={chosenRole === 'athlete'} type="text" placeholder="Contact Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <div className="flex gap-2">
+                            <select
+                              name="emergencyCountryCode"
+                              value={formData.emergencyCountryCode}
+                              onChange={handleChange}
+                              className="w-[140px] bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-[11px] appearance-none cursor-pointer"
+                            >
+                              {countries.map(c => (
+                                <option key={c.name} value={c.code} className="bg-[#111] text-white">
+                                  {c.code} ({c.name.substring(0, 3)})
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              name="emergencyPhone"
+                              value={formData.emergencyPhone}
+                              onChange={handleChange}
+                              onInput={(e) => {
+                                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                              }}
+                              maxLength={15}
+                              required={chosenRole === 'athlete'}
+                              type="tel"
+                              placeholder="CONTACT PHONE"
+                              className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                     <div className="flex gap-4">
                       <button type="button" onClick={prevStep} className="flex-1 bg-white/5 text-white/40 font-button py-4 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all">
                         <ChevronLeft size={18} />
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
                           const phoneClean = formData.phone.replace(/\D/g, '');
                           const emergencyPhoneClean = formData.emergencyPhone.replace(/\D/g, '');
                           
@@ -917,14 +1142,22 @@ export default function RegisterPage() {
                             setErrorMsg("INVALID PRIMARY PHONE NUMBER");
                             return;
                           }
-                          if (emergencyPhoneClean.length < 7 || emergencyPhoneClean.length > 15) {
-                            setErrorMsg("INVALID EMERGENCY PHONE NUMBER");
-                            return;
+                          if (chosenRole === 'athlete') {
+                            if (emergencyPhoneClean.length < 7 || emergencyPhoneClean.length > 15) {
+                              setErrorMsg("INVALID EMERGENCY PHONE NUMBER");
+                              return;
+                            }
                           }
                           setErrorMsg("");
-                          nextStep();
+                          
+                          if (chosenRole !== 'athlete') {
+                            // Non-athletes skip Step 5 and submit profile completion immediately
+                            handleProfileUpdate(e as any);
+                          } else {
+                            nextStep();
+                          }
                         }}
-                        disabled={!formData.phone || !formData.addressLine1 || !formData.city || !formData.state || !formData.emergencyName || !formData.emergencyPhone}
+                        disabled={!formData.phone || !formData.addressLine1 || !formData.city || !formData.state || (chosenRole === 'athlete' && (!formData.emergencyName || !formData.emergencyPhone))}
                         className="flex-[3] bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
                       >
                         Continue <ChevronRight size={18} />

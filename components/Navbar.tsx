@@ -107,10 +107,10 @@ export default function Navbar() {
             ) : user ? (
               <div className="flex items-center gap-6">
                 <Link 
-                  href={role === 'superadmin' ? "/admin" : role === 'staff' ? "/staff" : "/dashboard"} 
+                  href={role === 'superadmin' ? "/admin" : (role === 'staff' || role === 'medical') ? "/staff" : "/dashboard"} 
                   className="px-5 py-2 text-[10px] font-bold font-display tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
                 >
-                  {role === 'superadmin' ? "Admin Portal" : role === 'staff' ? "Staff Portal" : "My Dashboard"}
+                  {role === 'superadmin' ? "Admin Portal" : (role === 'staff' || role === 'medical') ? "Staff Portal" : "My Dashboard"}
                 </Link>
                 <button 
                   onClick={handleSignOut}
@@ -186,11 +186,11 @@ export default function Navbar() {
           ) : user ? (
             <>
               <Link 
-                href={role === 'superadmin' ? "/admin" : role === 'staff' ? "/staff" : "/dashboard"} 
+                href={role === 'superadmin' ? "/admin" : (role === 'staff' || role === 'medical') ? "/staff" : "/dashboard"} 
                 className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {role === 'superadmin' ? "Admin Portal" : role === 'staff' ? "Staff Portal" : "My Dashboard"}
+                {role === 'superadmin' ? "Admin Portal" : (role === 'staff' || role === 'medical') ? "Staff Portal" : "My Dashboard"}
               </Link>
               <button 
                 onClick={handleSignOut}

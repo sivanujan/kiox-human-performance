@@ -29,11 +29,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "KIO-X Human Performance | Elite Training",
   description: "Ultra-premium sports performance and physiotherapy brand.",
+  manifest: "/manifest.json",
 };
 
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { TimezoneProvider } from "@/components/providers/TimezoneProvider";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 export default function RootLayout({
   children,
@@ -55,6 +57,7 @@ export default function RootLayout({
               <Navbar />
               <main className="flex-1 w-full relative z-10">{children}</main>
               <Footer />
+              <PWAInstallButton />
             </NotificationProvider>
           </TimezoneProvider>
         </AuthProvider>

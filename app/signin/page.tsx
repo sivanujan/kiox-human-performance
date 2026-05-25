@@ -38,8 +38,8 @@ function SignInContent() {
       console.log("Sign-in page: User detected, checking profile status...", { hasProfile: !!profile });
       
       if (profile) {
-        if (profile.role === 'superadmin' || profile.role === 'staff') {
-          router.push("/admin");
+        if (profile.role === 'superadmin' || profile.role === 'staff' || profile.role === 'medical') {
+          router.push(profile.role === 'superadmin' ? "/admin" : "/staff");
         } else {
           router.push("/dashboard");
         }
@@ -114,8 +114,8 @@ function SignInContent() {
       const { data: profileData } = await supabase.from('profiles').select('role').eq('id', data.user?.id).single();
       
       if (profileData) {
-        if (profileData.role === 'superadmin' || profileData.role === 'staff') {
-          router.push("/admin");
+        if (profileData.role === 'superadmin' || profileData.role === 'staff' || profileData.role === 'medical') {
+          router.push(profileData.role === 'superadmin' ? "/admin" : "/staff");
         } else {
           router.push("/dashboard");
         }

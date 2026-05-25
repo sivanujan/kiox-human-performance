@@ -29,7 +29,7 @@ import UserProfileModal from "@/components/modals/UserProfileModal";
 import InjuryLogModal from "@/components/modals/InjuryLogModal";
 import Avatar from "@/components/ui/Avatar";
 
-const ROLES = ['athlete', 'staff', 'superadmin'];
+const ROLES = ['athlete', 'staff', 'superadmin', 'medical', 'parent'];
 const STATUSES = ['pending', 'approved', 'rejected', 'active'];
 
 export default function UserInventory() {

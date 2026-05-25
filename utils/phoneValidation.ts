@@ -49,7 +49,7 @@ export const validatePhoneNumber = (
       valid: true,
       country: phoneNumber.country,
       country_code: `+${phoneNumber.countryCallingCode}`,
-      normalized: phoneNumber.format('E164'),
+      normalized: phoneNumber.format('E.164'),
       type: phoneNumber.getType() || 'unknown',
     };
   } catch (error: any) {
@@ -62,7 +62,7 @@ export const validatePhoneNumber = (
           valid: true,
           country: retryPhone.country,
           country_code: `+${retryPhone.countryCallingCode}`,
-          normalized: retryPhone.format('E164'),
+          normalized: retryPhone.format('E.164'),
           type: retryPhone.getType() || 'unknown',
         };
       }

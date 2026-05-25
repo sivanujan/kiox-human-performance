@@ -20,7 +20,8 @@ import {
   Menu,
   Calendar,
   Layers,
-  X as CloseIcon
+  X as CloseIcon,
+  MessageSquare
 } from "lucide-react";
 import Image from "next/image";
 import StaffNotificationDropdown from "@/components/StaffNotificationDropdown";
@@ -33,6 +34,7 @@ const staffNavItems = [
   { icon: <Layers size={18} />, label: 'PROGRAMS MATRIX', href: '/staff/programs' },
   { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
+  { icon: <MessageSquare size={18} />, label: 'CHAT UPLINK', href: '/staff/chat' },
   { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },
 ];
 
@@ -52,7 +54,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     if (!loading) {
       if (!user) {
         router.push("/signin");
-      } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin') {
+      } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical') {
         router.push("/dashboard");
       } else {
         fetchTeams();
@@ -145,11 +147,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             </div>
             
             <div className={`font-display text-lg text-white mb-1 uppercase tracking-wider group-hover:text-[#22c55e] transition-colors`}>
-              Coach {profile?.first_name}
+              {profile?.role === 'medical' ? 'Officer' : 'Coach'} {profile?.first_name}
             </div>
             <div className="flex flex-col gap-1 items-center">
               <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[8px] font-black uppercase tracking-[2px]">
-                {profile?.role === 'superadmin' ? 'Super Admin' : 'Performance Staff'}
+                {profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}
               </div>
               <div className="text-gray-400 text-[9px] font-bold uppercase tracking-[1px] mt-1">
                 {userTeam?.name || "Independent Ops"}
@@ -161,25 +163,32 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         {/* Navigation Menu */}
         <nav className="flex-1 py-6 px-4 space-y-2">
           <div className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-4 mb-4">Tactical Menu</div>
-          {staffNavItems.map((item, i) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={i}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
-                  isActive 
-                    ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
-                    : 'text-white/40 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className={isActive ? 'text-black' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
-                {item.label}
-                {isActive && <ChevronRight size={14} className="ml-auto" />}
-              </Link>
-            );
-          })}
+          {staffNavItems
+            .filter(item => {
+              if (profile?.role === 'medical') {
+                return item.href === '/staff/chat' || item.href === '/staff/settings';
+              }
+              return true;
+            })
+            .map((item, i) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={i}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
+                    isActive 
+                      ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
+                      : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className={isActive ? 'text-black' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
+                  {item.label}
+                  {isActive && <ChevronRight size={14} className="ml-auto" />}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Sign Out */}
@@ -227,7 +236,9 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             >
                <div className="text-right hidden sm:block">
                   <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
-                  <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">Operational Staff</div>
+                  <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">
+                    {profile?.role === 'medical' ? 'Medical Staff' : 'Operational Staff'}
+                  </div>
                </div>
                <Avatar 
                   src={profile?.avatar_url}

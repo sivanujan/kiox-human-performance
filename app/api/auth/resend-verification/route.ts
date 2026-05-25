@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     options: {
       redirectTo: redirectTo || `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/auth/callback`,
     },
-  });
+  } as any);
 
   if (linkError) {
     console.error("Generate link error:", linkError);

@@ -3,6 +3,19 @@ import { createAdminClient } from '@/utils/supabase/admin';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+async function getAthleteId(supabase: any, userId: string): Promise<string> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, parent_of')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (profile?.role === 'parent' && profile.parent_of) {
+    return profile.parent_of;
+  }
+  return userId;
+}
+
 export async function POST() {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -11,7 +24,8 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const athleteId = user.id;
+  const athleteId = await getAthleteId(supabase, user.id);
+
 
   try {
     // 2. Check for active injuries

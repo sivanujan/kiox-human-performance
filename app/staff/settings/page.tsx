@@ -49,7 +49,7 @@ export default function StaffSettingsPage() {
   useEffect(() => {
     setIsHydrated(true);
     if (!authLoading) {
-      if (!user || (profile?.role !== 'staff' && profile?.role !== 'superadmin')) {
+      if (!user || (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical')) {
         router.push("/signin");
       } else {
         setFormData({
@@ -151,9 +151,9 @@ export default function StaffSettingsPage() {
             </div>
             <div className="relative z-10">
                <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[4px] mb-1">KIO-X STAFF COMMAND // OPS_READY</div>
-               <div className={`font-sans text-2xl font-black uppercase tracking-widest text-white`}>Coach {profile?.first_name} {profile?.last_name}</div>
+               <div className={`font-sans text-2xl font-black uppercase tracking-widest text-white`}>{profile?.role === 'medical' ? 'Officer' : 'Coach'} {profile?.first_name} {profile?.last_name}</div>
                <div className="flex items-center gap-3 mt-2">
-                  <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Role: <span className="text-[#22c55e]">{profile?.role === 'superadmin' ? 'Super Admin' : 'Performance Staff'}</span></div>
+                  <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Role: <span className="text-[#22c55e]">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</span></div>
                   <div className="w-1 h-1 rounded-full bg-white/10" />
                   <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Team: <span className="text-white">{userTeam?.name || "U21 Elite Squad"}</span></div>
                </div>

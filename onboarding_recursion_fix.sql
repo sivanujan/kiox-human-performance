@@ -1,10 +1,15 @@
 -- 1. Create a security definer function to break the recursion loop
+-- We query auth.users instead of public.profiles to completely avoid RLS recursion on the profiles table.
 CREATE OR REPLACE FUNCTION public.is_admin_or_staff(user_uid UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.profiles 
-    WHERE id = user_uid AND (role = 'staff' OR role = 'superadmin')
+    SELECT 1 FROM auth.users 
+    WHERE id = user_uid AND (
+      raw_user_meta_data ->> 'role' = 'staff' OR 
+      raw_user_meta_data ->> 'role' = 'superadmin' OR
+      raw_user_meta_data ->> 'role' = 'medical'
+    )
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

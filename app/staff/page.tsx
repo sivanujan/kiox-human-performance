@@ -117,8 +117,10 @@ export default function StaffPortal() {
     if (!authLoading && !fetchingRef.current) {
         if (!user) {
             router.push("/signin");
-        } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin') {
+        } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical') {
             router.push("/dashboard");
+        } else if (profile?.role === 'medical') {
+            router.push("/staff/chat");
         } else {
             fetchAdminData();
         }

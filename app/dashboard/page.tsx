@@ -58,10 +58,13 @@ export default function DashboardOverview() {
   const { user, profile, loading: authLoading } = useAuth();
   const { formatTimeOnly, userTimezone } = useTimezone();
   const supabase = createClient();
+  const athleteId = (profile?.role === 'parent' && profile.parent_of) ? profile.parent_of : user?.id;
+
   const [metrics, setMetrics] = useState<any>(null);
   const [schedule, setSchedule] = useState<any[]>([]);
   const [todaySessions, setTodaySessions] = useState<TrainingSession[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [childProfile, setChildProfile] = useState<any>(null);
   const [performanceData, setPerformanceData] = useState<any>({
     activePlan: null,
     activeInjuries: [],
@@ -81,21 +84,38 @@ export default function DashboardOverview() {
   const [clearanceMessage, setClearanceMessage] = useState<string | null>(null);
   const [declarationChecked, setDeclarationChecked] = useState(false);
 
+  // Fetch child profile if logged in as parent
   useEffect(() => {
-    if (!authLoading && user) {
+    if (profile?.role === 'parent' && profile.parent_of) {
+      const fetchChildProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar_url')
+          .eq('id', profile.parent_of)
+          .single();
+        if (!error && data) {
+          setChildProfile(data);
+        }
+      };
+      fetchChildProfile();
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!authLoading && athleteId) {
       fetchDashboardData();
       fetchAthleteSessions();
 
       // Listen for admin resolving the clearance request in real-time
       const channel = supabase
-        .channel(`clearance_watch_${user.id}`)
+        .channel(`clearance_watch_${athleteId}`)
         .on(
           'postgres_changes',
           {
             event: 'UPDATE',
             schema: 'public',
             table: 'athlete_alerts',
-            filter: `athlete_id=eq.${user.id}`
+            filter: `athlete_id=eq.${athleteId}`
           },
           (payload: any) => {
             // When any alert for this athlete is updated (e.g., resolved by admin), re-fetch
@@ -110,7 +130,7 @@ export default function DashboardOverview() {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, authLoading]);
+  }, [athleteId, authLoading]);
 
   // Sync clearance button state with server — reset when admin resolves the request
   useEffect(() => {
@@ -126,7 +146,7 @@ export default function DashboardOverview() {
   }, [performanceData.clearanceRequest]);
 
   const fetchAthleteSessions = async () => {
-    if (!supabase || !user) return;
+    if (!supabase || !athleteId) return;
     const today = format(new Date(), "yyyy-MM-dd");
     
     // 1. Fetch sessions directly assigned to the athlete
@@ -134,13 +154,13 @@ export default function DashboardOverview() {
       .from("training_sessions")
       .select("*")
       .gte("scheduled_date", today)
-      .contains("assigned_athletes", [user.id]);
+      .contains("assigned_athletes", [athleteId]);
 
     // 2. Fetch sessions the athlete has explicitly booked
     const { data: bookedData } = await supabase
       .from("session_bookings")
       .select("session_id, status, training_sessions(*)")
-      .eq("athlete_id", user.id)
+      .eq("athlete_id", athleteId)
       .in("status", ["CONFIRMED", "PENDING"]);
 
     // Extract valid future sessions from bookings
@@ -170,7 +190,7 @@ export default function DashboardOverview() {
       .from("training_sessions")
       .select("*")
       .lt("scheduled_date", today)
-      .contains("assigned_athletes", [user.id])
+      .contains("assigned_athletes", [athleteId])
       .order("scheduled_date", { ascending: false })
       .order("start_time", { ascending: false })
       .limit(1);
@@ -221,7 +241,9 @@ export default function DashboardOverview() {
     );
   }
 
-  const athleteName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Athlete';
+  const athleteName = profile?.role === 'parent'
+    ? (childProfile ? `${childProfile.first_name} ${childProfile.last_name || ''}` : 'Child Athlete')
+    : (profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Athlete');
   
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const now = new Date();
@@ -388,7 +410,10 @@ export default function DashboardOverview() {
                     <div>
                       <h4 className="text-white font-bold text-xs uppercase tracking-wide mb-1">Recovery & Fitness Declaration</h4>
                       <p className="text-white/50 text-[10.5px] leading-relaxed">
-                        I hereby formally declare that I have recovered from my injury, am currently pain-free, and am requesting administrative clearance to return to active tactical and training protocols.
+                        {profile?.role === 'parent'
+                          ? `I hereby formally declare that my child (${athleteName}) has recovered from their injury, is currently pain-free, and I am requesting administrative clearance for them to return to active tactical and training protocols.`
+                          : "I hereby formally declare that I have recovered from my injury, am currently pain-free, and am requesting administrative clearance to return to active tactical and training protocols."
+                        }
                       </p>
                     </div>
                   </div>
@@ -411,7 +436,7 @@ export default function DashboardOverview() {
                     ) : (
                       <>
                         <Zap size={16} />
-                        Submit Clearance Request
+                        {profile?.role === 'parent' ? "Request Child's Clearance" : "Submit Clearance Request"}
                       </>
                     )}
                   </button>
@@ -420,7 +445,10 @@ export default function DashboardOverview() {
                   {(clearanceMessage || performanceData.clearanceRequest) && (
                     <div className="p-4 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[10px] font-black uppercase tracking-widest text-center flex items-center justify-center gap-2 animate-pulse">
                       <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                      Clearance Request Pending Command Staff Approval
+                      {profile?.role === 'parent'
+                        ? "Clearance Request Pending Command Staff Approval for Child"
+                        : "Clearance Request Pending Command Staff Approval"
+                      }
                     </div>
                   )}
                 </div>
@@ -539,7 +567,7 @@ export default function DashboardOverview() {
 
           <div>
             <div className="text-[#22c55e] text-[10px] font-black tracking-[0.3em] uppercase mb-1">
-              Athlete Portal // Baseline Active
+              {profile?.role === 'parent' ? 'Child Monitoring Portal // Active Tracker' : 'Athlete Portal // Baseline Active'}
             </div>
             <h2 className={`font-display text-3xl sm:text-4xl text-white tracking-wider mb-4 leading-none`}>
               {athleteName.toUpperCase()}
@@ -557,12 +585,14 @@ export default function DashboardOverview() {
                    {hasActiveInjury ? 0 : readinessScore}%
                  </span>
               </div>
-              <button
-                 onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
-                 className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl text-black font-black uppercase text-[9px] tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale"
-              >
-                 <Activity size={12} /> Daily Check-in
-              </button>
+              {profile?.role !== 'parent' && (
+                <button
+                   onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
+                   className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl text-black font-black uppercase text-[9px] tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale"
+                >
+                   <Activity size={12} /> Daily Check-in
+                </button>
+              )}
             </div>
           </div>
         </div>

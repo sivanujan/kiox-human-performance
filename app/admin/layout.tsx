@@ -24,7 +24,8 @@ import {
   ArrowRight,
   Camera,
   Menu,
-  X as CloseIcon
+  X as CloseIcon,
+  MessageSquare
 } from "lucide-react";
 import AddAthleteModal from "@/components/modals/AddAthleteModal";
 import AdminProfileModal from "@/components/modals/AdminProfileModal";
@@ -78,6 +79,11 @@ const adminNavItems = [
     icon: <BarChart3 size={18} />, 
     label: 'ANALYTICS',
     href: '/admin/analytics',
+    section: 'OPERATIONS' },
+  { 
+    icon: <MessageSquare size={18} />, 
+    label: 'CHAT TERMINAL',
+    href: '/admin/chat',
     section: 'OPERATIONS' },
   { 
     icon: <Camera size={18} />, 

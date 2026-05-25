@@ -37,7 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       
       if (error) {
-        console.error("Profile fetch error:", error);
+        console.error("Profile fetch error details:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         setProfile(null);
       } else {
         setProfile(data);
@@ -49,12 +54,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshProfile = async () => {
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    if (currentUser) {
-      userRef.current = currentUser;
-      setUser(currentUser);
-      await fetchProfile(currentUser.id);
-    } else {
+    try {
+      const { data: { user: currentUser }, error } = await supabase.auth.getUser();
+      
+      if (error) {
+        console.warn("refreshProfile - getUser error:", error.message);
+        if (
+          error.message.includes("Invalid Refresh Token") ||
+          error.message.includes("Refresh Token Not Found") ||
+          error.message.includes("refresh_token")
+        ) {
+          if (typeof window !== "undefined") {
+            try {
+              const keys = Object.keys(localStorage);
+              keys.forEach((key) => {
+                if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
+                  localStorage.removeItem(key);
+                  console.log(`refreshProfile: Cleared stale storage key: ${key}`);
+                }
+              });
+            } catch (storageErr) {
+              console.error("refreshProfile: Failed to clean up localStorage:", storageErr);
+            }
+            await supabase.auth.signOut().catch(() => {});
+          }
+          userRef.current = null;
+          setUser(null);
+          setProfile(null);
+          return;
+        }
+      }
+
+      if (currentUser) {
+        userRef.current = currentUser;
+        setUser(currentUser);
+        await fetchProfile(currentUser.id);
+      } else {
+        userRef.current = null;
+        setUser(null);
+        setProfile(null);
+      }
+    } catch (err) {
+      console.error("refreshProfile exception:", err);
       userRef.current = null;
       setUser(null);
       setProfile(null);
@@ -100,6 +141,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // 1. Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
         
+        if (error) {
+          console.warn("initializeAuth - getSession error:", error.message);
+          if (
+            error.message.includes("Invalid Refresh Token") ||
+            error.message.includes("Refresh Token Not Found") ||
+            error.message.includes("refresh_token")
+          ) {
+            if (typeof window !== "undefined") {
+              try {
+                const keys = Object.keys(localStorage);
+                keys.forEach((key) => {
+                  if (key.startsWith("sb-") && key.endsWith("-auth-token")) {
+                    localStorage.removeItem(key);
+                    console.log(`initializeAuth: Cleared stale storage key: ${key}`);
+                  }
+                });
+              } catch (storageErr) {
+                console.error("initializeAuth: Failed to clean up localStorage:", storageErr);
+              }
+              await supabase.auth.signOut().catch(() => {});
+            }
+          }
+        }
+
         if (!mounted) return;
 
         const initialUser = session?.user ?? null;

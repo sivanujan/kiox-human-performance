@@ -21,7 +21,8 @@ import {
   Activity,
   Menu,
   X,
-  Camera
+  Camera,
+  MessageSquare
 } from "lucide-react";
 import Image from "next/image";
 import Avatar from "@/components/ui/Avatar";
@@ -33,6 +34,7 @@ const athleteNavItems = [
   { icon: <Clipboard size={18} />, label: 'MY PROGRAM', href: '/dashboard/program' },
   { icon: <Calendar size={18} />, label: 'CALENDAR', href: '/dashboard/calendar' },
   { icon: <BarChart3 size={18} />, label: 'PROGRESS', href: '/dashboard/progress' },
+  { icon: <MessageSquare size={18} />, label: 'CHAT TERMINAL', href: '/dashboard/chat' },
   { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking/coach', badge: 'NEW' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
 ];
@@ -44,31 +46,62 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [teams, setTeams] = useState<any[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hasActiveInjury, setHasActiveInjury] = useState(false);
+  const [childProfile, setChildProfile] = useState<any>(null);
 
   // Initialize training reminders
   useTrainingReminders();
 
+  // Fetch child profile details if logged in as a parent
+  useEffect(() => {
+    if (profile?.role === 'parent' && profile.parent_of && supabase) {
+      const fetchChildProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, avatar_url')
+          .eq('id', profile.parent_of)
+          .single();
+        if (!error && data) {
+          setChildProfile(data);
+        }
+      };
+      fetchChildProfile();
+    }
+  }, [profile, supabase]);
+
   // Check and watch active injuries in real-time
   useEffect(() => {
     if (user && supabase) {
+      const athleteId = profile?.role === 'parent' ? profile.parent_of : user.id;
+      if (!athleteId) return;
+
       const checkInjury = async () => {
         try {
           const { data, error } = await supabase
             .from('athlete_injury_logs')
             .select('id')
-            .eq('athlete_id', user.id)
+            .eq('athlete_id', athleteId)
             .neq('status', 'Cleared')
             .limit(1);
           
           if (!error && data && data.length > 0) {
             setHasActiveInjury(true);
           } else {
-            // Also fallback check on profile
-            if (profile?.training_status?.toUpperCase() === 'INJURED' || profile?.injury_risk?.toUpperCase() === 'HIGH') {
-              setHasActiveInjury(true);
+            // Also check profile or child profile training status
+            let isInjured = false;
+            if (profile?.role === 'parent') {
+              const { data: cp } = await supabase
+                .from('profiles')
+                .select('training_status, injury_risk')
+                .eq('id', athleteId)
+                .single();
+              if (cp && (cp.training_status?.toUpperCase() === 'INJURED' || cp.injury_risk?.toUpperCase() === 'HIGH')) {
+                isInjured = true;
+              }
             } else {
-              setHasActiveInjury(false);
+              isInjured = profile?.training_status?.toUpperCase() === 'INJURED' || profile?.injury_risk?.toUpperCase() === 'HIGH';
             }
+
+            setHasActiveInjury(isInjured);
           }
         } catch (e) {
           console.error("Layout Injury Check Error:", e);
@@ -79,15 +112,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       
       // Setup realtime listener for injury logs and profiles table changes
       const channel = supabase
-        .channel(`injury_layout_watch_${user.id}`)
+        .channel(`injury_layout_watch_${athleteId}`)
         .on(
           'postgres_changes',
-          { event: '*', schema: 'public', table: 'athlete_injury_logs', filter: `athlete_id=eq.${user.id}` },
+          { event: '*', schema: 'public', table: 'athlete_injury_logs', filter: `athlete_id=eq.${athleteId}` },
           () => { checkInjury(); }
         )
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${athleteId}` },
           () => { checkInjury(); }
         )
         .subscribe();
@@ -96,7 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         supabase.removeChannel(channel);
       };
     }
-  }, [user?.id, profile?.training_status, profile?.injury_risk, supabase]);
+  }, [user?.id, profile?.id, profile?.parent_of, profile?.training_status, profile?.injury_risk, supabase]);
 
   // Route security redirection: Redirect injured user to dashboard overview if they try to access other routes
   useEffect(() => {
@@ -106,14 +139,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [hasActiveInjury, pathname, router]);
 
   useEffect(() => {
+    console.log("[KIO-X REDIRECT DETECTOR] loading =", loading, "| user =", user?.id, "| profile =", profile);
     if (!loading) {
       if (!user) {
+        console.log("[KIO-X REDIRECT DETECTOR] No active session. Sending to /signin.");
         router.push("/signin");
       } else if (profile?.role === 'superadmin') {
+        console.log("[KIO-X REDIRECT DETECTOR] User is Superadmin. Redirecting to /admin.");
         router.push("/admin");
-      } else if (profile?.role === 'staff') {
+      } else if (profile?.role === 'staff' || profile?.role === 'medical') {
+        console.log(`[KIO-X REDIRECT DETECTOR] User has elevated role: ${profile.role}. Redirecting to /staff.`);
         router.push("/staff");
       } else {
+        console.log(`[KIO-X REDIRECT DETECTOR] User role is: ${profile?.role || 'athlete'} (fallback). Displaying Athlete Dashboard.`);
         fetchTeams();
       }
     }
@@ -205,7 +243,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div className="flex flex-col gap-1 items-center">
               <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[8px] font-black uppercase tracking-[2px]">
-                Elite Performer
+                {profile?.role === 'parent' ? 'Parent Account' : 'Elite Performer'}
               </div>
               <div className="text-gray-400 text-[9px] font-bold uppercase tracking-[1px] mt-1">
                 {userTeam?.name || "Independent Unit"}
@@ -217,42 +255,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Navigation Menu */}
         <nav className="flex-1 py-6 px-4 space-y-2">
           <div className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-4 mb-4">Operational Menu</div>
-          {athleteNavItems.map((item, i) => {
-            const isActive = pathname === item.href;
-            const isDisabled = hasActiveInjury && item.href !== '/dashboard';
-            return (
-              <Link
-                key={i}
-                href={isDisabled ? '#' : item.href}
-                onClick={(e) => {
-                  if (isDisabled) {
-                    e.preventDefault();
-                  }
-                }}
-                className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
-                  isActive 
-                    ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
-                    : isDisabled
-                      ? 'text-white/10 cursor-not-allowed opacity-20 hover:bg-transparent pointer-events-none'
-                      : 'text-white/40 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className={isActive ? 'text-black' : isDisabled ? 'text-red-500/30' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
-                {item.label}
-                {item.badge && !isDisabled && (
-                  <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
-                    {item.badge}
-                  </span>
-                )}
-                {isDisabled && (
-                  <span className="ml-auto text-[7px] font-black tracking-widest text-red-500/60 bg-red-500/10 border border-red-500/25 px-1.5 py-0.5 rounded uppercase">
-                     Locked
-                  </span>
-                )}
-                {isActive && <ChevronRight size={14} className="ml-auto" />}
-              </Link>
-            );
-          })}
+          {(() => {
+            const isParent = profile?.role === 'parent';
+            const navItems = isParent ? [
+              { icon: athleteNavItems[0].icon, label: 'OVERVIEW', href: '/dashboard' },
+              { icon: athleteNavItems[1].icon, label: 'MY PROFILE', href: '/dashboard/profile' },
+              { icon: athleteNavItems[2].icon, label: "CHILD'S PROGRAM", href: '/dashboard/program' },
+              { icon: athleteNavItems[3].icon, label: "CHILD'S CALENDAR", href: '/dashboard/calendar' },
+              { icon: athleteNavItems[4].icon, label: "CHILD'S PROGRESS", href: '/dashboard/progress' },
+              { icon: athleteNavItems[5].icon, label: 'CHAT TERMINAL', href: '/dashboard/chat' },
+              { icon: athleteNavItems[7].icon, label: 'SETTINGS', href: '/dashboard/settings' },
+            ] : athleteNavItems;
+
+            return navItems.map((item, i) => {
+              const isActive = pathname === item.href;
+              const isDisabled = hasActiveInjury && item.href !== '/dashboard';
+              return (
+                <Link
+                  key={i}
+                  href={isDisabled ? '#' : item.href}
+                  onClick={(e) => {
+                    if (isDisabled) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
+                    isActive 
+                      ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
+                      : isDisabled
+                        ? 'text-white/10 cursor-not-allowed opacity-20 hover:bg-transparent pointer-events-none'
+                        : 'text-white/40 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className={isActive ? 'text-black' : isDisabled ? 'text-red-500/30' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
+                  {item.label}
+                  {item.badge && !isDisabled && (
+                    <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
+                  {isDisabled && (
+                    <span className="ml-auto text-[7px] font-black tracking-widest text-red-500/60 bg-red-500/10 border border-red-500/25 px-1.5 py-0.5 rounded uppercase">
+                       Locked
+                    </span>
+                  )}
+                  {isActive && <ChevronRight size={14} className="ml-auto" />}
+                </Link>
+              );
+            });
+          })()}
         </nav>
 
         {/* Sign Out */}
@@ -285,6 +336,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="text-[#22c55e] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5 hidden sm:block">Tactical Performance Hub</div>
                 <h1 className="font-display text-sm md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] sm:max-w-none">
                    <span className="hidden sm:inline">System Online // </span><span className="text-[#22c55e]">{profile?.first_name || 'Protocol'}</span>
+                   {profile?.role === 'parent' && (
+                      <span className="text-white/40 text-[9px] font-black tracking-[2px] ml-2">
+                        (MONITORING: {childProfile ? `${childProfile.first_name} ${childProfile.last_name || ''}`.toUpperCase() : 'CHILD'})
+                      </span>
+                   )}
                 </h1>
              </div>
           </div>
