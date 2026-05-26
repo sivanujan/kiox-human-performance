@@ -47,34 +47,26 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-        mobileMenuOpen ? "h-screen bg-[#080808]" : "h-[80px]"
+        mobileMenuOpen ? "h-screen bg-[#080808]" : "h-[60px] md:h-[80px]"
       } ${
         isScrolled && !mobileMenuOpen ? "bg-kiox-black/90 backdrop-blur-xl border-b border-white/5 shadow-2xl" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="container mx-auto px-[40px] h-[80px] flex items-center justify-between relative z-50">
+      <div className="container mx-auto px-4 md:px-[40px] h-[60px] md:h-[80px] flex items-center justify-between relative z-50">
         <Link href="/" className="flex items-center transition-transform hover:scale-105 group" style={{ gap: '10px' }}>
-          <div className="w-[66px] h-[66px] rounded-full border border-white/20 bg-kiox-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-            <Image
-              src="/newlogo.png"
-              alt="KIO-X Logo"
-              width={58}
-              height={58}
-              className="object-contain"
-              style={{
-                mixBlendMode: 'screen'
-              }}
-              priority
-              unoptimized={true}
-            />
-          </div>
-          <span className="font-display font-black transition-transform duration-500 group-hover:scale-105"
+          <Image
+            src="/newlogo.png"
+            alt="KIO-X Logo"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain md:w-12 md:h-12 m-0 p-0"
             style={{
-              fontSize: '40px',
-              letterSpacing: '8px',
-              lineHeight: 1,
-              color: '#ffffff'
-            }}>
+              mixBlendMode: 'screen'
+            }}
+            priority
+            unoptimized={true}
+          />
+          <span className="font-display font-black transition-transform duration-500 group-hover:scale-105 text-[1.3rem] tracking-[3px] md:text-[2rem] md:tracking-[6px] leading-none m-0 p-0 text-white">
             KIO-X
           </span>
         </Link>
@@ -142,17 +134,17 @@ export default function Navbar() {
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden text-white hover:text-gold transition-colors"
+          className="md:hidden flex items-center justify-center text-white hover:text-[#00ff41] transition-colors cursor-pointer"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X size={32} strokeWidth={1.5} /> : <Menu size={32} strokeWidth={1.5} />}
+          {mobileMenuOpen ? <X size={26} strokeWidth={1.8} /> : <Menu size={26} strokeWidth={1.8} />}
         </button>
       </div>
 
       {/* Mobile Nav */}
       <div
-        className={`md:hidden fixed inset-0 w-full h-screen min-h-screen bg-[#080808] z-40 pt-[100px] pb-8 flex flex-col justify-between overflow-hidden transition-all duration-300 ${
+        className={`md:hidden fixed inset-0 w-full h-screen min-h-screen bg-[#080808] z-40 pt-[80px] md:pt-[100px] pb-8 flex flex-col justify-between overflow-hidden transition-all duration-300 ${
           mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
