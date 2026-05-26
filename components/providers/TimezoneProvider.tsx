@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { getFullTimezoneList } from '@/lib/timezone';
 
 interface TimezoneContextType {
   userTimezone: string;
@@ -59,7 +60,6 @@ export function TimezoneProvider({ children }: { children: React.ReactNode }) {
           setIsDetecting(false);
           
           // Try to get country from our curated list as a baseline
-          const { getFullTimezoneList } = require('@/lib/timezone');
           const tzList = getFullTimezoneList();
           const localMatch = tzList.find((t: any) => t.value === browserTz);
           if (localMatch) {
@@ -90,7 +90,6 @@ export function TimezoneProvider({ children }: { children: React.ReactNode }) {
           let code = data.country_code;
           
           if (!country || country === 'Universal') {
-             const { getFullTimezoneList } = require('@/lib/timezone');
              const match = getFullTimezoneList().find((t: any) => t.value === data.timezone);
              if (match) {
                 country = match.country;

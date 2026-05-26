@@ -24,7 +24,7 @@ export default function Hero() {
         tx2: (Math.random() * 800 - 400) + 'px',
         ty2: (Math.random() * 400 - 200) + 'px',
         size: Math.random() * 80 + 40,
-        delay: 5 + Math.random() * 0.5,
+        delay: 0.5 + Math.random() * 0.5,
         duration: 1.5 + Math.random() * 1 }))
     );
   }, []);
@@ -73,7 +73,7 @@ export default function Hero() {
       <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
          <div 
            className="absolute border-[3px] border-[#22c55e] rounded-[50%]"
-           style={{ animation: 'shockwave 0.8s ease-out 5s forwards', opacity: 0 }}
+           style={{ animation: 'shockwave 0.8s ease-out 0.5s forwards', opacity: 0 }}
          />
       </div>
 
@@ -101,7 +101,7 @@ export default function Hero() {
                   key={i}
                   initial={{ opacity: 0, filter: 'blur(40px)', scale: 1.3 }}
                   animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-                  transition={{ delay: 5.0 + (i * 0.08), duration: 0.6, ease: 'easeOut' }}
+                  transition={{ delay: 0.2 + (i * 0.08), duration: 0.6, ease: 'easeOut' }}
                   className="inline-block text-layer-shadow"
                 >
                   {letter === ' ' ? '\u00A0' : letter}
@@ -116,7 +116,7 @@ export default function Hero() {
                   key={i}
                   initial={{ opacity: 0, filter: 'blur(30px)', scale: 1.4 }}
                   animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-                  transition={{ delay: 5.5 + (i * 0.07), duration: 0.8, ease: 'easeOut' }}
+                  transition={{ delay: 0.7 + (i * 0.07), duration: 0.8, ease: 'easeOut' }}
                   className="inline-block text-[#22c55e] text-layer-shadow"
                 >
                   {letter}
@@ -126,14 +126,14 @@ export default function Hero() {
           </h1>
 
           <div className="text-sm md:text-xl lg:text-2xl text-[#22c55e] font-sans font-medium tracking-[0.2em] uppercase max-w-3xl mx-auto mb-16 text-layer-shadow pointer-events-none">
-            <Typewriter text="ELITE HUMAN PERFORMANCE TRAINING" delay={7} />
+            <Typewriter text="ELITE HUMAN PERFORMANCE TRAINING" delay={1.5} />
           </div>
 
           {/* UPGRADED BUTTON - Fades in at 8 seconds */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 8, duration: 0.8, ease: 'easeOut' }}
+            transition={{ delay: 2.2, duration: 0.8, ease: 'easeOut' }}
             className="relative z-30 pointer-events-auto"
           >
             <Link 
@@ -164,7 +164,7 @@ export default function Hero() {
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-32 bg-gradient-to-b from-transparent via-[#22c55e]/50 to-[#22c55e] z-20 pointer-events-none"
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: 128 }}
-        transition={{ duration: 1.5, delay: 8.5, ease: "easeInOut" }}
+        transition={{ duration: 1.5, delay: 2.5, ease: "easeInOut" }}
       />
     </section>
   );

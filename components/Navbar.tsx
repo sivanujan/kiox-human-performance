@@ -46,11 +46,13 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-500 h-[80px] ${
-        isScrolled ? "bg-kiox-black/90 backdrop-blur-xl border-b border-white/5 shadow-2xl" : "bg-transparent border-b border-transparent"
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+        mobileMenuOpen ? "h-screen bg-[#080808]" : "h-[80px]"
+      } ${
+        isScrolled && !mobileMenuOpen ? "bg-kiox-black/90 backdrop-blur-xl border-b border-white/5 shadow-2xl" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="container mx-auto px-[40px] h-full flex items-center justify-between">
+      <div className="container mx-auto px-[40px] h-[80px] flex items-center justify-between relative z-50">
         <Link href="/" className="flex items-center transition-transform hover:scale-105 group" style={{ gap: '10px' }}>
           <div className="w-[66px] h-[66px] rounded-full border border-white/20 bg-kiox-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.05)]">
             <Image
@@ -150,51 +152,61 @@ export default function Navbar() {
 
       {/* Mobile Nav */}
       <div
-        className={`md:hidden absolute top-full left-0 right-0 bg-kiox-black/95 backdrop-blur-2xl border-b border-white/10 flex flex-col shadow-2xl transition-all duration-300 overflow-hidden ${
-          mobileMenuOpen ? "max-h-96 py-6" : "max-h-0 py-0"
+        className={`md:hidden fixed inset-0 w-full h-screen min-h-screen bg-[#080808] z-40 pt-[100px] pb-8 flex flex-col justify-between overflow-hidden transition-all duration-300 ${
+          mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
-        {navLinks.map((link) => (
-          link.href ? (
-            <Link
-              key={link.name}
-              href={link.href}
-              className="text-white hover:text-gold transition-colors py-4 px-8 text-sm tracking-[0.2em] uppercase font-medium border-b border-white/5 last:border-0"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.name}
-            </Link>
-          ) : (
-            <button
-              key={link.name}
-              onClick={() => {
-                if (link.action) link.action();
-                setMobileMenuOpen(false);
-              }}
-              className="text-left w-full text-white hover:text-gold transition-colors py-4 px-8 text-sm tracking-[0.2em] uppercase font-medium border-b border-white/5 last:border-0"
-            >
-              {link.name}
-            </button>
-          )
-        ))}
+        <div className="flex flex-col py-2 space-y-1">
+          {navLinks.map((link, i) => {
+            const indexStr = String(i + 1).padStart(2, '0');
+            const linkContent = (
+              <span className="flex items-center w-full">
+                <span className="font-mono text-[9px] text-[#00ff41] tracking-normal w-6 select-none opacity-80">{indexStr}</span>
+                <span className="flex-1 font-display font-[800] tracking-[0.25em]">{link.name}</span>
+              </span>
+            );
+
+            return link.href ? (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="group flex items-center px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff41] hover:pl-10 transition-all duration-300"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {linkContent}
+              </Link>
+            ) : (
+              <button
+                key={link.name}
+                onClick={() => {
+                  if (link.action) link.action();
+                  setMobileMenuOpen(false);
+                }}
+                className="group flex items-center w-full text-left px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff41] hover:pl-10 transition-all duration-300 cursor-pointer"
+              >
+                {linkContent}
+              </button>
+            );
+          })}
+        </div>
         
-        <div className="flex flex-col gap-4 px-8 mt-6 pb-6">
+        <div className="flex flex-col gap-3 px-8 mt-2 pt-4 border-t border-white/5 pb-4">
           {loading ? (
-            <div className="flex justify-center py-4">
-              <Loader2 className="animate-spin text-[#22c55e]" size={24} />
+            <div className="flex justify-center py-3">
+              <Loader2 className="animate-spin text-[#22c55e]" size={20} />
             </div>
           ) : user ? (
             <>
               <Link 
                 href={role === 'superadmin' ? "/admin" : (role === 'staff' || role === 'medical') ? "/staff" : "/dashboard"} 
-                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff41] text-black hover:bg-[#22c55e] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,65,0.25)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {role === 'superadmin' ? "Admin Portal" : (role === 'staff' || role === 'medical') ? "Staff Portal" : "My Dashboard"}
               </Link>
               <button 
                 onClick={handleSignOut}
-                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase text-white/40 hover:text-white"
+                className="w-full text-center py-3 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] text-white hover:text-white active:scale-[0.98] transition-all duration-300 rounded"
               >
                 Sign Out
               </button>
@@ -203,14 +215,14 @@ export default function Navbar() {
             <>
               <Link 
                 href="/signin" 
-                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] hover:border-white/30 text-white active:scale-[0.98] transition-all duration-300 rounded shadow-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign In
               </Link>
               <Link 
                 href="/register" 
-                className="w-full text-center py-4 text-[12px] font-bold tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80]"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff41] text-black hover:bg-[#22c55e] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,65,0.25)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register
