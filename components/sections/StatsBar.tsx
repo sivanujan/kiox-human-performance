@@ -54,13 +54,13 @@ export default function StatsBar() {
   return (
     <section 
       ref={ref}
-      className="w-full bg-[#111111] py-[40px] relative z-20"
+      className="w-full max-w-full overflow-hidden bg-[#111111] py-[40px] relative z-20"
       style={{
         borderTop: "1px solid rgba(34,197,94,0.2)",
         borderBottom: "1px solid rgba(34,197,94,0.2)" }}
     >
       <div className="container mx-auto px-4 max-w-[1400px]">
-        <div className="grid grid-cols-2 lg:grid-cols-4 w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 w-full max-w-full overflow-hidden">
           {stats.map((stat, index) => {
             const isNumeric = /\d/.test(stat.number);
             const numericValue = isNumeric ? parseInt(stat.number.replace(/\D/g, "")) : 0;
@@ -72,19 +72,21 @@ export default function StatsBar() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.6, delay: index * 0.15 }}
-                className={`flex flex-col items-center justify-center py-6 lg:py-4 px-2 ${borderClasses[index]}`}
+                className={`flex flex-col items-center justify-center p-4 md:p-6 overflow-hidden ${borderClasses[index]}`}
               >
-                <div className="text-[#22c55e] text-[48px] lg:text-[56px] font-stat font-black leading-none mb-2 tracking-tighter">
+                <div className={`text-[#22c55e] font-stat font-black leading-none mb-2 tracking-tighter ${
+                  isNumeric ? "text-[clamp(1.5rem,6vw,3rem)]" : "text-[clamp(1.2rem,5vw,2.5rem)]"
+                } lg:text-[56px]`}>
                   {isNumeric ? (
                     <CountUp end={numericValue} suffix={suffix} inView={isInView} />
                   ) : (
                     <span>{stat.number}</span>
                   )}
                 </div>
-                <div className="font-label text-gray-200 text-center font-black tracking-[0.2em] text-[11px]">
+                <div className="font-label text-gray-200 text-center font-black tracking-[0.2em] text-[11px] leading-tight">
                   {stat.label}<br />
                   {stat.number === "Worldwide" && (
-                    <span className="text-[#22c55e] text-[9px] lowercase tracking-widest font-mono font-bold">READY FOR DEPLOYMENT</span>
+                    <span className="text-[#22c55e] text-[9px] uppercase tracking-widest font-mono font-bold mt-1 block">GLOBAL NETWORK</span>
                   )}
                 </div>
               </motion.div>
