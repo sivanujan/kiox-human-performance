@@ -6,9 +6,12 @@ import Image from "next/image";
 
 
 export default function Loader() {
+  const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsMounted(true);
+
     // Check if loader was already shown in this session
     const hasShownLoader = sessionStorage.getItem("kiox-loader-shown");
     
@@ -30,6 +33,8 @@ export default function Loader() {
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  if (!isMounted) return null;
 
   const letters = ["K", "I", "O", "-", "X"];
 
