@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kiox-pwa-cache-v1';
+const CACHE_NAME = 'kiox-pwa-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -50,8 +50,9 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return response;
-      }).catch(() => {
-        // Network failure, browser will throw standard connection error
+      }).catch((err) => {
+        // Network failure, rethrow so the promise rejects and the browser throws standard connection error
+        throw err;
       });
     })
   );

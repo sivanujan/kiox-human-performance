@@ -136,6 +136,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
     let authListener: any = null;
 
+    // Failsafe timer to guarantee loading state unlocks after 2.5 seconds.
+    // This handles slow Supabase network responses or paused free-tier databases (cold starts) gracefully.
+    const failsafe = setTimeout(() => {
+      if (mounted) {
+        console.warn("[KIO-X Auth] Failsafe triggered to force unlock loading state.");
+        setLoading(false);
+      }
+    }, 2500);
+
     const initializeAuth = async () => {
       try {
         // 1. Get initial session
@@ -198,7 +207,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (err) {
         console.error("Auth initialization error:", err);
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          clearTimeout(failsafe);
+          setLoading(false);
+        }
       }
     };
 
@@ -206,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
+      clearTimeout(failsafe);
       if (authListener) authListener.unsubscribe();
     };
   }, []); // Only run once on mount

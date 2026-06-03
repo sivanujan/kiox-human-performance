@@ -88,13 +88,14 @@ export default function DashboardOverview() {
   useEffect(() => {
     if (profile?.role === 'parent' && profile.parent_of) {
       const fetchChildProfile = async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar_url')
-          .eq('id', profile.parent_of)
-          .single();
-        if (!error && data) {
-          setChildProfile(data);
+        try {
+          const res = await fetch(`/api/user/profile-lookup?id=${profile.parent_of}`);
+          const data = await res.json();
+          if (data && !data.error) {
+            setChildProfile(data);
+          }
+        } catch (err) {
+          console.error("Dashboard child profile lookup error:", err);
         }
       };
       fetchChildProfile();

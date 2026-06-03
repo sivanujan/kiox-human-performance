@@ -53,20 +53,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Fetch child profile details if logged in as a parent
   useEffect(() => {
-    if (profile?.role === 'parent' && profile.parent_of && supabase) {
+    if (profile?.role === 'parent' && profile.parent_of) {
       const fetchChildProfile = async () => {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, avatar_url')
-          .eq('id', profile.parent_of)
-          .single();
-        if (!error && data) {
-          setChildProfile(data);
+        try {
+          const res = await fetch(`/api/user/profile-lookup?id=${profile.parent_of}`);
+          const data = await res.json();
+          if (data && !data.error) {
+            setChildProfile(data);
+          }
+        } catch (err) {
+          console.error("Layout Child Profile Fetch Error:", err);
         }
       };
       fetchChildProfile();
     }
-  }, [profile, supabase]);
+  }, [profile]);
 
   // Check and watch active injuries in real-time
   useEffect(() => {
@@ -89,13 +90,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             // Also check profile or child profile training status
             let isInjured = false;
             if (profile?.role === 'parent') {
-              const { data: cp } = await supabase
-                .from('profiles')
-                .select('training_status, injury_risk')
-                .eq('id', athleteId)
-                .single();
-              if (cp && (cp.training_status?.toUpperCase() === 'INJURED' || cp.injury_risk?.toUpperCase() === 'HIGH')) {
-                isInjured = true;
+              try {
+                const res = await fetch(`/api/user/profile-lookup?id=${athleteId}`);
+                const cp = await res.json();
+                if (cp && !cp.error && (cp.training_status?.toUpperCase() === 'INJURED' || cp.injury_risk?.toUpperCase() === 'HIGH')) {
+                  isInjured = true;
+                }
+              } catch (err) {
+                console.error("Layout Injury Check cp query error:", err);
               }
             } else {
               isInjured = profile?.training_status?.toUpperCase() === 'INJURED' || profile?.injury_risk?.toUpperCase() === 'HIGH';
