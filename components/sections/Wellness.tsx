@@ -18,17 +18,17 @@ export default function Wellness() {
           transition={{ duration: 1, ease: "easeOut" }}
         >
           <div className="inline-flex justify-center items-center gap-6 mb-12">
-            <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent to-[#22c55e]" />
-            <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
-            <div className="h-px w-20 md:w-32 bg-gradient-to-l from-transparent to-[#22c55e]" />
+            <div className="h-px w-20 md:w-32 bg-gradient-to-r from-transparent to-[#00ff88]" />
+            <div className="w-2 h-2 rounded-full bg-[#00ff88]" />
+            <div className="h-px w-20 md:w-32 bg-gradient-to-l from-transparent to-[#00ff88]" />
           </div>
           
           <h2 className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white uppercase mb-8 leading-[0.9]">
             Total Wellness <br className="hidden sm:block" />Support
           </h2>
           
-          <h3 className="font-sans text-xl md:text-3xl font-light tracking-wide text-gray-300 max-w-3xl mx-auto leading-relaxed border-l-2 border-[#22c55e] pl-6 md:pl-8 text-left italic">
-            "Holistic approach addressing <span className="text-[#22c55e] font-medium not-italic">Mind and Body</span> to sustain elite athletic longevity."
+          <h3 className="font-sans text-xl md:text-3xl font-light tracking-wide text-gray-300 max-w-3xl mx-auto leading-relaxed border-l-2 border-[#00ff88] pl-6 md:pl-8 text-left italic">
+            "Holistic approach addressing <span className="text-[#00ff88] font-medium not-italic">Mind and Body</span> to sustain elite athletic longevity."
           </h3>
         </motion.div>
       </div>

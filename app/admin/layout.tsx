@@ -15,6 +15,7 @@ import {
   Users, 
   Clipboard, 
   Calendar, 
+  CalendarDays,
   BarChart3, 
   ShieldAlert, 
   Settings,
@@ -65,6 +66,11 @@ const adminNavItems = [
     label: 'AVAILABILITY',
     href: '/admin/availability',
     section: 'MANAGEMENT' },
+  { 
+    icon: <CalendarDays size={18} />, 
+    label: 'CALENDAR',
+    href: '/admin/calendar',
+    section: 'OPERATIONS' },
   { 
     icon: <Calendar size={18} />, 
     label: 'SCHEDULES',

@@ -25,15 +25,18 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
   const outerR = 210;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg 
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full max-w-[460px] aspect-square h-auto mx-auto relative z-10"
+    >
       <defs>
         <filter id="glow2">
           <feGaussianBlur stdDeviation="4" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
         <radialGradient id="wheelGlow" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#22c55e" stopOpacity="0.12" />
-          <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+          <stop offset="0%" stopColor="#00ff88" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="#00ff88" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -70,26 +73,22 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
             key={seg.id}
             onMouseEnter={() => setActiveId(seg.id)}
             onMouseLeave={() => setActiveId(null)}
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
           >
             <path
               d={`M ${x1} ${y1} A ${outerR} ${outerR} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 0 0 ${x4} ${y4} Z`}
-              fill={isActive ? "rgba(34,197,94,0.3)" : "rgba(34,197,94,0.06)"}
-              stroke={isActive ? "#22c55e" : "rgba(34,197,94,0.3)"}
+              fill={isActive ? "rgba(0, 255, 136, 0.3)" : "rgba(0, 255, 136, 0.06)"}
+              stroke={isActive ? "#00ff88" : "rgba(0, 255, 136, 0.3)"}
               strokeWidth="1.5"
-              style={{ transition: 'all 0.3s ease' }}
+              className="transition-all duration-300"
             />
             <text
               x={numX} y={numY}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={isActive ? "#22c55e" : "rgba(34,197,94,0.4)"}
+              fill={isActive ? "#00ff88" : "rgba(0, 255, 136, 0.4)"}
               fontSize="20"
-              style={{ 
-                fontFamily: 'var(--font-anton), sans-serif',
-                fontWeight: 900,
-                transition: 'all 0.3s ease'
-              }}
+              className="font-bold tracking-wider transition-all duration-300 font-label"
             >
               {seg.id}
             </text>
@@ -97,9 +96,9 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
         );
       })}
 
-      <circle cx={cx} cy={cy} r={innerR} fill="rgba(0,0,0,0.9)" stroke="#22c55e" strokeWidth="2.5" filter="url(#glow2)" />
-      <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="rgba(34,197,94,0.5)" strokeWidth="1.5" filter="url(#glow2)" />
-      <circle cx={cx} cy={cy} r={outerR + 12} fill="none" stroke="rgba(34,197,94,0.15)" strokeWidth="1" />
+      <circle cx={cx} cy={cy} r={innerR} fill="rgba(0,0,0,0.9)" stroke="#00ff88" strokeWidth="2.5" filter="url(#glow2)" />
+      <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="rgba(0, 255, 136, 0.5)" strokeWidth="1.5" filter="url(#glow2)" />
+      <circle cx={cx} cy={cy} r={outerR + 12} fill="none" stroke="rgba(0, 255, 136, 0.15)" strokeWidth="1" />
     </svg>
   );
 }
@@ -110,135 +109,155 @@ export default function PlayerDevelopment() {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
   return (
-    <section id="philosophy" ref={ref} style={{ background: '#080808', padding: '100px 20px', position: 'relative', overflow: 'hidden' }}>
-      {/* Grid bg */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(34,197,94,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.03) 1px, transparent 1px)', backgroundSize: '50px 50px', pointerEvents: 'none' }} />
+    <section 
+      id="philosophy" 
+      ref={ref} 
+      className="py-24 md:py-32 bg-[#080808] relative overflow-hidden w-full"
+    >
+      {/* Grid background */}
+      <div 
+        className="absolute inset-0 opacity-5 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}
+      />
 
-      {/* TITLE */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        style={{ textAlign: 'center', marginBottom: '70px' }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '12px' }}>
-          <div style={{ width: '50px', height: '1px', background: 'linear-gradient(90deg, transparent, #22c55e)' }} />
-          <span style={{ color: '#22c55e', fontSize: '12px', letterSpacing: '0.4em', fontFamily: 'var(--font-anton), sans-serif' }}>KIO-X PHILOSOPHY</span>
-          <div style={{ width: '50px', height: '1px', background: 'linear-gradient(90deg, #22c55e, transparent)' }} />
-        </div>
-        <h2 style={{ color: '#fff', fontFamily: 'var(--font-anton), sans-serif', fontSize: 'clamp(36px, 5vw, 68px)', margin: '0 0 8px', textTransform: 'uppercase' }}>PLAYER DEVELOPMENT</h2>
-        <p style={{ color: '#22c55e', fontSize: '16px', letterSpacing: '0.3em', margin: 0 }}>360° SUPPORT</p>
-      </motion.div>
-
-      {/* 3 COLUMN LAYOUT */}
-      <div className="wheel-layout" style={{ maxWidth: '1300px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '40px', alignItems: 'center' }}>
-        
-        {/* LEFT COLUMN */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }} onMouseLeave={() => setActiveId(null)}>
-          {leftSegments.map((seg, i) => (
-            <motion.div
-              key={seg.id}
-              onMouseEnter={() => setActiveId(seg.id)}
-              variants={{
-                hidden: { opacity: 0, x: -40 },
-                visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
-                active: { opacity: 1, x: 0, backgroundColor: 'rgba(34,197,94,0.06)', scale: 1.03, transition: { duration: 0.2 } }
-              }}
-              initial="hidden"
-              animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
-              style={{
-                padding: '24px 20px',
-                borderRight: `2px solid ${activeId === seg.id ? '#22c55e' : 'rgba(34,197,94,0.15)'}`,
-                textAlign: 'right',
-                cursor: 'pointer',
-                transition: 'border 0.3s ease',
-                borderRadius: '8px 0 0 8px',
-                position: 'relative',
-                transformOrigin: 'right center' }}
-            >
-              {activeId === seg.id && (
-                <motion.div layoutId="activeDotLeft" style={{ position: 'absolute', right: '-5.5px', top: '50%', transform: 'translateY(-50%)', width: '9px', height: '9px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 15px #22c55e', zIndex: 5 }} />
-              )}
-              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: '8px' }}>
-                <span style={{ color: 'rgba(34,197,94,0.7)', fontSize: '18px', fontFamily: 'var(--font-anton), sans-serif', letterSpacing: '0.1em' }}>{String(seg.id).padStart(2, '0')}</span>
-                <span style={{ color: activeId === seg.id ? '#22c55e' : '#ffffff', fontSize: '20px', fontFamily: 'var(--font-anton), sans-serif', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', transition: 'color 0.3s ease' }}>{seg.label}</span>
-              </div>
-              <div style={{ width: '30px', height: '2px', background: '#22c55e', marginLeft: 'auto', marginBottom: '10px', boxShadow: '0 0 6px #22c55e' }} />
-              {seg.points.map((p, pi) => (
-                <div key={pi} style={{ color: '#777777', fontSize: '13px', lineHeight: '1.6', marginBottom: '4px', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', gap: '6px' }}>
-                  <span>{p}</span>
-                  <span style={{ color: '#22c55e', fontSize: '8px', marginTop: '5px', flexShrink: 0 }}>▶</span>
-                </div>
-              ))}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* CENTER WHEEL */}
-        <motion.div className="wheel-center" initial={{ opacity: 0, scale: 0.8 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: 0.3, duration: 0.8, type: 'spring', stiffness: 80 }} style={{ position: 'relative', width: '460px', height: '460px', flexShrink: 0 }}>
-          <div className="spinning-outer" style={{ position: 'absolute', top: '50%', left: '50%', width: '120%', height: '120%', borderRadius: '50%', border: '1px dashed rgba(34,197,94,0.15)', animation: 'spinCW 25s linear infinite', pointerEvents: 'none' }} />
-          <div className="spinning-inner" style={{ position: 'absolute', top: '50%', left: '50%', width: '135%', height: '135%', borderRadius: '50%', border: '1px dashed rgba(34,197,94,0.08)', animation: 'spinCCW 35s linear infinite', pointerEvents: 'none' }} />
-          <WheelSVG activeId={activeId} setActiveId={setActiveId} />
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '190px', height: '190px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #22c55e', boxShadow: '0 0 0 6px rgba(34,197,94,0.1), 0 0 40px rgba(34,197,94,0.5), 0 0 80px rgba(34,197,94,0.2)', zIndex: 10 }}>
-            <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}>
-              <source src="/videos/vidcen.mp4" type="video/mp4" />
-            </video>
+      <div className="container mx-auto px-4 md:px-10 max-w-[1300px] relative z-10 w-full">
+        {/* TITLE */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          className="text-center mb-16 md:mb-20"
+        >
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#00ff88]" />
+            <span className="text-xs tracking-[0.4em] text-[#00ff88] uppercase font-bold font-label">
+              KIO-X PHILOSOPHY
+            </span>
+            <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#00ff88]" />
           </div>
+          <h2 className="font-display text-4xl md:text-7xl font-black tracking-tight text-white uppercase italic leading-none">
+            PLAYER DEVELOPMENT
+          </h2>
+          <p className="text-[#00ff88] text-sm md:text-base tracking-[0.3em] font-label font-bold mt-4">
+            360° SUPPORT
+          </p>
         </motion.div>
 
-        {/* RIGHT COLUMN */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }} onMouseLeave={() => setActiveId(null)}>
-          {rightSegments.map((seg, i) => (
-            <motion.div
-              key={seg.id}
-              onMouseEnter={() => setActiveId(seg.id)}
-              variants={{
-                hidden: { opacity: 0, x: 40 },
-                visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
-                active: { opacity: 1, x: 0, backgroundColor: 'rgba(34,197,94,0.06)', scale: 1.03, transition: { duration: 0.2 } }
-              }}
-              initial="hidden"
-              animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
-              style={{
-                padding: '24px 20px',
-                borderLeft: `2px solid ${activeId === seg.id ? '#22c55e' : 'rgba(34,197,94,0.15)'}`,
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'border 0.3s ease',
-                borderRadius: '0 8px 8px 0',
-                position: 'relative',
-                transformOrigin: 'left center' }}
-            >
-              {activeId === seg.id && (
-                <motion.div layoutId="activeDotRight" style={{ position: 'absolute', left: '-5.5px', top: '50%', transform: 'translateY(-50%)', width: '9px', height: '9px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 15px #22c55e', zIndex: 5 }} />
-              )}
-              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'baseline', justifyContent: 'flex-start', gap: '8px' }}>
-                <span style={{ color: 'rgba(34,197,94,0.7)', fontSize: '18px', fontFamily: 'var(--font-anton), sans-serif', letterSpacing: '0.1em' }}>{String(seg.id).padStart(2, '0')}</span>
-                <span style={{ color: activeId === seg.id ? '#22c55e' : '#ffffff', fontSize: '20px', fontFamily: 'var(--font-anton), sans-serif', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', transition: 'color 0.3s ease' }}>{seg.label}</span>
-              </div>
-              <div style={{ width: '30px', height: '2px', background: '#22c55e', marginBottom: '10px', boxShadow: '0 0 6px #22c55e' }} />
-              {seg.points.map((p, pi) => (
-                <div key={pi} style={{ color: '#777777', fontSize: '13px', lineHeight: '1.6', marginBottom: '4px', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                  <span style={{ color: '#22c55e', fontSize: '8px', marginTop: '5px', flexShrink: 0 }}>▶</span>
-                  <span>{p}</span>
+        {/* 3 COLUMN LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16 items-center w-full max-w-[1200px] mx-auto">
+          
+          {/* LEFT COLUMN */}
+          <div className="flex flex-col gap-1 w-full order-1 lg:order-none" onMouseLeave={() => setActiveId(null)}>
+            {leftSegments.map((seg, i) => (
+              <motion.div
+                key={seg.id}
+                onMouseEnter={() => setActiveId(seg.id)}
+                variants={{
+                  hidden: { opacity: 0, x: -40 },
+                  visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
+                  active: { opacity: 1, x: 0, backgroundColor: 'rgba(0, 255, 136, 0.06)', scale: 1.03, transition: { duration: 0.2 } }
+                }}
+                initial="hidden"
+                animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
+                className="py-6 px-5 cursor-pointer transition-all duration-300 rounded-r-lg lg:rounded-r-none lg:rounded-l-lg border-l-2 lg:border-l-0 lg:border-r-2 relative transform-origin-right-center text-left lg:text-right"
+                style={{
+                  borderLeftColor: activeId === seg.id ? '#00ff88' : 'transparent',
+                  borderRightColor: activeId === seg.id ? '#00ff88' : 'rgba(0, 255, 136, 0.15)',
+                }}
+              >
+                {activeId === seg.id && (
+                  <motion.div 
+                    layoutId="activeDotLeft" 
+                    className="absolute left-[-5.5px] lg:left-auto lg:right-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_15px_#00ff88] z-10"
+                  />
+                )}
+                <div className="mb-2 flex items-baseline justify-start lg:justify-end gap-2">
+                  <span className="text-[#00ff88]/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
+                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-[#00ff88]' : 'text-white'}`}>{seg.label}</span>
                 </div>
-              ))}
-            </motion.div>
-          ))}
+                <div className="w-8 h-0.5 bg-[#00ff88] ml-0 lg:ml-auto lg:mr-0 mb-3 shadow-[0_0_6px_#00ff88]" />
+                {seg.points.map((p, pi) => (
+                  <div key={pi} className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-1 flex items-start justify-start lg:justify-end gap-2 font-label font-medium">
+                    <span className="lg:hidden text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                    <span>{p}</span>
+                    <span className="hidden lg:inline text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                  </div>
+                ))}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* CENTER WHEEL */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }} 
+            animate={isInView ? { opacity: 1, scale: 1 } : {}} 
+            transition={{ delay: 0.3, duration: 0.8, type: 'spring', stiffness: 80 }} 
+            className="relative w-full max-w-[320px] xs:max-w-[380px] sm:max-w-[460px] aspect-square mx-auto order-first lg:order-none z-10 flex items-center justify-center py-6 lg:py-0"
+          >
+            {/* Spinning decorative rings */}
+            <div 
+              className="absolute w-[110%] h-[110%] rounded-full border border-dashed border-[#00ff88]/15 pointer-events-none hidden lg:block" 
+              style={{ animation: 'spinCW 25s linear infinite' }}
+            />
+            <div 
+              className="absolute w-[125%] h-[125%] rounded-full border border-dashed border-[#00ff88]/8 pointer-events-none hidden lg:block" 
+              style={{ animation: 'spinCCW 35s linear infinite' }}
+            />
+            
+            {/* Main Interactive Wheel SVG */}
+            <WheelSVG activeId={activeId} setActiveId={setActiveId} />
+            
+            {/* Center Video Frame */}
+            <div className="absolute w-[130px] xs:w-[150px] sm:w-[190px] h-[130px] xs:h-[150px] sm:h-[190px] rounded-full overflow-hidden border-3 border-[#00ff88] shadow-[0_0_0_6px_rgba(0,255,136,0.1),_0_0_40px_rgba(0,255,136,0.5),_0_0_80px_rgba(0,255,136,0.2)] z-20">
+              <video autoPlay muted loop playsInline className="w-full h-full object-cover object-top">
+                <source src="/videos/vidcen.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </motion.div>
+
+          {/* RIGHT COLUMN */}
+          <div className="flex flex-col gap-1 w-full order-2 lg:order-none" onMouseLeave={() => setActiveId(null)}>
+            {rightSegments.map((seg, i) => (
+              <motion.div
+                key={seg.id}
+                onMouseEnter={() => setActiveId(seg.id)}
+                variants={{
+                  hidden: { opacity: 0, x: 40 },
+                  visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
+                  active: { opacity: 1, x: 0, backgroundColor: 'rgba(0, 255, 136, 0.06)', scale: 1.03, transition: { duration: 0.2 } }
+                }}
+                initial="hidden"
+                animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
+                className="py-6 px-5 cursor-pointer transition-all duration-300 rounded-r-lg border-l-2 relative transform-origin-left-center text-left"
+                style={{
+                  borderLeftColor: activeId === seg.id ? '#00ff88' : 'rgba(0, 255, 136, 0.15)',
+                }}
+              >
+                {activeId === seg.id && (
+                  <motion.div 
+                    layoutId="activeDotRight" 
+                    className="absolute left-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_15px_#00ff88] z-10"
+                  />
+                )}
+                <div className="mb-2 flex items-baseline justify-start gap-2">
+                  <span className="text-[#00ff88]/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
+                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-[#00ff88]' : 'text-white'}`}>{seg.label}</span>
+                </div>
+                <div className="w-8 h-0.5 bg-[#00ff88] mb-3 shadow-[0_0_6px_#00ff88]" />
+                {seg.points.map((p, pi) => (
+                  <div key={pi} className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-1 flex items-start gap-2 font-label font-medium">
+                    <span className="text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                    <span>{p}</span>
+                  </div>
+                ))}
+              </motion.div>
+            ))}
+          </div>
+
         </div>
-
       </div>
-
-      <style jsx>{`
-        @media (max-width: 1024px) {
-          .wheel-center { transform: scale(0.8) !important; }
-          .wheel-layout { gap: 20px !important; }
-        }
-        @media (max-width: 768px) {
-          .wheel-layout { grid-template-columns: 1fr !important; }
-          .wheel-center { margin: 40px auto !important; transform: scale(0.7) !important; }
-          .spinning-outer, .spinning-inner { display: none !important; }
-        }
-      `}</style>
     </section>
   );
 }

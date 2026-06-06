@@ -48,7 +48,7 @@ export default function RootLayout({
       className={`${inter.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-[#e5e7eb] selection:bg-[#00ff41] selection:text-black font-sans relative">
+      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-[#e5e7eb] selection:bg-[#00ff41] selection:text-black font-sans relative overflow-x-hidden">
         <AuthProvider>
           <TimezoneProvider>
             <NotificationProvider>

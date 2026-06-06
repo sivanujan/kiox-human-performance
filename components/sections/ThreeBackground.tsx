@@ -27,12 +27,12 @@ export default function ThreeBackground() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x22c55e, 100, 100); 
+    const pointLight = new THREE.PointLight(0x00ff88, 100, 100); 
     pointLight.position.set(0, 10, 5);
     scene.add(pointLight);
 
     // 3. Grid
-    const gridHelper = new THREE.GridHelper(200, 100, '#22c55e', '#22c55e');
+    const gridHelper = new THREE.GridHelper(200, 100, '#00ff88', '#00ff88');
     const bgMaterial = gridHelper.material as THREE.Material;
     bgMaterial.opacity = 0.3;
     bgMaterial.transparent = true;

@@ -19,6 +19,7 @@ import {
   Bell,
   Menu,
   Calendar,
+  CalendarDays,
   Layers,
   X as CloseIcon,
   MessageSquare
@@ -31,6 +32,7 @@ import Avatar from "@/components/ui/Avatar";
 
 const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'DASHBOARD', href: '/staff' },
+  { icon: <CalendarDays size={18} />, label: 'CALENDAR', href: '/staff/calendar' },
   { icon: <Layers size={18} />, label: 'PROGRAMS MATRIX', href: '/staff/programs' },
   { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },

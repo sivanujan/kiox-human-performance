@@ -47,32 +47,32 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-        mobileMenuOpen ? "h-screen bg-[#080808]" : "h-[60px] md:h-[80px]"
+        mobileMenuOpen ? "h-screen bg-[#080808]" : "h-[60px] lg:h-[80px]"
       } ${
         isScrolled && !mobileMenuOpen ? "bg-kiox-black/90 backdrop-blur-xl border-b border-white/5 shadow-2xl" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 md:px-[40px] h-[60px] md:h-[80px] flex items-center justify-between relative z-50">
+      <div className="container mx-auto px-4 lg:px-[40px] h-[60px] lg:h-[80px] flex items-center justify-between relative z-50">
         <Link href="/" className="flex items-center transition-transform hover:scale-105 group" style={{ gap: '10px' }}>
           <Image
             src="/newlogo.png"
             alt="KIO-X Logo"
             width={40}
             height={40}
-            className="w-10 h-10 object-contain md:w-12 md:h-12 m-0 p-0"
+            className="w-10 h-10 object-contain lg:w-12 lg:h-12 m-0 p-0"
             style={{
               mixBlendMode: 'screen'
             }}
             priority
             unoptimized={true}
           />
-          <span className="font-display font-black transition-transform duration-500 group-hover:scale-105 text-[1.3rem] tracking-[3px] md:text-[2rem] md:tracking-[6px] leading-none m-0 p-0 text-white">
+          <span className="font-display font-black transition-transform duration-500 group-hover:scale-105 text-[1.3rem] tracking-[3px] lg:text-[2rem] lg:tracking-[6px] leading-none m-0 p-0 text-white">
             KIO-X
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-12">
+        <nav className="hidden lg:flex items-center space-x-6 xl:space-x-12">
           {navLinks.map((link) => (
             link.href ? (
               <Link
@@ -97,12 +97,12 @@ export default function Navbar() {
           
           <div className="flex items-center gap-6 pl-6 border-l border-white/10">
             {loading ? (
-              <Loader2 className="animate-spin text-[#22c55e]" size={18} />
+              <Loader2 className="animate-spin text-[#00ff88]" size={18} />
             ) : user ? (
               <div className="flex items-center gap-6">
                 <Link 
                   href={role === 'superadmin' ? "/admin" : (role === 'staff' || role === 'medical') ? "/staff" : "/dashboard"} 
-                  className="px-5 py-2 text-[10px] font-bold font-display tracking-widest uppercase border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                  className="px-5 py-2 text-[10px] font-bold font-display tracking-widest uppercase border border-[#00ff88]/30 text-[#00ff88] hover:bg-[#00ff88]/10 transition-all duration-300"
                 >
                   {role === 'superadmin' ? "Admin Portal" : (role === 'staff' || role === 'medical') ? "Staff Portal" : "My Dashboard"}
                 </Link>
@@ -117,13 +117,13 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 <Link 
                   href="/signin" 
-                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase border border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e]/10 transition-all duration-300"
+                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase border border-[#00ff88] text-[#00ff88] hover:bg-[#00ff88]/10 transition-all duration-300"
                 >
                   Sign In
                 </Link>
                 <Link 
                   href="/register" 
-                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase bg-[#22c55e] text-black hover:bg-[#4ade80] transition-all duration-300"
+                  className="px-5 py-2 text-[12px] font-bold font-display tracking-widest uppercase bg-[#00ff88] text-black hover:bg-[#39ff9c] transition-all duration-300"
                 >
                   Register
                 </Link>
@@ -134,7 +134,7 @@ export default function Navbar() {
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden flex items-center justify-center text-white hover:text-[#00ff41] transition-colors cursor-pointer"
+          className="lg:hidden flex items-center justify-center text-white hover:text-[#00ff88] transition-colors cursor-pointer"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -144,7 +144,7 @@ export default function Navbar() {
 
       {/* Mobile Nav */}
       <div
-        className={`md:hidden fixed inset-0 w-full h-screen min-h-screen bg-[#080808] z-40 pt-[80px] md:pt-[100px] pb-8 flex flex-col justify-between overflow-hidden transition-all duration-300 ${
+        className={`lg:hidden fixed inset-0 w-full h-screen bg-[#080808] z-40 pt-[80px] lg:pt-[100px] pb-8 flex flex-col justify-between overflow-y-auto no-scrollbar transition-all duration-300 ${
           mobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
@@ -162,7 +162,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="group flex items-center px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff41] hover:pl-10 transition-all duration-300"
+                className="group flex items-center px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff88] hover:pl-10 transition-all duration-300"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {linkContent}
@@ -174,7 +174,7 @@ export default function Navbar() {
                   if (link.action) link.action();
                   setMobileMenuOpen(false);
                 }}
-                className="group flex items-center w-full text-left px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff41] hover:pl-10 transition-all duration-300 cursor-pointer"
+                className="group flex items-center w-full text-left px-8 py-3 text-[13px] font-display font-[800] uppercase text-white/70 hover:text-white hover:bg-white/[0.02] border-l-[3px] border-transparent hover:border-[#00ff88] hover:pl-10 transition-all duration-300 cursor-pointer"
               >
                 {linkContent}
               </button>
@@ -185,20 +185,20 @@ export default function Navbar() {
         <div className="flex flex-col gap-3 px-8 mt-2 pt-4 border-t border-white/5 pb-4">
           {loading ? (
             <div className="flex justify-center py-3">
-              <Loader2 className="animate-spin text-[#22c55e]" size={20} />
+              <Loader2 className="animate-spin text-[#00ff88]" size={20} />
             </div>
           ) : user ? (
             <>
               <Link 
                 href={role === 'superadmin' ? "/admin" : (role === 'staff' || role === 'medical') ? "/staff" : "/dashboard"} 
-                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff41] text-black hover:bg-[#22c55e] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,65,0.25)]"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff88] text-black hover:bg-[#39ff9c] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,136,0.25)] font-label"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {role === 'superadmin' ? "Admin Portal" : (role === 'staff' || role === 'medical') ? "Staff Portal" : "My Dashboard"}
               </Link>
               <button 
                 onClick={handleSignOut}
-                className="w-full text-center py-3 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] text-white hover:text-white active:scale-[0.98] transition-all duration-300 rounded"
+                className="w-full text-center py-3 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] text-white hover:text-white active:scale-[0.98] transition-all duration-300 rounded font-label cursor-pointer"
               >
                 Sign Out
               </button>
@@ -207,14 +207,14 @@ export default function Navbar() {
             <>
               <Link 
                 href="/signin" 
-                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] hover:border-white/30 text-white active:scale-[0.98] transition-all duration-300 rounded shadow-md"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#1a1a1a] border border-white/20 hover:bg-[#222222] hover:border-white/30 text-white active:scale-[0.98] transition-all duration-300 rounded shadow-md font-label"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign In
               </Link>
               <Link 
                 href="/register" 
-                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff41] text-black hover:bg-[#22c55e] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,65,0.25)]"
+                className="w-full text-center py-3.5 text-[11px] font-display font-extrabold tracking-[0.2em] uppercase bg-[#00ff88] text-black hover:bg-[#39ff9c] active:scale-[0.98] transition-all duration-300 rounded shadow-[0_0_15px_rgba(0,255,136,0.25)] font-label"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Register

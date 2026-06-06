@@ -55,7 +55,7 @@ const FloatingParticle = ({ index }: { index: number }) => {
   
   return (
     <motion.div
-      className="absolute rounded-full bg-[#22c55e]/30 blur-[1px]"
+      className="absolute rounded-full bg-[#00ff88]/30 blur-[1px]"
       style={{
         width: data.current.size,
         height: data.current.size,
@@ -101,9 +101,9 @@ const CarouselCard = ({
       case 'center':
         return 'left-1/2 -translate-x-1/2 scale-100 sm:scale-105 z-20 opacity-100 border-[#00ff88] shadow-[0_0_50px_rgba(0,255,136,0.35)]';
       case 'left':
-        return 'left-1/2 -translate-x-[150%] sm:-translate-x-[115%] lg:-translate-x-[130%] scale-85 sm:scale-90 z-10 opacity-0 sm:opacity-40 pointer-events-none sm:pointer-events-auto border-zinc-800 hover:border-zinc-700';
+        return 'hidden sm:block left-1/2 -translate-x-[115%] lg:-translate-x-[130%] scale-90 z-10 opacity-40 border-zinc-800 hover:border-zinc-700';
       case 'right':
-        return 'left-1/2 translate-x-[50%] sm:translate-x-[15%] lg:translate-x-[30%] scale-85 sm:scale-90 z-10 opacity-0 sm:opacity-40 pointer-events-none sm:pointer-events-auto border-zinc-800 hover:border-zinc-700';
+        return 'hidden sm:block left-1/2 translate-x-[15%] lg:translate-x-[30%] scale-90 z-10 opacity-40 border-zinc-800 hover:border-zinc-700';
     }
   };
 
@@ -112,7 +112,7 @@ const CarouselCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
-      className={`absolute w-[285px] sm:w-[330px] md:w-[350px] aspect-[9/16] rounded-[20px] overflow-hidden transition-all duration-700 ease-out cursor-pointer border bg-[#050505] select-none ${getPositionClass(position)}`}
+      className={`absolute w-[90vw] sm:w-[330px] md:w-[350px] max-w-[350px] aspect-[9/16] rounded-[20px] overflow-hidden transition-all duration-700 ease-out cursor-pointer border bg-[#050505] select-none ${getPositionClass(position)}`}
     >
       {/* Video element */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-zinc-950 to-black">
@@ -278,13 +278,13 @@ export default function Introduction() {
               <div className="relative w-full max-w-7xl h-full flex flex-col justify-center">
                  <button 
                    onClick={() => setSelectedVideo(null)}
-                   className="absolute -top-12 right-0 text-[#22c55e] hover:text-white transition-colors flex items-center gap-2 group p-2"
+                   className="absolute -top-12 right-0 text-[#00ff88] hover:text-white transition-colors flex items-center gap-2 group p-2 cursor-pointer"
                  >
                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
                    <X size={24} />
                  </button>
                  
-                 <div className="w-full bg-black rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(34,197,94,0.1)]">
+                 <div className="w-full bg-black rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,255,136,0.15)]">
                     <CustomVideoPlayer 
                       src={selectedVideo.src}
                       type={selectedVideo.type}
@@ -307,7 +307,7 @@ export default function Introduction() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="max-w-xl"
           >
-            <h4 className="text-[#22c55e] text-xs font-black tracking-[0.4em] uppercase mb-6 italic">About KIO-X</h4>
+            <h4 className="text-[#00ff88] text-xs font-black tracking-[0.4em] uppercase mb-6 italic font-label">About KIO-X</h4>
             <p className="text-white/60 text-lg md:text-xl font-light leading-relaxed tracking-wide uppercase italic">
               KIO-X is at the intersection of <span className="text-white font-bold">Human Performance</span>, biomechanical coaching, and elite athletic development. We don't just train; we optimize every vector of movement.
             </p>
@@ -328,7 +328,7 @@ export default function Introduction() {
                 <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em]">{stat.label}</span>
                 <div className="flex items-baseline gap-2">
                    <span className="text-white font-display text-4xl font-black italic tracking-tighter">{stat.value}</span>
-                   <span className="text-[#22c55e] text-[10px] font-black italic">{stat.accent}</span>
+                   <span className="text-[#00ff88] text-[10px] font-black italic">{stat.accent}</span>
                 </div>
               </div>
             ))}
@@ -349,18 +349,18 @@ export default function Introduction() {
             className="group flex flex-col items-center gap-6"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-[#22c55e]/20 rounded-full blur-xl group-hover:bg-[#22c55e]/40 transition-all duration-500" />
-              <div className="w-20 h-20 rounded-full border border-[#22c55e]/30 flex items-center justify-center bg-black/40 backdrop-blur-md relative z-10 group-hover:border-[#22c55e] transition-colors">
-                <Instagram size={32} className="text-[#22c55e] group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-[#00ff88]/20 rounded-full blur-xl group-hover:bg-[#00ff88]/40 transition-all duration-500" />
+              <div className="w-20 h-20 rounded-full border border-[#00ff88]/30 flex items-center justify-center bg-black/40 backdrop-blur-md relative z-10 group-hover:border-[#00ff88] transition-colors">
+                <Instagram size={32} className="text-[#00ff88] group-hover:scale-110 transition-transform duration-500" />
               </div>
             </div>
-            <div className="flex items-center gap-4 text-white hover:text-[#22c55e] transition-colors">
+            <div className="flex items-center gap-4 text-white hover:text-[#00ff88] transition-colors">
                <span className="font-display text-2xl md:text-3xl font-black italic tracking-tighter uppercase">@KIOYO.PERFORMANCE</span>
-               <div className="w-10 h-10 rounded-full bg-[#22c55e]/10 flex items-center justify-center group-hover:bg-[#22c55e] group-hover:text-black transition-all">
+               <div className="w-10 h-10 rounded-full bg-[#00ff88]/10 flex items-center justify-center group-hover:bg-[#00ff88] group-hover:text-black transition-all">
                   <ArrowRight size={18} />
                </div>
             </div>
-            <div className="h-0.5 w-12 bg-[#22c55e] transition-all duration-500 group-hover:w-48" />
+            <div className="h-0.5 w-12 bg-[#00ff88] transition-all duration-500 group-hover:w-48" />
           </a>
         </motion.div>
       </div>
