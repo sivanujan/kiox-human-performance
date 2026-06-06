@@ -4,6 +4,7 @@ import VideoShowcase from "@/components/sections/VideoShowcase";
 import Introduction from "@/components/sections/Introduction";
 import Services from "@/components/sections/Services";
 import TrainWithCoach from "@/components/sections/TrainWithCoach";
+import Coaches from "@/components/sections/Coaches";
 import Excellence from "@/components/sections/Excellence";
 import Wellness from "@/components/sections/Wellness";
 import PlayerDevelopment from "@/components/sections/PlayerDevelopment";
@@ -17,6 +18,7 @@ export default function Home() {
       <Introduction />
       <Services />
       <TrainWithCoach />
+      <Coaches />
       <Excellence />
       <Wellness />
       <PlayerDevelopment />

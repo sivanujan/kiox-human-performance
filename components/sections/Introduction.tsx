@@ -6,12 +6,10 @@ import { Instagram, Play, ArrowRight, ExternalLink, X } from "lucide-react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 
 
-const PLACEHOLDER_VIDEO = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
 const videos = [
   {
     id: "intro-1",
-    src: PLACEHOLDER_VIDEO,
+    src: "/videos/video01.mp4",
     type: 'portrait' as const,
     category: "TRAINING",
     title: "PERFORMANCE ELITE",
@@ -20,7 +18,7 @@ const videos = [
   },
   {
     id: "intro-2",
-    src: PLACEHOLDER_VIDEO,
+    src: "/videos/video02.mp4",
     type: 'portrait' as const,
     category: "PERFORMANCE",
     title: "CORE STABILITY",
@@ -29,7 +27,7 @@ const videos = [
   },
   {
     id: "intro-3",
-    src: PLACEHOLDER_VIDEO,
+    src: "/videos/video03.mp4",
     type: 'portrait' as const,
     category: "MINDSET",
     title: "ELITE PROTOCOL",
@@ -75,153 +73,105 @@ const FloatingParticle = ({ index }: { index: number }) => {
   );
 };
 
-const ThreeDCard = ({ video, position, delay, onClick }: { video: typeof videos[0], position: 'left' | 'center' | 'right', delay: number, onClick: () => void }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+const CarouselCard = ({ 
+  video, 
+  position, 
+  isActive, 
+  onClick 
+}: { 
+  video: typeof videos[0], 
+  position: 'left' | 'center' | 'right', 
+  isActive: boolean, 
+  onClick: () => void 
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (typeof window === 'undefined' || !cardRef.current || window.innerWidth < 1024) return;
-
-    
-    const card = cardRef.current;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // Tilt intensity
-    const rotateX = (y - centerY) / 15;
-    const rotateY = (centerX - x) / 15;
-
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-  };
-
-  useEffect(() => {
-    if (isHovered) {
+    if (isHovered && isActive) {
       videoRef.current?.play().catch(() => {});
     } else {
       videoRef.current?.pause();
       if (videoRef.current) videoRef.current.currentTime = 0;
     }
-  }, [isHovered]);
+  }, [isHovered, isActive]);
 
-  const variants = {
-    hidden: { 
-      opacity: 0, 
-      x: position === 'left' ? -100 : position === 'right' ? 100 : 0, 
-      y: position === 'center' ? 50 : 0,
-      scale: position === 'center' ? 0.8 : 1
-    },
-    visible: { 
-      opacity: 1, 
-      x: 0, 
-      y: 0, 
-      scale: 1,
-      transition: { duration: 1, delay, ease: "easeOut" as any }
-    }
-  };
-
-  const getCardStyle = () => {
-    if (!isMounted || typeof window === 'undefined') return {};
-    if (window.innerWidth < 1024) return {};
-    
-    switch(position) {
-      case 'left': return { transform: 'rotateY(25deg) translateX(-20px) scale(0.85)', opacity: 0.6, zIndex: 10 };
-      case 'right': return { transform: 'rotateY(-25deg) translateX(20px) scale(0.85)', opacity: 0.6, zIndex: 10 };
-      case 'center': return { transform: 'rotateY(0deg) scale(1)', opacity: 1, zIndex: 20 };
+  const getPositionClass = (pos: 'left' | 'center' | 'right') => {
+    switch (pos) {
+      case 'center':
+        return 'left-1/2 -translate-x-1/2 scale-100 sm:scale-105 z-20 opacity-100 border-[#00ff88] shadow-[0_0_50px_rgba(0,255,136,0.35)]';
+      case 'left':
+        return 'left-1/2 -translate-x-[150%] sm:-translate-x-[115%] lg:-translate-x-[130%] scale-85 sm:scale-90 z-10 opacity-0 sm:opacity-40 pointer-events-none sm:pointer-events-auto border-zinc-800 hover:border-zinc-700';
+      case 'right':
+        return 'left-1/2 translate-x-[50%] sm:translate-x-[15%] lg:translate-x-[30%] scale-85 sm:scale-90 z-10 opacity-0 sm:opacity-40 pointer-events-none sm:pointer-events-auto border-zinc-800 hover:border-zinc-700';
     }
   };
 
   return (
-    <motion.div
-      variants={variants}
-      className="relative group transition-all duration-700 ease-out"
-      style={{ perspective: "1200px" }}
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+      className={`absolute w-[285px] sm:w-[330px] md:w-[350px] aspect-[9/16] rounded-[20px] overflow-hidden transition-all duration-700 ease-out cursor-pointer border bg-[#050505] select-none ${getPositionClass(position)}`}
     >
-      {/* 3D Card Body */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={handleMouseLeave}
-        onClick={onClick}
-        className={`relative w-[340px] md:w-[380px] aspect-[9/16] rounded-[24px] overflow-hidden transition-transform duration-500 will-change-transform cursor-pointer border
-          ${position === 'center' ? 'border-[#22c55e] shadow-[0_0_40px_rgba(34,197,94,0.3)]' : 'border-[#22c55e]/20'}
-        `}
-        style={getCardStyle()}
-      >
-        {/* Video / Thumbnail */}
-        <div className="absolute inset-0 bg-[#080808]">
-          <video
-            ref={videoRef}
-            src={video.src}
-            muted
-            loop
-            playsInline
-            className={`w-full h-full object-cover transition-opacity duration-700 ${isHovered ? 'opacity-100' : 'opacity-40'}`}
-          />
-        </div>
+      {/* Video element */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-zinc-950 to-black">
+        <video
+          ref={videoRef}
+          src={video.src}
+          muted
+          loop
+          playsInline
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isHovered && isActive ? 'opacity-100' : 'opacity-30'}`}
+        />
+      </div>
 
-        {/* Light Sweep Effect Overlay */}
-        {(position === 'center' || isHovered) && (
-          <div className="absolute inset-0 pointer-events-none opacity-40 z-20 animate-[lightSweep_4s_linear_infinite]" 
-               style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(34,197,94,0.4) 50%, transparent 60%)', backgroundSize: '200% auto' }} />
-        )}
+      {/* Grid Pattern Background */}
+      <div 
+        className="absolute inset-0 bg-texture opacity-[0.03] pointer-events-none mix-blend-overlay z-5"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "20px 20px"
+        }}
+      />
 
-        {/* Center Play Button (Visible when not hovered) */}
-        <AnimatePresence>
-          {!isHovered && (
-            <motion.div 
-               exit={{ opacity: 0, scale: 1.2 }}
-               className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
-            >
-              <div className="w-16 h-16 rounded-full border-2 border-[#22c55e] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-[centerPulse_2s_infinite]">
-                 <Play className="text-white fill-white ml-1" size={24} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* Dark Dimmed Overlay for non-active cards */}
+      {!isActive && (
+        <div className="absolute inset-0 bg-black/60 z-10 transition-opacity duration-700" />
+      )}
 
-        {/* Bottom Info Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-8 z-30 transition-transform duration-500 group-hover:translate-y-[-10px]">
-          <div className="flex items-center gap-2 mb-3">
-             <span className="px-2.5 py-0.5 bg-[#22c55e] text-black text-[10px] font-black rounded-sm uppercase tracking-wider">
-               {video.category}
-             </span>
-             <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{video.duration}</span>
-          </div>
-          <h4 className="text-white font-display text-2xl font-bold uppercase tracking-tight italic leading-none mb-3">
-            {video.title}
-          </h4>
-          <p className="text-white/50 text-xs font-medium leading-relaxed line-clamp-2 uppercase tracking-wide">
-            {video.description}
-          </p>
+      {/* Category Badge */}
+      <span className="absolute top-4 left-4 z-30 px-2.5 py-1 bg-[#00ff88] text-black text-[9px] font-black rounded-sm uppercase tracking-wider font-label">
+        {video.category}
+      </span>
+
+      {/* Duration */}
+      <span className="absolute top-4 right-4 z-30 text-white/80 text-[9px] font-bold uppercase tracking-widest bg-black/60 px-2 py-1 rounded backdrop-blur-sm font-mono">
+        {video.duration}
+      </span>
+
+      {/* Center Play Button */}
+      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+        <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center backdrop-blur-sm transition-all duration-300
+          ${isActive 
+            ? 'border-white text-white bg-white/10 shadow-[0_0_20px_rgba(0,255,136,0.15)] scale-110' 
+            : 'border-zinc-800 text-zinc-500 bg-black/40'
+          }
+        `}>
+          <Play className={`ml-1 ${isActive ? 'fill-white' : 'fill-zinc-500'}`} size={18} />
         </div>
       </div>
 
-      {/* Reflection Effect */}
-      <div 
-        className="absolute -bottom-[20%] left-0 right-0 h-1/2 opacity-10 blur-[2px] pointer-events-none hidden lg:block"
-        style={{ 
-          background: `linear-gradient(to top, transparent, rgba(34,197,94,0.2))`,
-          transform: `scaleY(-1) perspective(1200px) ${getCardStyle()?.transform || ''}`,
-          maskImage: 'linear-gradient(to bottom, black, transparent)'
-        }}
-      />
-    </motion.div>
+      {/* Bottom info panel */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6 z-30">
+        <h4 className="text-white font-display text-xl md:text-2xl font-black uppercase tracking-tight italic leading-none mb-2 transition-colors duration-300 group-hover:text-[#00ff88]">
+          {video.title}
+        </h4>
+        <p className="text-white/60 text-[10px] md:text-xs font-medium leading-relaxed uppercase tracking-wide font-sans">
+          {video.description}
+        </p>
+      </div>
+    </div>
   );
 };
 
@@ -229,6 +179,15 @@ export default function Introduction() {
   const containerRef = useRef<HTMLElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
   const [selectedVideo, setSelectedVideo] = useState<typeof videos[0] | null>(null);
+  const [activeIndex, setActiveIndex] = useState(1);
+
+  const nextCard = () => {
+    setActiveIndex((prev) => (prev + 1) % 3);
+  };
+
+  const prevCard = () => {
+    setActiveIndex((prev) => (prev - 1 + 3) % 3);
+  };
 
   return (
     <section id="introduction" ref={containerRef} className="pt-[120px] pb-[120px] bg-[#0a0a0a] relative z-10 overflow-hidden w-full">
@@ -241,26 +200,70 @@ export default function Introduction() {
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <motion.div 
-          className="text-center mb-24"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: -20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
           <div className="flex justify-center items-center gap-4 mb-6">
-            <div className="h-px w-12 bg-[#22c55e]"></div>
-            <h2 className="text-sm font-black tracking-[0.4em] text-[#22c55e] uppercase">Introduction</h2>
-            <div className="h-px w-12 bg-[#22c55e]"></div>
+            <div className="h-px w-12 bg-[#00ff88]"></div>
+            <h2 className="text-sm font-black tracking-[0.4em] text-[#00ff88] uppercase font-label">Introduction</h2>
+            <div className="h-px w-12 bg-[#00ff88]"></div>
           </div>
           <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-white uppercase italic leading-none">
-            Who <span className="text-[#22c55e]">We</span> Are
+            WHO <span className="text-[#00ff88]">WE</span> ARE
           </h3>
         </motion.div>
 
-        {/* 3D Cards Container */}
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0 mb-32 perspective-[1200px]">
-          <ThreeDCard video={videos[0]} position="left" delay={0.2} onClick={() => setSelectedVideo(videos[0])} />
-          <ThreeDCard video={videos[1]} position="center" delay={0.3} onClick={() => setSelectedVideo(videos[1])} />
-          <ThreeDCard video={videos[2]} position="right" delay={0.4} onClick={() => setSelectedVideo(videos[2])} />
+        {/* Carousel Container */}
+        <div className="relative w-full max-w-[1000px] mx-auto h-[520px] sm:h-[600px] mb-8 flex items-center justify-center overflow-visible">
+          {videos.map((video, index) => {
+            let position: 'left' | 'center' | 'right' = 'center';
+            if (index === activeIndex) {
+              position = 'center';
+            } else if (index === (activeIndex - 1 + 3) % 3) {
+              position = 'left';
+            } else {
+              position = 'right';
+            }
+            
+            return (
+              <CarouselCard
+                key={video.id}
+                video={video}
+                position={position}
+                isActive={index === activeIndex}
+                onClick={() => {
+                  if (index === activeIndex) {
+                    setSelectedVideo(video);
+                  } else {
+                    setActiveIndex(index);
+                  }
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* Carousel Controls */}
+        <div className="flex justify-center items-center gap-6 mb-24 z-20 relative">
+          <button 
+            onClick={prevCard} 
+            className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-[#00ff88] hover:text-[#00ff88] transition-all duration-300 bg-black/30 backdrop-blur-sm cursor-pointer hover:scale-105 active:scale-95"
+            aria-label="Previous card"
+          >
+            <ArrowRight className="rotate-180" size={20} />
+          </button>
+          <span className="font-mono text-xs text-gray-500 uppercase tracking-widest">
+            0{activeIndex + 1} / 03
+          </span>
+          <button 
+            onClick={nextCard} 
+            className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-[#00ff88] hover:text-[#00ff88] transition-all duration-300 bg-black/30 backdrop-blur-sm cursor-pointer hover:scale-105 active:scale-95"
+            aria-label="Next card"
+          >
+            <ArrowRight size={20} />
+          </button>
         </div>
 
         {/* Video Player Modal */}
