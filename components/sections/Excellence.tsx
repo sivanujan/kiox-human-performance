@@ -45,7 +45,7 @@ const FloatingParticle = ({ index }: { index: number }) => {
   
   return (
     <motion.div
-      className="absolute rounded-full bg-[#22c55e]/30 blur-[1px]"
+      className="absolute rounded-full bg-[#00ff88]/20 blur-[1px]"
       style={{
         width: data.current.size,
         height: data.current.size,
@@ -63,37 +63,15 @@ const FloatingParticle = ({ index }: { index: number }) => {
   );
 };
 
-const ThreeDCard = ({ video, position, delay, onClick }: { video: typeof videos[0], position: 'left' | 'right', delay: number, onClick: () => void }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+const CommitmentCard = ({ 
+  video, 
+  onClick 
+}: { 
+  video: typeof videos[0], 
+  onClick: () => void 
+}) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (typeof window === 'undefined' || !cardRef.current || window.innerWidth < 1024) return;
-    
-    const card = cardRef.current;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = (y - centerY) / 20;
-    const rotateY = (centerX - x) / 20;
-
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-  };
 
   useEffect(() => {
     if (isHovered) {
@@ -104,97 +82,66 @@ const ThreeDCard = ({ video, position, delay, onClick }: { video: typeof videos[
     }
   }, [isHovered]);
 
-  const variants = {
-    hidden: { 
-      opacity: 0, 
-      x: position === 'left' ? -50 : 50, 
-      y: 30
-    },
-    visible: { 
-      opacity: 1, 
-      x: 0, 
-      y: 0, 
-      transition: { duration: 0.8, delay, ease: "easeOut" as any }
-    }
-  };
-
-  const getCardStyle = () => {
-    if (!isMounted || typeof window === 'undefined' || window.innerWidth < 1024) return {};
-    return { 
-      transform: position === 'left' ? 'rotateY(10deg)' : 'rotateY(-10deg)', 
-      zIndex: 10 
-    };
-  };
-
   return (
-    <motion.div
-      variants={variants}
-      className="relative group w-full"
-      style={{ perspective: "1200px" }}
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+      className="group relative w-full bg-[#080808] border border-[#1a1a1a] rounded-[16px] overflow-hidden transition-all duration-500 hover:border-[#00ff88] hover:shadow-[0_0_30px_rgba(0,255,136,0.15)] flex flex-col cursor-pointer"
     >
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={handleMouseLeave}
-        onClick={onClick}
-        className="relative w-full aspect-video md:h-[450px] rounded-[24px] overflow-hidden transition-transform duration-500 will-change-transform cursor-pointer border border-[#22c55e]/20 group-hover:border-[#22c55e]/50"
-        style={getCardStyle()}
-      >
-        <div className="absolute inset-0 bg-[#080808]">
-          <video
-            ref={videoRef}
-            src={video.src}
-            muted
-            loop
-            playsInline
-            className={`w-full h-full object-cover transition-opacity duration-700 ${isHovered ? 'opacity-100' : 'opacity-40'}`}
-          />
-        </div>
+      {/* Video Thumbnail Section */}
+      <div className="relative w-full aspect-video overflow-hidden bg-zinc-950 flex-shrink-0">
+        <video
+          ref={videoRef}
+          src={video.src}
+          muted
+          loop
+          playsInline
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isHovered ? 'opacity-100' : 'opacity-45'}`}
+        />
 
+        {/* Hover Dark Overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+
+        {/* Light Sweep on Hover */}
         {isHovered && (
           <div className="absolute inset-0 pointer-events-none opacity-30 z-20 animate-[lightSweep_4s_linear_infinite]" 
-               style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(34,197,94,0.4) 50%, transparent 60%)', backgroundSize: '200% auto' }} />
+               style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(0,255,136,0.4) 50%, transparent 60%)', backgroundSize: '200% auto' }} />
         )}
 
-        <AnimatePresence>
-          {!isHovered && (
-            <motion.div 
-               exit={{ opacity: 0, scale: 1.2 }}
-               className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
-            >
-              <div className="w-16 h-16 rounded-full border-2 border-[#22c55e] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-[centerPulse_2s_infinite]">
-                 <Play className="text-white fill-white ml-1" size={24} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-8 z-30">
-          <div className="flex items-center gap-2 mb-3">
-             <span className="px-2.5 py-0.5 bg-[#22c55e] text-black text-[10px] font-black rounded-sm uppercase tracking-wider">
-               {video.category}
-             </span>
-             <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{video.duration}</span>
+        {/* Centered Play Button with green border */}
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="w-14 h-14 rounded-full border-2 border-[#00ff88] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+            <Play className="text-white fill-white ml-1" size={18} />
           </div>
-          <h4 className="text-white font-display text-2xl md:text-3xl font-bold uppercase tracking-tight italic leading-none mb-3">
+        </div>
+
+        {/* Category Badge & Duration (Bottom-Left) */}
+        <div className="absolute bottom-4 left-4 z-20 flex items-center gap-3">
+          <span className="px-2.5 py-0.5 bg-[#00ff88] text-black text-[9px] font-black rounded-sm uppercase tracking-wider font-label">
+            {video.category}
+          </span>
+          <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest font-mono">
+            {video.duration}
+          </span>
+        </div>
+      </div>
+
+      {/* Content Section below video thumbnail */}
+      <div className="p-5 md:p-6 flex flex-col justify-between flex-grow bg-gradient-to-b from-[#080808] to-[#050505]">
+        <div>
+          <h4 className="text-white font-display text-xl md:text-2xl font-black uppercase italic tracking-tight mb-2 group-hover:text-[#00ff88] transition-colors duration-300">
             {video.title}
           </h4>
-          <p className="text-white/50 text-xs md:text-sm font-medium leading-relaxed max-w-md uppercase tracking-wide">
+          <p 
+            className="text-white/50 text-xs md:text-sm font-medium tracking-wider leading-relaxed"
+            style={{ fontVariant: 'all-small-caps' }}
+          >
             {video.description}
           </p>
         </div>
       </div>
-
-      <div 
-        className="absolute -bottom-[15%] left-0 right-0 h-1/2 opacity-10 blur-[2px] pointer-events-none hidden lg:block"
-        style={{ 
-          background: `linear-gradient(to top, transparent, rgba(34,197,94,0.2))`,
-          transform: `scaleY(-1) perspective(1200px) ${getCardStyle()?.transform || ''}`,
-          maskImage: 'linear-gradient(to bottom, black, transparent)'
-        }}
-      />
-    </motion.div>
+    </div>
   );
 };
 
@@ -204,39 +151,43 @@ export default function Excellence() {
   const [selectedVideo, setSelectedVideo] = useState<typeof videos[0] | null>(null);
 
   return (
-    <section id="excellence" ref={containerRef} className="pt-[160px] pb-[160px] bg-[#080808] relative z-10 overflow-hidden w-full">
+    <section id="excellence" ref={containerRef} className="pt-[140px] pb-[140px] bg-[#0a0a0a] relative z-10 overflow-hidden w-full">
+      {/* Background Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
         {[...Array(15)].map((_, i) => <FloatingParticle key={i} index={i} />)}
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
+        {/* Header */}
         <motion.div 
-          className="text-center mb-24"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: -20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
           <div className="flex justify-center items-center gap-4 mb-6">
-            <div className="h-px w-12 bg-[#22c55e]"></div>
-            <h2 className="text-sm font-black tracking-[0.4em] text-[#22c55e] uppercase">Excellence In Care</h2>
-            <div className="h-px w-12 bg-[#22c55e]"></div>
+            <div className="h-px w-12 bg-[#00ff88]"></div>
+            <h2 className="text-sm font-black tracking-[0.4em] text-[#00ff88] uppercase font-label">EXCELLENCE IN CARE</h2>
+            <div className="h-px w-12 bg-[#00ff88]"></div>
           </div>
           <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-white uppercase italic leading-none relative inline-block">
-            Our <span className="text-[#22c55e]">Commitment</span> To You
+            OUR <span className="text-[#00ff88]">COMMITMENT</span> TO YOU
             <motion.span 
               initial={{ width: 0 }}
               animate={isInView ? { width: '40%' } : {}}
               transition={{ duration: 1, delay: 0.5 }}
-              className="absolute -bottom-4 left-0 h-1.5 bg-[#22c55e]"
+              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1.5 bg-[#00ff88]"
             />
           </h3>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center max-w-[1400px] mx-auto perspective-[1200px]">
-          <ThreeDCard video={videos[0]} position="left" delay={0.2} onClick={() => setSelectedVideo(videos[0])} />
-          <ThreeDCard video={videos[1]} position="right" delay={0.4} onClick={() => setSelectedVideo(videos[1])} />
+        {/* 50/50 Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[1200px] mx-auto">
+          <CommitmentCard video={videos[0]} onClick={() => setSelectedVideo(videos[0])} />
+          <CommitmentCard video={videos[1]} onClick={() => setSelectedVideo(videos[1])} />
         </div>
 
+        {/* Modal Video Player */}
         <AnimatePresence>
           {selectedVideo && (
             <motion.div
@@ -248,13 +199,13 @@ export default function Excellence() {
               <div className="relative w-full max-w-7xl h-full flex flex-col justify-center">
                  <button 
                    onClick={() => setSelectedVideo(null)}
-                   className="absolute -top-12 right-0 text-[#22c55e] hover:text-white transition-colors flex items-center gap-2 group p-2"
+                   className="absolute -top-12 right-0 text-[#00ff88] hover:text-white transition-colors flex items-center gap-2 group p-2 bg-transparent border-none cursor-pointer"
                  >
                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
                    <X size={24} />
                  </button>
                  
-                 <div className="w-full bg-black rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(34,197,94,0.1)]">
+                 <div className="w-full bg-black rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,255,136,0.15)]">
                     <CustomVideoPlayer 
                       src={selectedVideo.src}
                       type={selectedVideo.type}
