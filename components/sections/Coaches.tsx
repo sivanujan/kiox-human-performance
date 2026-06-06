@@ -312,22 +312,6 @@ export default function Coaches() {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* View All Button */}
-        <motion.div 
-          className="flex justify-center mt-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <motion.button
-            whileHover={{ scale: 1.03, boxShadow: "0 0 30px rgba(0, 255, 136, 0.25)" }}
-            whileTap={{ scale: 0.97 }}
-            className="font-display border border-[#00ff88] text-[#00ff88] hover:bg-[#00ff88] hover:text-black px-8 py-4 rounded text-sm font-bold tracking-[0.2em] uppercase transition-all duration-300 bg-transparent cursor-pointer"
-          >
-            View all coaches
-          </motion.button>
-        </motion.div>
       </div>
     </section>
   );
