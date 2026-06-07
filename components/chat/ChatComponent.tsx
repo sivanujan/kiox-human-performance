@@ -1070,9 +1070,9 @@ export default function ChatComponent() {
 
       {/* LEFT SIDEBAR: CONVERSATION LIST */}
       <aside className={`
-        absolute md:static inset-y-0 left-0 w-full md:w-[360px] lg:w-[400px] bg-[#0c0c0c] border-r border-white/5 
-        flex flex-col z-30 transition-transform duration-300 ease-in-out
-        ${mobileShowChat ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}
+        w-full md:w-[320px] md:min-w-[320px] md:max-w-[320px] bg-[#0c0c0c] border-r border-white/5 
+        flex flex-col shrink-0 h-full z-30
+        ${mobileShowChat ? 'hidden md:flex' : 'flex'}
       `}>
         {/* Sidebar Header & Search */}
         <div className="p-6 border-b border-white/5 space-y-4 relative">
@@ -1092,18 +1092,18 @@ export default function ChatComponent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search agents by name or role..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]/30 focus:bg-black/60 transition-all font-sans"
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e] focus:ring-1 focus:ring-[#22c55e]/50 focus:bg-black/60 transition-all font-sans"
               />
             </div>
           )}
 
           {/* Submenu Tabs for Admins & Performance Coaches */}
           {showThreeTabs && (
-            <div className="flex bg-black/40 border border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex overflow-x-auto flex-nowrap scrollbar-none bg-black/40 border border-white/5 rounded-xl p-1 gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('parent')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'parent'
                     ? "bg-[#22c55e] text-black shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     : "text-gray-500 hover:text-white hover:bg-white/[0.02]"
@@ -1114,7 +1114,7 @@ export default function ChatComponent() {
               <button
                 type="button"
                 onClick={() => setActiveTab('coach')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'coach'
                     ? "bg-[#22c55e] text-black shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     : "text-gray-500 hover:text-white hover:bg-white/[0.02]"
@@ -1125,7 +1125,7 @@ export default function ChatComponent() {
               <button
                 type="button"
                 onClick={() => setActiveTab('medical')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'medical'
                     ? "bg-[#22c55e] text-black shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     : "text-gray-500 hover:text-white hover:bg-white/[0.02]"
@@ -1138,11 +1138,11 @@ export default function ChatComponent() {
 
           {/* Submenu Tabs for Medical Staff */}
           {showTwoTabs && (
-            <div className="flex bg-black/40 border border-white/5 rounded-xl p-1 gap-1">
+            <div className="flex overflow-x-auto flex-nowrap scrollbar-none bg-black/40 border border-white/5 rounded-xl p-1 gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('coach')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'coach'
                     ? "bg-[#22c55e] text-black shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     : "text-gray-500 hover:text-white hover:bg-white/[0.02]"
@@ -1153,7 +1153,7 @@ export default function ChatComponent() {
               <button
                 type="button"
                 onClick={() => setActiveTab('medical')}
-                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'medical'
                     ? "bg-[#22c55e] text-black shadow-[0_0_10px_rgba(34,197,94,0.3)]"
                     : "text-gray-500 hover:text-white hover:bg-white/[0.02]"
@@ -1209,12 +1209,13 @@ export default function ChatComponent() {
           ) : (
             <>
               {/* Group Chat Uplinks for Coaches & Medical Staff */}
-              {(profile?.role === 'staff' || profile?.role === 'superadmin' || profile?.role === 'medical') && (
+              {((activeTab === 'coach' && (profile?.role === 'staff' || profile?.role === 'superadmin')) ||
+                (activeTab === 'medical' && (profile?.role === 'medical' || profile?.role === 'superadmin'))) && (
                 <div className="mb-4 space-y-2 pb-4 border-b border-white/5">
                   <div className="text-[8px] font-black text-[#22c55e]/60 tracking-[2px] uppercase px-2 mb-2">SYSTEM GROUP TERMINALS</div>
                   
                   {/* Coach Group Chat (Visible to coaches and superadmins) */}
-                  {(profile?.role === 'staff' || profile?.role === 'superadmin') && (
+                  {activeTab === 'coach' && (profile?.role === 'staff' || profile?.role === 'superadmin') && (
                     <button
                       onClick={() => {
                         setSelectedConversation({
@@ -1228,7 +1229,7 @@ export default function ChatComponent() {
                       }}
                       className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                         selectedConversation?.id === 'group_coach'
-                          ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]"
+                          ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]"
                           : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                       }`}
                     >
@@ -1248,7 +1249,7 @@ export default function ChatComponent() {
                           <p className="text-[10px] text-gray-500 font-medium truncate flex-1">
                             Secure shared command uplink
                           </p>
-                          <span className="px-2 py-0.5 bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[7px] font-black uppercase tracking-widest rounded">
+                          <span className="px-2 py-0.5 h-5 flex items-center justify-center bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[7.5px] font-black uppercase tracking-widest rounded shrink-0 min-w-[65px]">
                             COACHES
                           </span>
                         </div>
@@ -1257,7 +1258,7 @@ export default function ChatComponent() {
                   )}
 
                   {/* Medical Group Chat (Visible to medical staff and superadmins) */}
-                  {(profile?.role === 'medical' || profile?.role === 'superadmin') && (
+                  {activeTab === 'medical' && (profile?.role === 'medical' || profile?.role === 'superadmin') && (
                     <button
                       onClick={() => {
                         setSelectedConversation({
@@ -1271,7 +1272,7 @@ export default function ChatComponent() {
                       }}
                       className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                         selectedConversation?.id === 'group_medical'
-                          ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]"
+                          ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]"
                           : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                       }`}
                     >
@@ -1291,7 +1292,7 @@ export default function ChatComponent() {
                           <p className="text-[10px] text-gray-500 font-medium truncate flex-1">
                             Secure medical staff uplink
                           </p>
-                          <span className="px-2 py-0.5 bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[7px] font-black uppercase tracking-widest rounded">
+                          <span className="px-2 py-0.5 h-5 flex items-center justify-center bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[7.5px] font-black uppercase tracking-widest rounded shrink-0 min-w-[65px]">
                             MEDICAL
                           </span>
                         </div>
@@ -1304,19 +1305,22 @@ export default function ChatComponent() {
               {(isAdmin || isStaffView) ? (
             // Admin and Staff list all profiles of the selected role category
             sortedProfiles.length === 0 ? (
-              <div className="h-full flex items-center justify-center flex-col gap-4 text-center px-6">
-                <div className="w-12 h-12 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center text-gray-500">
-                  <MessageSquare size={20} />
+              ((activeTab === 'coach' && (profile?.role === 'staff' || profile?.role === 'superadmin')) ||
+               (activeTab === 'medical' && (profile?.role === 'medical' || profile?.role === 'superadmin'))) ? null : (
+                <div className="h-full flex items-center justify-center flex-col gap-4 text-center px-6 py-12">
+                  <div className="w-12 h-12 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-center text-gray-500">
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">No active signals</p>
+                    <p className="text-[9px] text-gray-600 uppercase font-bold tracking-[1px] mt-1">
+                      {profile?.role === "staff" && activeTab === "parent" 
+                        ? "No parents of assigned athletes found." 
+                        : "No registry entries found for this category."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-[2px]">No active signals</p>
-                  <p className="text-[9px] text-gray-600 uppercase font-bold tracking-[1px] mt-1">
-                    {profile?.role === "staff" && activeTab === "parent" 
-                      ? "No parents of assigned athletes found." 
-                      : "No registry entries found for this category."}
-                  </p>
-                </div>
-              </div>
+              )
             ) : (
               sortedProfiles.map((p) => {
                 const conv = getConversationForProfile(p.id);
@@ -1340,7 +1344,7 @@ export default function ChatComponent() {
                       }}
                       className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                         isSelected 
-                          ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]" 
+                          ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
                           : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                       }`}
                     >
@@ -1379,7 +1383,7 @@ export default function ChatComponent() {
                       onClick={() => handleStartChat(p)}
                       className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                         isSelected 
-                          ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]" 
+                          ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
                           : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                       }`}
                     >
@@ -1449,7 +1453,7 @@ export default function ChatComponent() {
                         }}
                         className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                           isSelected 
-                            ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]" 
+                            ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
                             : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                         }`}
                       >
@@ -1573,7 +1577,7 @@ export default function ChatComponent() {
                     }}
                     className={`w-full p-4 rounded-2xl border flex items-center gap-3 text-left transition-all relative overflow-hidden group/item ${
                       isSelected 
-                        ? "bg-[#22c55e]/10 border-[#22c55e]/30 shadow-[0_0_15px_rgba(34,197,94,0.08)]" 
+                        ? "bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
                         : "bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.03]"
                     }`}
                   >
@@ -1611,8 +1615,8 @@ export default function ChatComponent() {
 
       {/* RIGHT SIDEBAR: ACTIVE CHAT SCREEN */}
       <main className={`
-        flex-1 bg-[#0b0f1e]/30 flex flex-col z-20 h-full absolute md:static inset-0 transition-transform duration-300 ease-in-out
-        ${mobileShowChat ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+        flex-1 bg-[#0b0f1e]/30 flex flex-col h-full z-20 min-w-0
+        ${mobileShowChat ? 'flex' : 'hidden md:flex'}
       `}>
         {selectedConversation ? (
           <>
@@ -1646,8 +1650,8 @@ export default function ChatComponent() {
             {/* Message Stream */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar relative z-10 bg-black/10">
               {isLoadingMessages ? (
-                <div className="h-full flex items-center justify-center flex-col gap-2 font-label text-[10px] text-gray-500 uppercase tracking-[2px]">
-                  <Loader2 className="animate-spin text-[#22c55e]" size={20} /> Syncing transcripts...
+                <div className="absolute inset-0 flex items-center justify-center flex-col gap-2 font-label text-[10px] text-gray-500 uppercase tracking-[2px] bg-black/5 z-20">
+                  <Loader2 className="animate-spin text-[#22c55e] mb-1" size={24} /> Syncing transcripts...
                 </div>
               ) : messages.length === 0 ? (
                 <div className="h-full flex items-center justify-center flex-col gap-3 text-center opacity-30 select-none">
@@ -1701,7 +1705,7 @@ export default function ChatComponent() {
             </div>
 
             {/* Input Submission Box */}
-            <form onSubmit={handleSendMessage} className="p-4 md:p-6 bg-[#0c0c0c] border-t border-white/5 flex gap-3 shrink-0 z-10 relative">
+            <form onSubmit={handleSendMessage} className="p-4 md:p-6 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-6 bg-[#0c0c0c] border-t border-white/5 flex gap-3 shrink-0 z-10 relative">
               <input 
                 type="text"
                 value={newMessage}

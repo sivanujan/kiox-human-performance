@@ -146,30 +146,33 @@ export default function AthleteRoster({
         {/* Summary Stats & Quick Filters */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
           {[
-            { id: 'ALL', label: 'ALL ATHLETES', count: stats.total, color: 'white' },
-            { id: 'READY', label: 'READY', count: stats.ready, color: '#22c55e' },
-            { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b' },
-            { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444' },
-            { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444' },
+            { id: 'ALL', label: 'ALL ATHLETES', count: stats.total, color: '#ffffff', dotColor: '#00ff88' },
+            { id: 'READY', label: 'READY', count: stats.ready, color: '#00ff88', dotColor: '#00ff88' },
+            { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b', dotColor: '#f59e0b' },
+            { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444', dotColor: '#ef4444' },
+            { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444', dotColor: '#ef4444' },
           ].map(filter => (
             <button
               key={filter.id}
               onClick={() => setStatusFilter(filter.id as any)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-mono text-xs tracking-wider uppercase whitespace-nowrap touch-manipulation transition-all min-h-[36px] ${
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border font-mono text-xs tracking-wider uppercase whitespace-nowrap touch-manipulation transition-all min-h-[38px] ${
                 statusFilter === filter.id 
-                  ? "bg-white/5 border-white/20 text-white" 
-                  : "bg-transparent border-transparent text-gray-500 hover:text-white/40"
+                  ? "bg-white/10 border-white/20 text-white" 
+                  : "bg-[#161616] border-white/5 text-gray-500 hover:text-white/60"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ color: filter.color }} />
-              {filter.label} {filter.count}
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: filter.dotColor }} />
+              <span>{filter.label}</span>
+              <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-white/5 border border-white/10 text-gray-400 font-mono">
+                {filter.count}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Athlete List */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-3 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-36 space-y-3 scrollbar-hide">
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <Loader2 className="animate-spin text-[#22c55e]" size={32} />
@@ -193,18 +196,46 @@ export default function AthleteRoster({
               <div className="space-y-3 w-full">
                 {athletes.map((athlete) => {
                   const athleteName = `${athlete.first_name} ${athlete.last_name}`;
+                  const status = athlete.computed_status || 'READY';
                   
+                  // Get subtle row tint matching status
+                  const getRowStyle = (status: string) => {
+                    switch (status) {
+                      case 'READY': return 'bg-[#161616] border-green-500/20 hover:border-green-500/40 shadow-[inset_0_0_12px_rgba(34,197,94,0.03)]';
+                      case 'MONITOR': return 'bg-[#161616] border-amber-500/20 hover:border-amber-500/40 shadow-[inset_0_0_12px_rgba(245,158,11,0.03)]';
+                      case 'ALERT':
+                      case 'INJURED': return 'bg-[#161616] border-red-500/20 hover:border-red-500/40 shadow-[inset_0_0_12px_rgba(239,68,68,0.03)]';
+                      default: return 'bg-[#161616] border-white/5 hover:border-white/10';
+                    }
+                  };
+
+                  // Get colored initials circle background
+                  const getAvatarBg = (status: string) => {
+                    switch (status) {
+                      case 'READY': return 'bg-green-500/10 border-green-500/20 text-[#00ff88]';
+                      case 'MONITOR': return 'bg-amber-500/10 border-amber-500/20 text-[#f59e0b]';
+                      case 'ALERT':
+                      case 'INJURED': return 'bg-red-500/10 border-red-500/20 text-[#ef4444]';
+                      default: return 'bg-gray-800 border-gray-700 text-white';
+                    }
+                  };
+
+                  const loadBarColor = 
+                    athlete.weekly_load < 500 ? '#3b82f6' :
+                    athlete.weekly_load <= 650 ? '#00ff88' :
+                    athlete.weekly_load <= 800 ? '#f59e0b' : '#ef4444';
+
                   return (
                     <motion.div
                       key={athlete.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 p-4 rounded-xl bg-[#111] border border-gray-800 hover:border-gray-700 transition-all relative w-full"
-                      style={{ borderLeft: `3px solid ${getBorderColor(athlete)}` }}
+                      className={`flex items-center gap-3 p-4 rounded-xl border transition-all relative w-full ${getRowStyle(status)}`}
+                      style={{ borderLeft: `4px solid ${getBorderColor(athlete)}` }}
                     >
                       {/* SECTION 1 — Avatar (fixed width, never shrinks) */}
                       <div className="flex-shrink-0 relative">
-                        <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center font-display text-sm font-bold text-white border border-gray-700">
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center font-display text-sm font-bold border ${getAvatarBg(status)}`}>
                           {getInitials(athleteName)}
                         </div>
                         {/* Online dot */}
@@ -255,22 +286,24 @@ export default function AthleteRoster({
                             </span>
                           </span>
                           <span className="font-mono text-xs text-gray-600 tracking-wider truncate ml-2">
-                            {athlete.last_session 
-                              ? `LAST: ${athlete.last_session.title.toUpperCase()}` 
-                              : 'NO RECENT ACTIVITY'}
+                            {athlete.last_session ? (
+                              `LAST: ${athlete.last_session.title.toUpperCase()}`
+                            ) : (
+                              <span className="px-2 py-0.5 text-[9px] rounded-full bg-white/5 border border-white/10 text-gray-500 uppercase font-mono tracking-wider font-normal">
+                                LAST SESSION: N/A
+                              </span>
+                            )}
                           </span>
                         </div>
 
                         {/* Progress bar */}
-                        <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden w-full">
+                        <div className="h-2 bg-gray-800 rounded-full w-full relative overflow-visible">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
                               width: `${Math.min((athlete.weekly_load / 650) * 100, 100)}%`,
-                              backgroundColor:
-                                athlete.weekly_load < 500 ? '#3b82f6' :
-                                athlete.weekly_load <= 650 ? '#00ff88' :
-                                athlete.weekly_load <= 800 ? '#f59e0b' : '#ef4444'
+                              backgroundColor: loadBarColor,
+                              boxShadow: `0 0 10px ${loadBarColor}`
                             }}
                           />
                         </div>

@@ -149,7 +149,7 @@ function SignInContent() {
         <div className="flex flex-col items-center mb-10">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
-              <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
+              <Image src="/logo.png" alt="KIO-X" width={40} height={40} className="object-contain" priority unoptimized={true} />
             </div>
             <span className="font-display text-3xl text-white group-hover:text-[#22c55e] transition-colors">KIO-X</span>
           </Link>

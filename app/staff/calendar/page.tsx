@@ -66,6 +66,40 @@ export default function SharedCalendarPage() {
   // Navigation State
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
+
+  // Viewport resize effect to default to week view on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode("week");
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Mobile swipe gestures
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX.current - touchEndX;
+
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
+    touchStartX.current = null;
+  };
   
   // Data State
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -193,33 +227,38 @@ export default function SharedCalendarPage() {
     switch (type?.toUpperCase()) {
       case "STRENGTH":
         return {
-          bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:border-emerald-500/40",
+          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-emerald-500 shadow-[0_0_8px_#10b981]",
-          text: "text-emerald-400"
+          border: "border-l-[#10b981]",
+          text: "text-[#00ff88]"
         };
       case "TACTICAL":
         return {
-          bg: "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:border-amber-500/40",
+          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-amber-500 shadow-[0_0_8px_#f59e0b]",
-          text: "text-amber-400"
+          border: "border-l-[#f59e0b]",
+          text: "text-[#00ff88]"
         };
       case "CONDITIONING":
         return {
-          bg: "bg-cyan-500/10 border-cyan-500/20 text-cyan-400 hover:border-cyan-500/40",
+          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-cyan-500 shadow-[0_0_8px_#06b6d4]",
-          text: "text-cyan-400"
+          border: "border-l-[#06b6d4]",
+          text: "text-[#00ff88]"
         };
       case "RECOVERY":
         return {
-          bg: "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:border-violet-500/40",
+          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-violet-500 shadow-[0_0_8px_#8b5cf6]",
-          text: "text-violet-400"
+          border: "border-l-[#8b5cf6]",
+          text: "text-[#00ff88]"
         };
       default:
         return {
-          bg: "bg-rose-500/10 border-rose-500/20 text-rose-400 hover:border-rose-500/40",
+          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-rose-500 shadow-[0_0_8px_#f43f5e]",
-          text: "text-rose-400"
+          border: "border-l-[#f43f5e]",
+          text: "text-[#00ff88]"
         };
     }
   };
@@ -370,13 +409,23 @@ export default function SharedCalendarPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-[500px] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="text-[#22c55e] animate-spin" size={40} />
-        <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px] animate-pulse">Syncing Shared Calendar Matrix...</span>
+        <Loader2 className="text-[#00ff88] animate-spin" size={40} />
+        <span className="text-[10px] font-black text-[#00ff88] uppercase tracking-[3px] animate-pulse">Syncing Shared Calendar Matrix...</span>
       </div>
     );
   }
 
   const isAdmin = profile?.role === "superadmin";
+
+  // Mini Week At A Glance calculation
+  const todayDate = new Date();
+  const currentWeekStart = startOfWeek(todayDate, { weekStartsOn: 1 });
+  const currentWeekDays = eachDayOfInterval({
+    start: currentWeekStart,
+    end: endOfWeek(todayDate, { weekStartsOn: 1 })
+  });
+  
+  const todayEventsCount = getDayEvents(todayDate).length;
 
   return (
     <div className="space-y-8">
@@ -384,7 +433,7 @@ export default function SharedCalendarPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-white font-display text-4xl font-black tracking-tight uppercase flex items-center gap-4">
-            <CalendarDays className="text-[#22c55e]" size={36} /> Operational Calendar
+            <CalendarDays className="text-[#00ff88]" size={36} /> Operational Calendar
           </h1>
           <p className="text-gray-400 font-label mt-2 text-xs md:text-sm tracking-[0.2em] uppercase">
             Shared Performance Grid // Realtime Sync Active
@@ -393,7 +442,7 @@ export default function SharedCalendarPage() {
 
         <button
           onClick={() => openCreateModal()}
-          className="bg-[#22c55e] text-black font-button text-xs font-black px-6 py-4 rounded-2xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center gap-2 active-scale"
+          className="bg-[#00ff88] text-black font-button text-xs font-black px-6 py-4 rounded-2xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,255,136,0.3)] flex items-center gap-2 active-scale"
         >
           <Plus size={16} /> Deploy Session
         </button>
@@ -406,7 +455,7 @@ export default function SharedCalendarPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3 text-emerald-400 text-xs font-bold uppercase tracking-widest"
+            className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3 text-[#00ff88] text-xs font-bold uppercase tracking-widest"
           >
             <CheckCircle size={16} /> {successMessage}
           </motion.div>
@@ -425,15 +474,15 @@ export default function SharedCalendarPage() {
 
       {/* Calendar Controls */}
       <div className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center bg-black/40 border border-white/5 p-1.5 rounded-2xl">
           <button 
             onClick={handlePrev}
-            className="p-3 bg-white/5 border border-white/10 rounded-xl hover:border-[#22c55e]/30 text-gray-400 hover:text-white transition-all active-scale"
+            className="p-2.5 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-all active-scale"
           >
             <ChevronLeft size={16} />
           </button>
           
-          <h2 className="text-white font-display text-lg md:text-xl font-black uppercase tracking-wider min-w-[200px] text-center">
+          <h2 className="text-white font-display text-sm md:text-base font-black uppercase tracking-wider px-4 min-w-[160px] text-center">
             {viewMode === "month" 
               ? format(currentDate, "MMMM yyyy")
               : `Week of ${format(weekStart, "MMM d, yyyy")}`
@@ -442,37 +491,30 @@ export default function SharedCalendarPage() {
 
           <button 
             onClick={handleNext}
-            className="p-3 bg-white/5 border border-white/10 rounded-xl hover:border-[#22c55e]/30 text-gray-400 hover:text-white transition-all active-scale"
+            className="p-2.5 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-all active-scale"
           >
             <ChevronRight size={16} />
           </button>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleToday}
-            className="px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:border-[#22c55e]/30 text-[10px] font-black uppercase tracking-widest transition-all active-scale"
-          >
-            Today
-          </button>
-
-          <div className="flex bg-black/40 border border-white/5 p-1 rounded-xl">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode("month")}
-              className={`px-5 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+              className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 viewMode === "month"
-                  ? "bg-[#22c55e] text-black shadow-lg"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
+                  : "bg-transparent border border-white/10 text-gray-400 hover:text-white hover:border-[#00ff88]/30"
               }`}
             >
               Month
             </button>
             <button
               onClick={() => setViewMode("week")}
-              className={`px-5 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+              className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 viewMode === "week"
-                  ? "bg-[#22c55e] text-black shadow-lg"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
+                  : "bg-transparent border border-white/10 text-gray-400 hover:text-white hover:border-[#00ff88]/30"
               }`}
             >
               Week
@@ -481,68 +523,148 @@ export default function SharedCalendarPage() {
         </div>
       </div>
 
+      {/* Week at a Glance Strip */}
+      <div className="bg-[#111] border border-[#1a1a1a] rounded-3xl p-6 space-y-4 shadow-xl">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Activity className="text-[#00ff88] animate-pulse" size={16} />
+            <h3 className="text-white font-display text-xs font-black uppercase tracking-widest">
+              Tactical Week At A Glance
+            </h3>
+          </div>
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-black/40 border border-[#00ff88]/20 px-3 py-1.5 rounded-xl">
+            Today's Deployments: <span className="text-[#00ff88] font-mono ml-1">{todayEventsCount}</span>
+          </span>
+        </div>
+
+        <div className="grid grid-cols-7 gap-2">
+          {currentWeekDays.map((day, idx) => {
+            const dayEvents = getDayEvents(day);
+            const isDayToday = isToday(day);
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+
+            const cardBg = isDayToday
+              ? "bg-[#00ff88]/10 border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.1)]"
+              : isWeekend
+                ? "bg-[#0d0d0d] border-[#1a1a1a] hover:border-[#00ff88]/20"
+                : "bg-black/20 border-[#1a1a1a] hover:border-[#00ff88]/20";
+
+            return (
+              <div 
+                key={idx} 
+                className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-1 ${cardBg}`}
+              >
+                <span className={`text-[8px] font-black uppercase tracking-wider ${isDayToday ? "text-[#00ff88]" : "text-gray-500"}`}>
+                  {format(day, "eee")}
+                </span>
+                <span className="text-xs font-mono font-black text-white">
+                  {format(day, "d")}
+                </span>
+                <span className={`text-[9px] font-mono font-black mt-1.5 px-2 py-0.5 rounded-md ${
+                  dayEvents.length > 0
+                    ? isDayToday ? "bg-[#00ff88] text-black" : "bg-[#00ff88]/20 text-[#00ff88]"
+                    : "bg-white/5 text-gray-600"
+                }`}>
+                  {dayEvents.length}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Grid container */}
-      <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-3xl overflow-hidden shadow-2xl">
         {viewMode === "month" ? (
           /* ====================================
              MONTH VIEW
              ==================================== */
           <div className="flex flex-col">
             {/* Weekdays Header */}
-            <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.01]">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => (
-                <div key={d} className="p-4 text-center text-gray-600 font-label text-[9px] font-black uppercase tracking-[2px]">
-                  {d}
-                </div>
-              ))}
+            <div className="grid grid-cols-7 border-b border-[#00ff88] bg-[#0a0a0a]">
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, index) => {
+                const isWeekend = d === "Sat" || d === "Sun";
+                return (
+                  <div 
+                    key={d} 
+                    className={`p-4 text-center font-label text-[9px] font-black uppercase tracking-[2px] ${
+                      isWeekend ? "bg-[#0d0d0d] text-[#555]" : "bg-[#111] text-[#00ff88]"
+                    }`}
+                  >
+                    {d}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Monthly Grid */}
-            <div className="grid grid-cols-7 grid-rows-6 md:min-h-[700px] border-b border-white/5">
+            <div className="grid grid-cols-7 grid-rows-6 md:min-h-[580px] border-b border-[#1a1a1a]">
               {monthDays.map((day, idx) => {
                 const dayEvents = getDayEvents(day);
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const isSelectedToday = isToday(day);
+                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+
+                // Establish clean cell backgrounds and neon accents
+                const cellBgClass = isCurrentMonth 
+                  ? (isWeekend ? "bg-[#0d0d0d] hover:bg-white/[0.02] cursor-pointer" : "bg-[#111] hover:bg-white/[0.02] cursor-pointer") 
+                  : "bg-[#0a0a0a] cursor-default";
+
+                const todayBorderGlow = (isSelectedToday && isCurrentMonth)
+                  ? "border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.15)] z-10"
+                  : "border-[#1a1a1a]";
 
                 return (
                   <div
                     key={idx}
-                    className={`min-h-[100px] md:min-h-[130px] border-r border-b border-white/5 p-2 flex flex-col justify-between transition-all group ${
-                      isCurrentMonth ? "bg-black/20" : "bg-white/[0.01] opacity-30"
-                    } hover:bg-white/[0.02] relative`}
+                    className={`min-h-[90px] md:min-h-[110px] border-r border-b p-2 flex flex-col justify-between transition-all group relative ${cellBgClass} ${todayBorderGlow}`}
                   >
                     {/* Day number & add icon */}
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-center mb-1.5 z-10">
                       <span className={`text-[10px] font-mono font-black rounded-md w-6 h-6 flex items-center justify-center ${
-                        isSelectedToday
-                          ? "bg-[#22c55e] text-black font-black"
-                          : isCurrentMonth ? "text-white" : "text-gray-600"
+                        isSelectedToday && isCurrentMonth
+                          ? "bg-[#00ff88] text-black font-black"
+                          : isCurrentMonth ? "text-white" : "text-[#2a2a2a]"
                       }`}>
                         {format(day, "d")}
                       </span>
                       
-                      <button
-                        onClick={() => openCreateModal(day)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e] hover:text-black transition-all"
-                        title="Deploy session to this day"
-                      >
-                        <Plus size={10} />
-                      </button>
+                      {dayEvents.length > 0 && isCurrentMonth && (
+                        <button
+                          onClick={() => openCreateModal(day)}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded bg-[#00ff88]/10 text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-all"
+                          title="Deploy session to this day"
+                        >
+                          <Plus size={10} />
+                        </button>
+                      )}
                     </div>
 
+                    {/* Empty cell invite button */}
+                    {dayEvents.length === 0 && isCurrentMonth && (
+                      <button
+                        onClick={() => openCreateModal(day)}
+                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        title="Deploy session to this day"
+                      >
+                        <Plus size={18} className="text-[#00ff88]" />
+                      </button>
+                    )}
+
                     {/* Events list */}
-                    <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[80px] md:max-h-[110px] custom-scrollbar">
+                    <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[60px] md:max-h-[80px] custom-scrollbar">
                       {dayEvents.map(event => {
                         const style = getTypeStyle(event.session_type);
+                        const coachName = event.coach 
+                          ? `${event.coach.first_name || event.coach.username}`
+                          : "Coach";
                         return (
                           <button
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`w-full text-left p-1.5 rounded-lg border text-[9px] font-bold uppercase truncate flex items-center gap-1.5 transition-all ${style.bg}`}
+                            className={`w-full text-left px-2 py-1 bg-[#00ff88] hover:bg-white text-black text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex items-center justify-between gap-1 transition-all shadow-sm`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} />
-                            <span className="truncate flex-1">{event.title}</span>
-                            <span className="text-[7.5px] opacity-60 font-mono shrink-0 font-light">{event.event_time.slice(0, 5)}</span>
+                            <span className="truncate flex-1">{coachName} // {formatTime(event.event_time)}</span>
                           </button>
                         );
                       })}
@@ -554,24 +676,35 @@ export default function SharedCalendarPage() {
           </div>
         ) : (
           /* ====================================
-             WEEK VIEW
+             WEEK VIEW (WITH MOBILE SWIPE SUPPORT)
              ==================================== */
-          <div className="grid grid-cols-1 md:grid-cols-7 min-h-[600px] divide-y md:divide-y-0 md:divide-x divide-white/5">
+          <div 
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            className="grid grid-cols-1 md:grid-cols-7 min-h-[500px] divide-y md:divide-y-0 md:divide-x divide-[#1a1a1a]"
+          >
             {weekDays.map((day, idx) => {
               const dayEvents = getDayEvents(day);
               const isSelectedToday = isToday(day);
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+
+              const cellBgClass = isSelectedToday 
+                ? "bg-[#00ff88]/[0.02] shadow-[inset_0_0_15px_rgba(0,255,136,0.05)]" 
+                : (isWeekend ? "bg-[#0d0d0d]" : "bg-[#111]");
+
+              const todayBorderGlow = isSelectedToday 
+                ? "border border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.15)] z-10 rounded-2xl" 
+                : "border-transparent";
 
               return (
                 <div 
                   key={idx} 
-                  className={`p-4 flex flex-col min-h-[180px] md:min-h-0 ${
-                    isSelectedToday ? "bg-[#22c55e]/[0.02]" : "bg-black/10"
-                  }`}
+                  className={`p-4 flex flex-col min-h-[180px] md:min-h-0 transition-all ${cellBgClass} ${todayBorderGlow}`}
                 >
                   {/* Day Header */}
-                  <div className="flex justify-between items-baseline mb-6 border-b border-white/5 pb-3">
+                  <div className="flex justify-between items-baseline mb-6 border-b border-[#1a1a1a] pb-3">
                     <div>
-                      <h4 className={`text-[10px] font-black uppercase tracking-[2px] ${isSelectedToday ? "text-[#22c55e]" : "text-gray-500"}`}>
+                      <h4 className={`text-[10px] font-black uppercase tracking-[2px] ${isSelectedToday ? "text-[#00ff88]" : "text-gray-500"}`}>
                         {format(day, "EEEE")}
                       </h4>
                       <span className="text-xs font-mono font-black text-white/90">
@@ -581,7 +714,7 @@ export default function SharedCalendarPage() {
 
                     <button
                       onClick={() => openCreateModal(day)}
-                      className="p-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-[#22c55e]/30 text-gray-400 hover:text-white transition-all active-scale"
+                      className="p-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-[#00ff88]/30 text-gray-400 hover:text-white transition-all active-scale"
                     >
                       <Plus size={12} />
                     </button>
@@ -590,21 +723,21 @@ export default function SharedCalendarPage() {
                   {/* Day Events Stack */}
                   <div className="flex-1 space-y-3 overflow-y-auto max-h-[350px] md:max-h-none pr-1">
                     {dayEvents.length === 0 ? (
-                      <div className="py-8 text-center text-[9px] font-black text-gray-700 uppercase tracking-widest border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-1">
+                      <div className="py-8 text-center text-[9px] font-black text-gray-500 uppercase tracking-widest border border-dashed border-[#1a1a1a] rounded-2xl flex flex-col items-center justify-center gap-1">
                         Clear Grid
                       </div>
                     ) : (
                       dayEvents.map(event => {
                         const style = getTypeStyle(event.session_type);
                         const coachName = event.coach 
-                          ? `${event.coach.first_name?.[0] || ""}${event.coach.last_name?.[0] || ""}`.toUpperCase() 
-                          : "??";
+                          ? `${event.coach.first_name || event.coach.username}`
+                          : "Coach";
 
                         return (
                           <div
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`p-3 rounded-xl border cursor-pointer transition-all flex flex-col gap-2 relative group hover:scale-[1.02] ${style.bg}`}
+                            className={`p-3 rounded-xl bg-[#00ff88] hover:bg-white text-black cursor-pointer transition-all flex flex-col gap-1.5 relative group hover:scale-[1.02] border-l-[3px] ${style.border}`}
                           >
                             <div className="flex justify-between items-start gap-2">
                               <span className="font-display font-black text-[10px] uppercase tracking-wider line-clamp-2 flex-1">
@@ -612,16 +745,14 @@ export default function SharedCalendarPage() {
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between text-[8px] font-mono opacity-80 pt-2 border-t border-white/5">
-                              <span className="flex items-center gap-1 font-bold">
+                            <div className="flex items-center justify-between text-[8px] font-mono pt-1.5 border-t border-black/10">
+                              <span className="flex items-center gap-1 font-black">
                                 <Clock size={8} /> {formatTime(event.event_time)}
                               </span>
 
-                              <div className="flex items-center gap-1.5" title={`Coach: ${event.coach?.first_name || "Unknown"}`}>
-                                <div className="w-4 h-4 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-[7px] font-black uppercase text-[#22c55e]">
-                                  {coachName}
-                                </div>
-                              </div>
+                              <span className="font-black uppercase">
+                                {coachName}
+                              </span>
                             </div>
                           </div>
                         );
@@ -653,12 +784,12 @@ export default function SharedCalendarPage() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-xl bg-[#0a0a0a] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl z-10"
+              className="relative w-full max-w-lg mx-auto bg-[#0a0a0a] border border-white/10 rounded-[8px] overflow-hidden shadow-2xl z-10"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-white/5 bg-gradient-to-r from-[#22c55e]/[0.03] to-transparent flex justify-between items-center">
+              <div className="p-6 border-b border-white/5 bg-gradient-to-r from-[#00ff88]/[0.03] to-transparent flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]">
+                  <div className="w-10 h-10 rounded-xl bg-[#00ff88]/10 border border-[#00ff88]/20 flex items-center justify-center text-[#00ff88]">
                     <CalendarDays size={18} />
                   </div>
                   <div>
@@ -689,7 +820,7 @@ export default function SharedCalendarPage() {
                     value={formData.title}
                     onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="EX: CORE CAPACITY DRILLS"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none transition-all uppercase"
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 px-4 text-white text-xs font-bold outline-none transition-all uppercase"
                   />
                 </div>
 
@@ -700,7 +831,8 @@ export default function SharedCalendarPage() {
                       <select
                         value={formData.session_type}
                         onChange={e => setFormData(prev => ({ ...prev, session_type: e.target.value }))}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
+                        className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 pr-10 pl-4 text-white text-xs font-bold outline-none appearance-none cursor-pointer no-custom-bg"
+                        style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
                       >
                         {SESSION_TYPES.map(t => (
                           <option key={t} value={t} className="bg-[#0a0a0a] text-white">
@@ -708,7 +840,7 @@ export default function SharedCalendarPage() {
                           </option>
                         ))}
                       </select>
-                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#00ff88] pointer-events-none" />
                     </div>
                   </div>
 
@@ -720,7 +852,8 @@ export default function SharedCalendarPage() {
                           required
                           value={formData.coach_id}
                           onChange={e => setFormData(prev => ({ ...prev, coach_id: e.target.value }))}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
+                          className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 pr-10 pl-4 text-white text-xs font-bold outline-none appearance-none cursor-pointer no-custom-bg"
+                          style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
                         >
                           {coaches.map(c => (
                             <option key={c.id} value={c.id} className="bg-[#0a0a0a] text-white">
@@ -728,14 +861,14 @@ export default function SharedCalendarPage() {
                             </option>
                           ))}
                         </select>
-                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                        <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#00ff88] pointer-events-none" />
                       </div>
                     ) : (
                       <input
                         type="text"
                         disabled
                         value={`${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || profile?.username || "Self"}
-                        className="w-full bg-white/[0.01] border border-white/5 rounded-xl p-4 text-gray-500 text-xs font-bold outline-none cursor-not-allowed"
+                        className="w-full bg-[#1a1a1a]/50 border border-[#2a2a2a] rounded-[8px] py-3 px-4 text-gray-500 text-xs font-bold outline-none cursor-not-allowed"
                       />
                     )}
                   </div>
@@ -749,7 +882,7 @@ export default function SharedCalendarPage() {
                       required
                       value={formData.event_date}
                       onChange={e => setFormData(prev => ({ ...prev, event_date: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                      className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 px-4 text-white text-xs font-bold outline-none"
                     />
                   </div>
 
@@ -760,7 +893,7 @@ export default function SharedCalendarPage() {
                       required
                       value={formData.event_time}
                       onChange={e => setFormData(prev => ({ ...prev, event_time: e.target.value }))}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                      className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 px-4 text-white text-xs font-bold outline-none"
                     />
                   </div>
                 </div>
@@ -771,7 +904,7 @@ export default function SharedCalendarPage() {
                     value={formData.notes}
                     onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder="SPECIFY TARGET REPS, EQUIPMENTS, OR INTENSITY..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-xs font-medium focus:border-[#22c55e] outline-none min-h-[100px] resize-none"
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] focus:border-[#00ff88] rounded-[8px] py-3 px-4 text-white text-xs font-medium outline-none min-h-[100px] resize-none"
                   />
                 </div>
 
@@ -779,7 +912,7 @@ export default function SharedCalendarPage() {
                   <button
                     type="button"
                     onClick={() => setIsCreateOpen(false)}
-                    className="flex-1 py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-black uppercase tracking-[2px] hover:border-white/20 transition-all active-scale"
+                    className="flex-1 py-3.5 bg-[#111] border border-[#333] rounded-[8px] text-[10px] text-white font-black uppercase tracking-[2px] hover:bg-white/5 transition-all active-scale text-center"
                   >
                     Cancel
                   </button>
@@ -787,7 +920,7 @@ export default function SharedCalendarPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 py-4 bg-[#22c55e] text-black rounded-2xl text-[10px] font-black uppercase tracking-[2px] hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 active-scale"
+                    className="flex-1 py-3.5 bg-[#00ff88] text-black rounded-[8px] text-[10px] font-black uppercase tracking-[2px] hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 active-scale"
                   >
                     {isSubmitting ? (
                       <Loader2 size={14} className="animate-spin" />
@@ -850,21 +983,21 @@ export default function SharedCalendarPage() {
                 {/* Event Details Grid */}
                 <div className="space-y-4 bg-white/[0.02] border border-white/5 rounded-2xl p-4">
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <CalendarDays size={14} className="text-[#22c55e]" />
+                    <CalendarDays size={14} className="text-[#00ff88]" />
                     <span className="font-bold">
                       {format(parseISO(selectedEvent.event_date), "EEEE, MMMM d, yyyy")}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <Clock size={14} className="text-[#22c55e]" />
+                    <Clock size={14} className="text-[#00ff88]" />
                     <span className="font-bold">
                       {formatTime(selectedEvent.event_time)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-gray-300">
-                    <User size={14} className="text-[#22c55e]" />
+                    <User size={14} className="text-[#00ff88]" />
                     <div className="flex items-center gap-2">
                       <Avatar 
                         src={selectedEvent.coach?.avatar_url}
@@ -909,7 +1042,7 @@ export default function SharedCalendarPage() {
 
                       <button
                         onClick={handleEditClick}
-                        className="flex-1 py-3 bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] rounded-xl text-[9px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] hover:text-black transition-all flex items-center justify-center gap-2 active-scale"
+                        className="flex-1 py-3 bg-[#00ff88]/10 border border-[#00ff88]/20 text-[#00ff88] rounded-xl text-[9px] font-black uppercase tracking-[2px] hover:bg-[#00ff88] hover:text-black transition-all flex items-center justify-center gap-2 active-scale"
                       >
                         <Edit2 size={12} />
                         Edit Details

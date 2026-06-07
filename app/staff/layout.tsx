@@ -114,7 +114,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         <div className="p-6 border-b border-[#22c55e]/10 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-                <Image src="/newlogo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
+                <Image src="/logo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
              </div>
              <span className={`font-display text-2xl tracking-widest text-white`}>KIO-X</span>
           </Link>

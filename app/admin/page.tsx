@@ -18,7 +18,9 @@ import {
   MessageSquare,
   ShieldAlert,
   Target,
-  Camera
+  Camera,
+  Send,
+  Check
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
@@ -72,6 +74,28 @@ export default function AdminDashboard() {
   const [todaySessions, setTodaySessions] = useState<any[]>([]);
   const [staffNotes, setStaffNotes] = useState<any[]>([]);
   const [newNote, setNewNote] = useState("");
+  const [noteFilter, setNoteFilter] = useState<'ALL' | 'GENERAL' | 'ALERT' | 'INFO'>('ALL');
+  const [noteType, setNoteType] = useState<string>('GENERAL');
+
+  const parseNote = (rawNote: any) => {
+    let type = "GENERAL PROTOCOL";
+    let content = typeof rawNote === 'string' ? rawNote : "";
+    if (content.startsWith("[ALERT]")) {
+      type = "ALERT";
+      content = content.substring("[ALERT]".length).trim();
+    } else if (content.startsWith("[INFO]")) {
+      type = "INFO";
+      content = content.substring("[INFO]".length).trim();
+    } else if (content.startsWith("[GENERAL PROTOCOL]")) {
+      type = "GENERAL PROTOCOL";
+      content = content.substring("[GENERAL PROTOCOL]".length).trim();
+    } else if (content.startsWith("[GENERAL]")) {
+      type = "GENERAL PROTOCOL";
+      content = content.substring("[GENERAL]".length).trim();
+    }
+    return { type, content };
+  };
+
   const [selectedAthlete, setSelectedAthlete] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -186,12 +210,15 @@ export default function AdminDashboard() {
     
     setIsSavingNote(true);
     try {
+      const typePrefix = noteType === 'GENERAL' ? '[GENERAL PROTOCOL]' : `[${noteType}]`;
+      const prefixedNote = `${typePrefix} ${newNote.trim()}`;
+      
       const res = await fetch('/api/admin/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           userId: selectedAthlete || null, 
-          note: newNote 
+          note: prefixedNote 
         })
       });
       if (res.ok) {
@@ -232,6 +259,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
+      {/* Animated Top Progress Bar */}
+      <motion.div
+        initial={{ width: "0%", opacity: 1 }}
+        animate={{ width: "100%", opacity: [1, 1, 1, 0] }}
+        transition={{ 
+          width: { duration: 1.2, ease: "easeOut" },
+          opacity: { duration: 1.8, times: [0, 0.6, 0.8, 1], ease: "linear" }
+        }}
+        className="fixed top-0 left-0 h-1 bg-[#00ff88] z-[9999] shadow-[0_0_12px_#00ff88] pointer-events-none"
+      />
+
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
       
       {/* ========================
@@ -307,77 +345,179 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-        <SwipeableCards cards={[
-          { label: 'My Athletes', value: teamStats.total, icon: '👥', color: '#22c55e' },
-          { label: 'PENDING CLEARANCE', value: teamStats.pending, icon: '🔐', color: '#f59e0b' },
-          { label: 'Active Athletes', value: teamStats.active, icon: '✅', color: '#22c55e' },
-        ]} />
+        <div className="space-y-6">
+          {/* Top Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative z-10">
+            {[
+              { label: 'My Athletes', value: teamStats.total, icon: <UsersIcon className="w-5 h-5 text-[#00ff88]" /> },
+              { label: 'PENDING CLEARANCE', value: teamStats.pending, icon: <ShieldAlert className="w-5 h-5 text-white" /> },
+              { label: 'Active Athletes', value: teamStats.active, icon: <Activity className="w-5 h-5 text-[#00ff88]" /> },
+            ].map((card, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                whileHover={{ y: -4 }}
+                className="bg-[#111] border border-white/5 rounded-[24px] p-6 flex items-center justify-between group cursor-default transition-all relative overflow-hidden h-[120px] hover:border-b-2 hover:border-b-[#00ff88]"
+              >
+                <div>
+                  <span className="text-gray-400 font-mono text-[10px] tracking-[0.2em] uppercase font-bold block mb-1">
+                    {card.label}
+                  </span>
+                  <span className="text-4xl font-display font-black text-[#00ff88] tracking-tight">
+                    {card.value}
+                  </span>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-[#00ff88]/10 transition-colors">
+                  {card.icon}
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-        {/* 2. STAFF PROTOCOL LOGS (PROMINENT POSITION) */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+          {/* 2. STAFF PROTOCOL LOGS */}
+          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
             <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8">
                <MessageSquare size={18} /> Notes / Activity Log
             </div>
-           
-           <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
+
+            {/* Note Type & Input row */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+               <select
+                 value={noteType}
+                 onChange={(e) => setNoteType(e.target.value)}
+                 className="bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-4 text-white text-xs font-mono focus:outline-none focus:border-[#00ff88] cursor-pointer"
+               >
+                 <option value="GENERAL">GENERAL</option>
+                 <option value="ALERT">ALERT</option>
+                 <option value="INFO">INFO</option>
+               </select>
+
                <input 
                  placeholder="ADD STAFF PROTOCOL NOTE..."
                  value={newNote}
                  onChange={(e) => setNewNote(e.target.value)}
-                 className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
+                 className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#00ff88]"
                />
                <button 
                  onClick={handleAddNote}
                  disabled={isSavingNote}
-                 className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
+                 className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[120px] flex items-center justify-center gap-2 active-scale"
                >
-                 {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
+                 {isSavingNote ? (
+                   <Loader2 className="animate-spin" size={16} />
+                 ) : (
+                   <>
+                     <span>COMMIT</span>
+                     <Send size={12} className="text-black" />
+                   </>
+                 )}
                </button>
-           </div>
+            </div>
 
-           <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
-              {staffNotes.filter(n => {
-                const athlete = athletes.find(a => a.id === n.user_id);
-                const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
-                const noteSearch = n.note.toLowerCase();
-                const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
-                const query = searchQuery.toLowerCase();
-                return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
-              }).length === 0 ? (
-                <div className="py-12 text-center text-gray-700 uppercase font-black text-[10px] tracking-widest">
-                  {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
-                </div>
-              ) : (
-                staffNotes.filter(n => {
-                  const athlete = athletes.find(a => a.id === n.user_id);
-                  const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
-                  const noteSearch = n.note.toLowerCase();
-                  const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
-                  const query = searchQuery.toLowerCase();
-                  return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
-                }).map((note, i) => (
-                  <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="font-label text-[#22c55e] font-bold">
-                        {note.user_id ? "Athlete Record" : "General Protocol"}
-                      </div>
-                      <span className="text-gray-400 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-gray-100 text-xs leading-relaxed italic font-sans font-medium">"{note.note}"</p>
-                    <div className="flex justify-between items-center mt-3">
-                       <span className="text-[#22c55e] font-label font-bold">
-                         {note.added_by?.first_name} {note.added_by?.last_name}
-                       </span>
-                       {note.user_id && (
-                         <span className="text-gray-400 font-label">
-                           Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
-                         </span>
-                       )}
-                    </div>
-                  </div>
-                ))
-              )}
-           </div>
+            {/* Note Filters */}
+            <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
+              {(['ALL', 'GENERAL', 'ALERT', 'INFO'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setNoteFilter(cat)}
+                  className={`px-4 py-1.5 rounded-full border font-mono text-[9px] tracking-widest uppercase transition-all ${
+                    noteFilter === cat
+                      ? "bg-[#00ff88] border-[#00ff88] text-black font-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
+                      : "bg-[#161616] border-white/5 text-gray-500 hover:text-white"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Notes List */}
+            <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+               {staffNotes.filter(n => {
+                 const parsed = parseNote(n.note);
+                 if (noteFilter !== 'ALL') {
+                   if (noteFilter === 'GENERAL' && parsed.type !== 'GENERAL PROTOCOL') return false;
+                   if (noteFilter === 'ALERT' && parsed.type !== 'ALERT') return false;
+                   if (noteFilter === 'INFO' && parsed.type !== 'INFO') return false;
+                 }
+                 
+                 const athlete = athletes.find(a => a.id === n.user_id);
+                 const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                 const noteSearch = n.note.toLowerCase();
+                 const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                 const query = searchQuery.toLowerCase();
+                 return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+               }).length === 0 ? (
+                 <div className="py-12 text-center text-gray-700 uppercase font-black text-[10px] tracking-widest">
+                   {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
+                 </div>
+               ) : (
+                 staffNotes.filter(n => {
+                   const parsed = parseNote(n.note);
+                   if (noteFilter !== 'ALL') {
+                     if (noteFilter === 'GENERAL' && parsed.type !== 'GENERAL PROTOCOL') return false;
+                     if (noteFilter === 'ALERT' && parsed.type !== 'ALERT') return false;
+                     if (noteFilter === 'INFO' && parsed.type !== 'INFO') return false;
+                   }
+
+                   const athlete = athletes.find(a => a.id === n.user_id);
+                   const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                   const noteSearch = n.note.toLowerCase();
+                   const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                   const query = searchQuery.toLowerCase();
+                   return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+                 }).map((note, i) => {
+                   const parsed = parseNote(note.note);
+                   const noteTypeLabel = parsed.type;
+                   const noteContent = parsed.content;
+                   const noteDate = note.created_at ? new Date(note.created_at).toLocaleDateString() : new Date().toLocaleDateString();
+
+                   const getCategoryConfig = (type: string) => {
+                     switch (type) {
+                       case 'ALERT': return { borderClass: 'border-l-[#ef4444]', textClass: 'text-red-400' };
+                       case 'INFO': return { borderClass: 'border-l-[#3b82f6]', textClass: 'text-blue-400' };
+                       default: return { borderClass: 'border-l-[#00ff88]', textClass: 'text-[#00ff88]' };
+                     }
+                   };
+
+                   const config = getCategoryConfig(noteTypeLabel);
+
+                   return (
+                     <div key={i} className={`p-4 bg-white/5 border-l-4 ${config.borderClass} rounded-xl relative group flex gap-4 items-start`}>
+                       {/* Small Author Initial Badge */}
+                       <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-[#00ff88] uppercase flex-shrink-0">
+                         {((note.added_by?.first_name?.[0] || '') + (note.added_by?.last_name?.[0] || '')).toUpperCase() || 'U'}
+                       </div>
+
+                       <div className="flex-1 min-w-0">
+                         <div className="flex justify-between items-start mb-1.5">
+                           <div className={`font-mono text-[9px] tracking-widest uppercase font-black ${config.textClass}`}>
+                             {noteTypeLabel}
+                           </div>
+                           <span className="text-gray-500 font-mono text-[9px]">{noteDate}</span>
+                         </div>
+                         
+                         <p className="text-gray-100 text-xs leading-relaxed italic font-sans font-medium">"{noteContent}"</p>
+                         
+                         <div className="flex justify-between items-center mt-3">
+                            <span className="text-[#00ff88] font-label font-bold text-[10px]">
+                              BY: {note.added_by?.first_name} {note.added_by?.last_name}
+                            </span>
+                            {note.user_id && (
+                              <span className="text-gray-500 font-label text-[10px]">
+                                Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
+                              </span>
+                            )}
+                         </div>
+                       </div>
+                     </div>
+                   );
+                 })
+               )}
+            </div>
+          </div>
         </div>
 
         {/* 3. ATHLETE LIST */}

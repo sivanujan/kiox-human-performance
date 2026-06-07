@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { title, description, duration, level, category, price, max_athletes, coach_id, weekly_commitment, recovery_blocks, session_time, syllabus } = body;
 
-  const { data, error } = await supabase
+  let insertResult = await supabase
     .from("programs")
     .insert([{
       title,
@@ -45,7 +45,29 @@ export async function POST(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (insertResult.error && insertResult.error.message.includes("session_time")) {
+    insertResult = await supabase
+      .from("programs")
+      .insert([{
+        title,
+        description,
+        duration,
+        level,
+        category,
+        price: Number(price) || 0,
+        max_athletes: Number(max_athletes) || 0,
+        coach_id: coach_id || null,
+        weekly_commitment: Number(weekly_commitment) || 4,
+        recovery_blocks: Number(recovery_blocks) || 3,
+        syllabus: syllabus || [],
+        is_active: true
+      }])
+      .select()
+      .single();
+  }
+
+  if (insertResult.error) return NextResponse.json({ error: insertResult.error.message }, { status: 500 });
+  const data = insertResult.data;
 
   // Handle Coach Notification
   if (coach_id) {
@@ -128,7 +150,7 @@ export async function PATCH(req: Request) {
     .eq("id", id)
     .single();
 
-  const { data, error } = await supabase
+  let updateResult = await supabase
     .from("programs")
     .update({
       title,
@@ -148,7 +170,29 @@ export async function PATCH(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (updateResult.error && updateResult.error.message.includes("session_time")) {
+    updateResult = await supabase
+      .from("programs")
+      .update({
+        title,
+        description,
+        duration,
+        level,
+        category,
+        price: Number(price) || 0,
+        max_athletes: Number(max_athletes) || 0,
+        coach_id: coach_id || null,
+        weekly_commitment: Number(weekly_commitment) || 4,
+        recovery_blocks: Number(recovery_blocks) || 3,
+        syllabus: syllabus || []
+      })
+      .eq("id", id)
+      .select()
+      .single();
+  }
+
+  if (updateResult.error) return NextResponse.json({ error: updateResult.error.message }, { status: 500 });
+  const data = updateResult.data;
 
   // Handle Coach Notification if coach changed
   const coachChanged = coach_id && coach_id !== currentProgram?.coach_id;

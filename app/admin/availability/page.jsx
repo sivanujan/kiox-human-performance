@@ -10,20 +10,21 @@ import { Users, Clock, Calendar, ChevronRight, Search, Zap, Loader2 } from 'luci
 
 function CoachListItem({ coach, isSelected, onClick }) {
   const { isOnline, todaySchedule } = useOnlineStatus(coach.schedule);
+  const activeDaysCount = coach.schedule?.filter(s => s.is_working).length || 0;
 
   return (
     <motion.div
       whileHover={{ x: 5 }}
       onClick={onClick}
-      className={`p-4 rounded-xl border cursor-pointer transition-all ${
+      className={`p-4 rounded-xl border cursor-pointer transition-all hover:bg-[#00ff88]/5 hover:border-[#00ff88]/20 ${
         isSelected 
-          ? 'bg-[#22c55e]/10 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.1)]' 
-          : 'bg-black/40 border-white/5 hover:border-white/10'
+          ? 'bg-[#00ff88]/10 border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.1)]' 
+          : 'bg-black/40 border-white/5'
       }`}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e] font-display text-lg overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-[#00ff88]/10 border border-[#00ff88]/20 flex items-center justify-center text-[#00ff88] font-display text-lg overflow-hidden">
             {coach.avatar_url ? (
               <img src={coach.avatar_url} alt={coach.first_name} className="w-full h-full object-cover" />
             ) : (
@@ -31,18 +32,21 @@ function CoachListItem({ coach, isSelected, onClick }) {
             )}
           </div>
           <div>
-            <h4 className={`text-sm font-display tracking-wider uppercase ${isSelected ? 'text-[#22c55e]' : 'text-white'}`}>
+            <h4 className={`text-sm font-display tracking-wider uppercase flex items-center gap-2 ${isSelected ? 'text-[#00ff88]' : 'text-white'}`}>
               {coach.first_name} {coach.last_name}
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isOnline ? 'bg-[#00ff88] shadow-[0_0_8px_#00ff88]' : 'bg-gray-600'}`} />
             </h4>
-            <div className="flex items-center gap-2 mt-0.5">
-              <CoachStatusDot isOnline={isOnline} size="sm" />
-              <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">
+            <div className="flex flex-col gap-0.5 mt-1">
+              <span className="text-[9px] font-black text-white/50 uppercase tracking-widest">
                 {todaySchedule?.is_working ? `${todaySchedule.start_time} - ${todaySchedule.end_time}` : 'Day Off'}
+              </span>
+              <span className="text-[8px] font-black text-[#00ff88]/60 uppercase tracking-widest">
+                {activeDaysCount} {activeDaysCount === 1 ? 'day' : 'days'} active
               </span>
             </div>
           </div>
         </div>
-        {isSelected && <ChevronRight className="text-[#22c55e]" size={16} />}
+        {isSelected && <ChevronRight className="text-[#00ff88]" size={16} />}
       </div>
     </motion.div>
   );
@@ -61,8 +65,8 @@ export default function AvailabilityAdminPage() {
 
   if (loading && coaches.length === 0) return (
     <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-      <Loader2 className="text-[#22c55e] animate-spin" size={48} />
-      <p className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px] animate-pulse">Synchronizing Staff Data...</p>
+      <Loader2 className="text-[#00ff88] animate-spin" size={48} />
+      <p className="text-[10px] font-black text-[#00ff88] uppercase tracking-[4px] animate-pulse">Synchronizing Staff Data...</p>
     </div>
   );
 
@@ -71,7 +75,7 @@ export default function AvailabilityAdminPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-1 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e]" />
+          <div className="w-1 h-6 bg-[#00ff88] rounded-full shadow-[0_0_10px_#00ff88]" />
           <h1 className="font-display text-3xl text-white uppercase tracking-wider">Coach Availability</h1>
         </div>
         <p className="text-gray-500 text-[11px] font-black uppercase tracking-[3px] ml-4">
@@ -81,7 +85,7 @@ export default function AvailabilityAdminPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Panel: Coach List */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 bg-[#111] border border-white/5 p-6 rounded-3xl space-y-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
             <input 
@@ -89,7 +93,7 @@ export default function AvailabilityAdminPage() {
               placeholder="SEARCH COACH..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111] border border-white/5 rounded-xl pl-12 pr-4 py-4 text-[10px] font-black text-white uppercase tracking-widest focus:border-[#22c55e]/50 focus:outline-none transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-[10px] font-black text-white uppercase tracking-widest focus:border-[#00ff88]/50 focus:outline-none transition-all"
             />
           </div>
 
@@ -114,7 +118,7 @@ export default function AvailabilityAdminPage() {
         <div className="lg:col-span-8">
           <div className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-8 relative overflow-hidden min-h-[600px]">
             <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
-              backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+              backgroundImage: 'linear-gradient(#00ff88 1px, transparent 1px), linear-gradient(90deg, #00ff88 1px, transparent 1px)', 
               backgroundSize: '40px 40px' 
             }} />
             
@@ -134,7 +138,7 @@ export default function AvailabilityAdminPage() {
               </motion.div>
             </AnimatePresence>
 
-            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-9xl pointer-events-none uppercase">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.02] font-display text-9xl pointer-events-none uppercase">
               OPS
             </div>
           </div>

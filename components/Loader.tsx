@@ -83,6 +83,16 @@ export default function Loader() {
 
   if (!isMounted) return null;
 
+  // Dynamically cycle through sports loading phrases
+  let loadingPhrase = "ANALYZING PERFORMANCE...";
+  if (percent > 90) {
+    loadingPhrase = "READY";
+  } else if (percent > 60) {
+    loadingPhrase = "LOADING ELITE PROTOCOLS...";
+  } else if (percent > 30) {
+    loadingPhrase = "CALIBRATING TRAINING DATA...";
+  }
+
   const letters = ["K", "I", "O", "-", "X"];
 
   return (
@@ -92,116 +102,169 @@ export default function Loader() {
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
-            y: "-100%",
-            transition: { duration: 0.7, ease: "easeInOut" },
+            transition: { duration: 0.6, ease: "easeInOut" },
           }}
           style={{
             position: "fixed",
             inset: 0,
-            background: "#080808",
+            background: "#0a0a0a",
             zIndex: 9999,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            overflow: "hidden",
           }}
         >
-          {/* Logo */}
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            <Image
-              src="/newlogo.png"
-              alt="KIO-X"
-              width={100}
-              height={100}
-              className="object-contain"
-              priority
-            />
-          </motion.div>
-
-          {/* KIO-X Letters stagger */}
-          <div style={{ display: "flex", gap: "4px", marginTop: "20px" }}>
-            {letters.map((letter, i) => (
-              <motion.span
+          {/* Sports speed lines sweeping across the background */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.15]">
+            {[...Array(6)].map((_, i) => (
+              <motion.div
                 key={i}
-                className="font-display"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.5 + i * 0.1,
-                  duration: 0.4,
-                  ease: "easeOut",
-                }}
+                className="absolute top-0 bottom-0 w-[3px]"
                 style={{
-                  fontSize: "48px",
-                  background: "linear-gradient(135deg, #ffffff, #22c55e)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  letterSpacing: "6px",
-                  display: "inline-block",
+                  left: "-20%",
+                  background: "linear-gradient(to bottom, transparent, #00ff88, transparent)",
+                  transform: "skewX(-35deg)",
                 }}
-              >
-                {letter}
-              </motion.span>
+                animate={{
+                  left: ["-20%", "120%"],
+                }}
+                transition={{
+                  duration: 1.2 + i * 0.25,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: i * 0.3,
+                }}
+              />
             ))}
           </div>
 
-          {/* Green line */}
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "200px" }}
-            transition={{ delay: 1.5, duration: 0.5, ease: "easeInOut" }}
-            style={{ height: "1px", background: "#22c55e", marginTop: "16px" }}
-          />
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Logo Container with Radial Glow Pulse */}
+            <div className="relative flex flex-col items-center mb-6">
+              <motion.div
+                className="absolute w-32 h-32 rounded-full bg-[#00ff88]/10 blur-xl"
+                animate={{
+                  scale: [0.9, 1.2, 0.9],
+                  opacity: [0.4, 0.8, 0.4],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="relative z-10"
+              >
+                <Image
+                  src="/logo.png"
+                  alt="KIO-X"
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                  priority
+                />
+              </motion.div>
+            </div>
 
-          {/* Human Performance text */}
-          <motion.p
-            className="font-display"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 0.4 }}
-            style={{
-              color: "#22c55e",
-              fontSize: "12px",
-              letterSpacing: "6px",
-              marginTop: "12px",
-            }}
-          >
-            HUMAN PERFORMANCE
-          </motion.p>
+            {/* KIO-X Text */}
+            <div style={{ display: "flex", gap: "4px", marginBottom: "32px" }}>
+              {letters.map((letter, i) => (
+                <motion.span
+                  key={i}
+                  className="font-display"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    delay: 0.2 + i * 0.08,
+                    duration: 0.4,
+                    ease: "easeOut",
+                  }}
+                  style={{
+                    fontSize: "32px",
+                    background: "linear-gradient(135deg, #ffffff, #00ff88)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    letterSpacing: "4px",
+                    fontWeight: "900",
+                    display: "inline-block",
+                  }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </div>
 
-          {/* Percentage Counter */}
-          <motion.span
-            key={percent}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              color: "#00ff88",
-              fontSize: "48px",
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              marginTop: "20px",
-            }}
-          >
-            {percent}%
-          </motion.span>
+            {/* Circular Progress Ring */}
+            <div className="relative w-44 h-44 flex items-center justify-center mb-8">
+              <svg className="w-full h-full transform -rotate-90">
+                {/* Background Ring */}
+                <circle
+                  cx="88"
+                  cy="88"
+                  r="68"
+                  className="stroke-white/5"
+                  strokeWidth="5"
+                  fill="transparent"
+                />
+                {/* Active Progress Ring */}
+                <motion.circle
+                  cx="88"
+                  cy="88"
+                  r="68"
+                  className="stroke-[#00ff88]"
+                  strokeWidth="5"
+                  fill="transparent"
+                  strokeLinecap="round"
+                  style={{
+                    strokeDasharray: "427", // Circumference of r=68 is 2 * PI * 68 ≈ 427.25
+                  }}
+                  animate={{
+                    strokeDashoffset: 427 - (427 * percent) / 100,
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                />
+              </svg>
 
-          {/* Progress bar */}
-          <motion.div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              height: "4px",
-              background: "#00ff88",
-            }}
-            animate={{ width: `${percent}%` }}
-            transition={{ duration: 0.4, ease: "linear" }}
-          />
+              {/* Central Bold Percentage */}
+              <div className="absolute flex flex-col items-center">
+                <span className="text-[2.8rem] font-black tracking-tighter text-[#00ff88] font-display leading-none">
+                  {percent}
+                </span>
+                <span className="text-[10px] text-white/40 tracking-[0.2em] font-bold mt-1">
+                  PERCENT
+                </span>
+              </div>
+            </div>
+
+            {/* Horizontal progress bar */}
+            <div className="w-56 h-[2px] bg-white/5 relative overflow-hidden mb-6 rounded-full">
+              <motion.div
+                className="absolute left-0 top-0 bottom-0 bg-[#00ff88]"
+                animate={{ width: `${percent}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </div>
+
+            {/* Dynamic Sports phrase cycling */}
+            <div className="h-4 flex items-center justify-center">
+              <motion.p
+                key={loadingPhrase}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
+                className="text-[9px] font-bold font-display tracking-[0.25em] text-[#00ff88] uppercase"
+              >
+                {loadingPhrase}
+              </motion.p>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

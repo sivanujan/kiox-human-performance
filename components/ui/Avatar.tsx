@@ -38,7 +38,7 @@ export default function Avatar({ src, name, role, size = "md", className = "" }:
 
   return (
     <div 
-      className={`relative inline-flex items-center justify-center shrink-0 rounded-xl overflow-hidden border-2 border-[#22c55e]/30 bg-[#22c55e]/5 shadow-[0_0_20px_rgba(34,197,94,0.1)] ${sizeMap[size]} ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 rounded-full overflow-hidden border-2 border-[#00ff88]/30 bg-[#00ff88]/5 shadow-[0_0_20px_rgba(0,255,136,0.1)] ${sizeMap[size]} ${className}`}
     >
       {src ? (
         <Image
@@ -49,7 +49,7 @@ export default function Avatar({ src, name, role, size = "md", className = "" }:
           unoptimized={true} // Recommended for external Supabase URLs
         />
       ) : (
-        <div className="flex items-center justify-center text-[#22c55e] font-black uppercase tracking-tighter">
+        <div className="flex items-center justify-center text-[#00ff88] font-black uppercase tracking-tighter">
           {initials || (
             role === "superadmin" ? <ShieldCheck size={iconSizeMap[size]} /> :
             role === "staff" ? <Trophy size={iconSizeMap[size]} /> :
@@ -59,7 +59,7 @@ export default function Avatar({ src, name, role, size = "md", className = "" }:
       )}
       
       {/* Decorative inner glow */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#22c55e]/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#00ff88]/10 to-transparent pointer-events-none" />
     </div>
   );
 }

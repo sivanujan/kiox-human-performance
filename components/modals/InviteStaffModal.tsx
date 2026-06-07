@@ -260,7 +260,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                         setFormData({ ...formData, team_id: e.target.value });
                       }
                     }}
-                    className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer text-sm"
+                    className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pr-14 pl-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer text-sm no-custom-bg"
                   >
                     <option value="" disabled>SELECT UNIT...</option>
                     {teams.map(team => (
@@ -268,7 +268,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                     ))}
                     <option value="ADD_NEW" className="bg-[#22c55e]/20 text-[#22c55e] font-black">+ ADD NEW UNIT</option>
                   </select>
-                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#22c55e]/40 pointer-events-none" size={16} />
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#22c55e] pointer-events-none" size={16} />
                 </div>
               )}
             </AnimatePresence>

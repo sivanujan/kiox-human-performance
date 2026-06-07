@@ -11,7 +11,8 @@ import {
   Play, 
   CheckCircle2, 
   ArrowRight,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
@@ -32,13 +33,7 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
   }, []);
 
   const getTypeStyle = (type: string) => {
-    switch (type) {
-      case 'STRENGTH': return "border-l-[#f59e0b] bg-amber-500/5";
-      case 'TACTICAL': return "border-l-[#3b82f6] bg-blue-500/5";
-      case 'CONDITIONING': return "border-l-[#00ff88] bg-[#22c55e]/5";
-      case 'RECOVERY': return "border-l-[#a855f7] bg-purple-500/5";
-      default: return "border-l-white/20 bg-white/5";
-    }
+    return "border-l-[#00ff88] bg-white/[0.02]";
   };
 
   const getStatusBadge = (status: string) => {
@@ -79,20 +74,62 @@ export default function TrainingSessionControl({ onViewDetails, onAdjustLoad, on
             <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">Syncing Schedule...</div>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="py-24 text-center">
-            <div className="text-white/5 font-display text-6xl mb-6 tracking-tighter items-center gap-3">
-               ZERO SQUAD OPS
+          <div className="space-y-4">
+            <div className="p-2.5 px-4 bg-[#1a1a1a] border border-white/5 rounded-xl text-[#00ff88] text-[10px] font-mono tracking-wider flex items-center gap-2">
+               <AlertCircle size={12} className="text-[#00ff88] flex-shrink-0" />
+               <span>Tip: Showing standby training protocols. Click "ACTIVATE SESSION" or "CREATE NEW SESSION" to schedule custom ops.</span>
             </div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">NO SESSIONS SCHEDULED TODAY</p>
-            <div className="max-w-md mx-auto mb-8 p-4 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-2xl text-[#22c55e] text-xs font-sans tracking-wide">
-               Tip: Create a session to start tracking your athletes' performance.
-            </div>
-            <button 
-              onClick={onCreate}
-              className="px-8 py-4 bg-[#22c55e] text-black font-display text-xs tracking-widest rounded-2xl hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3 mx-auto group/new"
-            >
-              <Plus size={18} className="group-hover/new:rotate-90 transition-transform" /> CREATE FIRST SESSION
-            </button>
+            
+            {[
+              {
+                id: "mock-1",
+                title: "NEUROMUSCULAR STRENGTH PROTOCOL",
+                session_type: "STRENGTH",
+                status: "STANDBY",
+                start_time: "09:00:00",
+                location: "PERFORMANCE GYM",
+                duration_minutes: 90
+              },
+              {
+                id: "mock-2",
+                title: "AEROBIC CONDITIONING SYSTEM",
+                session_type: "CONDITIONING",
+                status: "STANDBY",
+                start_time: "14:30:00",
+                location: "HQ FIELD B",
+                duration_minutes: 45
+              }
+            ].map((session) => (
+              <div 
+                key={session.id}
+                className={`flex items-center gap-6 p-6 rounded-3xl border-l-[6px] border border-white/5 transition-all group/item hover:bg-white/[0.03] ${getTypeStyle(session.session_type)}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-white/10 text-white/60 border border-white/10">
+                      {session.status}
+                    </span>
+                    <span className="text-gray-500 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                      <Clock size={10} /> {session.start_time.slice(0, 5)}
+                    </span>
+                  </div>
+                  <h4 className="text-white font-display text-lg tracking-wider uppercase mb-1 truncate">{session.title}</h4>
+                  <div className="flex items-center gap-3 text-gray-400 text-[10px] font-black tracking-widest uppercase">
+                     <div className="flex items-center gap-1.5"><MapPin size={12} /> {session.location}</div>
+                     <div className="flex items-center gap-1.5"><Activity size={12} /> {session.duration_minutes} MIN</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={onCreate}
+                    className="h-10 px-4 bg-[#22c55e] text-black rounded-xl font-display text-[9px] tracking-widest uppercase hover:bg-white transition-all shadow-lg flex items-center gap-2"
+                  >
+                    <Play size={10} fill="currentColor" /> ACTIVATE
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           sessions.map((session) => (

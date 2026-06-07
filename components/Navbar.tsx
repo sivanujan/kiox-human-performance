@@ -55,7 +55,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 lg:px-[40px] h-[60px] lg:h-[80px] flex items-center justify-between relative z-50">
         <Link href="/" className="flex items-center transition-transform hover:scale-105 group" style={{ gap: '10px' }}>
           <Image
-            src="/newlogo.png"
+            src="/logo.png"
             alt="KIO-X Logo"
             width={40}
             height={40}

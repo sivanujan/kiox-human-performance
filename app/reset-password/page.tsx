@@ -113,7 +113,7 @@ export default function ResetPasswordPage() {
         <div className="flex flex-col items-center mb-10">
           <Link href="/" className="flex items-center gap-3">
              <div className="w-12 h-12 rounded-full border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
-                <Image src="/newlogo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
+                <Image src="/logo.png" alt="KIO-X" width={40} height={40} className="object-contain" unoptimized={true} />
              </div>
              <span className={`font-display text-3xl tracking-[4px] text-white`}>KIO-X</span>
           </Link>
