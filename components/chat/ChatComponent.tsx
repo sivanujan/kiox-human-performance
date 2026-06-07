@@ -146,14 +146,16 @@ export default function ChatComponent() {
   // Fetch all profiles belonging to the active tab's role
   useEffect(() => {
     const fetchProfilesForTab = async () => {
-      if (!supabase || !user || (!isAdmin && !isStaffView)) return;
+      if (!supabase || !user || (!isAdmin && !isStaffView && profile?.role !== 'athlete')) return;
       try {
         let queryBuilder = supabase
           .from("profiles")
           .select("id, first_name, last_name, username, role, avatar_url")
           .neq("id", user.id);
 
-        if (activeTab === "parent") {
+        if (profile?.role === 'athlete') {
+          queryBuilder = queryBuilder.in("role", ["staff", "superadmin"]);
+        } else if (activeTab === "parent") {
           queryBuilder = queryBuilder.eq("role", "parent");
           
           // STRICT 1-ON-1 PRIVACY RESTRICTION FOR COACH (STAFF)
@@ -328,7 +330,14 @@ export default function ChatComponent() {
                 }
               } else if (profileRef.current?.role === 'athlete') {
                 const otherId = payload.new.participant_1 === user.id ? payload.new.participant_2 : payload.new.participant_1;
-                if (!assignedCoachRef.current || otherId !== assignedCoachRef.current.id) {
+                try {
+                  const res = await fetch(`/api/user/profile-lookup?id=${otherId}`);
+                  const data = await res.json();
+                  if (!data || data.error || (data.role !== 'staff' && data.role !== 'superadmin')) {
+                    return;
+                  }
+                } catch (lookupErr) {
+                  console.error("Failed security check on realtime message:", lookupErr);
                   return;
                 }
               }
@@ -658,13 +667,7 @@ export default function ChatComponent() {
             return;
           }
         } else if (profile?.role === "athlete") {
-          if (assignedCoach) {
-            queryBuilder.eq("id", assignedCoach.id);
-          } else {
-            setSearchResults([]);
-            setIsSearching(false);
-            return;
-          }
+          queryBuilder.in("role", ["staff", "superadmin"]);
         } else if (profile?.role === "staff" && activeTab === "parent" && !isAdmin) {
           // Coach (staff) under Parent Chat can ONLY search their assigned parents
           const { data: athletes } = await supabase
@@ -722,7 +725,7 @@ export default function ChatComponent() {
         return;
       }
     } else if (profile?.role === "athlete") {
-      if (!assignedCoach || targetUser.id !== assignedCoach.id) {
+      if (targetUser.role !== 'staff' && targetUser.role !== 'superadmin') {
         console.warn("[KIO-X Chat] Athlete attempt to message non-coach blocked.");
         return;
       }
@@ -1084,7 +1087,7 @@ export default function ChatComponent() {
           </div>
 
           {/* Search box to start new chat */}
-          {profile?.role !== 'parent' && profile?.role !== 'athlete' && (
+          {profile?.role !== 'parent' && (
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={16} />
               <input 
@@ -1302,8 +1305,8 @@ export default function ChatComponent() {
                 </div>
               )}
 
-              {(isAdmin || isStaffView) ? (
-            // Admin and Staff list all profiles of the selected role category
+              {(isAdmin || isStaffView || profile?.role === 'athlete') ? (
+            // Admin, Staff, and Athlete list all profiles of the selected role category
             sortedProfiles.length === 0 ? (
               ((activeTab === 'coach' && (profile?.role === 'staff' || profile?.role === 'superadmin')) ||
                (activeTab === 'medical' && (profile?.role === 'medical' || profile?.role === 'superadmin'))) ? null : (
