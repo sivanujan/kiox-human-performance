@@ -1252,7 +1252,10 @@ export default function ChatComponent() {
         fetchConversations();
       }
     } catch (err: any) {
-      console.error("[KIO-X Chat] Message transmission failure detailed error:", err);
+      console.error("[KIO-X Chat] Message transmission failure detailed error:", err?.message || String(err));
+      if (err?.details) console.error("Error details:", err.details);
+      if (err?.hint) console.error("Error hint:", err.hint);
+      console.error("Full error object:", err);
     }
   };
 
