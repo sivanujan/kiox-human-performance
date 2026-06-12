@@ -243,6 +243,25 @@ export default function ChatComponent() {
     selectedConversationRef.current = selectedConversation;
   }, [selectedConversation]);
 
+  // Unblock AudioContext on first user interaction
+  useEffect(() => {
+    const handleGesture = () => {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      if (audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+    };
+    
+    window.addEventListener('click', handleGesture, { once: true });
+    window.addEventListener('touchstart', handleGesture, { once: true });
+    return () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+    };
+  }, []);
+
   // Audio tone generator using Web Audio API
   const playNotificationSound = () => {
     try {
@@ -362,6 +381,8 @@ export default function ChatComponent() {
                 // Only play notification sound if the conversation is NOT currently open
                 if (!isActiveConv) {
                   playNotificationSound();
+                } else {
+                  fetchMessages(selectedConversationRef.current.id);
                 }
               }
             }
@@ -409,8 +430,10 @@ export default function ChatComponent() {
                 const isParentStaffActive = selectedConversationRef.current?.id === `group_parent_staff_${msg.parent_id}` && msg.group_type === 'parent_staff';
                 
                 const isActive = isGroupCoachActive || isGroupMedicalActive || isGroupMedicalBroadcastActive || isGroupParentActive || isGroupStaffMedicalActive || isParentStaffActive;
-                if (!isActive) {
+                 if (!isActive) {
                   playNotificationSound();
+                } else {
+                  fetchMessages(selectedConversationRef.current.id);
                 }
               }
             }
@@ -655,10 +678,10 @@ export default function ChatComponent() {
           { 
             event: 'INSERT', 
             schema: 'public', 
-            table: 'group_messages',
-            filter: `group_type=eq.${groupType}`
+            table: 'group_messages'
           },
           async (payload: any) => {
+            if (payload.new.group_type !== groupType) return;
             let senderProfile = null;
             try {
               const res = await fetch(`/api/user/profile-lookup?id=${payload.new.sender_id}`);
@@ -705,11 +728,10 @@ export default function ChatComponent() {
           { 
             event: 'INSERT', 
             schema: 'public', 
-            table: 'group_messages',
-            filter: `parent_id=eq.${parentId}`
+            table: 'group_messages'
           },
           async (payload: any) => {
-            if (payload.new.group_type !== 'parent_staff') return;
+            if (payload.new.group_type !== 'parent_staff' || payload.new.parent_id !== parentId) return;
 
             let senderProfile = null;
             try {
@@ -758,10 +780,10 @@ export default function ChatComponent() {
           { 
             event: 'INSERT', 
             schema: 'public', 
-            table: 'messages',
-            filter: `conversation_id=eq.${conversationId}`
+            table: 'messages'
           },
           async (payload: any) => {
+            if (payload.new.conversation_id !== conversationId) return;
             // Fetch sender details to display it beautifully using secure profile-lookup endpoint
             let senderProfile = null;
             try {
