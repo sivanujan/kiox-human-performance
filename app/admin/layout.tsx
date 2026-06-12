@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import { 
   Loader2, 
   Bell, 
@@ -148,8 +149,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
-        <Loader2 className="text-[#22c55e] animate-spin" size={48} />
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <Loader2 className="text-[var(--accent-green)] animate-spin" size={48} />
       </div>
     );
   }
@@ -158,7 +159,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const sections = ['MAIN', 'MANAGEMENT', 'OPERATIONS', 'SYSTEM'];
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex overflow-hidden">
       {/* Sidebar Overlay - Mobile Only */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -174,17 +175,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-[150] w-[260px] bg-[#0a0a0a] border-r border-[#22c55e]/15 
+        fixed inset-y-0 left-0 z-[150] w-[260px] bg-[var(--bg-sidebar)] border-r border-[var(--border-primary)] 
         flex flex-col overflow-y-auto transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-[#22c55e]/10 flex items-center justify-between">
+        <div className="p-6 border-b border-[var(--border-primary)] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden">
                 <Image src="/logo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
              </div>
-             <span className={`font-display text-2xl tracking-widest text-white`}>KIO-X</span>
+             <span className={`font-display text-2xl tracking-widest text-[var(--accent-green)]`}>KIO-X</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-white transition-colors">
             <CloseIcon size={20} />
@@ -194,8 +195,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Profile Block */}
         <motion.div 
           onClick={() => setIsAdminProfileOpen(true)}
-          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.1)" }}
-          className="p-5 border-b border-[#22c55e]/10 cursor-pointer transition-colors group"
+          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
+          className="p-5 border-b border-[var(--border-primary)] cursor-pointer transition-colors group"
           title="Click to Modify Profile"
         >
           <div className="relative inline-block mb-3">
@@ -206,19 +207,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               size="xl"
             />
             {/* Upload Overlay - Admin Style */}
-            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-               <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
+            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[var(--accent-green)] shadow-[0_0_20px_var(--shadow-accent-glow)]">
+               <Camera size={24} className="text-[var(--accent-green)] mb-1 animate-pulse" />
                <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
             </div>
             
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] border-2 border-[#0a0a0a] flex items-center justify-center text-black shadow-[0_4px_10px_rgba(34,197,94,0.3)] z-20">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[var(--accent-green)] border-2 border-[var(--bg-sidebar)] flex items-center justify-center text-[var(--text-on-green)] shadow-[0_4px_10px_var(--shadow-accent)] z-20">
                <Zap size={12} fill="currentColor" />
             </div>
           </div>
-          <div className={`font-display text-[15px] text-white mb-0.5 uppercase tracking-wide group-hover:text-[#22c55e] transition-colors`}>
+          <div className={`font-display text-[15px] text-[var(--text-primary)] mb-0.5 uppercase tracking-wide group-hover:text-[var(--accent-green)] transition-colors`}>
             {profile?.first_name} {profile?.last_name || 'KIO-X ADMIN'}
           </div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22c55e]/10 border border-[#22c55e] text-[#22c55e] rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[var(--accent-green)]/10 border border-[var(--accent-green)] text-[var(--accent-green)] rounded-full text-[9px] font-black uppercase tracking-[0.2em]">
             <Zap size={10} fill="currentColor" /> SUPER ADMIN
           </div>
         </motion.div>
@@ -228,7 +229,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {sections.map((section) => (
             <div key={section}>
               {section !== 'MAIN' && (
-                <div className={`font-display text-[#333] text-[10px] tracking-[0.3em] px-5 py-4 pb-1 uppercase`}>
+                <div className={`font-display text-[var(--text-muted)] text-[10px] tracking-[0.3em] px-5 py-4 pb-1 uppercase`}>
                   {section}
                 </div>
               )}
@@ -247,11 +248,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     }}
                     className={`flex items-center gap-3 px-5 py-3 text-[12px] font-black tracking-[0.1em] uppercase transition-all border-l-[3px] ${
                       isActive 
-                        ? 'bg-[#22c55e]/5 border-[#22c55e] text-[#22c55e]' 
-                        : 'border-transparent text-[#555] hover:text-[#ccc] hover:bg-white/5'
+                        ? 'bg-[var(--accent-green)]/5 border-[var(--accent-green)] text-[var(--accent-green)]' 
+                        : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
                     }`}
                   >
-                    <span className={isActive ? 'text-[#22c55e]' : 'text-current'}>{item.icon}</span>
+                    <span className={isActive ? 'text-[var(--accent-green)]' : 'text-current'}>{item.icon}</span>
                     {item.label}
                     {item.showBadge && pendingCount > 0 && (
                       <span className="ml-auto bg-[#f59e0b] text-black text-[10px] px-2 py-0.5 rounded-full font-black">
@@ -266,10 +267,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Sign Out */}
-        <div className="p-6 border-t border-[#22c55e]/10">
+        <div className="p-6 border-t border-[var(--border-primary)]">
           <button
             onClick={handleSignOut}
-            className="active-scale w-full py-3 border border-white/10 rounded-xl text-[10px] text-[#555] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-[#22c55e]/30 hover:text-[#22c55e] transition-all"
+            className="active-scale w-full py-3 border border-white/10 rounded-xl text-[10px] text-[var(--text-secondary)] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:border-[var(--accent-green)]/30 hover:text-[var(--accent-green)] transition-all"
           >
             <LogOut size={14} /> Sign Out
           </button>
@@ -277,36 +278,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:ml-[260px] min-h-screen relative overflow-y-auto">
+      <main className="flex-1 lg:ml-[260px] min-h-screen relative overflow-y-auto bg-[var(--bg-secondary)]">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
-          backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+          backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
         {/* Responsive Header Bar */}
-        <header className="sticky top-0 z-[100] bg-[#080808]/95 backdrop-blur-xl border-b border-[#22c55e]/10 px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
+        <header className="sticky top-0 z-[100] bg-[var(--bg-header)] backdrop-blur-xl border-b border-[var(--border-primary)] px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-[#22c55e] active-scale transition-all"
+              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-[var(--accent-green)] active-scale transition-all"
             >
               <Menu size={20} />
             </button>
             <div className="hidden xs:block">
-              <div className={`text-[#22c55e] text-[9px] md:text-[12px] font-bold tracking-[0.2em] uppercase mb-0.5`}>Elite Access Authority</div>
-              <h1 className={`font-display text-lg md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] md:max-w-none`}>
+              <div className={`text-[var(--accent-green)] text-[9px] md:text-[12px] font-bold tracking-[0.2em] uppercase mb-0.5`}>Elite Access Authority</div>
+              <h1 className={`font-display text-lg md:text-2xl text-[var(--text-primary)] uppercase tracking-wider truncate max-w-[150px] md:max-w-none`}>
                 {pathname === '/admin' ? 'Control Center' : pathname.split('/').pop()?.replace(/-/g, ' ')}
               </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
+            <ThemeToggle />
             <NotificationDropdown />
             {/* Quick Add Button */}
             <button 
               onClick={() => setIsAddModalOpen(true)}
-              className={`active-scale px-4 md:px-6 py-2 md:py-2.5 bg-[#22c55e] text-black text-[12px] md:text-[15px] font-black tracking-wide uppercase rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)]`}
+              className={`active-scale px-4 md:px-6 py-2 md:py-2.5 bg-[var(--bg-button-primary)] text-[var(--text-on-green)] text-[12px] md:text-[15px] font-black tracking-wide uppercase rounded-xl hover:bg-white transition-all shadow-[0_0_20px_var(--shadow-accent)]`}
             >
               <span className="hidden xs:inline">Add Athlete</span>
               <Plus className="xs:hidden" size={20} />
@@ -319,7 +321,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   src={profile?.avatar_url}
                   name={`${profile?.first_name} ${profile?.last_name}`}
                   size="md"
-                  className="group-hover:border-[#22c55e] transition-all"
+                  className="group-hover:border-[var(--accent-green)] transition-all"
                />
             </button>
           </div>

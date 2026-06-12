@@ -162,18 +162,18 @@ export default function Coaches() {
     <section 
       id="coaches" 
       ref={containerRef}
-      className="py-24 md:py-32 bg-[#0a0a0a] relative overflow-hidden w-full border-t border-white/5"
+      className="py-24 md:py-32 bg-bg-primary transition-colors duration-300 relative overflow-hidden w-full border-t border-border-primary/50"
     >
       {/* Background Grid & Radial Glow */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-10 blur-[120px]" 
-          style={{ background: "radial-gradient(circle, #00ff88 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, var(--accent-green) 0%, transparent 70%)" }}
         />
         <div 
           className="absolute inset-0 opacity-5"
           style={{
-            backgroundImage: "linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(var(--border-accent-trans) 1px, transparent 1px), linear-gradient(90deg, var(--border-accent-trans) 1px, transparent 1px)",
             backgroundSize: "60px 60px"
           }}
         />
@@ -188,22 +188,22 @@ export default function Coaches() {
           transition={{ duration: 0.8 }}
         >
           <div className="flex justify-center items-center gap-4 mb-6">
-            <div className="h-px w-12 bg-[#00ff88]"></div>
-            <h2 className="text-sm font-black tracking-[0.4em] text-[#00ff88] uppercase font-label">KIO-X STAFF</h2>
-            <div className="h-px w-12 bg-[#00ff88]"></div>
+            <div className="h-px w-12 bg-accent-green"></div>
+            <h2 className="text-sm font-black tracking-[0.4em] text-accent-green uppercase font-label">KIO-X STAFF</h2>
+            <div className="h-px w-12 bg-accent-green"></div>
           </div>
           
-          <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-white uppercase italic leading-none relative inline-block">
-            MEET OUR <span className="text-[#00ff88]">COACHES</span>
+          <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-text-primary uppercase italic leading-none relative inline-block">
+            MEET OUR <span className="text-accent-green">COACHES</span>
             <motion.span 
               initial={{ width: 0 }}
               animate={isInView ? { width: "40%" } : {}}
               transition={{ duration: 1, delay: 0.5 }}
-              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1.5 bg-[#00ff88]"
+              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1.5 bg-accent-green"
             />
           </h3>
 
-          <p className="text-gray-400 font-sans text-sm md:text-base max-w-xl mx-auto mt-8 uppercase tracking-wide leading-relaxed font-medium">
+          <p className="text-text-secondary font-sans text-sm md:text-base max-w-xl mx-auto mt-8 uppercase tracking-wide leading-relaxed font-medium">
             Our industry-leading specialists combine elite sports science, tactical intelligence, and real-world experience to optimize human performance.
           </p>
         </motion.div>
@@ -221,13 +221,13 @@ export default function Coaches() {
               variants={cardVariants}
               whileHover={{ 
                 y: -8,
-                boxShadow: "0 10px 30px rgba(0, 255, 136, 0.1)"
+                boxShadow: "0 10px 30px var(--shadow-accent)"
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="group relative bg-[#080808] border border-[#1a1a1a] rounded-2xl overflow-hidden transition-colors duration-500 hover:border-[#00ff88] flex flex-col h-full"
+              className="group relative bg-bg-card border border-border-primary/50 rounded-2xl overflow-hidden transition-colors duration-500 hover:border-accent-green flex flex-col h-full"
             >
               {/* Image Section */}
-              <div className="relative w-full aspect-[3/4] overflow-hidden bg-zinc-900 flex-shrink-0">
+              <div className="relative w-full aspect-[3/4] overflow-hidden bg-bg-secondary flex-shrink-0">
                 <div 
                   className="w-full h-full relative"
                   style={coach.imageStyle}
@@ -243,10 +243,10 @@ export default function Coaches() {
                 </div>
                 
                 {/* Dark Vignette Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/20 to-transparent z-10" />
 
                 {/* Role Badge */}
-                <div className="absolute top-4 left-4 z-20 bg-black/80 backdrop-blur-md text-[#00ff88] border border-[#00ff88]/30 px-2.5 py-1 font-label text-[9px] tracking-widest rounded uppercase font-bold shadow-lg shadow-black/50">
+                <div className="absolute top-4 left-4 z-20 bg-bg-card/85 backdrop-blur-md text-accent-green border border-accent-green/30 px-2.5 py-1 font-label text-[9px] tracking-widest rounded uppercase font-bold shadow-lg shadow-black/10">
                   {coach.badge}
                 </div>
               </div>
@@ -254,10 +254,10 @@ export default function Coaches() {
               {/* Info Section */}
               <div className="p-5 flex flex-col justify-between flex-grow z-20 relative">
                 <div>
-                  <h4 className="font-display text-xl md:text-2xl font-black uppercase tracking-tight text-white mb-0.5 group-hover:text-[#00ff88] transition-colors duration-300">
+                  <h4 className="font-display text-xl md:text-2xl font-black uppercase tracking-tight text-text-primary mb-0.5 group-hover:text-accent-green transition-colors duration-300">
                     {coach.name}
                   </h4>
-                  <p className="font-label text-[10px] md:text-xs tracking-wider text-[#00ff88] font-bold">
+                  <p className="font-label text-[10px] md:text-xs tracking-wider text-accent-green font-bold">
                     {coach.role}
                   </p>
 
@@ -266,7 +266,7 @@ export default function Coaches() {
                     {coach.specializations.map((spec, sIdx) => (
                       <span 
                         key={sIdx} 
-                        className="bg-[#111111] text-gray-400 border border-[#1a1a1a] px-2 py-0.5 rounded text-[9px] font-mono tracking-wider uppercase font-semibold transition-all duration-300 group-hover:border-[#00ff88]/20 group-hover:text-gray-300"
+                        className="bg-bg-secondary text-text-secondary border border-border-primary px-2 py-0.5 rounded text-[9px] font-mono tracking-wider uppercase font-semibold transition-all duration-300 group-hover:border-accent-green/20 group-hover:text-text-primary"
                       >
                         {spec}
                       </span>
@@ -276,33 +276,33 @@ export default function Coaches() {
 
                 <div className="mt-6">
                   {/* Divider */}
-                  <div className="border-t border-[#1a1a1a] w-full mb-4 group-hover:border-[#00ff88]/20 transition-colors duration-500" />
+                  <div className="border-t border-border-primary/50 w-full mb-4 group-hover:border-accent-green/20 transition-colors duration-500" />
 
                   {/* Stats Row */}
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="font-stat text-xl md:text-2xl text-white font-black tracking-tight">
+                      <div className="font-stat text-xl md:text-2xl text-text-primary font-black tracking-tight">
                         {coach.stats.yearsExperience}+
                       </div>
-                      <div className="font-label text-[8px] text-gray-500 tracking-widest uppercase mt-0.5">
+                      <div className="font-label text-[8px] text-text-secondary tracking-widest uppercase mt-0.5">
                         YEARS EXP
                       </div>
                     </div>
                     
-                    <div className="border-x border-[#1a1a1a] px-2 group-hover:border-[#00ff88]/20 transition-colors duration-500">
-                      <div className="font-stat text-xl md:text-2xl text-white font-black tracking-tight">
+                    <div className="border-x border-border-primary/50 px-2 group-hover:border-accent-green/20 transition-colors duration-500">
+                      <div className="font-stat text-xl md:text-2xl text-text-primary font-black tracking-tight">
                         {coach.stats.athletesCount}+
                       </div>
-                      <div className="font-label text-[8px] text-gray-500 tracking-widest uppercase mt-0.5">
+                      <div className="font-label text-[8px] text-text-secondary tracking-widest uppercase mt-0.5">
                         ATHLETES
                       </div>
                     </div>
 
                     <div>
-                      <div className="font-stat text-xl md:text-2xl text-white font-black tracking-tight">
+                      <div className="font-stat text-xl md:text-2xl text-text-primary font-black tracking-tight">
                         {coach.stats.certificationsCount}
                       </div>
-                      <div className="font-label text-[8px] text-gray-500 tracking-widest uppercase mt-0.5">
+                      <div className="font-label text-[8px] text-text-secondary tracking-widest uppercase mt-0.5">
                         CERTS
                       </div>
                     </div>

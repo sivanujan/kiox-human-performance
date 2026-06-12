@@ -48,14 +48,14 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
     }
   };
 
-  const DetailItem = ({ icon: Icon, label, value, color = "text-[#22c55e]" }: any) => (
-    <div className="p-4 bg-black/40 border border-white/5 rounded-2xl flex items-center gap-4 group hover:border-white/10 transition-all">
-      <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center ${color} shrink-0`}>
+  const DetailItem = ({ icon: Icon, label, value, color = "text-accent-green" }: any) => (
+    <div className="p-4 bg-bg-secondary border border-border-primary/50 rounded-2xl flex items-center gap-4 group hover:border-border-primary transition-all">
+      <div className={`w-10 h-10 rounded-xl bg-bg-card flex items-center justify-center ${color} shrink-0`}>
         <Icon size={18} />
       </div>
       <div className="min-w-0">
-        <p className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-[2px]">{label}</p>
-        <p className="text-xs md:text-sm font-bold text-white uppercase tracking-wider truncate">{value || "NOT SPECIFIED"}</p>
+        <p className="text-[9px] md:text-[10px] font-bold text-text-secondary uppercase tracking-[2px]">{label}</p>
+        <p className="text-xs md:text-sm font-bold text-text-primary uppercase tracking-wider truncate">{value || "NOT SPECIFIED"}</p>
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
     >
       <div className="space-y-8">
         {/* Identity Section */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-white/5">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-border-primary/50">
            <div className="relative shrink-0">
               <ImageUpload 
                 onUpload={handleAvatarChange}
@@ -81,17 +81,17 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
               />
               {updating && (
                 <div className="absolute inset-x-0 -bottom-2 flex justify-center">
-                  <Loader2 size={12} className="animate-spin text-[#22c55e]" />
+                  <Loader2 size={12} className="animate-spin text-accent-green" />
                 </div>
               )}
            </div>
            <div className="text-center sm:text-left">
               <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 mb-4">
-                 <span className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-[9px] font-black uppercase tracking-widest rounded-full">{user_profile.role}</span>
-                 <span className="px-3 py-1 bg-white/5 border border-white/10 text-white/40 text-[9px] font-black uppercase tracking-widest rounded-full">{user_profile.status}</span>
+                 <span className="px-3 py-1 bg-accent-green/10 border border-accent-green/30 text-accent-green text-[9px] font-black uppercase tracking-widest rounded-full">{user_profile.role}</span>
+                 <span className="px-3 py-1 bg-bg-secondary border border-border-primary/50 text-text-secondary text-[9px] font-black uppercase tracking-widest rounded-full">{user_profile.status}</span>
               </div>
-              <p className="text-xs text-white/40 leading-relaxed max-w-sm">
-                Operational clearance verified by central authority. Biometric status: <span className="text-[#22c55e]">Optimal</span>.
+              <p className="text-xs text-text-secondary leading-relaxed max-w-sm">
+                Operational clearance verified by central authority. Biometric status: <span className="text-accent-green">Optimal</span>.
               </p>
            </div>
         </div>
@@ -106,12 +106,12 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
 
         {/* Biometric Narrative */}
         <div className="space-y-4">
-           <div className="flex items-center gap-3 border-b border-white/5 pb-2">
-              <Activity className="text-[#22c55e]" size={16} />
-              <h3 className="text-white text-[10px] font-black uppercase tracking-[2px]">Field Summary</h3>
+           <div className="flex items-center gap-3 border-b border-border-primary/50 pb-2">
+              <Activity className="text-accent-green" size={16} />
+              <h3 className="text-text-primary text-[10px] font-black uppercase tracking-[2px]">Field Summary</h3>
            </div>
-            <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
-              <p className="text-xs md:text-sm text-white/60 leading-relaxed font-medium italic">
+            <div className="p-6 bg-bg-secondary border border-border-primary/50 rounded-2xl">
+              <p className="text-xs md:text-sm text-text-secondary leading-relaxed font-medium italic">
                  "{user_profile.bio || "No tactical briefing or biometric history recorded for this asset. Operating under standard clearance protocols."}"
               </p>
             </div>
@@ -119,30 +119,30 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
 
         {/* Network & Logistics */}
         <div className="space-y-4 pt-4 pb-8 md:pb-0">
-           <div className="flex items-center gap-3 border-b border-white/5 pb-2">
-              <Calendar className="text-[#22c55e]" size={16} />
-              <h3 className="text-white text-[10px] font-black uppercase tracking-[2px]">Operations & Authority</h3>
+           <div className="flex items-center gap-3 border-b border-border-primary/50 pb-2">
+              <Calendar className="text-accent-green" size={16} />
+              <h3 className="text-text-primary text-[10px] font-black uppercase tracking-[2px]">Operations & Authority</h3>
            </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-2">Command Staff</p>
-                 <p className="text-xs font-bold text-white uppercase tracking-widest truncate">{user_profile.assigned_staff || "Central Operations"}</p>
+              <div className="bg-bg-secondary p-4 rounded-2xl border border-border-primary/50">
+                 <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px] mb-2">Command Staff</p>
+                 <p className="text-xs font-bold text-text-primary uppercase tracking-widest truncate">{user_profile.assigned_staff || "Central Operations"}</p>
               </div>
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] mb-2">Access Priority</p>
-                 <p className="text-xs font-bold text-white uppercase tracking-widest">Level {user_profile.role === 'superadmin' ? 'MAX' : user_profile.role === 'staff' ? 'HIGH' : 'STD'}</p>
+              <div className="bg-bg-secondary p-4 rounded-2xl border border-border-primary/50">
+                 <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px] mb-2">Access Priority</p>
+                 <p className="text-xs font-bold text-text-primary uppercase tracking-widest">Level {user_profile.role === 'superadmin' ? 'MAX' : user_profile.role === 'staff' ? 'HIGH' : 'STD'}</p>
               </div>
            </div>
         </div>
 
         {/* Tactical Footer Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/5">
-           <div className="flex items-center gap-2 text-gray-600 text-[8px] md:text-[9px] font-black uppercase tracking-[2px] flex-1">
+        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-border-primary/50">
+           <div className="flex items-center gap-2 text-text-muted text-[8px] md:text-[9px] font-black uppercase tracking-[2px] flex-1">
               <MapPin size={12} className="shrink-0" /> Localized Deployment Hub • Active Link
            </div>
            <button 
              onClick={onClose}
-             className="w-full sm:w-auto px-8 py-3 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-white transition-all active-scale"
+             className="w-full sm:w-auto px-8 py-3 bg-bg-button-primary text-text-on-green text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-accent-green-dim transition-all active-scale"
            >
              Acknowledge
            </button>

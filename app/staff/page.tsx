@@ -38,6 +38,7 @@ import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedM
 import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
 import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 import ManageScheduleModal from "@/components/modals/ManageScheduleModal";
+import ProgramAssignModal from "@/components/modals/ProgramAssignModal";
 
 // Admin UI Components
 import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
@@ -101,6 +102,7 @@ export default function StaffPortal() {
   const [isAlertsModalOpen, setIsAlertsModalOpen] = useState(false);
   const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isAssignProgramModalOpen, setIsAssignProgramModalOpen] = useState(false);
   
   // Operational State
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
@@ -327,9 +329,6 @@ export default function StaffPortal() {
           </div>
         )}
 
-        {/* ========================
-            INDIVIDUAL MANAGEMENT SECTION
-            ======================== */}
         {/* 1. TEAM OVERVIEW CARDS */}
         <SwipeableCards cards={[
           { label: 'My Athletes', value: teamStats.total, icon: '👥', color: '#22c55e' },
@@ -337,74 +336,23 @@ export default function StaffPortal() {
           { label: 'Active Athletes', value: teamStats.active, icon: '✅', color: '#22c55e' },
         ]} />
 
-        {/* 2. STAFF PROTOCOL LOGS (MOVED FOR VISIBILITY) */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
-           <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
-              <MessageSquare size={18} /> Notes / Activity Log
-           </div>
-           
-           <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
-              <input 
-                placeholder="ADD PROTOCOL NOTE..."
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
-              />
-              <button 
-                onClick={handleAddNote}
-                disabled={isSavingNote}
-                className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
-              >
-                {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
-              </button>
-           </div>
+        {/* ========================
+            INDIVIDUAL MANAGEMENT SECTION
+            ======================== */}
+        {/* 3. ATHLETE LIST (HIGHER-FIDELITY ATHLETE ROSTER) */}
+        <AthleteRoster 
+          onSelectAthlete={(id) => { 
+            setSelectedAthlete(id); 
+            setIsPlanModalOpen(true);
+          }}
+          onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
+          onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
+          onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
+          onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
+          onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
+          externalSearchQuery={searchQuery}
+        />
 
-           <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
-              {staffNotes.filter(n => {
-                const athlete = athletes.find(a => a.id === n.user_id);
-                const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
-                const noteSearch = n.note.toLowerCase();
-                const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
-                const query = searchQuery.toLowerCase();
-                return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
-              }).length === 0 ? (
-                <div className="py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl">
-                  {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
-                </div>
-              ) : (
-                staffNotes.filter(n => {
-                  const athlete = athletes.find(a => a.id === n.user_id);
-                  const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
-                  const noteSearch = n.note.toLowerCase();
-                  const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
-                  const query = searchQuery.toLowerCase();
-                  return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
-                }).map((note, i) => (
-                  <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="font-label text-[#22c55e]">
-                        {note.user_id ? "Athlete Record" : "General Protocol"}
-                      </div>
-                      <span className="text-gray-500 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-gray-200 text-xs leading-relaxed italic font-sans">"{note.note}"</p>
-                    <div className="flex justify-between items-center mt-3">
-                       <span className="text-[#22c55e] font-label opacity-70">
-                         {note.added_by?.first_name} {note.added_by?.last_name}
-                       </span>
-                       {note.user_id && (
-                         <span className="text-gray-500 font-label">
-                           Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
-                         </span>
-                       )}
-                    </div>
-                  </div>
-                ))
-              )}
-           </div>
-        </div>
-        
-        
         {/* NEW: ASSIGNED ARCHITECTURES SECTION */}
         <div id="assigned-architectures" className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">
            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/arch:opacity-10 transition-opacity">MATRIX</div>
@@ -525,18 +473,6 @@ export default function StaffPortal() {
            </div>
         </div>
 
-        {/* 3. ATHLETE LIST (HIGHER-FIDELITY ATHLETE ROSTER) */}
-        <AthleteRoster 
-          onSelectAthlete={(id) => { 
-            setSelectedAthlete(id); 
-            setIsPlanModalOpen(true);
-          }}
-          onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
-          onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
-          onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
-          onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
-          externalSearchQuery={searchQuery}
-        />
 
         {/* 4, 5, 6. OPERATIONS GRID (TRAINING SESSION CONTROL, LIVE MONITOR, ALERTS) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
@@ -565,6 +501,72 @@ export default function StaffPortal() {
         {/* 9. BOOKING PANELS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
            {/* Booking panels would go here if needed, adding specific responsive grid spacing */}
+        </div>
+        {/* STAFF PROTOCOL LOGS */}
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+           <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
+              <MessageSquare size={18} /> Notes / Activity Log
+           </div>
+           
+           <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8">
+              <input 
+                placeholder="ADD PROTOCOL NOTE..."
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
+              />
+              <button 
+                onClick={handleAddNote}
+                disabled={isSavingNote}
+                className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
+              >
+                {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
+              </button>
+           </div>
+
+           <div className="flex-1 space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+              {staffNotes.filter(n => {
+                const athlete = athletes.find(a => a.id === n.user_id);
+                const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                const noteSearch = n.note.toLowerCase();
+                const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                const query = searchQuery.toLowerCase();
+                return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+              }).length === 0 ? (
+                <div className="py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl">
+                  {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
+                </div>
+              ) : (
+                staffNotes.filter(n => {
+                  const athlete = athletes.find(a => a.id === n.user_id);
+                  const athleteSearch = athlete ? `${athlete.first_name} ${athlete.last_name}`.toLowerCase() : "";
+                  const noteSearch = n.note.toLowerCase();
+                  const authorSearch = `${n.added_by?.first_name} ${n.added_by?.last_name}`.toLowerCase();
+                  const query = searchQuery.toLowerCase();
+                  return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
+                }).map((note, i) => (
+                  <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="font-label text-[#22c55e]">
+                        {note.user_id ? "Athlete Record" : "General Protocol"}
+                      </div>
+                      <span className="text-gray-500 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-gray-200 text-xs leading-relaxed italic font-sans">"{note.note}"</p>
+                    <div className="flex justify-between items-center mt-3">
+                       <span className="text-[#22c55e] font-label opacity-70">
+                         {note.added_by?.first_name} {note.added_by?.last_name}
+                       </span>
+                       {note.user_id && (
+                         <span className="text-gray-500 font-label">
+                           Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
+                         </span>
+                       )}
+                    </div>
+                  </div>
+                ))
+              )}
+           </div>
         </div>
 
         {/* FOOTER SECTION: WELLNESS */}
@@ -613,6 +615,16 @@ export default function StaffPortal() {
           const a = athletes.find(x => x.id === selectedAthlete);
           return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
         })()}
+      />
+      <ProgramAssignModal
+        isOpen={isAssignProgramModalOpen}
+        onClose={() => setIsAssignProgramModalOpen(false)}
+        athleteId={selectedAthlete}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
+        onSuccess={fetchAdminData}
       />
       <InjuryLogModal 
         isOpen={isInjuryModalOpen} 

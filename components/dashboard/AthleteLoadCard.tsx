@@ -29,23 +29,23 @@ export default function AthleteLoadCard({ athleteId, currentAu }: AthleteLoadCar
   };
 
   const getStatusColor = (val: number) => {
-    if (val < targetMin) return "#f59e0b"; // Under
+    if (val < targetMin) return "var(--accent-blue)"; // Under
     if (val > targetMax) return "#ef4444"; // Overload
-    return "#22c55e"; // Optimal
+    return "var(--accent-green)"; // Optimal
   };
 
   const currentStatus = valToStatus(currentAu, targetMin, targetMax);
   const progressPercent = Math.min((currentAu / targetMax) * 100, 100);
 
   return (
-    <div className="bg-[#111] border border-white/5 rounded-3xl p-6 relative overflow-hidden group">
+    <div className="bg-bg-card border border-border-card rounded-3xl p-6 relative overflow-hidden group hover:bg-bg-card-hover transition-colors">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <div className="text-gray-500 text-[10px] font-black tracking-[3px] uppercase mb-1">PHYSIOLOGICAL DATA</div>
-          <h3 className={`font-display text-xl text-white tracking-widest uppercase`}>My Weekly Load</h3>
+          <div className="text-text-secondary text-[10px] font-black tracking-[3px] uppercase mb-1">PHYSIOLOGICAL DATA</div>
+          <h3 className={`font-display text-xl text-text-primary tracking-widest uppercase`}>My Weekly Load</h3>
         </div>
-        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-500">
-           <Zap size={18} />
+        <div className="w-10 h-10 rounded-xl bg-bg-secondary flex items-center justify-center text-text-secondary border border-border-primary/20">
+           <Zap size={18} className="text-accent-green" />
         </div>
       </div>
 
@@ -53,22 +53,22 @@ export default function AthleteLoadCard({ athleteId, currentAu }: AthleteLoadCar
          <span className={`font-display text-5xl`} style={{ color: getStatusColor(currentAu) }}>
            {currentAu}
          </span>
-         <span className="text-xs text-gray-500 font-bold tracking-widest uppercase">AU TOTAL</span>
+         <span className="text-xs text-text-secondary font-bold tracking-widest uppercase">AU TOTAL</span>
       </div>
 
       <div className="space-y-2 mb-6">
          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
             <span style={{ color: getStatusColor(currentAu) }}>{currentStatus}</span>
-            <span className="text-gray-500">TARGET: {targetMin}-{targetMax}</span>
+            <span className="text-text-muted">TARGET: {targetMin}-{targetMax}</span>
          </div>
          <ProgressBar value={progressPercent} color={getStatusColor(currentAu)} height={6} />
       </div>
 
       {/* Sparkline Trend */}
-      <div className="pt-4 border-t border-white/5">
+      <div className="pt-4 border-t border-border-primary/50">
          <div className="flex justify-between items-center mb-3">
-            <div className="text-[9px] text-gray-400 font-black uppercase tracking-widest flex items-center gap-1">
-               <TrendingUp size={10} /> 4-WEEK INTENSITY TREND
+            <div className="text-[9px] text-text-secondary font-black uppercase tracking-widest flex items-center gap-1">
+               <TrendingUp size={10} className="text-accent-green" /> 4-WEEK INTENSITY TREND
             </div>
          </div>
          <div className="h-12 w-full">
@@ -92,14 +92,14 @@ export default function AthleteLoadCard({ athleteId, currentAu }: AthleteLoadCar
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-[8px] text-gray-700 uppercase font-black tracking-widest">
+              <div className="h-full flex items-center justify-center text-[8px] text-text-muted uppercase font-black tracking-widest">
                  Synthesizing History...
               </div>
             )}
          </div>
       </div>
 
-      <div className="absolute -bottom-4 -right-4 opacity-[0.02] font-display text-7xl pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+      <div className="absolute -bottom-4 -right-4 opacity-[0.02] font-display text-7xl pointer-events-none group-hover:opacity-[0.05] transition-opacity text-text-primary">
         LOAD
       </div>
     </div>

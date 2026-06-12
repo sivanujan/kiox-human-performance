@@ -27,17 +27,16 @@ import {
 import Image from "next/image";
 import StaffNotificationDropdown from "@/components/StaffNotificationDropdown";
 import Avatar from "@/components/ui/Avatar";
-
-
+import ThemeToggle from "@/components/ThemeToggle";
 
 const staffNavItems = [
-  { icon: <LayoutDashboard size={18} />, label: 'DASHBOARD', href: '/staff' },
-  { icon: <CalendarDays size={18} />, label: 'CALENDAR', href: '/staff/calendar' },
-  { icon: <Layers size={18} />, label: 'PROGRAMS MATRIX', href: '/staff/programs' },
-  { icon: <Zap size={18} />, label: 'SPECIAL OPS', href: '/staff/special-sessions' },
-  { icon: <Calendar size={18} />, label: 'SESSION REQUESTS', href: '/staff/bookings' },
-  { icon: <MessageSquare size={18} />, label: 'CHAT UPLINK', href: '/staff/chat' },
-  { icon: <UserIcon size={18} />, label: 'PERSONNEL HUB', href: '/staff/settings' },
+  { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/staff' },
+  { icon: <CalendarDays size={18} />, label: 'Calendar', href: '/staff/calendar' },
+  { icon: <Layers size={18} />, label: 'Programs Matrix', href: '/staff/programs' },
+  { icon: <Zap size={18} />, label: 'Special Ops', href: '/staff/special-sessions' },
+  { icon: <Calendar size={18} />, label: 'Session Requests', href: '/staff/bookings' },
+  { icon: <MessageSquare size={18} />, label: 'Chat Uplink', href: '/staff/chat' },
+  { icon: <UserIcon size={18} />, label: 'Personnel Hub', href: '/staff/settings' },
 ];
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -78,126 +77,160 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     await signOut();
   };
 
-  if (loading || !user) {
+  const userName = profile?.first_name 
+    ? `${profile.first_name} ${profile.last_name || ''}`.trim() 
+    : user?.email?.split('@')[0] || 'Operator';
+
+  const userTeam = teams.find(t => t.id === profile?.team_id);
+
+  const getBreadcrumbs = () => {
+    switch (pathname) {
+      case '/staff':
+        return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
+      case '/staff/calendar':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Calendar</span>
+          </span>
+        );
+      case '/staff/programs':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Programs Matrix</span>
+          </span>
+        );
+      case '/staff/special-sessions':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Special Ops</span>
+          </span>
+        );
+      case '/staff/bookings':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Session Requests</span>
+          </span>
+        );
+      case '/staff/chat':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Chat Uplink</span>
+          </span>
+        );
+      case '/staff/settings':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Personnel Hub</span>
+          </span>
+        );
+      default:
+        return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
-        <Loader2 className="text-[#22c55e] animate-spin" size={48} />
+      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-6">
+        <div className="relative">
+          <div className="w-20 h-20 rounded-full border-2 border-[var(--accent-green)]/10 animate-ping absolute inset-0" />
+          <div className="w-20 h-20 rounded-full border-t-2 border-[var(--accent-green)] animate-spin" />
+        </div>
+        <div className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[0.5em] animate-pulse">
+          Syncing Operational Context...
+        </div>
       </div>
     );
   }
 
-  const userTeam = teams.find(t => t.id === profile?.team_id);
-  const userName = `${profile?.first_name} ${profile?.last_name || ''}`;
-
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-secondary)] flex text-[var(--text-primary)]">
       {/* Sidebar Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.div
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[140] lg:hidden"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-[150] w-[280px] bg-[#0a0a0a] border-r border-[#22c55e]/15 
-        flex flex-col overflow-y-auto transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        {/* Logo */}
-        <div className="p-6 border-b border-[#22c55e]/10 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-                <Image src="/logo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
-             </div>
-             <span className={`font-display text-2xl tracking-widest text-white`}>KIO-X</span>
-          </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-white transition-colors">
-            <CloseIcon size={20} />
-          </button>
-        </div>
+      {/* Sidebar Component */}
+      <aside className={`fixed top-0 bottom-0 left-0 z-[250] w-[280px] bg-[var(--bg-card)] border-r border-[var(--border-primary)] flex flex-col justify-between p-6 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="space-y-8">
+          {/* Brand Logo */}
+          <div className="flex items-center justify-between">
+            <Link href="/staff" className="flex items-center gap-3 active-scale">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-green)] to-emerald-700 flex items-center justify-center font-display text-lg font-black text-black">
+                K
+              </div>
+              <span className={`font-display text-lg font-black tracking-[3px] text-white`}>KIO-X</span>
+            </Link>
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1 rounded bg-white/5 border border-white/10 text-gray-500 hover:text-white"
+            >
+              <CloseIcon size={16} />
+            </button>
+          </div>
 
-        {/* Profile Block */}
-        <motion.div 
-          onClick={() => setIsProfileOpen(true)}
-          whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
-          className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent cursor-pointer transition-colors group"
-          title="Click to Modify Profile"
-        >
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mb-4">
-              <Avatar 
+          {/* Coach Quick Stats Info Box */}
+          <div className="p-4 bg-black/20 border border-white/5 rounded-2xl flex items-center gap-4">
+             <Avatar 
                 src={profile?.avatar_url}
                 name={userName}
-                size="xl"
-                className="rounded-2xl border-2 border-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]"
-              />
-              {/* Upload Overlay */}
-              <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-                 <Camera size={24} className="text-[#22c55e] mb-1 animate-pulse" />
-                 <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e] z-20">
-                <ShieldCheck size={14} fill="currentColor" />
-              </div>
-            </div>
-            
-            <div className={`font-display text-lg text-white mb-1 uppercase tracking-wider group-hover:text-[#22c55e] transition-colors`}>
-              {profile?.role === 'medical' ? 'Officer' : 'Coach'} {profile?.first_name}
-            </div>
-            <div className="flex flex-col gap-1 items-center">
-              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[8px] font-black uppercase tracking-[2px]">
-                {profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}
-              </div>
-              <div className="text-gray-400 text-[9px] font-bold uppercase tracking-[1px] mt-1">
-                {userTeam?.name || "Independent Ops"}
-              </div>
-            </div>
+                role="staff"
+                size="md"
+             />
+             <div className="min-w-0">
+                <div className="text-sm font-extrabold text-white truncate tracking-wide">{userName}</div>
+                <div className="text-[10px] text-gray-500 font-medium truncate tracking-normal mt-0.5">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</div>
+             </div>
           </div>
-        </motion.div>
 
-        {/* Navigation Menu */}
-        <nav className="flex-1 py-6 px-4 space-y-2">
-          <div className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-4 mb-4">Tactical Menu</div>
-          {staffNavItems
-            .filter(item => {
-              if (profile?.role === 'medical') {
-                return item.href === '/staff/chat' || item.href === '/staff/settings';
-              }
-              return true;
-            })
-            .map((item, i) => {
-              const isActive = pathname === item.href;
+          {/* Navigation Links */}
+          <nav className="space-y-1">
+            {staffNavItems.map((item) => {
+              const active = pathname === item.href;
               return (
-                <Link
-                  key={i}
+                <Link 
+                  key={item.href}
                   href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
-                    isActive 
-                      ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
-                      : 'text-white/40 hover:text-white hover:bg-white/5'
+                  className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-bold transition-all relative group active-scale ${
+                    active 
+                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 font-black' 
+                      : 'text-gray-400 hover:text-white border border-transparent'
                   }`}
                 >
-                  <span className={isActive ? 'text-black' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
-                  {item.label}
-                  {isActive && <ChevronRight size={14} className="ml-auto" />}
+                  <span className={`${active ? 'text-[var(--accent-green)]' : 'text-gray-500 group-hover:text-white transition-colors'}`}>
+                    {item.icon}
+                  </span>
+                  <span className="tracking-wide">{item.label}</span>
                 </Link>
               );
             })}
-        </nav>
+          </nav>
+        </div>
 
-        {/* Sign Out */}
-        <div className="p-6 border-t border-white/5">
-          <button
+        {/* Exit/Signout Option */}
+        <div className="pt-6 border-t border-white/5">
+          <button 
             onClick={handleSignOut}
-            className="active-scale w-full py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-black uppercase tracking-[3px] flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
+            className="active-scale w-full py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-bold tracking-wider flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
           >
             <LogOut size={14} /> Exit Matrix
           </button>
@@ -205,10 +238,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:ml-[280px] min-h-screen relative overflow-y-auto">
+      <main className="flex-1 lg:ml-[280px] min-h-screen relative overflow-y-auto bg-[var(--bg-secondary)]">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
-          backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+          backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
@@ -222,23 +255,26 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               <Menu size={20} />
             </button>
              <div className="w-1 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e] hidden xs:block" />
-             <div className="hidden xs:block">
-                <div className="text-[#22c55e] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5">Dashboard</div>
-                <h1 className={`font-display text-lg md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] md:max-w-none`}>
-                  System Online // <span className="text-[#22c55e]">{profile?.first_name || 'Staff'}</span>
+             <div className="hidden xs:block space-y-0.5">
+                <div className="mb-0.5">
+                  {getBreadcrumbs()}
+                </div>
+                <h1 className="font-sans text-sm md:text-base font-bold text-white tracking-wide truncate max-w-[150px] md:max-w-none">
+                  System Online • <span className="text-[#22c55e] font-semibold">{profile?.first_name || 'Staff'}</span>
                 </h1>
              </div>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
+          <div className="flex items-center gap-3 md:gap-4">
+            <ThemeToggle variant="icon" />
             <StaffNotificationDropdown />
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className="flex items-center gap-3 group px-4 py-2 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all active-scale"
+              className="flex items-center gap-3 group sm:px-4 sm:py-2 bg-transparent sm:bg-white/[0.02] border-none sm:border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all active-scale"
             >
-               <div className="text-right hidden sm:block">
-                  <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
-                  <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">
+               <div className="text-right hidden sm:block leading-tight">
+                  <div className="text-sm font-extrabold text-white tracking-wide">{userName}</div>
+                  <div className="text-[10px] text-gray-500 font-medium tracking-normal mt-0.5">
                     {profile?.role === 'medical' ? 'Medical Staff' : 'Operational Staff'}
                   </div>
                </div>

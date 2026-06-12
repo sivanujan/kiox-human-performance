@@ -13,7 +13,8 @@ import {
   Users,
   Search,
   Filter,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { 
   format, 
@@ -39,6 +40,7 @@ export default function AdminSchedules() {
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [athletes, setAthletes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<TrainingSession | null>(null);
   
@@ -50,17 +52,35 @@ export default function AdminSchedules() {
 
   const fetchData = async () => {
     setLoading(true);
-    const start = format(startOfWeek(startOfMonth(currentMonth)), "yyyy-MM-dd");
-    const end = format(endOfWeek(endOfMonth(currentMonth)), "yyyy-MM-dd");
+    setError(null);
+    try {
+      const start = format(startOfWeek(startOfMonth(currentMonth)), "yyyy-MM-dd");
+      const end = format(endOfWeek(endOfMonth(currentMonth)), "yyyy-MM-dd");
 
-    const [sessionRes, athleteRes] = await Promise.all([
-      supabase.from("training_sessions").select("*").gte("scheduled_date", start).lte("scheduled_date", end),
-      supabase.from("profiles").select("*").eq("role", "athlete")
-    ]);
+      const [sessionRes, athleteRes] = await Promise.all([
+        supabase.from("training_sessions").select("*").gte("scheduled_date", start).lte("scheduled_date", end),
+        supabase.from("profiles").select("*").eq("role", "athlete")
+      ]);
 
-    if (!sessionRes.error) setSessions(sessionRes.data || []);
-    if (!athleteRes.error) setAthletes(athleteRes.data || []);
-    setLoading(false);
+      if (sessionRes.error) {
+        console.error("Session fetch error:", sessionRes.error);
+        setError("Failed to load training sessions.");
+      } else {
+        setSessions(sessionRes.data || []);
+      }
+
+      if (athleteRes.error) {
+        console.error("Athlete fetch error:", athleteRes.error);
+        setError("Failed to load athlete profiles.");
+      } else {
+        setAthletes(athleteRes.data || []);
+      }
+    } catch (err: any) {
+      console.error("Critical scheduling data synchronization error:", err);
+      setError(err?.message || "A network or connection error occurred while syncing global schedules.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -115,8 +135,15 @@ export default function AdminSchedules() {
         </button>
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-500 text-xs font-bold uppercase tracking-widest animate-pulse">
+          <AlertCircle size={16} className="flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Calendar Grid */}
-      <div className="bg-[#0a0a0a] border border-white/5 rounded-[48px] overflow-hidden shadow-2xl relative">
+      <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-[48px] overflow-hidden shadow-2xl relative">
         {loading && (
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
              <Loader2 size={48} className="animate-spin text-[#22c55e]" />

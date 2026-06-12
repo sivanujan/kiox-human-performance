@@ -10,12 +10,12 @@ export default function Footer() {
   if (hideFooter) return null;
 
   return (
-    <footer className="bg-kiox-black border-t border-white/5 py-16 md:py-24 relative overflow-hidden">
+    <footer className="bg-[var(--bg-header)] border-t border-[var(--border-primary)] py-16 md:py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-texture opacity-20 pointer-events-none"></div>
       
       <div className="container mx-auto px-4 md:px-10 flex flex-col items-center justify-center text-center relative z-10">
-        <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 uppercase">KIO-X</h2>
-        <p className="font-sans text-gray-400 text-sm tracking-[0.15em] mb-12 max-w-sm uppercase">
+        <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tighter text-[var(--accent-green)] mb-6 uppercase">KIO-X</h2>
+        <p className="font-sans text-[var(--text-secondary)] text-sm tracking-[0.15em] mb-12 max-w-sm uppercase">
           Elite Human Performance Training
         </p>
         

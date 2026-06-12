@@ -50,12 +50,13 @@ export default function TacticalModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => !loading && onClose()}
-            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 backdrop-blur-md"
+            style={{ backgroundColor: "var(--backdrop-overlay)" }}
           />
 
           {/* Background Grid - Desktop Only */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none hidden md:block" style={{ 
-            backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)',
             backgroundSize: '40px 40px'
           }} />
 
@@ -65,29 +66,29 @@ export default function TacticalModal({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className={`relative z-10 w-full ${maxWidth} bg-[#080808] border-t md:border border-[rgba(34,197,94,0.2)] rounded-t-[32px] md:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:max-h-[env(safe-area-inset-bottom)+90vh] pb-[env(safe-area-inset-bottom)]`}
+            className={`relative z-10 w-full ${maxWidth} bg-bg-card border-t md:border border-border-primary rounded-t-[32px] md:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:max-h-[env(safe-area-inset-bottom)+90vh] pb-[env(safe-area-inset-bottom)]`}
           >
             {/* Header / Mobile Drag-handle */}
             <div className="md:hidden w-full flex justify-center py-3">
-               <div className="w-12 h-1 bg-white/10 rounded-full" />
+               <div className="w-12 h-1 bg-border-primary/50 rounded-full" />
             </div>
 
-            <div className="p-6 md:p-8 border-b border-white/5 bg-gradient-to-br from-[#0A0A0A] to-black relative">
+            <div className="p-6 md:p-8 border-b border-border-primary/50 bg-gradient-to-br from-bg-card to-bg-secondary relative">
                <button 
                  onClick={onClose}
                  disabled={loading}
-                 className="absolute top-6 right-6 md:top-8 md:right-8 text-gray-500 hover:text-white transition-colors disabled:opacity-50 active-scale"
+                 className="absolute top-6 right-6 md:top-8 md:right-8 text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 active-scale"
                >
                  <X className="w-5 h-5 md:w-6 md:h-6" />
                </button>
 
                 <div>
                   {subtitle && (
-                    <div className="flex items-center gap-2 mb-1 text-[9px] md:text-[10px] font-black tracking-[3px] md:tracking-[4px] uppercase text-[#22c55e]">
+                    <div className="flex items-center gap-2 mb-1 text-[9px] md:text-[10px] font-black tracking-[3px] md:tracking-[4px] uppercase text-accent-green">
                       {subtitle}
                     </div>
                   )}
-                  <h2 className="font-display text-2xl md:text-3xl text-white uppercase tracking-wider">
+                  <h2 className="font-display text-2xl md:text-3xl text-text-primary uppercase tracking-wider">
                     {title}
                   </h2>
                 </div>

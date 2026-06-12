@@ -25,7 +25,7 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
             whileHover={{ y: -5 }}
-            className="w-[200px] h-[130px] bg-[#111] border border-white/5 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between group cursor-default"
+            className="w-[200px] h-[130px] bg-bg-card border border-border-primary/50 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between group cursor-default shadow shadow-accent/5"
           >
             {/* Background Icon */}
             <div className="absolute -right-4 -bottom-4 text-7xl opacity-5 group-hover:opacity-10 transition-opacity">
@@ -33,12 +33,12 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
             </div>
 
             <div>
-              <div className="text-[10px] font-bold text-gray-400 tracking-[2px] uppercase mb-3">
+              <div className="text-[10px] font-bold text-text-secondary tracking-[2px] uppercase mb-3">
                 {card.label}
               </div>
               <div 
-                className="text-2xl font-display tracking-wider"
-                style={{ color: card.color, textShadow: `0 0 20px ${card.color}40` }}
+                className="text-2xl font-display tracking-wider font-bold"
+                style={{ color: card.color, textShadow: `0 0 20px ${card.color}20` }}
               >
                 {card.value}
               </div>
@@ -52,7 +52,7 @@ export default function SwipeableCards({ cards }: SwipeableCardsProps) {
                        key={idx} 
                        size={10} 
                        fill={idx < card.stars! ? card.color : 'transparent'} 
-                       className={idx < card.stars! ? '' : 'text-gray-700'}
+                       className={idx < card.stars! ? '' : 'text-text-muted'}
                      />
                    ))}
                  </div>

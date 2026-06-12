@@ -228,27 +228,27 @@ export default function UserInventory() {
   if (loading) {
      return (
        <div className="flex items-center justify-center p-20">
-         <Loader2 className="text-[#22c55e] animate-spin" size={48} />
+         <Loader2 className="text-accent-green animate-spin" size={48} />
        </div>
      );
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-6 md:pb-8 border-b border-white/5">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-6 md:pb-8 border-b border-border-primary/50">
         <div className="flex items-end justify-between w-full lg:w-auto gap-12">
             <div>
                 <div className="flex items-center gap-2 mb-2">
-                    <Users className="text-[#22c55e] w-4 h-4 md:w-5 md:h-5" />
-                    <span className="font-label text-[#22c55e] font-bold tracking-[0.2em] uppercase text-[10px] md:text-sm">Registry Management</span>
+                    <Users className="text-accent-green w-4 h-4 md:w-5 md:h-5" />
+                    <span className="font-label text-accent-green font-bold tracking-[0.2em] uppercase text-[10px] md:text-sm">Registry Management</span>
                 </div>
-                <h1 className="font-display text-4xl md:text-6xl text-white font-black uppercase tracking-tight">Inventory</h1>
+                <h1 className="font-display text-4xl md:text-6xl text-text-primary font-black uppercase tracking-tight">Inventory</h1>
             </div>
             
             {profile?.role === 'superadmin' && (
               <button 
                   onClick={() => setIsInviteModalOpen(true)}
-                  className="hidden lg:flex items-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale"
+                  className="hidden lg:flex items-center gap-2 px-8 py-4 bg-bg-button-primary text-text-on-green font-button rounded-xl hover:bg-accent-green-dim transition-all active-scale shadow-lg"
               >
                   <Zap size={14} /> Invite Agent
               </button>
@@ -259,18 +259,18 @@ export default function UserInventory() {
           {activeTab === 'inventory' && (
             <>
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={18} />
                 <input 
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Filter Database..."
-                  className="w-full sm:w-64 bg-[#111] border border-white/10 rounded-xl pl-12 pr-4 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none transition-all font-label placeholder:text-gray-500"
+                  className="w-full sm:w-64 bg-bg-input border border-border-input hover:border-border-active transition-colors rounded-xl pl-12 pr-4 py-3 md:py-4 text-xs md:text-sm text-text-primary focus:border-accent-green outline-none font-label placeholder:text-text-muted/65"
                 />
               </div>
               <select 
                 value={roleFilter}
                 onChange={e => setRoleFilter(e.target.value)}
-                className="w-full sm:w-auto bg-[#111] border border-white/10 rounded-xl px-6 py-3 md:py-4 text-xs md:text-sm text-white focus:border-[#22c55e] outline-none font-label cursor-pointer appearance-none text-center sm:text-left"
+                className="w-full sm:w-auto bg-bg-input border border-border-input hover:border-border-active transition-colors rounded-xl px-6 py-3 md:py-4 text-xs md:text-sm text-text-primary focus:border-accent-green outline-none font-label cursor-pointer appearance-none text-center sm:text-left"
               >
                 <option value="all">Every Role</option>
                 <option value="athlete">Athletes</option>
@@ -282,23 +282,23 @@ export default function UserInventory() {
         </div>
       </div>
 
-      <div className="flex gap-4 border-b border-white/5 pb-1">
+      <div className="flex gap-4 border-b border-border-primary/30 pb-1">
         <button 
           onClick={() => setActiveTab('inventory')}
-          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'inventory' ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white'}`}
+          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'inventory' ? 'text-accent-green' : 'text-text-secondary hover:text-text-primary'}`}
         >
           Agent Inventory
-          {activeTab === 'inventory' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+          {activeTab === 'inventory' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-green" />}
         </button>
         <button 
           onClick={() => setActiveTab('requests')}
-          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'requests' ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white'}`}
+          className={`pb-4 px-4 text-[10px] font-black uppercase tracking-[2px] transition-all relative ${activeTab === 'requests' ? 'text-accent-green' : 'text-text-secondary hover:text-text-primary'}`}
         >
           Protocol Requests
           {enrollmentRequests.length > 0 && (
-            <span className="ml-2 px-1.5 py-0.5 bg-[#22c55e] text-black text-[8px] rounded-full">{enrollmentRequests.length}</span>
+            <span className="ml-2 px-1.5 py-0.5 bg-bg-button-primary text-text-on-green text-[8px] rounded-full">{enrollmentRequests.length}</span>
           )}
-          {activeTab === 'requests' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e]" />}
+          {activeTab === 'requests' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-green" />}
         </button>
       </div>
 
@@ -306,32 +306,32 @@ export default function UserInventory() {
         <>
           <button 
             onClick={() => setIsInviteModalOpen(true)}
-            className="lg:hidden w-full flex items-center justify-center gap-2 px-8 py-4 bg-[#22c55e] text-black font-button rounded-xl hover:bg-white transition-all active-scale"
+            className="lg:hidden w-full flex items-center justify-center gap-2 px-8 py-4 bg-bg-button-primary text-text-on-green font-button rounded-xl hover:bg-accent-green-dim transition-all active-scale"
           >
             <Zap size={14} /> Invite Tactical Agent
           </button>
 
       {/* Table Management View - Desktop Only */}
-      <div className="hidden lg:block bg-[#111] border border-white/5 rounded-3xl overflow-hidden relative shadow-2xl">
+      <div className="hidden lg:block bg-bg-card border border-border-card rounded-3xl overflow-hidden relative shadow-2xl">
         <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#0a0a0a] border-b border-[#00ff88]/15">
-                <th className="px-6 py-5 font-display text-gray-400 text-[10px] w-[25%] text-left font-bold tracking-widest uppercase cursor-pointer select-none hover:text-white transition-colors">
+              <tr className="bg-bg-secondary border-b border-border-primary/50">
+                <th className="px-6 py-5 font-display text-text-secondary text-[10px] w-[25%] text-left font-bold tracking-widest uppercase cursor-pointer select-none hover:text-text-primary transition-colors">
                   <div className="flex items-center gap-1.5">
                     Agent Identity
-                    <ArrowUpDown size={10} className="text-[#00ff88] opacity-70" />
+                    <ArrowUpDown size={10} className="text-accent-green opacity-70" />
                   </div>
                 </th>
-                <th className="px-4 py-5 font-display text-gray-400 text-[10px] text-center font-bold tracking-widest uppercase">Governance</th>
-                <th className="px-4 py-5 font-display text-gray-400 text-[10px] text-center font-bold tracking-widest uppercase min-w-[170px]">Assigned Unit</th>
-                <th className="px-4 py-5 font-display text-gray-400 text-[10px] text-center font-bold tracking-widest uppercase cursor-pointer select-none hover:text-white transition-colors">
+                <th className="px-4 py-5 font-display text-text-secondary text-[10px] text-center font-bold tracking-widest uppercase">Governance</th>
+                <th className="px-4 py-5 font-display text-text-secondary text-[10px] text-center font-bold tracking-widest uppercase min-w-[170px]">Assigned Unit</th>
+                <th className="px-4 py-5 font-display text-text-secondary text-[10px] text-center font-bold tracking-widest uppercase cursor-pointer select-none hover:text-text-primary transition-colors">
                   <div className="flex items-center justify-center gap-1.5">
                     System Status
-                    <ArrowUpDown size={10} className="text-[#00ff88] opacity-70" />
+                    <ArrowUpDown size={10} className="text-accent-green opacity-70" />
                   </div>
                 </th>
-                <th className="px-6 py-5 font-display text-gray-400 text-[10px] text-right w-[20%] font-bold tracking-widest uppercase">Actions</th>
+                <th className="px-6 py-5 font-display text-text-secondary text-[10px] text-right w-[20%] font-bold tracking-widest uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -347,7 +347,7 @@ export default function UserInventory() {
                         return 'bg-red-500/10 text-red-500 border-red-500/30';
                       case 'active':
                       default:
-                        return 'bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/30';
+                        return 'bg-accent-green/10 text-accent-green border-accent-green/30';
                     }
                   };
 
@@ -357,7 +357,7 @@ export default function UserInventory() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className={`transition-colors group hover:bg-[#00ff88]/[0.02] ${index % 2 === 0 ? 'bg-[#0f0f0f]' : 'bg-[#111111]'}`}
+                      className={`transition-colors group hover:bg-bg-card-hover ${index % 2 === 0 ? 'bg-bg-card' : 'bg-bg-secondary/60'}`}
                     >
                       {/* Athlete Identity */}
                       <td className="px-6 py-5">
@@ -371,13 +371,13 @@ export default function UserInventory() {
                              />
                              {updatingId === user_profile.id && (
                                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                                 <Loader2 size={12} className="animate-spin text-[#00ff88]" />
-                               </div>
+                                 <Loader2 size={12} className="animate-spin text-accent-green" />
+                                </div>
                              )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-bold text-white uppercase group-hover:text-[#00ff88] transition-colors truncate">{user_profile.first_name} {user_profile.last_name}</p>
-                            <p className="font-label text-gray-500 text-[10px] font-bold truncate">@{user_profile.username || 'not_set'}</p>
+                            <p className="text-sm font-bold text-text-primary uppercase group-hover:text-accent-green transition-colors truncate">{user_profile.first_name} {user_profile.last_name}</p>
+                            <p className="font-label text-text-secondary text-[10px] font-bold truncate">@{user_profile.username || 'not_set'}</p>
                           </div>
                         </div>
                       </td>
@@ -389,7 +389,7 @@ export default function UserInventory() {
                             <button 
                               key={role}
                               onClick={() => handleUpdate(user_profile.id, { role })}
-                              className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.role === role ? 'bg-[#00ff88]/15 text-[#00ff88] border-[#00ff88]/30 font-black' : 'bg-transparent text-gray-600 border-transparent hover:text-gray-400 font-normal'}`}
+                              className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border transition-all ${user_profile.role === role ? 'bg-accent-green/15 text-accent-green border-accent-green/30 font-black' : 'bg-transparent text-text-muted border-transparent hover:text-text-secondary font-normal'}`}
                             >
                               {role}
                             </button>
@@ -401,15 +401,15 @@ export default function UserInventory() {
                       <td className="px-4 py-5">
                         <div className="flex justify-center">
                              <select
-                                 value={user_profile.team_id || ""}
-                                 onChange={(e) => handleUpdate(user_profile.id, { team_id: e.target.value === "" ? null : e.target.value })}
-                                 className="bg-black/40 border border-white/5 rounded-lg px-3 py-1.5 font-label text-[10px] text-gray-500 font-bold focus:border-[#00ff88] outline-none transition-all cursor-pointer w-full max-w-[150px] uppercase tracking-widest"
-                             >
-                                 <option value="">NO_UNIT</option>
-                                 {teams.map(t => (
-                                     <option key={t.id} value={t.id}>{t.name.toUpperCase()}</option>
-                                 ))}
-                             </select>
+                                  value={user_profile.team_id || ""}
+                                  onChange={(e) => handleUpdate(user_profile.id, { team_id: e.target.value === "" ? null : e.target.value })}
+                                  className="bg-bg-input border border-border-input hover:border-border-active rounded-lg px-3 py-1.5 font-label text-[10px] text-text-secondary font-bold focus:border-accent-green outline-none transition-all cursor-pointer w-full max-w-[150px] uppercase tracking-widest no-custom-bg"
+                              >
+                                  <option value="" className="bg-bg-card text-text-primary">NO_UNIT</option>
+                                  {teams.map(t => (
+                                      <option key={t.id} value={t.id} className="bg-bg-card text-text-primary">{t.name.toUpperCase()}</option>
+                                  ))}
+                              </select>
                         </div>
                       </td>
 
@@ -424,7 +424,7 @@ export default function UserInventory() {
                                 className={`pl-3 pr-8 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg border focus:outline-none cursor-pointer appearance-none text-center no-custom-bg ${getStatusStyles(user_profile.status)}`}
                               >
                                 {STATUSES.map(status => (
-                                  <option key={status} value={status} className="bg-[#111] text-white">
+                                  <option key={status} value={status} className="bg-bg-card text-text-primary">
                                     {status}
                                   </option>
                                 ))}
@@ -449,11 +449,11 @@ export default function UserInventory() {
                                 setSelectedViewProfile(user_profile);
                                 setIsViewModalOpen(true);
                               }}
-                              className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl text-white/60 hover:bg-white hover:text-black transition-all flex items-center justify-center active-scale"
+                              className="w-10 h-10 bg-bg-secondary border border-border-primary/50 rounded-xl text-text-secondary hover:bg-bg-card-hover hover:text-text-primary transition-all flex items-center justify-center active-scale"
                             >
                               <ExternalLink size={14} />
                             </button>
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-card border border-border-primary text-[8px] font-black uppercase tracking-widest text-text-primary rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
                               View Profile
                             </span>
                           </div>
@@ -462,11 +462,11 @@ export default function UserInventory() {
                           <div className="relative group">
                             <button 
                               onClick={() => handleVerifyEmail(user_profile.id)}
-                              className="w-10 h-10 bg-blue-500/5 border border-blue-500/20 rounded-xl text-blue-500/60 hover:bg-blue-500 hover:text-white transition-all flex items-center justify-center active-scale"
+                              className="w-10 h-10 bg-blue-500/5 border border-blue-500/20 rounded-xl text-blue-500 hover:bg-blue-500 hover:text-text-on-green transition-all flex items-center justify-center active-scale"
                             >
                               <ShieldCheck size={14} />
                             </button>
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-blue-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-card border border-border-primary text-[8px] font-black uppercase tracking-widest text-blue-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
                               Verify Email
                             </span>
                           </div>
@@ -476,11 +476,11 @@ export default function UserInventory() {
                             <div className="relative group">
                               <button 
                                 onClick={() => handleResetPassword(user_profile.id)}
-                                className="w-10 h-10 bg-red-500/5 border border-red-500/20 rounded-xl text-red-500/60 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center active-scale"
+                                className="w-10 h-10 bg-red-500/5 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500 hover:text-text-on-green transition-all flex items-center justify-center active-scale"
                               >
                                 <Zap size={14} />
                               </button>
-                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-red-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-card border border-border-primary text-[8px] font-black uppercase tracking-widest text-red-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
                                 Reset Password
                               </span>
                             </div>
@@ -496,19 +496,19 @@ export default function UserInventory() {
                                   setSelectedAthlete(user_profile);
                                   setIsActionModalOpen(true);
                                 }}
-                                className="w-10 h-10 bg-[#00ff88]/5 border border-[#00ff88]/30 rounded-xl text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-all flex items-center justify-center active-scale"
+                                className="w-10 h-10 bg-accent-green/5 border border-accent-green/30 rounded-xl text-accent-green hover:bg-bg-button-primary hover:text-text-on-green transition-all flex items-center justify-center active-scale"
                               >
                                 <Layers size={14} />
                               </button>
                             ) : (
                               <button 
                                 disabled
-                                className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl text-gray-700 flex items-center justify-center cursor-not-allowed opacity-50"
+                                className="w-10 h-10 bg-bg-secondary border border-border-primary/30 rounded-xl text-text-muted flex items-center justify-center cursor-not-allowed opacity-50"
                               >
                                 <Layers size={14} />
                               </button>
                             )}
-                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-[#00ff88] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-card border border-border-primary text-[8px] font-black uppercase tracking-widest text-accent-green rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
                               {user_profile.role === 'athlete' ? "Configure Protocol" : "Ops Control"}
                             </span>
                           </div>
@@ -526,7 +526,7 @@ export default function UserInventory() {
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
         {filteredProfiles.map((user_profile) => (
-          <div key={user_profile.id} className="bg-[#111] border border-white/5 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div key={user_profile.id} className="bg-bg-card border border-border-card rounded-2xl p-5 space-y-4 shadow-xl">
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar 
@@ -536,14 +536,14 @@ export default function UserInventory() {
                     size="md"
                   />
                   <div>
-                    <p className="text-sm font-bold text-white uppercase">{user_profile.first_name} {user_profile.last_name}</p>
-                    <p className="font-label text-gray-500 text-[10px] font-bold">@{user_profile.username || 'not_set'}</p>
+                    <p className="text-sm font-bold text-text-primary uppercase">{user_profile.first_name} {user_profile.last_name}</p>
+                    <p className="font-label text-text-secondary text-[10px] font-bold">@{user_profile.username || 'not_set'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                    <button 
                       onClick={() => { setSelectedViewProfile(user_profile); setIsViewModalOpen(true); }}
-                      className="p-2 bg-white/5 rounded-lg text-white/40"
+                      className="p-2 bg-bg-secondary rounded-lg text-text-secondary hover:bg-bg-card-hover hover:text-text-primary"
                    >
                      <ExternalLink size={14} />
                    </button>
@@ -552,28 +552,28 @@ export default function UserInventory() {
 
              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                   <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Core Governance</p>
+                   <p className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Core Governance</p>
                    <select 
                       value={user_profile.role}
                       onChange={(e) => handleUpdate(user_profile.id, { role: e.target.value })}
-                      className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-[10px] font-black text-[#22c55e] uppercase tracking-widest"
+                      className="w-full bg-bg-input border border-border-input hover:border-border-active rounded-lg px-3 py-2 text-[10px] font-black text-accent-green uppercase tracking-widest focus:border-accent-green outline-none transition-colors"
                    >
-                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                      {ROLES.map(r => <option key={r} value={r} className="bg-bg-card text-text-primary">{r}</option>)}
                    </select>
                 </div>
                 <div className="space-y-1">
-                   <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">System Status</p>
+                   <p className="text-[8px] font-black text-text-secondary uppercase tracking-widest">System Status</p>
                    <select 
                       value={user_profile.status}
                       onChange={(e) => handleUpdate(user_profile.id, { status: e.target.value })}
-                      className="w-full bg-black/40 border border-white/5 rounded-lg px-3 py-2 text-[10px] font-black text-[#22c55e] uppercase tracking-widest"
+                      className="w-full bg-bg-input border border-border-input hover:border-border-active rounded-lg px-3 py-2 text-[10px] font-black text-accent-green uppercase tracking-widest focus:border-accent-green outline-none transition-colors"
                    >
-                      {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                      {STATUSES.map(s => <option key={s} value={s} className="bg-bg-card text-text-primary">{s}</option>)}
                    </select>
                 </div>
              </div>
 
-             <div className="flex items-center justify-between pt-2 border-t border-white/5">
+             <div className="flex items-center justify-between pt-2 border-t border-border-primary/50">
                 <div className="flex gap-2">
                    <button 
                     onClick={() => handleVerifyEmail(user_profile.id)}
@@ -593,62 +593,62 @@ export default function UserInventory() {
                 {user_profile.role === 'athlete' ? (
                   <button 
                     onClick={() => { setSelectedAthlete(user_profile); setIsActionModalOpen(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#22c55e] text-black font-black text-[10px] rounded-xl uppercase tracking-widest active-scale"
+                    className="flex items-center gap-2 px-4 py-2 bg-bg-button-primary text-text-on-green font-black text-[10px] rounded-xl uppercase tracking-widest hover:bg-accent-green-dim active-scale"
                   >
                     <Layers size={14} /> Protocol
                   </button>
                 ) : (
-                  <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">System Level</span>
+                  <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">System Level</span>
                 )}
-          </div>
+           </div>
         </div>
       ))}
     </div>
   </>
 ) : (
-  <div className="bg-[#111] border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+  <div className="bg-bg-card border border-border-card rounded-3xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#22c55e]/5 border-b border-[#22c55e]/10">
-                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Athlete</th>
-                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Requested Matrix</th>
-                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase">Transfer Reference</th>
-                    <th className="px-6 py-5 font-display text-gray-400 text-[10px] font-bold tracking-widest uppercase text-right">Verification</th>
+                  <tr className="bg-bg-secondary border-b border-border-primary/50">
+                    <th className="px-6 py-5 font-display text-text-secondary text-[10px] font-bold tracking-widest uppercase">Athlete</th>
+                    <th className="px-6 py-5 font-display text-text-secondary text-[10px] font-bold tracking-widest uppercase">Requested Matrix</th>
+                    <th className="px-6 py-5 font-display text-text-secondary text-[10px] font-bold tracking-widest uppercase">Transfer Reference</th>
+                    <th className="px-6 py-5 font-display text-text-secondary text-[10px] font-bold tracking-widest uppercase text-right">Verification</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-border-primary/30">
                   {enrollmentRequests.map((req) => {
                     const athleteProfile = profiles.find(p => p.id === req.user_id);
                     return (
-                      <tr key={req.id} className="hover:bg-white/[0.01] transition-colors group">
+                      <tr key={req.id} className="hover:bg-bg-card-hover transition-colors group">
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
                             <Avatar src={athleteProfile?.avatar_url} name={athleteProfile ? `${athleteProfile.first_name} ${athleteProfile.last_name}` : 'Unknown'} size="sm" />
                             <div>
-                              <p className="text-sm font-bold text-white uppercase">{athleteProfile?.first_name} {athleteProfile?.last_name}</p>
-                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">@{athleteProfile?.username}</p>
+                              <p className="text-sm font-bold text-text-primary uppercase">{athleteProfile?.first_name} {athleteProfile?.last_name}</p>
+                              <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest">@{athleteProfile?.username}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-5">
-                          <p className="text-sm font-bold text-[#22c55e] uppercase tracking-wider">{req.program?.title}</p>
-                          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{req.program?.category}</p>
+                          <p className="text-sm font-bold text-accent-green uppercase tracking-wider">{req.program?.title}</p>
+                          <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest">{req.program?.category}</p>
                         </td>
-                        <td className="px-6 py-5 font-mono text-xs text-white/60 tracking-widest uppercase">
+                        <td className="px-6 py-5 font-mono text-xs text-text-primary tracking-widest uppercase">
                           {req.payment_reference || 'NO_REF_PROVIDED'}
                         </td>
                         <td className="px-6 py-5 text-right">
                           <div className="flex justify-end gap-3">
                             <button 
                               onClick={() => handleEnrollmentAction(req.id, 'reject')}
-                              className="px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                              className="px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-text-on-green transition-all"
                             >
                               Deny
                             </button>
                             <button 
                               onClick={() => handleEnrollmentAction(req.id, 'approve')}
-                              className="px-6 py-2 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.2)]"
+                              className="px-6 py-2 bg-bg-button-primary text-text-on-green text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-accent-green-dim transition-all active-scale shadow-none"
                             >
                               Confirm Transfer
                             </button>
@@ -659,7 +659,7 @@ export default function UserInventory() {
                   })}
                   {enrollmentRequests.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="py-20 text-center text-gray-600 font-black uppercase text-xs tracking-widest">
+                      <td colSpan={4} className="py-20 text-center text-text-muted font-black uppercase text-xs tracking-widest">
                         Queue Clear: No Pending Transfers
                       </td>
                     </tr>
@@ -677,6 +677,7 @@ export default function UserInventory() {
         onSuccess={() => fetchProfiles()}
       />
 
+
       {/* Action Modal */}
       <AnimatePresence>
         {isActionModalOpen && selectedAthlete && (
@@ -686,39 +687,45 @@ export default function UserInventory() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsActionModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 backdrop-blur-md"
+              style={{ backgroundColor: "var(--backdrop-overlay)" }}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-[#111] border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-bg-card border border-border-primary rounded-3xl p-8 shadow-2xl overflow-hidden"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none text-text-primary">
                 <Zap size={120} />
               </div>
               
               <div className="relative z-10 w-full">
                 <div className="flex justify-between items-start mb-8 text-left">
                   <div>
-                    <h3 className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px] mb-2">Protocol Configuration</h3>
-                    <p className="text-xl font-bold text-white uppercase">{selectedAthlete.first_name} {selectedAthlete.last_name}</p>
+                    <h3 className="text-[10px] font-black text-accent-green uppercase tracking-[3px] mb-2">Protocol Configuration</h3>
+                    <p className="text-xl font-bold text-text-primary uppercase">{selectedAthlete.first_name} {selectedAthlete.last_name}</p>
                   </div>
-                  <button onClick={() => setIsActionModalOpen(false)} className="text-gray-500 hover:text-white transition-colors uppercase text-[10px] font-bold tracking-widest bg-white/5 px-3 py-1 rounded-full">Close</button>
+                  <button 
+                    onClick={() => setIsActionModalOpen(false)} 
+                    className="text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-card-hover border border-border-primary/50 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors"
+                  >
+                    Close
+                  </button>
                 </div>
 
                 <div className="space-y-10 text-left">
                   {/* Assign Program */}
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-white/40">
-                      <Layers size={14} className="text-[#22c55e]" />
+                    <div className="flex items-center gap-2 text-text-secondary">
+                      <Layers size={14} className="text-accent-green" />
                       <span className="text-[9px] font-black uppercase tracking-[2px]">Active Training Protocol</span>
                     </div>
                     <div className="flex flex-col md:flex-row gap-3">
                       <select 
                         value={selectedProgramId}
                         onChange={e => setSelectedProgramId(e.target.value)}
-                        className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none uppercase font-bold"
+                        className="flex-1 bg-bg-input border border-border-input hover:border-border-active transition-colors rounded-xl px-4 py-3 text-sm text-text-primary focus:border-accent-green outline-none uppercase font-bold"
                       >
                         <option value="">Select Architecture...</option>
                         {programs.map(p => (
@@ -728,23 +735,23 @@ export default function UserInventory() {
                       <button 
                         disabled={actionLoading || !selectedProgramId}
                         onClick={handleAssignProgram}
-                        className="bg-[#22c55e] text-black px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[2px] hover:bg-[#4ade80] transition-all disabled:opacity-30"
+                        className="bg-bg-button-primary text-text-on-green px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[2px] hover:bg-accent-green-dim transition-all disabled:opacity-30"
                       >
                         {actionLoading ? <Loader2 className="animate-spin" size={14} /> : "Initialize"}
                       </button>
                     </div>
 
                   {/* Book Assessment */}
-                  <div className="space-y-4 pt-8 border-t border-white/5">
-                    <div className="flex items-center gap-2 text-white/40">
-                      <Target size={14} className="text-[#22c55e]" />
+                  <div className="space-y-4 pt-8 border-t border-border-primary/50">
+                    <div className="flex items-center gap-2 text-text-secondary">
+                      <Target size={14} className="text-accent-green" />
                       <span className="text-[9px] font-black uppercase tracking-[2px]">Performance Evaluation</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <select 
                         value={assessmentType}
                         onChange={e => setAssessmentType(e.target.value)}
-                        className="bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none uppercase font-bold"
+                        className="bg-bg-input border border-border-input hover:border-border-active transition-colors rounded-xl px-4 py-3 text-sm text-text-primary focus:border-accent-green outline-none uppercase font-bold"
                       >
                         <option value="Initial Evaluation">Initial Evaluation</option>
                         <option value="Monthly Progress">Monthly Progress</option>
@@ -755,14 +762,13 @@ export default function UserInventory() {
                         type="datetime-local"
                         value={assessmentDate}
                         onChange={e => setAssessmentDate(e.target.value)}
-                        className="bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none font-bold"
-                        style={{ colorScheme: 'dark' }}
+                        className="bg-bg-input border border-border-input hover:border-border-active transition-colors rounded-xl px-4 py-3 text-sm text-text-primary focus:border-accent-green outline-none font-bold"
                       />
                     </div>
                     <button 
                       disabled={actionLoading || !assessmentDate}
                       onClick={handleBookAssessment}
-                      className="w-full bg-white text-black py-4 rounded-xl text-[10px] font-black uppercase tracking-[2px] hover:bg-[#22c55e] transition-all disabled:opacity-30 text-center"
+                      className="w-full bg-text-primary text-bg-primary py-4 rounded-xl text-[10px] font-black uppercase tracking-[2px] hover:bg-accent-green hover:text-text-on-green transition-all disabled:opacity-30 text-center"
                     >
                       {actionLoading ? <Loader2 className="animate-spin" size={14} /> : "Schedule Evaluation Protocol"}
                     </button>
@@ -770,7 +776,7 @@ export default function UserInventory() {
                   </div>
 
                   {/* Log Injury Shortcut */}
-                  <div className="pt-8 border-t border-white/5">
+                  <div className="pt-8 border-t border-border-primary/50">
                     <button 
                       onClick={() => {
                         setIsActionModalOpen(false);

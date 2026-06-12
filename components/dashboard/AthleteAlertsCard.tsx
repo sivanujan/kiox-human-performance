@@ -48,29 +48,29 @@ export default function AthleteAlertsCard({ athleteId }: AthleteAlertsCardProps)
   if (alerts.length === 0) return null;
 
   return (
-    <div className="bg-red-500/[0.03] border border-red-500/20 rounded-3xl p-6 relative overflow-hidden group">
+    <div className="bg-red-50/50 border border-red-200 dark:bg-red-500/[0.03] dark:border-red-500/20 rounded-3xl p-6 relative overflow-hidden group">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
           <ShieldAlert size={20} />
         </div>
         <div>
           <div className="text-red-500 text-[10px] font-black tracking-[3px] uppercase">Recovery Advisory</div>
-          <h3 className="text-white font-display text-lg tracking-wider uppercase">Active Performance Flags</h3>
+          <h3 className="text-text-primary font-display text-lg tracking-wider uppercase">Active Performance Flags</h3>
         </div>
       </div>
 
       <div className="space-y-3 mb-6">
         {alerts.map((alert) => (
-          <div key={alert.id} className="bg-black/40 border border-white/5 p-4 rounded-2xl flex gap-4 items-start">
+          <div key={alert.id} className="bg-bg-card border border-border-card p-4 rounded-2xl flex gap-4 items-start">
              <div className="mt-1 text-lg">
                 {alert.alert_type === 'FATIGUE' || alert.alert_type === 'OVERLOAD' ? '⚠️' : 
                  alert.alert_type === 'HYDRATION' ? '💧' : 
                  alert.alert_type === 'SLEEP' ? '😴' : '🩺'}
              </div>
              <div>
-                <div className="text-white font-bold text-xs uppercase tracking-wide">{alert.alert_type} FLAG</div>
-                <div className="text-white/40 text-[10px] leading-relaxed mt-0.5">{alert.message}</div>
-                <div className="text-gray-500 text-[8px] font-black uppercase mt-2 flex items-center gap-1">
+                <div className="text-text-primary font-bold text-xs uppercase tracking-wide">{alert.alert_type} FLAG</div>
+                <div className="text-text-secondary text-[10px] leading-relaxed mt-0.5">{alert.message}</div>
+                <div className="text-text-muted text-[8px] font-black uppercase mt-2 flex items-center gap-1">
                    <Clock size={10} /> {formatDistanceToNow(new Date(alert.triggered_at))} ago
                 </div>
              </div>
@@ -78,14 +78,14 @@ export default function AthleteAlertsCard({ athleteId }: AthleteAlertsCardProps)
         ))}
       </div>
 
-      <div className="p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-3">
-         <Info size={16} className="text-red-500" />
-         <p className="text-[10px] text-white/60 leading-tight font-medium uppercase tracking-wider">
+      <div className="p-4 bg-bg-secondary border border-border-primary/50 rounded-2xl flex items-center gap-3">
+         <Info size={16} className="text-red-500 shrink-0" />
+         <p className="text-[10px] text-text-secondary leading-tight font-medium uppercase tracking-wider">
             Coach has flagged <span className="text-red-500 font-bold">RECOVERY FOCUS</span> for you. Please check in with the medical staff if needed.
          </p>
       </div>
 
-      <div className="absolute -bottom-2 -right-2 opacity-[0.02] font-display text-6xl pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+      <div className="absolute -bottom-2 -right-2 opacity-[0.02] font-display text-6xl pointer-events-none group-hover:opacity-[0.05] transition-opacity text-text-primary">
         FLAG
       </div>
     </div>

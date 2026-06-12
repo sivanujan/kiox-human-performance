@@ -24,7 +24,6 @@ import {
   MessageSquare,
   Camera
 } from "lucide-react";
-import { Anton, Orbitron } from "next/font/google";
 import Link from "next/link";
 
 // Dashboard Components
@@ -47,12 +46,7 @@ import CoachingTeamSection from "@/app/components/CoachingTeamSection";
 import TimeDisplay from "@/components/ui/TimeDisplay";
 import { useTimezone } from "@/hooks/useTimezone";
 
-const anton = Anton({ 
-  weight: '400', 
-  subsets: ['latin'] 
-});
 
-const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function DashboardOverview() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -235,8 +229,8 @@ export default function DashboardOverview() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="text-[#22c55e] animate-spin" size={48} />
-          <p className={`${orbitron.className} text-[#22c55e] text-[10px] tracking-[4px] uppercase animate-pulse`}>Synchronizing Matrix...</p>
+          <Loader2 className="text-accent-green animate-spin" size={48} />
+          <p className="font-label text-accent-green text-[10px] tracking-[4px] uppercase animate-pulse">Synchronizing Matrix...</p>
         </div>
       </div>
     );
@@ -339,7 +333,7 @@ export default function DashboardOverview() {
               <div className="text-red-500 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
                 Medical Restricted Access // Tactical Lock
               </div>
-              <h2 className={`font-display text-3xl sm:text-4xl text-white tracking-wider mb-2 leading-none`}>
+              <h2 className={`font-display font-black text-3xl sm:text-4xl text-white uppercase tracking-wider mb-2 leading-none`}>
                 {athleteName.toUpperCase()}
               </h2>
               <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-3">
@@ -362,10 +356,10 @@ export default function DashboardOverview() {
              <div className="text-red-500/30 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
                LOCK STATUS
              </div>
-             <div className="text-white font-display text-lg tracking-wider mb-2 uppercase">
-               SYSTEM RESTRICTED
-             </div>
-             <div className="text-red-500 font-display text-3xl drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+              <div className="text-white font-display font-black text-lg tracking-wider mb-2 uppercase">
+                SYSTEM RESTRICTED
+              </div>
+              <div className="text-red-500 font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
                SECURE LOCK
              </div>
           </div>
@@ -378,14 +372,14 @@ export default function DashboardOverview() {
             
             {/* The Active Injury & Declaration Form */}
             <div className="bg-[#111] border border-red-500/20 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none text-red-500">REHAB</div>
+              <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none text-red-500">REHAB</div>
               
               <div className="relative z-10 space-y-8 text-left">
                 <div>
-                  <div className="text-red-500 font-['Anton'] text-sm tracking-widest uppercase flex items-center gap-2 mb-2">
+                  <div className="text-red-500 font-display font-black text-sm tracking-widest uppercase flex items-center gap-2 mb-2">
                     <ShieldCheck size={18} /> Active Injury Logged
                   </div>
-                  <h3 className="text-white font-display text-2xl uppercase tracking-wide">
+                  <h3 className="text-white font-display font-black text-2xl uppercase tracking-wide">
                     {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
                   </h3>
                   <p className="text-white/40 text-[10px] md:text-xs font-mono uppercase tracking-wider mt-1">
@@ -458,7 +452,7 @@ export default function DashboardOverview() {
 
             {/* General Recovery Protocol Tips for engagement */}
             <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 text-left space-y-6">
-              <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+              <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                 <Activity size={18} /> Active Recovery Guidelines
               </div>
               <p className="text-white/40 text-[11px] leading-relaxed">
@@ -468,11 +462,11 @@ export default function DashboardOverview() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
                   <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">1. Hydration Target</div>
-                  <div className="text-lg font-['Anton'] text-[#22c55e]">3.8 LITERS / DAY</div>
+                  <div className="text-lg font-display font-black text-[#22c55e]">3.8 LITERS / DAY</div>
                 </div>
                 <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
                   <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">2. Core Sleep Baseline</div>
-                  <div className="text-lg font-['Anton'] text-[#22c55e]">8.5 HOURS / NIGHT</div>
+                  <div className="text-lg font-display font-black text-[#22c55e]">8.5 HOURS / NIGHT</div>
                 </div>
               </div>
 
@@ -494,7 +488,7 @@ export default function DashboardOverview() {
           {/* RIGHT COLUMN: Coaching team to let them see who can approve them */}
           <div className="space-y-6 text-left">
             <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 space-y-8">
-              <div className="text-white/30 font-['Anton'] text-xs tracking-[0.3em] uppercase">
+              <div className="text-white/30 font-display font-black text-xs tracking-[0.3em] uppercase">
                 COMMAND CLEARANCE STAFF
               </div>
               <p className="text-white/40 text-[10.5px] leading-relaxed">
@@ -570,7 +564,7 @@ export default function DashboardOverview() {
             <div className="text-[#22c55e] text-[10px] font-black tracking-[0.3em] uppercase mb-1">
               {profile?.role === 'parent' ? 'Child Monitoring Portal // Active Tracker' : 'Athlete Portal // Baseline Active'}
             </div>
-            <h2 className={`font-display text-3xl sm:text-4xl text-white tracking-wider mb-4 leading-none`}>
+            <h2 className={`font-display font-black text-3xl sm:text-4xl text-white uppercase tracking-wider mb-4 leading-none`}>
               {athleteName.toUpperCase()}
             </h2>
             <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
@@ -614,10 +608,10 @@ export default function DashboardOverview() {
            <div className="text-white/20 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
              NEXT OPS SESSION
            </div>
-           <div className="text-white font-display text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
-             {nextSession.session}
-           </div>
-           <div className="text-[#22c55e] font-display text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+           <div className="text-white font-display font-black text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
+              {nextSession.session}
+            </div>
+            <div className="text-[#22c55e] font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
              {nextSession.date && <span className="text-white/50 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
              {nextSession.time}
            </div>
@@ -689,7 +683,7 @@ export default function DashboardOverview() {
                 <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl flex justify-between items-center group">
                   <div>
                     <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{m.label}</div>
-                    <div className="text-xl font-['Anton'] text-white mt-1 group-hover:text-[#22c55e] transition-colors">{m.value}</div>
+                    <div className="text-xl font-display font-black text-white mt-1 group-hover:text-[#22c55e] transition-colors">{m.value}</div>
                   </div>
                   <div className="text-[#22c55e] font-black">{m.trend}</div>
                 </div>
@@ -709,7 +703,7 @@ export default function DashboardOverview() {
                 { label: 'PRESSURES', value: metrics?.pressures || 0 },
               ].map((m, i) => (
                 <div key={i} className="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-['Anton'] text-[#22c55e]">{m.value}</div>
+                  <div className="text-2xl font-display font-black text-[#22c55e]">{m.value}</div>
                   <div className="text-[8px] font-black text-white/20 tracking-[1.5px] uppercase mt-2">{m.label}</div>
                 </div>
               ))}
@@ -718,7 +712,7 @@ export default function DashboardOverview() {
             {/* Heatmap Placeholder */}
             <div className="bg-[#00ff41]/5 border border-[#00ff41]/20 rounded-xl p-5 flex items-center justify-between cursor-pointer group hover:bg-[#00ff41]/10 transition-all">
               <div>
-                <div className="text-[#22c55e] font-['Anton'] text-sm tracking-wider uppercase">Tactical Heatmap</div>
+                <div className="text-[#22c55e] font-display font-black text-sm tracking-wider uppercase">Tactical Heatmap</div>
                 <div className="text-white/30 text-[10px] uppercase font-bold mt-1">Access Spatial Density Matrix →</div>
               </div>
               <div className="text-4xl filter grayscale group-hover:grayscale-0 transition-all">🗺️</div>
@@ -736,7 +730,7 @@ export default function DashboardOverview() {
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between items-baseline">
                     <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{m.label}</div>
-                    <div className="text-sm font-['Anton'] text-[#22c55e]">{m.value}</div>
+                    <div className="text-sm font-display font-black text-[#22c55e]">{m.value}</div>
                   </div>
                   {m.progress !== undefined && <ProgressBar value={m.progress} color="#22c55e" height={4} />}
                 </div>
@@ -759,9 +753,9 @@ export default function DashboardOverview() {
                  <div className="flex justify-between items-start mb-6">
                     <div>
                        <div className="text-[#22c55e] text-[10px] font-black tracking-[4px] uppercase mb-1">CURRENT PHASE</div>
-                       <h3 className="text-white font-['Anton'] text-2xl tracking-wider uppercase">{performanceData.activePlan.title}</h3>
+                       <h3 className="text-white font-display font-black text-2xl tracking-wider uppercase">{performanceData.activePlan.title}</h3>
                     </div>
-                    <div className="bg-[#22c55e] text-black font-['Anton'] text-[10px] px-4 py-1 rounded-full tracking-widest">
+                    <div className="bg-[#22c55e] text-black font-display font-black text-[10px] px-4 py-1 rounded-full tracking-widest">
                        {performanceData.activePlan.phase.toUpperCase()}
                     </div>
                  </div>
@@ -775,7 +769,7 @@ export default function DashboardOverview() {
                     <div>EFFECTIVE: {format(new Date(performanceData.activePlan.effective_date), "MMM d, yyyy")}</div>
                     <div className="text-[#22c55e]">AUTO-SYNCHRONIZED</div>
                  </div>
-                 <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.03] font-['Anton'] pointer-events-none group-hover:opacity-[0.06] transition-opacity">PLAN</div>
+                 <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.03] font-display font-black pointer-events-none group-hover:opacity-[0.06] transition-opacity">PLAN</div>
               </div>
             ) : (
               <div className="py-12 text-center bg-white/[0.02] border border-white/5 rounded-3xl text-white/10 uppercase font-bold text-[10px] tracking-widest italic">
@@ -795,10 +789,10 @@ export default function DashboardOverview() {
                 ) : (
                   performanceData.activeInjuries.map((injury: any, i: number) => (
                     <div key={i} className="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl relative group overflow-hidden">
-                       <div className="absolute top-0 right-0 p-4 opacity-10 font-['Anton'] text-4xl pointer-events-none group-hover:opacity-20 transition-opacity">MED</div>
+                       <div className="absolute top-0 right-0 p-4 opacity-10 font-display font-black text-4xl pointer-events-none group-hover:opacity-20 transition-opacity">MED</div>
                        <div className="relative z-10">
                           <div className="flex justify-between items-center mb-2">
-                             <div className="text-red-500 font-['Anton'] text-[11px] tracking-widest uppercase flex items-center gap-2">
+                             <div className="text-red-500 font-display font-black text-[11px] tracking-widest uppercase flex items-center gap-2">
                                 <ShieldCheck size={14} /> {injury.injury_type}
                              </div>
                              <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
@@ -835,7 +829,7 @@ export default function DashboardOverview() {
 
             {/* Recommendations */}
             <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-2xl p-6">
-              <div className="text-[#22c55e] font-['Anton'] text-[11px] tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
+              <div className="text-[#22c55e] font-display font-black text-[11px] tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
                 <Target size={14} /> Recovery Protocol
               </div>
               <div className="space-y-3">
@@ -884,7 +878,7 @@ export default function DashboardOverview() {
           {/* COACH'S PROTOCOL FEEDBACK - NEW */}
           <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-8 relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-8">
-               <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+               <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                   <MessageSquare size={18} /> COACH'S PROTOCOL FEEDBACK
                </div>
             </div>
@@ -897,20 +891,20 @@ export default function DashboardOverview() {
               ) : (
                 <div className="p-5 bg-[#22c55e]/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
                   <div className="flex justify-between items-start mb-2">
-                     <span className="text-[#22c55e] text-[9px] font-['Anton'] tracking-wider uppercase">COACHING STAFF // TACTICAL DIRECTIVE</span>
+                     <span className="text-[#22c55e] text-[9px] font-display font-black tracking-wider uppercase">COACHING STAFF // TACTICAL DIRECTIVE</span>
                      <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">LATEST UPDATE</span>
                   </div>
                   <p className="text-white/70 text-sm leading-relaxed italic whitespace-pre-wrap">"{metrics.protocol_directives}"</p>
                 </div>
               )}
             </div>
-            <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none uppercase">LOG</div>
+            <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none uppercase">LOG</div>
           </div>
 
           {/* TODAY'S SCHEDULE - NEW HIGH-FIDELITY TRACKING */}
           <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-10 relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-10">
-               <div className="text-[#22c55e] font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+               <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                   <CalendarIcon size={18} /> Today's Operational Status
                </div>
                <div className="flex items-center gap-2 px-4 py-1.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full">
@@ -949,7 +943,7 @@ export default function DashboardOverview() {
                             <Clock size={10} /> {formatTimeOnly(s.start_time, (s as any).coach_timezone || 'UTC')}
                          </span>
                       </div>
-                      <h4 className="text-white font-['Anton'] text-lg tracking-wider uppercase truncate group-hover:text-[#22c55e] transition-colors">{s.title}</h4>
+                      <h4 className="text-white font-display font-black text-lg tracking-wider uppercase truncate group-hover:text-[#22c55e] transition-colors">{s.title}</h4>
                       <div className="flex items-center gap-3 text-white/30 text-[9px] font-black tracking-widest uppercase mt-1">
                          <div className="flex items-center gap-1.5"><MapPin size={10} /> {s.location || 'HQ FIELD'}</div>
                          <div className="flex items-center gap-1.5"><Activity size={10} /> {s.duration_minutes}m</div>
@@ -960,7 +954,7 @@ export default function DashboardOverview() {
               )}
             </div>
             
-            <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none">SQUAD</div>
+            <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none">SQUAD</div>
           </div>
 
           {/* PERSONAL ALERTS */}
@@ -1007,7 +1001,7 @@ export default function DashboardOverview() {
                           <Play size={14} className="text-blue-500" />
                           <span className="text-xs text-white font-bold tracking-wide uppercase">{clip.title}</span>
                         </div>
-                        <div className="bg-blue-500/10 text-blue-500 text-[9px] font-['Anton'] px-3 py-1 rounded-full uppercase tracking-widest">
+                        <div className="bg-blue-500/10 text-blue-500 text-[9px] font-display font-black px-3 py-1 rounded-full uppercase tracking-widest">
                           {clip.category}
                         </div>
                       </div>
@@ -1049,10 +1043,10 @@ export default function DashboardOverview() {
         {/* WEEKLY PLAN */}
         <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-8 relative overflow-hidden h-fit lg:col-span-2">
            <div className="flex justify-between items-center mb-8">
-              <div className="text-white/30 font-['Anton'] text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+              <div className="text-white/30 font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                  <CalendarIcon size={18} /> Weekly Plan Overview
               </div>
-              <Link href="/dashboard/booking" className="bg-[#22c55e] hover:bg-white text-black font-['Anton'] text-[10px] px-6 py-2 rounded-lg transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)]">
+              <Link href="/dashboard/booking" className="bg-[#22c55e] hover:bg-white text-black font-display font-black text-[10px] px-6 py-2 rounded-lg transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)]">
                 BOOK OPS +
               </Link>
            </div>
@@ -1060,7 +1054,7 @@ export default function DashboardOverview() {
            <div className="relative z-10">
               <WeeklySchedule />
            </div>
-           <div className="absolute top-0 right-0 p-8 opacity-5 font-['Anton'] text-8xl pointer-events-none">PLAN</div>
+           <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none">PLAN</div>
         </div>
       </div>
 

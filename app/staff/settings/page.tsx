@@ -123,92 +123,69 @@ export default function StaffSettingsPage() {
   const userTeam = teams.find(t => t.id === profile?.team_id);
 
   return (
-    <main className="min-h-screen bg-[#080808] pt-10 pb-20 px-6 relative overflow-hidden text-white font-sans">
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+    <main className="min-h-screen bg-[#080808] py-10 md:py-16 px-4 md:px-8 relative overflow-hidden text-white font-sans">
+      <div 
+        className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+        style={{ 
+          backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+          backgroundSize: '60px 60px' 
+        }} 
+      />
 
-      <div className="container mx-auto max-w-5xl relative z-10">
-
+      <div className="container mx-auto max-w-5xl relative z-10 space-y-8 md:space-y-12">
         {/* Header Section */}
-        <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <Zap className="text-[#22c55e]" size={18} />
-              <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Secure Personnel Hub</span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              <Zap className="text-[#22c55e]" size={16} />
+              <span className="text-xs font-semibold text-[#22c55e] tracking-wider font-mono">Secure Personnel Hub</span>
             </div>
-            <h1 className={`font-display text-6xl md:text-8xl text-white uppercase tracking-wider`}>Personnel Profile</h1>
-            <p className="text-white/40 text-[11px] font-bold uppercase tracking-[4px] mt-6 leading-relaxed max-w-xl">
+            <h1 className="font-display text-[clamp(2.2rem,5vw,3.5rem)] text-white tracking-wide leading-none uppercase">
+              Personnel Profile
+            </h1>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-xl font-normal">
               Access and manage your tactical identity, squad assignments, and operational security credentials.
             </p>
           </div>
 
-          <div className="flex items-center gap-6 bg-[#111] border border-[#22c55e]/30 p-8 rounded-[32px] backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.1)] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#22c55e]/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 scale-110">
+          {/* Profile Card */}
+          <div className="flex items-center gap-5 bg-[#141414] border border-white/5 p-5 md:p-6 rounded-2xl shadow-xl relative overflow-hidden group/profile-card w-full md:w-auto min-w-[320px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#22c55e]/5 to-transparent opacity-50 group-hover/profile-card:opacity-100 transition-opacity" />
+            <div className="relative z-10 flex-shrink-0">
                <ImageUpload 
                  onUpload={(url) => setFormData(p => ({ ...p, avatar_url: url }))}
                  initialUrl={formData.avatar_url}
+                 showRemove={false}
                />
             </div>
-            <div className="relative z-10">
-               <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[4px] mb-1">KIO-X STAFF COMMAND // OPS_READY</div>
-               <div className={`font-sans text-2xl font-black uppercase tracking-widest text-white`}>{profile?.role === 'medical' ? 'Officer' : 'Coach'} {profile?.first_name} {profile?.last_name}</div>
-               <div className="flex items-center gap-3 mt-2">
-                  <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Role: <span className="text-[#22c55e]">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</span></div>
-                  <div className="w-1 h-1 rounded-full bg-white/10" />
-                  <div className="text-white/40 text-[10px] font-black uppercase tracking-[2px]">Team: <span className="text-white">{userTeam?.name || "U21 Elite Squad"}</span></div>
+            <div className="relative z-10 flex-1 min-w-0">
+               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20 w-fit mb-2">
+                 <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                 Ops Ready
+               </div>
+               <h2 className="font-sans text-lg font-bold text-white truncate leading-snug">
+                 {profile?.role === 'medical' ? 'Officer' : 'Coach'} {profile?.first_name} {profile?.last_name}
+               </h2>
+               <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-gray-400 mt-2 font-normal">
+                  <span>Role:</span>
+                  <span className="text-white font-medium">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</span>
+                  <span>Team:</span>
+                  <span className="text-white font-medium">{userTeam?.name || "U21 Elite Squad"}</span>
                </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-           {/* Sidebar: Tactical Context */}
-           <div className="lg:col-span-1 space-y-8">
-              <div className="bg-[#111] border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-8 opacity-5 text-[#22c55e] group-hover:opacity-10 transition-opacity">
-                    <Target size={100} />
-                 </div>
-                 <div className="flex items-center gap-3 mb-8 text-[#22c55e]">
-                    <Activity size={18} />
-                    <h3 className="text-[11px] font-black uppercase tracking-[3px]">Unit Intelligence</h3>
-                 </div>
-                 
-                 <div className="space-y-6">
-                    <div>
-                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[2px] mb-2">Assigned Unit</p>
-                        <div className="px-5 py-4 bg-black/40 border-l-2 border-[#22c55e] rounded-r-xl">
-                           <span className={`font-sans text-sm font-black text-white uppercase tracking-wider`}>
-                              {userTeam?.name || "Independent Ops"}
-                           </span>
-                        </div>
-                    </div>
-                    <div>
-                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[2px] mb-2">Unit Mission</p>
-                        <p className="text-[10px] text-white/50 leading-relaxed uppercase font-bold tracking-widest italic">
-                           "{userTeam?.description || "High-performance operational baseline. No specific tactical assignment detected."}"
-                        </p>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl p-8">
-                 <div className="flex items-center gap-3 mb-6 text-[#22c55e]">
-                    <ShieldCheck size={18} />
-                    <h3 className="text-[11px] font-black uppercase tracking-[3px]">Access Policy</h3>
-                 </div>
-                 <p className="text-[10px] text-white/40 leading-relaxed uppercase font-black tracking-widest">
-                    All administrative actions are logged to your digital signature. Maintain strict operational security at all times. Use a high-entropy access code for maximum protection.
-                 </p>
-              </div>
-           </div>
-
-           {/* Main Content: Profile & Security Form */}
-           <div className="lg:col-span-2 space-y-12">
-              <section className="bg-[#111] border border-white/10 rounded-[40px] p-10 shadow-2xl relative">
-                  <div className="flex justify-between items-center mb-10 pb-6 border-b border-white/5">
-                      <div className="flex items-center gap-3">
-                        <User className="text-[#22c55e]" size={20} />
-                        <h3 className={`font-display text-2xl text-white uppercase tracking-widest`}>Personnel Profile</h3>
+        {/* Two-Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 items-start">
+           
+           {/* Main Content: Profile & Security Form (Left/Top on Mobile, Right on Desktop) */}
+           <div className="md:col-span-2 space-y-8 order-1 md:order-2">
+              <section className="bg-[#141414] border border-white/5 rounded-2xl p-6 md:p-8 shadow-2xl relative">
+                  <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
+                      <div className="flex items-center gap-2.5">
+                        <User className="text-[#22c55e]" size={18} />
+                        <h3 className="font-sans text-base font-bold text-white tracking-wide">Personnel profile details</h3>
                       </div>
                       
                       <AnimatePresence>
@@ -217,9 +194,9 @@ export default function StaffSettingsPage() {
                             initial={{ opacity: 0, y: -10 }} 
                             animate={{ opacity: 1, y: 0 }} 
                             exit={{ opacity: 0 }}
-                            className="bg-[#22c55e]/10 text-[#22c55e] text-[9px] font-black uppercase tracking-[2px] px-4 py-2 rounded-full border border-[#22c55e]/20"
+                            className="bg-[#22c55e]/10 text-[#22c55e] text-xs font-semibold px-3.5 py-1.5 rounded-full border border-[#22c55e]/20 flex items-center gap-1.5"
                           >
-                            <CheckCircle2 className="inline mr-2" size={14} /> {successMsg}
+                            <CheckCircle2 size={14} /> {successMsg}
                           </motion.div>
                         )}
                         {errorMsg && (
@@ -227,84 +204,119 @@ export default function StaffSettingsPage() {
                             initial={{ opacity: 0, y: -10 }} 
                             animate={{ opacity: 1, y: 0 }} 
                             exit={{ opacity: 0 }}
-                            className="bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-[2px] px-4 py-2 rounded-full border border-red-500/20"
+                            className="bg-red-500/10 text-red-500 text-xs font-semibold px-3.5 py-1.5 rounded-full border border-red-500/20 flex items-center gap-1.5"
                           >
-                            <XCircle className="inline mr-2" size={14} /> {errorMsg}
+                            <XCircle size={14} /> {errorMsg}
                           </motion.div>
                         )}
                       </AnimatePresence>
                   </div>
 
-                  <form onSubmit={handleUpdateProfile} className="space-y-10">
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <form onSubmit={handleUpdateProfile} className="space-y-6">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {/* First Name */}
-                        <div className="space-y-3">
-                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
-                           <div className="relative group">
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <div className="space-y-1.5">
+                           <label className="block text-[13px] font-sans font-medium text-white/60 tracking-wide ml-1">First name</label>
+                           <div className="relative flex items-center group">
+                              <div className="absolute left-4 flex items-center justify-center pointer-events-none text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
+                                <User size={18} />
+                              </div>
                               <input 
                                 value={formData.first_name}
                                 onChange={e => setFormData({...formData, first_name: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
-                                placeholder="FIRST_NAME"
+                                className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20 focus:bg-[#202020] outline-none transition-all placeholder:text-white/30 font-medium"
+                                placeholder="Enter first name"
                               />
                            </div>
                         </div>
 
                         {/* Last Name */}
-                        <div className="space-y-3">
-                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
-                           <div className="relative group">
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <div className="space-y-1.5">
+                           <label className="block text-[13px] font-sans font-medium text-white/60 tracking-wide ml-1">Last name</label>
+                           <div className="relative flex items-center group">
+                              <div className="absolute left-4 flex items-center justify-center pointer-events-none text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
+                                <User size={18} />
+                              </div>
                               <input 
                                 value={formData.last_name}
                                 onChange={e => setFormData({...formData, last_name: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
-                                placeholder="LAST_NAME"
+                                className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20 focus:bg-[#202020] outline-none transition-all placeholder:text-white/30 font-medium"
+                                placeholder="Enter last name"
                               />
                            </div>
                         </div>
 
                         {/* Username */}
-                        <div className="space-y-3">
-                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Digital Callsign</label>
-                           <div className="relative group">
-                              <Hash className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <div className="space-y-1.5">
+                           <div className="flex justify-between items-baseline ml-1">
+                              <label className="text-[13px] font-sans font-medium text-white/60 tracking-wide">Username</label>
+                              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">Digital callsign</span>
+                           </div>
+                           <div className="relative flex items-center group">
+                              <div className="absolute left-4 flex items-center justify-center pointer-events-none text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
+                                <Hash size={18} />
+                              </div>
                               <input 
                                 value={formData.username}
                                 onChange={e => setFormData({...formData, username: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
-                                placeholder="OPERATOR_CODE"
+                                className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20 focus:bg-[#202020] outline-none transition-all placeholder:text-white/30 font-medium"
+                                placeholder="Enter username"
                               />
                            </div>
+                           <p className="text-[11px] text-gray-400 ml-1">Your unique operator code used to log in and sign logs.</p>
                         </div>
 
                         {/* Phone */}
-                        <div className="space-y-3">
-                           <label className="text-gray-400 text-[9px] font-black uppercase tracking-[3px] ml-1">Comms Frequency</label>
-                           <div className="relative group">
-                              <Smartphone className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-[#22c55e] transition-colors" size={18} />
+                        <div className="space-y-1.5">
+                           <div className="flex justify-between items-baseline ml-1">
+                              <label className="text-[13px] font-sans font-medium text-white/60 tracking-wide">Phone number</label>
+                              <span className="text-[10px] text-white/30 uppercase tracking-wider font-mono">Comms frequency</span>
+                           </div>
+                           <div className="relative flex items-center group">
+                              <div className="absolute left-4 flex items-center justify-center pointer-events-none text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
+                                <Smartphone size={18} />
+                              </div>
                               <input 
                                 value={formData.phone_number}
                                 onChange={e => setFormData({...formData, phone_number: e.target.value})}
-                                className="w-full bg-black/60 border border-white/10 rounded-2xl py-5 pl-16 pr-8 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700"
-                                placeholder="+1 000 000 0000"
+                                className="w-full bg-[#1c1c1c] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20 focus:bg-[#202020] outline-none transition-all placeholder:text-white/30 font-medium"
+                                placeholder="+1 (555) 000-0000"
                               />
                            </div>
+                           <p className="text-[11px] text-gray-400 ml-1">For urgent operational notifications and critical alerts.</p>
                         </div>
                      </div>
 
-                     <div className="pt-6">
+                     <div className="pt-6 flex flex-col-reverse sm:flex-row sm:justify-end items-center gap-4">
+                        <button 
+                           type="button"
+                           onClick={() => {
+                             if (profile) {
+                               setFormData({
+                                 first_name: profile.first_name || "",
+                                 last_name: profile.last_name || "",
+                                 username: profile.username || "",
+                                 phone_number: profile.phone_number || "",
+                                 team_id: profile.team_id || "",
+                                 avatar_url: profile.avatar_url || ""
+                               });
+                             }
+                           }}
+                           className="w-full sm:w-auto px-6 py-3 border border-white/10 hover:bg-white/5 text-white/80 hover:text-white rounded-xl text-sm font-medium transition-all"
+                        >
+                           Discard Changes
+                        </button>
                         <button 
                            type="submit"
                            disabled={saverLoading}
-                           className="w-full py-6 bg-white text-black font-display text-sm uppercase tracking-[4px] rounded-2xl hover:bg-[#22c55e] transition-all flex items-center justify-center gap-4 group disabled:opacity-50"
+                           className="w-full sm:w-auto px-8 py-3 bg-[#22c55e] text-black font-semibold text-sm rounded-xl hover:bg-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                            {saverLoading ? (
-                             <Loader2 size={24} className="animate-spin" />
+                             <Loader2 size={18} className="animate-spin" />
                            ) : (
                              <>
-                               Commit Changes <Zap className="group-hover:scale-125 transition-transform" size={20} />
+                               Save Changes
+                               <Zap aria-hidden="true" size={16} />
                              </>
                            )}
                         </button>
@@ -313,25 +325,25 @@ export default function StaffSettingsPage() {
               </section>
 
               {/* Security Protocol */}
-              <section className="bg-[#0A0A0A] border border-red-500/10 rounded-[40px] p-10 shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-10 opacity-5 text-red-500 pointer-events-none">
-                     <Lock size={150} />
+              <section className="bg-[#141414] border border-white/5 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 text-red-500 pointer-events-none">
+                     <Lock size={120} />
                   </div>
                   
-                  <div className="relative z-10">
-                     <div className="flex items-center gap-3 mb-10 pb-6 border-b border-white/5">
-                        <Lock className="text-red-500" size={20} />
-                        <h3 className={`font-display text-2xl text-white uppercase tracking-widest`}>Access Security</h3>
+                  <div className="relative z-10 space-y-6">
+                     <div className="flex items-center gap-2.5 pb-4 border-b border-white/5">
+                        <Lock className="text-red-500" size={18} />
+                        <h3 className="font-sans text-base font-bold text-white tracking-wide">Access security</h3>
                      </div>
 
-                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 p-10 bg-black/60 border border-white/5 rounded-3xl hover:border-red-500/30 transition-all">
-                        <div className="flex items-start gap-6">
-                           <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-gray-500">
-                              <ShieldCheck size={32} />
+                     <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 bg-black/40 border border-white/5 rounded-xl hover:border-red-500/20 transition-all">
+                        <div className="flex items-start gap-4">
+                           <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-gray-500 shrink-0">
+                              <ShieldCheck size={24} />
                            </div>
-                           <div>
-                              <p className="text-[11px] font-bold text-white uppercase tracking-[3px] mb-2">Access Code Rotation</p>
-                              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-[1px] leading-relaxed max-w-sm">
+                           <div className="space-y-1">
+                              <p className="text-sm font-semibold text-white tracking-wide">Access code rotation</p>
+                              <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
                                  Manually cycle your tactical access code. Frequent rotation is advised for high-clearance personnel.
                               </p>
                            </div>
@@ -339,14 +351,55 @@ export default function StaffSettingsPage() {
 
                         <button 
                            onClick={() => setPasswordModalOpen(true)}
-                           className="px-10 py-5 bg-red-500/5 border border-red-500/20 rounded-2xl text-red-500 text-[11px] font-black uppercase tracking-[3px] hover:bg-red-500 hover:text-black transition-all shadow-[0_10px_30px_rgba(239,68,68,0.1)] whitespace-nowrap"
+                           className="w-full lg:w-auto px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-semibold hover:bg-red-500 hover:text-black transition-all shadow-[0_10px_30px_rgba(239,68,68,0.05)] whitespace-nowrap"
                         >
-                           Cycle Access Code
+                           Change Password
                         </button>
                      </div>
                   </div>
               </section>
            </div>
+
+           {/* Sidebar: Tactical Context (Right/Bottom on Mobile, Left on Desktop) */}
+           <div className="md:col-span-1 space-y-8 order-2 md:order-1">
+              <div className="bg-[#141414] border border-white/5 rounded-2xl p-6 md:p-8 relative overflow-hidden group/context-card">
+                 <div className="absolute top-0 right-0 p-6 opacity-5 text-[#22c55e] group-hover/context-card:opacity-10 transition-opacity">
+                    <Target size={80} />
+                 </div>
+                 <div className="flex items-center gap-2.5 mb-6 text-[#22c55e] pb-4 border-b border-white/5">
+                    <Activity size={18} />
+                    <h3 className="font-sans text-base font-bold tracking-wide">Unit intelligence</h3>
+                 </div>
+                 
+                 <div className="space-y-6">
+                    <div className="space-y-2">
+                        <p className="text-[13px] font-sans font-medium text-gray-400 tracking-wide">Assigned Unit</p>
+                        <div className="px-4 py-3 bg-black/40 border-l-2 border-[#22c55e] rounded-r-lg">
+                           <span className="font-sans text-sm font-semibold text-white tracking-wide">
+                              {userTeam?.name || "Independent Ops"}
+                           </span>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-[13px] font-sans font-medium text-gray-400 tracking-wide">Unit Mission</p>
+                        <p className="text-xs text-gray-400 leading-relaxed italic font-normal tracking-wide">
+                           "{userTeam?.description || "High-performance operational baseline. No specific tactical assignment detected."}"
+                        </p>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 rounded-2xl p-6 md:p-8 space-y-4">
+                 <div className="flex items-center gap-2.5 text-[#22c55e] pb-2 border-b border-[#22c55e]/10">
+                    <ShieldCheck size={18} />
+                    <h3 className="font-sans text-base font-bold tracking-wide">Access policy</h3>
+                 </div>
+                 <p className="text-xs text-gray-400 leading-relaxed font-normal tracking-wide">
+                    All administrative actions are logged to your digital signature. Maintain strict operational security at all times. Use a high-entropy access code for maximum protection.
+                 </p>
+              </div>
+           </div>
+
         </div>
       </div>
 

@@ -36,7 +36,7 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
     <>
       <motion.div 
         variants={itemVariants}
-        className="group relative overflow-hidden bg-[#111111] border border-white/10 rounded-[20px] p-[24px] h-full flex flex-col items-center text-center cursor-default z-0 min-h-[380px]"
+        className="group relative overflow-hidden bg-bg-card border border-border-card rounded-[20px] p-[24px] h-full flex flex-col items-center text-center cursor-default z-0 min-h-[380px] hover:border-border-active transition-all"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
@@ -71,7 +71,7 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
         />
 
         {/* Green Bottom Border Trick on Hover */}
-        <div className="absolute bottom-0 left-0 w-full h-[4px] bg-[#00ff88] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-none z-30" />
+        <div className="absolute bottom-0 left-0 w-full h-[4px] bg-accent-green opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-none z-30" />
 
         {/* Card content */}
         <div className="flex-1 flex flex-col items-center justify-center w-full relative z-20">
@@ -87,12 +87,12 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
           />
 
           {/* Service Title */}
-          <h4 className="text-white font-bold text-[18px] tracking-[0.1em] uppercase mt-2 mb-2 leading-[1.2] transition-transform duration-300 group-hover:-translate-y-2">
+          <h4 className="text-text-primary font-bold text-[18px] tracking-[0.1em] uppercase mt-2 mb-2 leading-[1.2] transition-transform duration-300 group-hover:-translate-y-2">
             {service.title}
           </h4>
 
           {/* Description */}
-          <p className="text-[#888888] text-[14px] leading-[1.6] mt-2 font-sans font-medium mb-4 transition-transform duration-300 group-hover:-translate-y-2">
+          <p className="text-text-secondary text-[14px] leading-[1.6] mt-2 font-sans font-medium mb-4 transition-transform duration-300 group-hover:-translate-y-2">
             {service.desc}
           </p>
 
@@ -100,7 +100,7 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
             {/* View More Button */}
             <button
               onClick={() => setShowModal(true)}
-              className="w-full sm:w-auto text-[#00ff88] border border-[#00ff88] rounded-full px-5 py-2 text-[12px] tracking-widest font-bold uppercase hover:bg-[#00ff88]/10 bg-black/40 backdrop-blur-sm transition-colors duration-300"
+              className="w-full sm:w-auto text-accent-green border border-accent-green rounded-full px-5 py-2 text-[12px] tracking-widest font-bold uppercase hover:bg-accent-green hover:text-text-on-green bg-bg-secondary/60 backdrop-blur-sm transition-all duration-300 cursor-pointer"
               style={{ 
                 padding: service.title === 'Games' ? '8px 16px' : '8px 20px', 
                 letterSpacing: service.title === 'Games' ? '2px' : '2px',
@@ -122,29 +122,30 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowModal(false)}
-            className="fixed inset-0 bg-black/95 z-[1000] flex items-center justify-center p-4 md:p-8"
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8 backdrop-blur-md"
+            style={{ backgroundColor: "var(--backdrop-overlay)" }}
           >
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={e => e.stopPropagation()}
-              className="bg-[#111] rounded-[24px] border border-[#00ff8830] p-6 md:p-[32px] w-full max-w-[900px] relative max-h-[90vh] overflow-y-auto"
+              className="bg-bg-card rounded-[24px] border border-border-primary p-6 md:p-[32px] w-full max-w-[900px] relative max-h-[90vh] overflow-y-auto"
               style={{
                 scrollbarWidth: 'thin',
-                scrollbarColor: '#00ff88 #111'
+                scrollbarColor: 'var(--accent-green) var(--bg-primary)'
               }}
             >
               {/* Close button */}
               <button
                 onClick={() => setShowModal(false)}
-                className="absolute top-[16px] right-[16px] bg-transparent border border-[#00ff88] text-[#00ff88] rounded-full w-[36px] h-[36px] flex items-center justify-center cursor-pointer text-[16px] hover:bg-[#00ff88]/10 transition-colors z-[1010]"
+                className="absolute top-[16px] right-[16px] bg-transparent border border-accent-green text-accent-green rounded-full w-[36px] h-[36px] flex items-center justify-center cursor-pointer text-[16px] hover:bg-accent-green/10 transition-colors z-[1010]"
               >
                 ✕
               </button>
 
               {/* Modal title */}
-              <h3 className="text-[#00ff88] text-[24px] md:text-[32px] font-bold tracking-[4px] uppercase mb-[24px]">
+              <h3 className="text-accent-green text-[24px] md:text-[32px] font-bold tracking-[4px] uppercase mb-[24px]">
                 {service.title}
               </h3>
 
@@ -155,7 +156,7 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
                     autoPlay
                     controls
                     playsInline
-                    className="w-full object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[250px] sm:h-[400px] md:h-[500px]"
+                    className="w-full object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[250px] sm:h-[400px] md:h-[500px]"
                   >
                     <source src={service.videos[0]} type="video/mp4" />
                   </video>
@@ -163,10 +164,10 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
 
                 {service.videos.length === 2 && (
                   <div className="flex flex-col md:flex-row gap-4 w-full">
-                    <video autoPlay controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[200px] sm:h-[300px] md:h-[400px]">
+                    <video autoPlay controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[200px] sm:h-[300px] md:h-[400px]">
                       <source src={service.videos[0]} type="video/mp4" />
                     </video>
-                    <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[200px] sm:h-[300px] md:h-[400px]">
+                    <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[200px] sm:h-[300px] md:h-[400px]">
                       <source src={service.videos[1]} type="video/mp4" />
                     </video>
                   </div>
@@ -174,14 +175,14 @@ const ServiceCard = ({ service, itemVariants }: { service: any, itemVariants: an
 
                 {service.videos.length === 3 && (
                   <div className="flex flex-col gap-4 w-full">
-                    <video autoPlay controls playsInline className="w-full object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[200px] sm:h-[300px] md:h-[400px]">
+                    <video autoPlay controls playsInline className="w-full object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[200px] sm:h-[300px] md:h-[400px]">
                       <source src={service.videos[0]} type="video/mp4" />
                     </video>
                     <div className="flex flex-col md:flex-row gap-4 w-full">
-                      <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[150px] sm:h-[250px] md:h-[300px]">
+                      <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[150px] sm:h-[250px] md:h-[300px]">
                         <source src={service.videos[1]} type="video/mp4" />
                       </video>
-                      <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-[#00ff8840] bg-black h-[150px] sm:h-[250px] md:h-[300px]">
+                      <video controls playsInline className="w-full md:w-1/2 object-cover rounded-[16px] border border-border-primary/50 bg-[#000] h-[150px] sm:h-[250px] md:h-[300px]">
                         <source src={service.videos[2]} type="video/mp4" />
                       </video>
                     </div>
@@ -254,7 +255,7 @@ export default function Services() {
   ];
 
   return (
-    <section id="services" className="pt-[120px] pb-[120px] bg-[#080808] relative overflow-hidden w-full">
+    <section id="services" className="pt-[120px] pb-[120px] bg-bg-primary relative overflow-hidden w-full transition-colors duration-300">
       <div className="absolute inset-0 bg-texture opacity-10 pointer-events-none mix-blend-luminosity"></div>
       
       <div className="container mx-auto px-4 md:px-10 max-w-[1400px] relative z-10">
@@ -268,13 +269,13 @@ export default function Services() {
           transition={{ duration: 0.8 }}
         >
           <div className="flex justify-center items-center gap-4 mb-6">
-            <div className="h-px w-12 bg-[#00ff88]"></div>
-            <h2 className="text-sm md:text-base font-medium tracking-[0.3em] text-[#00ff88] uppercase">Elite Services</h2>
-            <div className="h-px w-12 bg-[#00ff88]"></div>
+            <div className="h-px w-12 bg-accent-green"></div>
+            <h2 className="text-sm md:text-base font-medium tracking-[0.3em] text-accent-green uppercase font-label">Elite Services</h2>
+            <div className="h-px w-12 bg-accent-green"></div>
           </div>
-          <h3 className="font-display text-5xl md:text-[80px] font-bold tracking-tighter text-white uppercase mb-8 relative inline-block leading-none">
+          <h3 className="font-display text-5xl md:text-[80px] font-bold tracking-tighter text-text-primary uppercase mb-8 relative inline-block leading-none">
             How We Train
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-[#00ff88]"></span>
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-accent-green"></span>
           </h3>
         </motion.div>
 

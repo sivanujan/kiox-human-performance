@@ -35,8 +35,8 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
         <radialGradient id="wheelGlow" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#00ff88" stopOpacity="0.12" />
-          <stop offset="100%" stopColor="#00ff88" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--accent-green)" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="var(--accent-green)" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -77,8 +77,8 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
           >
             <path
               d={`M ${x1} ${y1} A ${outerR} ${outerR} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 0 0 ${x4} ${y4} Z`}
-              fill={isActive ? "rgba(0, 255, 136, 0.3)" : "rgba(0, 255, 136, 0.06)"}
-              stroke={isActive ? "#00ff88" : "rgba(0, 255, 136, 0.3)"}
+              fill={isActive ? "color-mix(in srgb, var(--accent-green) 30%, transparent)" : "color-mix(in srgb, var(--accent-green) 6%, transparent)"}
+              stroke={isActive ? "var(--accent-green)" : "color-mix(in srgb, var(--accent-green) 30%, transparent)"}
               strokeWidth="1.5"
               className="transition-all duration-300"
             />
@@ -86,7 +86,7 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
               x={numX} y={numY}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={isActive ? "#00ff88" : "rgba(0, 255, 136, 0.4)"}
+              fill={isActive ? "var(--accent-green)" : "color-mix(in srgb, var(--accent-green) 40%, transparent)"}
               fontSize="20"
               className="font-bold tracking-wider transition-all duration-300 font-label"
             >
@@ -96,9 +96,9 @@ function WheelSVG({ activeId, setActiveId }: { activeId: number | null, setActiv
         );
       })}
 
-      <circle cx={cx} cy={cy} r={innerR} fill="rgba(0,0,0,0.9)" stroke="#00ff88" strokeWidth="2.5" filter="url(#glow2)" />
-      <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="rgba(0, 255, 136, 0.5)" strokeWidth="1.5" filter="url(#glow2)" />
-      <circle cx={cx} cy={cy} r={outerR + 12} fill="none" stroke="rgba(0, 255, 136, 0.15)" strokeWidth="1" />
+      <circle cx={cx} cy={cy} r={innerR} fill="var(--bg-primary)" stroke="var(--accent-green)" strokeWidth="2.5" filter="url(#glow2)" />
+      <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="color-mix(in srgb, var(--accent-green) 50%, transparent)" strokeWidth="1.5" filter="url(#glow2)" />
+      <circle cx={cx} cy={cy} r={outerR + 12} fill="none" stroke="var(--border-accent-trans)" strokeWidth="1" />
     </svg>
   );
 }
@@ -112,13 +112,13 @@ export default function PlayerDevelopment() {
     <section 
       id="philosophy" 
       ref={ref} 
-      className="py-24 md:py-32 bg-[#080808] relative overflow-hidden w-full"
+      className="py-24 md:py-32 bg-bg-primary transition-colors duration-300 relative overflow-hidden w-full"
     >
       {/* Grid background */}
       <div 
         className="absolute inset-0 opacity-5 pointer-events-none z-0"
         style={{
-          backgroundImage: 'linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)',
           backgroundSize: '50px 50px'
         }}
       />
@@ -131,16 +131,16 @@ export default function PlayerDevelopment() {
           className="text-center mb-16 md:mb-20"
         >
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#00ff88]" />
-            <span className="text-xs tracking-[0.4em] text-[#00ff88] uppercase font-bold font-label">
+            <div className="w-12 h-px bg-gradient-to-r from-transparent to-accent-green" />
+            <span className="text-xs tracking-[0.4em] text-accent-green uppercase font-bold font-label">
               KIO-X PHILOSOPHY
             </span>
-            <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#00ff88]" />
+            <div className="w-12 h-px bg-gradient-to-l from-transparent to-accent-green" />
           </div>
-          <h2 className="font-display text-4xl md:text-7xl font-black tracking-tight text-white uppercase italic leading-none">
+          <h2 className="font-display text-4xl md:text-7xl font-black tracking-tight text-text-primary uppercase italic leading-none">
             PLAYER DEVELOPMENT
           </h2>
-          <p className="text-[#00ff88] text-sm md:text-base tracking-[0.3em] font-label font-bold mt-4">
+          <p className="text-accent-green text-sm md:text-base tracking-[0.3em] font-label font-bold mt-4">
             360° SUPPORT
           </p>
         </motion.div>
@@ -157,32 +157,32 @@ export default function PlayerDevelopment() {
                 variants={{
                   hidden: { opacity: 0, x: -40 },
                   visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
-                  active: { opacity: 1, x: 0, backgroundColor: 'rgba(0, 255, 136, 0.06)', scale: 1.03, transition: { duration: 0.2 } }
+                  active: { opacity: 1, x: 0, backgroundColor: 'var(--shadow-accent)', scale: 1.03, transition: { duration: 0.2 } }
                 }}
                 initial="hidden"
                 animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
                 className="py-6 px-5 cursor-pointer transition-all duration-300 rounded-r-lg lg:rounded-r-none lg:rounded-l-lg border-l-2 lg:border-l-0 lg:border-r-2 relative transform-origin-right-center text-left lg:text-right"
                 style={{
-                  borderLeftColor: activeId === seg.id ? '#00ff88' : 'transparent',
-                  borderRightColor: activeId === seg.id ? '#00ff88' : 'rgba(0, 255, 136, 0.15)',
+                  borderLeftColor: activeId === seg.id ? 'var(--accent-green)' : 'transparent',
+                  borderRightColor: activeId === seg.id ? 'var(--accent-green)' : 'var(--border-accent-trans)',
                 }}
               >
                 {activeId === seg.id && (
                   <motion.div 
                     layoutId="activeDotLeft" 
-                    className="absolute left-[-5.5px] lg:left-auto lg:right-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_15px_#00ff88] z-10"
+                    className="absolute left-[-5.5px] lg:left-auto lg:right-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent-green shadow-[0_0_15px_var(--accent-green)] z-10"
                   />
                 )}
                 <div className="mb-2 flex items-baseline justify-start lg:justify-end gap-2">
-                  <span className="text-[#00ff88]/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
-                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-[#00ff88]' : 'text-white'}`}>{seg.label}</span>
+                  <span className="text-accent-green/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
+                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-accent-green' : 'text-text-primary'}`}>{seg.label}</span>
                 </div>
-                <div className="w-8 h-0.5 bg-[#00ff88] ml-0 lg:ml-auto lg:mr-0 mb-3 shadow-[0_0_6px_#00ff88]" />
+                <div className="w-8 h-0.5 bg-accent-green ml-0 lg:ml-auto lg:mr-0 mb-3 shadow-[0_0_6px_var(--accent-green)]" />
                 {seg.points.map((p, pi) => (
-                  <div key={pi} className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-1 flex items-start justify-start lg:justify-end gap-2 font-label font-medium">
-                    <span className="lg:hidden text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                  <div key={pi} className="text-text-secondary text-xs sm:text-sm leading-relaxed mb-1 flex items-start justify-start lg:justify-end gap-2 font-label font-medium">
+                    <span className="lg:hidden text-accent-green text-[8px] mt-1.5 shrink-0">▶</span>
                     <span>{p}</span>
-                    <span className="hidden lg:inline text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                    <span className="hidden lg:inline text-accent-green text-[8px] mt-1.5 shrink-0">▶</span>
                   </div>
                 ))}
               </motion.div>
@@ -198,11 +198,11 @@ export default function PlayerDevelopment() {
           >
             {/* Spinning decorative rings */}
             <div 
-              className="absolute w-[110%] h-[110%] rounded-full border border-dashed border-[#00ff88]/15 pointer-events-none hidden lg:block" 
+              className="absolute w-[110%] h-[110%] rounded-full border border-dashed border-accent-green/15 pointer-events-none hidden lg:block" 
               style={{ animation: 'spinCW 25s linear infinite' }}
             />
             <div 
-              className="absolute w-[125%] h-[125%] rounded-full border border-dashed border-[#00ff88]/8 pointer-events-none hidden lg:block" 
+              className="absolute w-[125%] h-[125%] rounded-full border border-dashed border-accent-green/8 pointer-events-none hidden lg:block" 
               style={{ animation: 'spinCCW 35s linear infinite' }}
             />
             
@@ -210,7 +210,7 @@ export default function PlayerDevelopment() {
             <WheelSVG activeId={activeId} setActiveId={setActiveId} />
             
             {/* Center Video Frame */}
-            <div className="absolute w-[130px] xs:w-[150px] sm:w-[190px] h-[130px] xs:h-[150px] sm:h-[190px] rounded-full overflow-hidden border-3 border-[#00ff88] shadow-[0_0_0_6px_rgba(0,255,136,0.1),_0_0_40px_rgba(0,255,136,0.5),_0_0_80px_rgba(0,255,136,0.2)] z-20">
+            <div className="absolute w-[130px] xs:w-[150px] sm:w-[190px] h-[130px] xs:h-[150px] sm:h-[190px] rounded-full overflow-hidden border-3 border-accent-green shadow-[0_0_0_6px_var(--border-accent-trans),_0_0_40px_var(--shadow-accent-glow),_0_0_80px_var(--shadow-accent)] z-20">
               <video autoPlay muted loop playsInline className="w-full h-full object-cover object-top">
                 <source src="/videos/vidcen.mp4" type="video/mp4" />
               </video>
@@ -226,29 +226,29 @@ export default function PlayerDevelopment() {
                 variants={{
                   hidden: { opacity: 0, x: 40 },
                   visible: { opacity: 1, x: 0, backgroundColor: 'rgba(0,0,0,0)', scale: 1, transition: { delay: 0.2 + i * 0.15, duration: 0.6 } },
-                  active: { opacity: 1, x: 0, backgroundColor: 'rgba(0, 255, 136, 0.06)', scale: 1.03, transition: { duration: 0.2 } }
+                  active: { opacity: 1, x: 0, backgroundColor: 'var(--shadow-accent)', scale: 1.03, transition: { duration: 0.2 } }
                 }}
                 initial="hidden"
                 animate={isInView ? (activeId === seg.id ? "active" : "visible") : "hidden"}
                 className="py-6 px-5 cursor-pointer transition-all duration-300 rounded-r-lg border-l-2 relative transform-origin-left-center text-left"
                 style={{
-                  borderLeftColor: activeId === seg.id ? '#00ff88' : 'rgba(0, 255, 136, 0.15)',
+                  borderLeftColor: activeId === seg.id ? 'var(--accent-green)' : 'var(--border-accent-trans)',
                 }}
               >
                 {activeId === seg.id && (
                   <motion.div 
                     layoutId="activeDotRight" 
-                    className="absolute left-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_15px_#00ff88] z-10"
+                    className="absolute left-[-5.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent-green shadow-[0_0_15px_var(--accent-green)] z-10"
                   />
                 )}
                 <div className="mb-2 flex items-baseline justify-start gap-2">
-                  <span className="text-[#00ff88]/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
-                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-[#00ff88]' : 'text-white'}`}>{seg.label}</span>
+                  <span className="text-accent-green/70 text-lg font-stat font-black tracking-wide">{String(seg.id).padStart(2, '0')}</span>
+                  <span className={`text-lg sm:text-xl font-display font-black tracking-wide uppercase transition-colors duration-300 ${activeId === seg.id ? 'text-accent-green' : 'text-text-primary'}`}>{seg.label}</span>
                 </div>
-                <div className="w-8 h-0.5 bg-[#00ff88] mb-3 shadow-[0_0_6px_#00ff88]" />
+                <div className="w-8 h-0.5 bg-accent-green mb-3 shadow-[0_0_6px_var(--accent-green)]" />
                 {seg.points.map((p, pi) => (
-                  <div key={pi} className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-1 flex items-start gap-2 font-label font-medium">
-                    <span className="text-[#00ff88] text-[8px] mt-1.5 shrink-0">▶</span>
+                  <div key={pi} className="text-text-secondary text-xs sm:text-sm leading-relaxed mb-1 flex items-start gap-2 font-label font-medium">
+                    <span className="text-accent-green text-[8px] mt-1.5 shrink-0">▶</span>
                     <span>{p}</span>
                   </div>
                 ))}

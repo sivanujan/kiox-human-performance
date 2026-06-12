@@ -137,56 +137,56 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
+              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
               <div className="relative">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
                 <input
                   required
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
                   placeholder="AGENT_FIRST"
-                  className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+                  className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
+              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
               <div className="relative">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
                 <input
                   required
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
                   placeholder="AGENT_LAST"
-                  className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+                  className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
                 />
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-1">Tactical Communications</label>
+            <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Tactical Communications</label>
             <div className="relative">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[#22c55e]/40" size={16} />
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
               <input
                 required
                 type="email"
                 value={formData.email}
                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                 placeholder="AGENT_MAIL@KIOX.COM"
-                className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pl-14 pr-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-700 text-sm"
+                className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-gray-500 text-[9px] font-black uppercase tracking-[3px]">Unit Registry</label>
+              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px]">Unit Registry</label>
               <button 
                 type="button"
                 onClick={() => setIsManageMode(!isManageMode)}
-                className="text-[#22c55e] text-[8px] font-black uppercase tracking-[2px] hover:text-white transition-colors flex items-center gap-1 active-scale"
+                className="text-accent-green text-[8px] font-black uppercase tracking-[2px] hover:text-text-primary transition-colors flex items-center gap-1 active-scale"
               >
                 <Settings2 size={10} /> {isManageMode ? "CLOSE" : "MANAGE"}
               </button>
@@ -198,12 +198,12 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 5 }}
-                  className="space-y-4 bg-black/60 border border-[#22c55e]/20 rounded-2xl p-4 md:p-6"
+                  className="space-y-4 bg-bg-secondary border border-border-primary/50 rounded-2xl p-4 md:p-6"
                 >
                   <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
                     {teams.map(team => (
-                      <div key={team.id} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5 group/unit">
-                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">{team.name}</span>
+                      <div key={team.id} className="flex justify-between items-center p-3 bg-bg-card rounded-xl border border-border-primary/40 group/unit">
+                        <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest">{team.name}</span>
                         <button 
                           type="button"
                           onClick={() => handleDeleteTeam(team.id)}
@@ -228,21 +228,21 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                     value={newTeamName}
                     onChange={e => setNewTeamName(e.target.value)}
                     placeholder="UNIT_NAME"
-                    className="flex-1 bg-black/40 border border-[#22c55e]/30 rounded-2xl py-4 px-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none text-sm"
+                    className="flex-1 bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green rounded-2xl py-4 px-6 text-text-primary font-sans font-bold uppercase tracking-widest outline-none text-sm animate-pulse"
                    />
                    <div className="flex gap-2">
                      <button 
                       type="button"
                       onClick={handleAddNewTeam}
                       disabled={teamActionLoading || !newTeamName}
-                      className="flex-1 sm:flex-none px-6 py-4 bg-[#22c55e] text-black rounded-2xl hover:bg-white transition-all disabled:opacity-50 active-scale"
+                      className="flex-1 sm:flex-none px-6 py-4 bg-bg-button-primary text-text-on-green rounded-2xl hover:bg-accent-green-dim transition-all disabled:opacity-50 active-scale"
                      >
                        {teamActionLoading ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
                      </button>
                      <button 
                       type="button"
                       onClick={() => setIsAddingNewTeam(false)}
-                      className="flex-1 sm:flex-none px-6 py-4 bg-white/5 text-white rounded-2xl hover:bg-white/10 transition-all border border-white/10 active-scale"
+                      className="flex-1 sm:flex-none px-6 py-4 bg-bg-secondary text-text-primary rounded-2xl hover:bg-bg-card-hover transition-all border border-border-primary active-scale"
                      >
                        <X size={18} />
                      </button>
@@ -260,15 +260,15 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                         setFormData({ ...formData, team_id: e.target.value });
                       }
                     }}
-                    className="w-full bg-black/40 border border-[#22c55e]/10 rounded-2xl py-4 pr-14 pl-6 text-white font-sans font-bold uppercase tracking-widest focus:border-[#22c55e] outline-none transition-all appearance-none cursor-pointer text-sm no-custom-bg"
+                    className="w-full bg-bg-input border border-border-input hover:border-border-active rounded-2xl py-4 pr-14 pl-6 text-text-primary font-sans font-bold uppercase tracking-widest focus:border-accent-green outline-none transition-all appearance-none cursor-pointer text-sm no-custom-bg"
                   >
                     <option value="" disabled>SELECT UNIT...</option>
                     {teams.map(team => (
-                      <option key={team.id} value={team.id} className="bg-[#111]">{team.name.toUpperCase()}</option>
+                      <option key={team.id} value={team.id} className="bg-bg-card text-text-primary">{team.name.toUpperCase()}</option>
                     ))}
-                    <option value="ADD_NEW" className="bg-[#22c55e]/20 text-[#22c55e] font-black">+ ADD NEW UNIT</option>
+                    <option value="ADD_NEW" className="bg-bg-secondary text-accent-green font-black">+ ADD NEW UNIT</option>
                   </select>
-                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#22c55e] pointer-events-none" size={16} />
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-accent-green pointer-events-none" size={16} />
                 </div>
               )}
             </AnimatePresence>
@@ -277,7 +277,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
           <button
             type="submit"
             disabled={loading || isManageMode || isAddingNewTeam}
-            className="w-full py-5 bg-[#22c55e] text-black text-[10px] md:text-xs font-black uppercase tracking-[4px] md:tracking-[5px] rounded-2xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-4 group disabled:opacity-50 active-scale"
+            className="w-full py-5 bg-bg-button-primary text-text-on-green text-[10px] md:text-xs font-black uppercase tracking-[4px] md:tracking-[5px] rounded-2xl hover:bg-accent-green-dim transition-all flex items-center justify-center gap-4 group disabled:opacity-50 active-scale shadow-lg"
           >
             {loading ? (
               <Loader2 className="animate-spin" size={20} />

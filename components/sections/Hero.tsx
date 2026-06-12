@@ -35,7 +35,7 @@ export default function Hero() {
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden w-full cursor-default"
     >
       {/* VIDEO BACKGROUND */}
-      <div className="absolute inset-0 z-0 bg-[#080808]">
+      <div className="absolute inset-0 z-0 bg-bg-primary transition-colors duration-300">
         <video 
           ref={videoRef}
           autoPlay 
@@ -46,7 +46,7 @@ export default function Hero() {
         >
           <source src="/videos/videohero.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/80 via-[#080808]/40 to-[#080808] z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/80 via-bg-primary/40 to-bg-primary z-10 pointer-events-none transition-colors duration-300" />
       </div>
 
       {/* SMOKE PARTICLES AT 5S */}
@@ -54,7 +54,7 @@ export default function Hero() {
          {particles.map((p) => (
            <div 
              key={p.id}
-             className="absolute bg-white/10 rounded-full mix-blend-screen"
+             className="absolute bg-text-primary/10 rounded-full mix-blend-difference"
              style={{
                width: p.size,
                height: p.size,
@@ -72,21 +72,22 @@ export default function Hero() {
       {/* SHOCKWAVE ON IMPACT AT 5S */}
       <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
          <div 
-           className="absolute border-[3px] border-[#00ff88] rounded-[50%]"
+           className="absolute border-[3px] border-accent-green rounded-[50%]"
            style={{ animation: 'shockwave 0.8s ease-out 0.5s forwards', opacity: 0 }}
          />
       </div>
 
       {/* HUD OVERLAY */}
       <div className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute inset-0 opacity-[0.05]" style={{
-          backgroundImage: 'linear-gradient(rgba(0,255,136,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.5) 1px, transparent 1px)',
+        <div className="absolute inset-0" style={{
+          opacity: 'var(--grid-opacity)',
+          backgroundImage: 'linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px'
         }}></div>
-        <div className="absolute top-8 left-8 w-16 h-16 border-t-[3px] border-l-[3px] border-[#00ff88]/60"></div>
-        <div className="absolute top-8 right-8 w-16 h-16 border-t-[3px] border-r-[3px] border-[#00ff88]/60"></div>
-        <div className="absolute bottom-8 left-8 w-16 h-16 border-b-[3px] border-l-[3px] border-[#00ff88]/60"></div>
-        <div className="absolute bottom-8 right-8 w-16 h-16 border-b-[3px] border-r-[3px] border-[#00ff88]/60"></div>
+        <div className="absolute top-8 left-8 w-16 h-16 border-t-[3px] border-l-[3px] border-accent-green/60"></div>
+        <div className="absolute top-8 right-8 w-16 h-16 border-t-[3px] border-r-[3px] border-accent-green/60"></div>
+        <div className="absolute bottom-8 left-8 w-16 h-16 border-b-[3px] border-l-[3px] border-accent-green/60"></div>
+        <div className="absolute bottom-8 right-8 w-16 h-16 border-b-[3px] border-r-[3px] border-accent-green/60"></div>
       </div>
 
       {/* FOREGROUND CONTENT */}
@@ -95,7 +96,7 @@ export default function Hero() {
           <h1 className="font-display font-bold leading-[0.85] tracking-tighter uppercase mb-6 sm:mb-8 text-[7.5vw] xs:text-[9vw] sm:text-[10vw] md:text-[9vw] lg:text-[130px] flex flex-col items-center drop-shadow-2xl">
             
             {/* UNLEASH YOUR - staggered mapped display */}
-            <div className="text-white relative z-10 pointer-events-none flex justify-center whitespace-pre pb-2">
+            <div className="text-text-primary relative z-10 pointer-events-none flex justify-center whitespace-pre pb-2">
               {"UNLEASH YOUR".split('').map((letter, i) => (
                 <motion.span
                   key={i}
@@ -117,7 +118,7 @@ export default function Hero() {
                   initial={{ opacity: 0, filter: 'blur(30px)', scale: 1.4 }}
                   animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
                   transition={{ delay: 0.7 + (i * 0.07), duration: 0.8, ease: 'easeOut' }}
-                  className="inline-block text-[#00ff88] text-layer-shadow"
+                  className="inline-block text-accent-green text-layer-shadow"
                 >
                   {letter}
                 </motion.span>
@@ -125,7 +126,7 @@ export default function Hero() {
             </div>
           </h1>
 
-          <div className="text-sm md:text-xl lg:text-2xl text-[#00ff88] font-sans font-medium tracking-[0.2em] uppercase max-w-3xl mx-auto mb-16 text-layer-shadow pointer-events-none">
+          <div className="text-sm md:text-xl lg:text-2xl text-accent-green font-sans font-medium tracking-[0.2em] uppercase max-w-3xl mx-auto mb-16 text-layer-shadow pointer-events-none">
             <Typewriter text="ELITE HUMAN PERFORMANCE TRAINING" delay={1.5} />
           </div>
 
@@ -138,7 +139,7 @@ export default function Hero() {
           >
             <Link 
               href="#services"
-              className="group relative inline-flex w-full sm:w-auto items-center justify-center px-12 py-5 font-bold tracking-widest text-[#080808] uppercase transition-all duration-300 bg-[#00ff88] hover:scale-[1.05] shadow-[0_0_20px_rgba(0,255,136,0.6)] hover:shadow-[0_0_50px_rgba(0,255,136,0.9)] overflow-hidden rounded-full cursor-pointer"
+              className="group relative inline-flex w-full sm:w-auto items-center justify-center px-12 py-5 font-bold tracking-widest text-text-on-green uppercase transition-all duration-300 bg-accent-green hover:scale-[1.05] shadow-[0_0_20px_var(--shadow-accent-glow)] hover:shadow-[0_0_50px_var(--shadow-accent-glow)] overflow-hidden rounded-full cursor-pointer"
             >
               <div 
                 className="absolute inset-0 bg-transparent opacity-50 group-hover:opacity-100 pointer-events-none mix-blend-screen"
@@ -161,7 +162,7 @@ export default function Hero() {
       </div>
 
       <motion.div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-32 bg-gradient-to-b from-transparent via-[#00ff88]/50 to-[#00ff88] z-20 pointer-events-none"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-32 bg-gradient-to-b from-transparent via-accent-green/50 to-accent-green z-20 pointer-events-none"
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: 128 }}
         transition={{ duration: 1.5, delay: 2.5, ease: "easeInOut" }}

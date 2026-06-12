@@ -10,9 +10,19 @@ export default function ThreeBackground() {
     if (!mountRef.current) return;
     if (mountRef.current.children.length > 0) return;
 
+    const getThemeColors = () => {
+      const isLight = typeof document !== "undefined" && document.documentElement.classList.contains("light");
+      return {
+        bg: isLight ? "#f0f7f2" : "#0a0f0d",
+        accent: isLight ? "#00a855" : "#00ff87",
+      };
+    };
+
+    let colors = getThemeColors();
+
     // 1. Scene Setup
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2('#080808', 0.04);
+    scene.fog = new THREE.FogExp2(colors.bg, 0.04);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 5, 20);
@@ -27,17 +37,28 @@ export default function ThreeBackground() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x00ff88, 100, 100); 
+    const pointLight = new THREE.PointLight(new THREE.Color(colors.accent), 100, 100); 
     pointLight.position.set(0, 10, 5);
     scene.add(pointLight);
 
     // 3. Grid
-    const gridHelper = new THREE.GridHelper(200, 100, '#00ff88', '#00ff88');
+    const gridHelper = new THREE.GridHelper(200, 100, colors.accent, colors.accent);
     const bgMaterial = gridHelper.material as THREE.Material;
     bgMaterial.opacity = 0.3;
     bgMaterial.transparent = true;
     gridHelper.position.y = -2;
     scene.add(gridHelper);
+
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
+      const currentColors = getThemeColors();
+      scene.fog = new THREE.FogExp2(currentColors.bg, 0.04);
+      pointLight.color.set(currentColors.accent);
+      if (gridHelper.material && "color" in gridHelper.material) {
+        (gridHelper.material as any).color.set(currentColors.accent);
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
     // 4. Animation Loop
     let animationFrameId: number;
@@ -68,6 +89,7 @@ export default function ThreeBackground() {
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
       
       scene.clear();
       renderer.dispose();

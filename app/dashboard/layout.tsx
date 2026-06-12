@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import { 
   Loader2, 
   Bell, 
@@ -180,8 +181,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
-        <Loader2 className="text-[#22c55e] animate-spin" size={48} />
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+        <Loader2 className="text-[var(--accent-green)] animate-spin" size={48} />
       </div>
     );
   }
@@ -191,7 +192,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const status = profile?.status || 'OPTIMIZED';
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex overflow-hidden">
       {/* Sidebar Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -208,17 +209,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-[150]
-        w-[280px] bg-[#0a0a0a] border-r border-[#22c55e]/15
+        w-[280px] bg-[var(--bg-sidebar)] border-r border-[var(--border-primary)]
         flex flex-col overflow-y-auto transform transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-[#22c55e]/10 flex items-center justify-between">
+        <div className="p-6 border-b border-[var(--border-primary)] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_rgba(34,197,94,0.2)]">
+             <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_var(--shadow-accent)]">
                 <Image src="/logo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
              </div>
-             <span className="font-display text-2xl tracking-widest text-white">KIO-X</span>
+             <span className="font-display text-2xl tracking-widest text-[var(--accent-green)]">KIO-X</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-gray-500 hover:text-white">
             <X size={20} />
@@ -233,18 +234,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 src={profile?.avatar_url}
                 name={userName}
                 size="xl"
-                className="rounded-2xl border-2 border-[#22c55e] shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+                className="rounded-2xl border-2 border-[var(--accent-green)] shadow-[0_0_30px_var(--shadow-accent-glow)]"
               />
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[#22c55e] flex items-center justify-center text-black border-2 border-[#0a0a0a] shadow-[0_0_10px_#22c55e]">
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[var(--accent-green)] flex items-center justify-center text-[var(--text-on-green)] border-2 border-[var(--bg-sidebar)] shadow-[0_0_10px_var(--accent-green)]">
                 <Activity size={12} fill="currentColor" />
               </div>
             </div>
             
-            <div className="font-display text-lg text-white mb-1 uppercase tracking-wider truncate w-full px-2">
+            <div className="font-display text-lg text-[var(--text-primary)] mb-1 uppercase tracking-wider truncate w-full px-2">
               {userName}
             </div>
             <div className="flex flex-col gap-1 items-center">
-              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[8px] font-black uppercase tracking-[2px]">
+              <div className="px-3 py-1 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded-full text-[var(--accent-green)] text-[8px] font-black uppercase tracking-[2px]">
                 {profile?.role === 'parent' ? 'Parent Account' : 'Elite Performer'}
               </div>
               <div className="text-gray-400 text-[9px] font-bold uppercase tracking-[1px] mt-1">
@@ -283,13 +284,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   }}
                   className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
                     isActive 
-                      ? 'bg-[#22c55e] text-black shadow-[0_10px_20px_rgba(34,197,94,0.2)]' 
+                      ? 'bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_10px_20px_var(--shadow-accent)]' 
                       : isDisabled
                         ? 'text-white/10 cursor-not-allowed opacity-20 hover:bg-transparent pointer-events-none'
-                        : 'text-white/40 hover:text-white hover:bg-white/5'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
                   }`}
                 >
-                  <span className={isActive ? 'text-black' : isDisabled ? 'text-red-500/30' : 'text-[#22c55e] group-hover:scale-110 transition-transform'}>{item.icon}</span>
+                  <span className={isActive ? 'text-[var(--text-on-green)]' : isDisabled ? 'text-red-500/30' : 'text-[var(--accent-green)] group-hover:scale-110 transition-transform'}>{item.icon}</span>
                   {item.label}
                   {item.badge && !isDisabled && (
                     <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
@@ -323,21 +324,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 flex flex-col min-w-0 bg-[#080808] relative">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
-          backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', 
+          backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
         {/* Mobile Top Header */}
-        <header className="sticky top-0 z-[130] bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 px-4 lg:px-10 h-[70px] lg:h-[80px] flex items-center justify-between">
+        <header className="sticky top-0 z-[130] bg-[var(--bg-header)] backdrop-blur-xl border-b border-[var(--border-primary)] px-4 lg:px-10 h-[70px] lg:h-[80px] flex items-center justify-between">
           <div className="flex items-center gap-3 md:gap-4">
-             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 bg-white/5 border border-white/10 rounded-xl text-[#22c55e] hover:bg-[#22c55e]/10 transition-all">
+             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 bg-white/5 border border-white/10 rounded-xl text-[var(--accent-green)] hover:bg-[var(--accent-green)]/10 transition-all">
                 <Menu size={20} />
              </button>
-             <div className="w-1 h-5 md:w-1.5 md:h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e] hidden xs:block" />
+             <div className="w-1 h-5 md:w-1.5 md:h-6 bg-[var(--accent-green)] rounded-full shadow-[0_0_10px_var(--accent-green)] hidden xs:block" />
              <div>
-                <div className="text-[#22c55e] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5 hidden sm:block">Tactical Performance Hub</div>
-                <h1 className="font-display text-sm md:text-2xl text-white uppercase tracking-wider truncate max-w-[150px] sm:max-w-none">
-                   <span className="hidden sm:inline">System Online // </span><span className="text-[#22c55e]">{profile?.first_name || 'Protocol'}</span>
+                <div className="text-[var(--accent-green)] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5 hidden sm:block">Tactical Performance Hub</div>
+                <h1 className="font-display text-sm md:text-2xl text-[var(--text-primary)] uppercase tracking-wider truncate max-w-[150px] sm:max-w-none">
+                   <span className="hidden sm:inline">System Online // </span><span className="text-[var(--accent-green)]">{profile?.first_name || 'Protocol'}</span>
                    {profile?.role === 'parent' && (
                       <span className="text-white/40 text-[9px] font-black tracking-[2px] ml-2">
                         (MONITORING: {childProfile ? `${childProfile.first_name} ${childProfile.last_name || ''}`.toUpperCase() : 'CHILD'})
@@ -348,17 +349,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
+            <ThemeToggle />
             <NotificationDropdown />
             <Link href="/dashboard/profile" className="flex items-center gap-3 group">
                <div className="text-right hidden md:block">
-                  <div className="text-[10px] font-black text-white uppercase tracking-[2px]">{userName}</div>
-                  <div className="text-[8px] font-bold text-[#22c55e] uppercase tracking-[1px]">{status}</div>
+                  <div className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[2px]">{userName}</div>
+                  <div className="text-[8px] font-bold text-[var(--accent-green)] uppercase tracking-[1px]">{status}</div>
                </div>
                <Avatar 
                   src={profile?.avatar_url}
                   name={userName}
                   size="md"
-                  className="group-hover:border-[#22c55e] transition-all"
+                  className="group-hover:border-[var(--accent-green)] transition-all"
                />
             </Link>
           </div>

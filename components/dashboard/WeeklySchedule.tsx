@@ -98,31 +98,31 @@ export default function WeeklySchedule() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 bg-black/20 border border-white/5 rounded-3xl">
-        <Loader2 className="text-[#22c55e] animate-spin" size={32} />
+      <div className="flex items-center justify-center py-20 bg-bg-secondary/30 border border-border-primary/30 rounded-3xl">
+        <Loader2 className="text-accent-green animate-spin" size={32} />
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white/[0.03] p-6 rounded-3xl border border-white/5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-bg-card p-6 rounded-3xl border border-border-primary/50">
         <div className="space-y-1">
-          <h3 className="text-gray-400 font-display text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
-            <CalendarIcon size={14} className="text-[#22c55e]" /> 
+          <h3 className="text-text-secondary font-display text-[11px] tracking-[0.3em] uppercase flex items-center gap-3">
+            <CalendarIcon size={14} className="text-accent-green" /> 
             TACTICAL SCHEDULE // {format(currentWeekStart, 'MMM dd')} - {format(addDays(currentWeekStart, 6), 'MMM dd')}
           </h3>
-          <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Global matrix deployment window</p>
+          <p className="text-[9px] font-black text-text-muted uppercase tracking-widest">Global matrix deployment window</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/5">
-           <button onClick={prevWeek} className="p-2 hover:bg-white/5 rounded-xl transition-all text-white/40 hover:text-white">
+        <div className="flex items-center gap-2 bg-bg-secondary/50 p-1.5 rounded-2xl border border-border-primary/30">
+           <button onClick={prevWeek} className="p-2 hover:bg-bg-secondary rounded-xl transition-all text-text-secondary hover:text-text-primary">
               <ChevronRight className="rotate-180" size={16} />
            </button>
-           <button onClick={currentWeek} className="px-4 py-2 hover:bg-white/5 rounded-xl transition-all text-[9px] font-black uppercase tracking-widest text-white/40 hover:text-white border border-white/10">
+           <button onClick={currentWeek} className="px-4 py-2 hover:bg-bg-secondary rounded-xl transition-all text-[9px] font-black uppercase tracking-widest text-text-secondary hover:text-text-primary border border-border-primary/40">
               TODAY
            </button>
-           <button onClick={nextWeek} className="p-2 hover:bg-white/5 rounded-xl transition-all text-white/40 hover:text-white">
+           <button onClick={nextWeek} className="p-2 hover:bg-bg-secondary rounded-xl transition-all text-text-secondary hover:text-text-primary">
               <ChevronRight size={16} />
            </button>
         </div>
@@ -130,17 +130,17 @@ export default function WeeklySchedule() {
 
       <div className="grid grid-cols-1 gap-2">
         {weekDays.map((dayObj, i) => (
-          <div key={i} className="group flex flex-col md:flex-row items-stretch md:items-center gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all">
+          <div key={i} className="group flex flex-col md:flex-row items-stretch md:items-center gap-4 p-4 bg-bg-card border border-border-primary/30 rounded-2xl hover:bg-bg-card-hover transition-all">
             {/* Day Column */}
-            <div className="w-16 shrink-0 flex flex-col items-center justify-center py-2 border-r border-white/5">
-              <span className="text-[10px] font-black text-[#22c55e] tracking-widest leading-none mb-1">{dayObj.day}</span>
-              <span className="text-sm font-display text-white/40">{format(dayObj.date, 'dd')}</span>
+            <div className="w-16 shrink-0 flex flex-col items-center justify-center py-2 border-r border-border-primary/30">
+              <span className="text-[10px] font-black text-accent-green tracking-widest leading-none mb-1">{dayObj.day}</span>
+              <span className="text-sm font-display text-text-secondary">{format(dayObj.date, 'dd')}</span>
             </div>
 
             {/* Sessions Column */}
             <div className="flex-1 space-y-3">
               {dayObj.sessions.length === 0 ? (
-                <span className="text-[10px] font-bold text-white/5 uppercase tracking-[0.4em] ml-2">No active operations detected</span>
+                <span className="text-[10px] font-bold text-text-muted/40 uppercase tracking-[0.4em] ml-2">No active operations detected</span>
               ) : (
                 <div className="space-y-3">
                   {dayObj.sessions.map((session: any) => {
@@ -148,29 +148,29 @@ export default function WeeklySchedule() {
                     const isPast = sessionDateTime < new Date();
                     
                     return (
-                    <div key={session.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/[0.03] p-5 rounded-2xl border transition-all ${session.is_program ? 'border-[#22c55e]/20 bg-[#22c55e]/5' : 'border-white/5 group-hover:border-[#22c55e]/30'} ${isPast ? 'opacity-50' : ''}`}>
+                    <div key={session.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-bg-secondary/40 p-5 rounded-2xl border transition-all ${session.is_program ? 'border-accent-green/30 bg-accent-green/5' : 'border-border-primary/30 group-hover:border-accent-green/30'} ${isPast ? 'opacity-50' : ''}`}>
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl ${session.is_program ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.4)]' : session.is_special ? 'bg-amber-500/10 text-amber-500 animate-pulse' : 'bg-[#22c55e]/10 text-[#22c55e]'}`}>
+                        <div className={`p-3 rounded-xl ${session.is_program ? 'bg-accent-green text-text-on-green shadow-accent-glow' : session.is_special ? 'bg-amber-500/10 text-amber-500 animate-pulse' : 'bg-accent-green/10 text-accent-green'}`}>
                            {session.is_program ? <ShieldCheck size={18} /> : session.is_special ? <Zap size={18} /> : <Target size={18} />}
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                             <h4 className="text-sm font-black text-white uppercase tracking-widest">{session.title}</h4>
+                             <h4 className="text-sm font-black text-text-primary uppercase tracking-widest">{session.title}</h4>
                              {session.is_program && (
-                               <span className="px-1.5 py-0.5 bg-[#22c55e] text-black rounded text-[7px] font-black uppercase tracking-widest">Protocol Core</span>
+                               <span className="px-1.5 py-0.5 bg-accent-green text-text-on-green rounded text-[7px] font-black uppercase tracking-widest">Protocol Core</span>
                              )}
                              {session.is_special && (
                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[7px] font-black text-amber-500 uppercase tracking-widest">Special Ops</span>
                              )}
                           </div>
-                          <div className="flex items-center gap-4 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                          <div className="flex items-center gap-4 text-[10px] text-text-secondary font-bold uppercase tracking-widest">
                             <span className="flex items-center gap-1.5">
-                              <Clock size={12} className="text-[#22c55e]" /> 
+                              <Clock size={12} className="text-accent-green" /> 
                               {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
                             </span>
                             {!session.is_program && (
                               <span className="flex items-center gap-1.5">
-                                <Users size={12} className={session.confirmed_count >= session.max_capacity ? 'text-red-500' : 'text-[#22c55e]'} /> 
+                                <Users size={12} className={session.confirmed_count >= session.max_capacity ? 'text-red-500' : 'text-accent-green'} /> 
                                 {session.confirmed_count} / {session.max_capacity || 20} SPOTS
                               </span>
                             )}
@@ -180,7 +180,7 @@ export default function WeeklySchedule() {
 
                       <div className="flex items-center gap-3 w-full md:w-auto">
                         {session.is_program ? (
-                          <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20">
+                          <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border bg-accent-green/10 text-accent-green border-accent-green/20">
                              <CheckCircle2 size={12} /> ACTIVE ENROLLMENT
                           </div>
                         ) : session.user_booking_status ? (
@@ -199,7 +199,7 @@ export default function WeeklySchedule() {
                               setIsModalOpen(true);
                             }}
                             disabled={isPast || session.confirmed_count >= (session.max_capacity || 20)}
-                            className="w-full md:w-auto px-6 py-2 bg-[#22c55e] hover:bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:bg-white/10 disabled:text-white/20"
+                            className="w-full md:w-auto px-6 py-2 bg-accent-green hover:bg-text-primary hover:text-bg-primary text-text-on-green rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:bg-bg-secondary/40 disabled:text-text-muted/40"
                           >
                             {isPast ? 'Session Closed' : session.confirmed_count >= (session.max_capacity || 20) ? 'Session Full' : 'Book Session'}
                           </button>

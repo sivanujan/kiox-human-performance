@@ -10,9 +10,10 @@ interface ImageUploadProps {
   initialUrl?: string | null;
   folder?: string; // Default to 'avatars'
   className?: string;
+  showRemove?: boolean;
 }
 
-export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", className = "" }: ImageUploadProps) {
+export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", className = "", showRemove = true }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialUrl || null);
@@ -88,7 +89,7 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
     <div className={`relative flex flex-col items-center gap-2 ${className}`}>
       <div 
         onClick={() => !uploading && fileInputRef.current?.click()}
-        className={`relative w-24 h-24 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center cursor-pointer overflow-hidden transition-all group-hover:border-[#22c55e]/50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${uploading ? 'cursor-not-allowed opacity-50' : ''}`}
+        className={`relative w-24 h-24 rounded-2xl bg-bg-input border border-border-input flex items-center justify-center cursor-pointer overflow-hidden transition-all group-hover:border-accent-green/50 shadow-lg shadow-accent/5 ${uploading ? 'cursor-not-allowed opacity-50' : ''}`}
       >
         {previewUrl ? (
           <>
@@ -104,7 +105,7 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-1 text-gray-400 group-hover:text-[#22c55e] transition-colors">
+          <div className="flex flex-col items-center gap-1 text-text-muted group-hover:text-accent-green transition-colors">
             <UploadCloud size={24} />
             <span className="text-[8px] font-black uppercase tracking-[1px]">UPLOAD</span>
           </div>
@@ -113,19 +114,19 @@ export default function ImageUpload({ onUpload, initialUrl, folder = "avatars", 
         {/* Loading Overlay */}
         {uploading && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-10">
-            <Loader2 size={24} className="text-[#22c55e] animate-spin" />
+            <Loader2 size={24} className="text-accent-green animate-spin" />
           </div>
         )}
       </div>
 
       {status && (
-        <span className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px] animate-pulse">
+        <span className="text-[8px] font-black text-accent-green uppercase tracking-[2px] animate-pulse">
           {status}
         </span>
       )}
 
       {/* Action Indicators */}
-      {previewUrl && !uploading && (
+      {previewUrl && !uploading && showRemove && (
         <button 
           onClick={removeImage}
           className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-white hover:text-red-500 transition-all shadow-xl"

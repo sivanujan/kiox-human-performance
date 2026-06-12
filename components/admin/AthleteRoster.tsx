@@ -19,7 +19,8 @@ import {
   Video,
   User,
   BarChart2,
-  Zap
+  Zap,
+  Layers
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAthleteRoster, AthleteStatus } from "@/hooks/useAthleteRoster";
@@ -33,6 +34,7 @@ interface AthleteRosterProps {
   onLogInjury: (id: string) => void;
   onViewAnalytics: (id: string) => void;
   onAssess: (id: string) => void;
+  onAssignProgram?: (id: string) => void;
   externalSearchQuery?: string;
 }
 
@@ -42,6 +44,7 @@ export default function AthleteRoster({
   onLogInjury, 
   onViewAnalytics,
   onAssess,
+  onAssignProgram,
   externalSearchQuery = ""
 }: AthleteRosterProps) {
   const router = useRouter();
@@ -418,6 +421,19 @@ export default function AthleteRoster({
                                 <Video size={14} className="text-blue-400" />
                                 <span>Video Analytics</span>
                               </button>
+                              {onAssignProgram && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAssignProgram(athlete.id);
+                                    setActiveDropdownId(null);
+                                  }}
+                                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left border-t border-white/5"
+                                >
+                                  <Layers size={14} className="text-[#22c55e]" />
+                                  <span>Assign Program</span>
+                                </button>
+                              )}
                             </div>
                           </>
                         )}

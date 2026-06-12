@@ -57,11 +57,11 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white flex items-center justify-between hover:border-[#22c55e]/50 transition-all focus:outline-none group"
+        className="w-full bg-bg-input border border-border-input rounded-xl pl-10 pr-4 py-3 text-sm text-text-primary flex items-center justify-between hover:border-accent-green/50 transition-all focus:outline-none group"
       >
-        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-[#22c55e] group-hover:scale-110 transition-transform" size={16} />
+        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-green group-hover:scale-110 transition-transform" size={16} />
         <span className="truncate">{selectedTz?.label || "Select Timezone"}</span>
-        <ChevronDown className={`ml-2 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} size={16} />
+        <ChevronDown className={`ml-2 text-text-muted transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} size={16} />
       </button>
 
       {/* Dropdown Menu */}
@@ -71,10 +71,10 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-[100] mt-2 w-full bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            className="absolute z-[100] mt-2 w-full bg-bg-card border border-border-primary/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl shadow-accent/5"
           >
             {/* Search Input */}
-            <div className="p-4 border-b border-white/5 bg-white/[0.03]">
+            <div className="p-4 border-b border-border-primary/50 bg-bg-primary/20">
               <div className="relative">
                 <input
                   ref={inputRef}
@@ -82,9 +82,9 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search location (e.g. London, New York)..."
-                  className="w-full bg-black/60 border border-white/10 rounded-xl pl-4 pr-10 py-3 text-sm text-white placeholder:text-gray-600 focus:border-[#22c55e]/50 focus:outline-none transition-all"
+                  className="w-full bg-bg-input border border-border-input rounded-xl pl-4 pr-10 py-3 text-sm text-text-primary placeholder:text-text-muted/50 focus:border-accent-green/50 focus:outline-none transition-all"
                 />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#22c55e]" size={18} />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-green" size={18} />
               </div>
             </div>
 
@@ -100,20 +100,20 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
                       setIsOpen(false);
                       setSearch("");
                     }}
-                    className={`w-full px-5 py-3 text-left flex items-center justify-between hover:bg-white/[0.03] transition-all group/item ${
-                      value === tz.value ? 'bg-[#22c55e]/5' : ''
+                    className={`w-full px-5 py-3 text-left flex items-center justify-between hover:bg-bg-card-hover transition-all group/item ${
+                      value === tz.value ? 'bg-accent-green/5' : ''
                     }`}
                   >
                     <div className="flex flex-col">
-                      <span className={`text-sm font-medium ${value === tz.value ? 'text-[#22c55e]' : 'text-gray-300 group-hover/item:text-white'}`}>
+                      <span className={`text-sm font-medium ${value === tz.value ? 'text-accent-green' : 'text-text-primary group-hover/item:text-accent-green'}`}>
                         {tz.label.split(' (')[0]}
                       </span>
-                      <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">
+                      <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
                         {tz.region} / {tz.value.split('/').pop()?.replace(/_/g, ' ')}
                       </span>
                     </div>
                     <div className={`px-2 py-1 rounded text-[10px] font-mono font-bold ${
-                      value === tz.value ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-white/5 text-gray-500'
+                      value === tz.value ? 'bg-accent-green/20 text-accent-green' : 'bg-bg-primary text-text-muted'
                     }`}>
                       {tz.displayOffset}
                     </div>
@@ -121,10 +121,10 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
                 ))
               ) : (
                 <div className="px-4 py-12 text-center flex flex-col items-center gap-3">
-                   <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-700">
+                   <div className="w-12 h-12 rounded-full bg-bg-primary/50 flex items-center justify-center text-text-muted">
                       <Globe size={24} />
                    </div>
-                   <p className="text-gray-500 text-xs uppercase font-black tracking-widest italic">
+                   <p className="text-text-muted text-xs uppercase font-black tracking-widest italic">
                      Matrix region not found
                    </p>
                 </div>
@@ -132,9 +132,9 @@ export default function TimezoneSearchPicker({ value, onChange, className = "" }
             </div>
             
             {/* Footer / Sorting Info */}
-            <div className="px-4 py-2 border-t border-white/5 bg-black/60 flex justify-between items-center">
-               <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Ordered by UTC Offset</span>
-               <span className="text-[8px] font-bold text-[#22c55e]/40 uppercase tracking-widest">{filteredTimezones.length} Regions</span>
+            <div className="px-4 py-2 border-t border-border-primary bg-bg-primary/50 flex justify-between items-center">
+               <span className="text-[8px] font-black text-text-muted uppercase tracking-widest">Ordered by UTC Offset</span>
+               <span className="text-[8px] font-bold text-accent-green/60 uppercase tracking-widest">{filteredTimezones.length} Regions</span>
             </div>
           </motion.div>
         )}

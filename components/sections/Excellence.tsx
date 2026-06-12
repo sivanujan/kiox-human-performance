@@ -45,7 +45,7 @@ const FloatingParticle = ({ index }: { index: number }) => {
   
   return (
     <motion.div
-      className="absolute rounded-full bg-[#00ff88]/20 blur-[1px]"
+      className="absolute rounded-full bg-accent-green/20 blur-[1px]"
       style={{
         width: data.current.size,
         height: data.current.size,
@@ -87,7 +87,7 @@ const CommitmentCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
-      className="group relative w-full bg-[#080808] border border-[#1a1a1a] rounded-[16px] overflow-hidden transition-all duration-500 hover:border-[#00ff88] hover:shadow-[0_0_30px_rgba(0,255,136,0.15)] flex flex-col cursor-pointer"
+      className="group relative w-full bg-bg-card border border-border-card rounded-[16px] overflow-hidden transition-all duration-500 hover:border-border-active hover:shadow-lg flex flex-col cursor-pointer"
     >
       {/* Video Thumbnail Section */}
       <div className="relative w-full aspect-video overflow-hidden bg-zinc-950 flex-shrink-0">
@@ -106,19 +106,19 @@ const CommitmentCard = ({
         {/* Light Sweep on Hover */}
         {isHovered && (
           <div className="absolute inset-0 pointer-events-none opacity-30 z-20 animate-[lightSweep_4s_linear_infinite]" 
-               style={{ background: 'linear-gradient(105deg, transparent 40%, rgba(0,255,136,0.4) 50%, transparent 60%)', backgroundSize: '200% auto' }} />
+               style={{ background: 'linear-gradient(105deg, transparent 40%, var(--accent-green) 50%, transparent 60%)', backgroundSize: '200% auto' }} />
         )}
 
         {/* Centered Play Button with green border */}
         <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="w-14 h-14 rounded-full border-2 border-[#00ff88] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+          <div className="w-14 h-14 rounded-full border-2 border-accent-green flex items-center justify-center bg-black/40 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
             <Play className="text-white fill-white ml-1" size={18} />
           </div>
         </div>
 
         {/* Category Badge & Duration (Bottom-Left) */}
         <div className="absolute bottom-4 left-4 z-20 flex items-center gap-3">
-          <span className="px-2.5 py-0.5 bg-[#00ff88] text-black text-[9px] font-black rounded-sm uppercase tracking-wider font-label">
+          <span className="px-2.5 py-0.5 bg-bg-button-primary text-text-on-green text-[9px] font-black rounded-sm uppercase tracking-wider font-label">
             {video.category}
           </span>
           <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest font-mono">
@@ -128,13 +128,13 @@ const CommitmentCard = ({
       </div>
 
       {/* Content Section below video thumbnail */}
-      <div className="p-5 md:p-6 flex flex-col justify-between flex-grow bg-gradient-to-b from-[#080808] to-[#050505]">
+      <div className="p-5 md:p-6 flex flex-col justify-between flex-grow bg-gradient-to-b from-bg-card to-bg-secondary">
         <div>
-          <h4 className="text-white font-display text-xl md:text-2xl font-black uppercase italic tracking-tight mb-2 group-hover:text-[#00ff88] transition-colors duration-300">
+          <h4 className="text-text-primary font-display text-xl md:text-2xl font-black uppercase italic tracking-tight mb-2 group-hover:text-accent-green transition-colors duration-300">
             {video.title}
           </h4>
           <p 
-            className="text-white/50 text-xs md:text-sm font-medium tracking-wider leading-relaxed"
+            className="text-text-secondary text-xs md:text-sm font-medium tracking-wider leading-relaxed"
             style={{ fontVariant: 'all-small-caps' }}
           >
             {video.description}
@@ -151,7 +151,7 @@ export default function Excellence() {
   const [selectedVideo, setSelectedVideo] = useState<typeof videos[0] | null>(null);
 
   return (
-    <section id="excellence" ref={containerRef} className="pt-[140px] pb-[140px] bg-[#0a0a0a] relative z-10 overflow-hidden w-full">
+    <section id="excellence" ref={containerRef} className="pt-[140px] pb-[140px] bg-bg-primary relative z-10 overflow-hidden w-full transition-colors duration-300">
       {/* Background Particles */}
       <div className="absolute inset-0 pointer-events-none z-0">
         {[...Array(15)].map((_, i) => <FloatingParticle key={i} index={i} />)}
@@ -166,17 +166,17 @@ export default function Excellence() {
           transition={{ duration: 0.8 }}
         >
           <div className="flex justify-center items-center gap-4 mb-6">
-            <div className="h-px w-12 bg-[#00ff88]"></div>
-            <h2 className="text-sm font-black tracking-[0.4em] text-[#00ff88] uppercase font-label">EXCELLENCE IN CARE</h2>
-            <div className="h-px w-12 bg-[#00ff88]"></div>
+            <div className="h-px w-12 bg-accent-green"></div>
+            <h2 className="text-sm font-black tracking-[0.4em] text-accent-green uppercase font-label">EXCELLENCE IN CARE</h2>
+            <div className="h-px w-12 bg-accent-green"></div>
           </div>
-          <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-white uppercase italic leading-none relative inline-block">
-            OUR <span className="text-[#00ff88]">COMMITMENT</span> TO YOU
+          <h3 className="font-display text-5xl md:text-[80px] font-black tracking-tighter text-text-primary uppercase italic leading-none relative inline-block">
+            OUR <span className="text-accent-green">COMMITMENT</span> TO YOU
             <motion.span 
               initial={{ width: 0 }}
               animate={isInView ? { width: '40%' } : {}}
               transition={{ duration: 1, delay: 0.5 }}
-              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1.5 bg-[#00ff88]"
+              className="absolute -bottom-4 left-1/2 -translate-x-1/2 h-1.5 bg-accent-green"
             />
           </h3>
         </motion.div>
@@ -194,18 +194,19 @@ export default function Excellence() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 backdrop-blur-md"
+              style={{ backgroundColor: "var(--backdrop-overlay)" }}
             >
               <div className="relative w-full max-w-7xl h-full flex flex-col justify-center">
                  <button 
                    onClick={() => setSelectedVideo(null)}
-                   className="absolute -top-12 right-0 text-[#00ff88] hover:text-white transition-colors flex items-center gap-2 group p-2 bg-transparent border-none cursor-pointer"
+                   className="absolute -top-12 right-0 text-accent-green hover:text-text-primary transition-colors flex items-center gap-2 group p-2 bg-transparent border-none cursor-pointer"
                  >
                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
                    <X size={24} />
                  </button>
                  
-                 <div className="w-full bg-black rounded-2xl overflow-hidden shadow-[0_0_100px_rgba(0,255,136,0.15)]">
+                 <div className="w-full bg-[#000] rounded-2xl overflow-hidden shadow-2xl">
                     <CustomVideoPlayer 
                       src={selectedVideo.src}
                       type={selectedVideo.type}

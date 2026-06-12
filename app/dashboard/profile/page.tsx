@@ -113,16 +113,16 @@ export default function ProfilePage() {
     }
   };
 
-  const inputClasses = "w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:border-[#00ff41] focus:ring-1 focus:ring-[#00ff41] transition-all outline-none placeholder:text-white/5 font-medium";
-  const labelClasses = `font-sans text-[11px] font-black text-[#00ff41] uppercase tracking-[3px] mb-2.5 block`;
+  const inputClasses = "w-full bg-bg-input border border-border-input rounded-xl px-5 py-4 text-sm text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green transition-all outline-none placeholder:text-text-muted/40 font-medium";
+  const labelClasses = `font-sans text-[11px] font-black text-accent-green uppercase tracking-[3px] mb-2.5 block`;
 
   return (
     <div className="p-10 w-full min-h-screen">
       <div className="mb-12">
-        <h2 className={`font-display text-5xl text-white uppercase tracking-[0.1em] mb-3`}>Identity Registry</h2>
+        <h2 className={`font-display text-5xl text-text-primary uppercase tracking-[0.1em] mb-3`}>Identity Registry</h2>
         <div className="flex items-center gap-4">
-          <div className="h-[1px] w-20 bg-[#00ff41]/30" />
-          <p className="text-[#00ff41] text-[10px] font-black uppercase tracking-[5px] opacity-80">Manage your athlete profile and performance metadata</p>
+          <div className="h-[1px] w-20 bg-accent-green/30" />
+          <p className="text-accent-green text-[10px] font-black uppercase tracking-[5px] opacity-80">Manage your athlete profile and performance metadata</p>
         </div>
       </div>
 
@@ -132,9 +132,9 @@ export default function ProfilePage() {
           <motion.section 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-[#111] border border-white/5 rounded-2xl p-10 relative overflow-hidden group shadow-2xl"
+            className="bg-bg-card border border-border-primary/50 rounded-2xl p-10 relative overflow-hidden group shadow-2xl shadow-accent/5"
           >
-            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+            <div className="absolute top-0 right-0 p-10 pointer-events-none transition-opacity text-text-primary/5 group-hover:text-text-primary/10">
               <User size={120} />
             </div>
 
@@ -144,8 +144,8 @@ export default function ProfilePage() {
                 initialUrl={profile?.avatar_url}
               />
               <div>
-                <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Personal Information</h3>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[2px]">Update your biometric and identity credentials</p>
+                <h3 className={`font-display text-[14px] font-black text-text-primary uppercase tracking-[4px]`}>Personal Information</h3>
+                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px]">Update your biometric and identity credentials</p>
               </div>
             </div>
             
@@ -186,8 +186,7 @@ export default function ProfilePage() {
                   type="date" 
                   value={formData.date_of_birth}
                   onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
-                  className={inputClasses}
-                  style={{ colorScheme: 'dark' }}
+                  className={`${inputClasses} select-none`}
                 />
               </div>
             </div>
@@ -197,17 +196,17 @@ export default function ProfilePage() {
           <motion.section 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-[#111] border border-white/5 rounded-2xl p-10 relative overflow-hidden group shadow-2xl"
+            className="bg-bg-card border border-border-primary/50 rounded-2xl p-10 relative overflow-hidden group shadow-2xl shadow-accent/5"
           >
-            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+            <div className="absolute top-0 right-0 p-10 pointer-events-none transition-opacity text-text-primary/5 group-hover:text-text-primary/10">
               <Target size={120} />
             </div>
 
             <div className="flex items-center gap-4 mb-10">
-              <div className="w-10 h-10 rounded-xl bg-[#00ff41]/5 border border-[#00ff41]/20 flex items-center justify-center text-[#00ff41]">
+              <div className="w-10 h-10 rounded-xl bg-accent-green/5 border border-accent-green/20 flex items-center justify-center text-accent-green">
                 <Target size={20} />
               </div>
-              <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Performance Vitals</h3>
+              <h3 className={`font-display text-[14px] font-black text-text-primary uppercase tracking-[4px]`}>Performance Vitals</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -221,7 +220,7 @@ export default function ProfilePage() {
                     className={inputClasses}
                     placeholder="185"
                   />
-                  <Ruler className="absolute right-4 top-1/2 -translate-y-1/2 text-[#00ff41]/30" size={18} />
+                  <Ruler className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-green/30" size={18} />
                 </div>
               </div>
               <div>
@@ -234,7 +233,7 @@ export default function ProfilePage() {
                     className={inputClasses}
                     placeholder="85"
                   />
-                  <MoveVertical className="absolute right-4 top-1/2 -translate-y-1/2 text-[#00ff41]/30" size={18} />
+                  <MoveVertical className="absolute right-4 top-1/2 -translate-y-1/2 text-accent-green/30" size={18} />
                 </div>
               </div>
               <div className="md:col-span-2">
@@ -260,11 +259,11 @@ export default function ProfilePage() {
             </div>
 
             {/* CTA Button moved inside the second card for tactical placement */}
-            <div className="mt-10 pt-10 border-t border-white/5">
+            <div className="mt-10 pt-10 border-t border-border-primary/50">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-[#00ff41] text-black text-[13px] font-black uppercase tracking-[4px] rounded-xl flex items-center justify-center gap-4 hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_40px_rgba(0,255,65,0.3)]"
+                className="w-full py-5 bg-accent-green text-text-on-green text-[13px] font-black uppercase tracking-[4px] rounded-xl flex items-center justify-center gap-4 hover:bg-text-primary hover:text-bg-primary hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_10px_40px_var(--shadow-accent-glow)]"
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                 Commit Registry Updates
@@ -275,7 +274,7 @@ export default function ProfilePage() {
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-[#00ff41]"
+                    className="flex items-center gap-2 text-accent-green"
                   >
                     <CheckCircle2 size={16} />
                     <span className="text-[10px] font-black uppercase tracking-[3px]">Protocol Updated</span>
@@ -301,13 +300,13 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#111]/50 border border-white/5 rounded-2xl p-10"
+          className="bg-bg-card/50 border border-border-primary/50 rounded-2xl p-10 shadow-2xl shadow-accent/5"
         >
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40">
+            <div className="w-10 h-10 rounded-xl bg-bg-primary/10 border border-border-primary flex items-center justify-center text-text-muted">
               <Phone size={20} />
             </div>
-            <h3 className={`font-display text-[14px] font-black text-white/60 uppercase tracking-[4px]`}>Connectivity Matrix</h3>
+            <h3 className={`font-display text-[14px] font-black text-text-primary uppercase tracking-[4px]`}>Connectivity Matrix</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -341,7 +340,7 @@ export default function ProfilePage() {
                   className={inputClasses}
                   placeholder="GRID COORDINATES"
                 />
-                <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-white/5" size={18} />
+                <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted/30" size={18} />
               </div>
             </div>
           </div>
@@ -368,26 +367,26 @@ function TimezoneSection({ labelClasses, inputClasses }: { labelClasses: string,
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="bg-[#111]/80 border border-[#22c55e]/20 rounded-2xl p-10 relative overflow-hidden"
+      className="bg-bg-card border border-border-primary/50 rounded-2xl p-10 relative overflow-hidden shadow-2xl shadow-accent/5"
     >
-      <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+      <div className="absolute top-0 right-0 p-10 pointer-events-none text-text-primary/5">
         <Globe size={120} />
       </div>
 
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e]">
+          <div className="w-10 h-10 rounded-xl bg-accent-green/10 border border-accent-green/30 flex items-center justify-center text-accent-green">
             <Globe size={20} />
           </div>
           <div>
-            <h3 className={`font-display text-[14px] font-black text-white uppercase tracking-[4px]`}>Temporal Registry</h3>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px]">Synchronize your operational clock with global standards</p>
+            <h3 className={`font-display text-[14px] font-black text-text-primary uppercase tracking-[4px]`}>Temporal Registry</h3>
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px]">Synchronize your operational clock with global standards</p>
           </div>
         </div>
         
-        <div className="bg-black/50 border border-white/10 px-6 py-3 rounded-xl flex items-center gap-4">
-          <Clock size={16} className="text-[#22c55e]" />
-          <div className="text-xl font-mono font-bold text-white tracking-widest">{localTime}</div>
+        <div className="bg-bg-primary/50 border border-border-primary px-6 py-3 rounded-xl flex items-center gap-4">
+          <Clock size={16} className="text-accent-green" />
+          <div className="text-xl font-mono font-bold text-text-primary tracking-widest">{localTime}</div>
         </div>
       </div>
 
@@ -400,9 +399,9 @@ function TimezoneSection({ labelClasses, inputClasses }: { labelClasses: string,
           />
         </div>
         <div className="flex items-center">
-          <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-xl">
-            <p className="text-[10px] text-gray-400 leading-relaxed uppercase font-bold tracking-wider">
-              <span className="text-[#22c55e]">NOTE:</span> Your timezone is used to synchronize session schedules, notifications, and performance reporting. Automatic detection is enabled by default based on your current deployment IP.
+          <div className="p-4 bg-accent-green/5 border border-accent-green/10 rounded-xl">
+            <p className="text-[10px] text-text-secondary leading-relaxed uppercase font-bold tracking-wider">
+              <span className="text-accent-green">NOTE:</span> Your timezone is used to synchronize session schedules, notifications, and performance reporting. Automatic detection is enabled by default based on your current deployment IP.
             </p>
           </div>
         </div>

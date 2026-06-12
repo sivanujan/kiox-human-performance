@@ -10,7 +10,8 @@ import {
   AlertCircle,
   Save,
   ShieldCheck,
-  Target } from "lucide-react";
+  Target,
+  LogOut } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -28,7 +29,7 @@ export default function AthleteProfileModal({
   onClose,
   onChangePassword
 }: AthleteProfileModalProps) {
-  const { user, profile, refreshProfile, supabase } = useAuth();
+  const { user, profile, refreshProfile, signOut, supabase } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -280,27 +281,40 @@ export default function AthleteProfileModal({
               )}
             </div>
 
-            {/* Persistence & Action Footer */}
             <div className="p-8 border-t border-white/5 bg-[#080808] flex gap-4">
               {!success && (
-                <button
-                  type="submit"
-                  form="profile-form"
-                  disabled={loading}
-                  className="flex-1 py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Encrypting Data...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={16} />
-                      Save Intelligence Matrix
-                    </>
-                  )}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (confirm("Are you sure you want to log out of your session?")) {
+                        await signOut();
+                      }
+                    }}
+                    className="px-6 py-4 bg-red-950/20 border border-red-500/30 text-red-500 text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-[0_10px_30px_rgba(239,68,68,0.1)] flex items-center justify-center gap-3"
+                  >
+                    <LogOut size={16} />
+                    Log Out
+                  </button>
+                  <button
+                    type="submit"
+                    form="profile-form"
+                    disabled={loading}
+                    className="flex-1 py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Encrypting Data...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        Save Intelligence Matrix
+                      </>
+                    )}
+                  </button>
+                </>
               )}
             </div>
           </motion.div>

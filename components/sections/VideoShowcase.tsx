@@ -43,11 +43,11 @@ const VideoCard = ({ video, isActive, onClick, index, inView }: { video: VideoMe
       onClick={onClick}
       className={`relative shrink-0 w-[240px] md:w-[280px] aspect-[9/16] rounded-[16px] overflow-hidden cursor-pointer transition-all duration-500 snap-center group border ${
         isActive 
-          ? 'border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.4)] animate-[glowPulse_2s_infinite]' 
-          : 'border-[rgba(0,255,136,0.15)] hover:border-[#00ff88]/50'
+          ? 'border-accent-green shadow-[0_0_20px_var(--shadow-accent-glow)] animate-[glowPulse_2s_infinite]' 
+          : 'border-border-primary/50 hover:border-accent-green/50'
       }`}
     >
-      <div className="absolute inset-0 bg-[#111]">
+      <div className="absolute inset-0 bg-bg-secondary">
         {/* Thumbnail Image Placeholder (First frame) */}
         <video 
           ref={videoRef}
@@ -62,13 +62,13 @@ const VideoCard = ({ video, isActive, onClick, index, inView }: { video: VideoMe
 
       {/* Badges */}
       <div className="absolute top-4 left-4 z-20">
-        <span className="px-2 py-1 bg-[#00ff88] text-black text-[10px] font-bold rounded-sm tracking-widest font-label">
+        <span className="px-2 py-1 bg-accent-green text-text-on-green text-[10px] font-bold rounded-sm tracking-widest font-label">
           {video.category}
         </span>
       </div>
       <div className="absolute top-4 right-4 z-20">
-        <div className="flex items-center gap-1 px-2 py-1 bg-black/60 backdrop-blur-md rounded-sm border border-white/10 text-white text-[10px] font-medium font-label">
-          <Clock size={10} className="text-[#00ff88]" />
+        <div className="flex items-center gap-1 px-2 py-1 bg-bg-card/75 backdrop-blur-md rounded-sm border border-border-primary/50 text-text-primary text-[10px] font-medium font-label">
+          <Clock size={10} className="text-accent-green" />
           {video.duration}
         </div>
       </div>
@@ -86,9 +86,9 @@ const VideoCard = ({ video, isActive, onClick, index, inView }: { video: VideoMe
             className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-[#00ff88]/30 rounded-full blur-xl animate-pulse" />
-              <div className="w-16 h-16 rounded-full border-2 border-[#00ff88] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-[playPulse_2s_infinite]">
-                 <Play className="text-white fill-white ml-1" size={24} />
+              <div className="absolute inset-0 bg-accent-green/30 rounded-full blur-xl animate-pulse" />
+              <div className="w-16 h-16 rounded-full border-2 border-accent-green flex items-center justify-center bg-bg-card/40 backdrop-blur-sm animate-[playPulse_2s_infinite]">
+                 <Play className="text-text-primary fill-text-primary ml-1" size={24} />
               </div>
             </div>
           </motion.div>
@@ -203,7 +203,7 @@ export default function VideoShowcase() {
 
   return (
     <>
-      <section ref={sectionRef} className="bg-[#0a0a0a] py-24 relative overflow-hidden w-full pb-32" id="training">
+      <section ref={sectionRef} className="bg-bg-primary transition-colors duration-300 py-24 relative overflow-hidden w-full pb-32" id="training">
         <div className="container mx-auto px-4 w-full relative z-10">
           
           {/* Section Header */}
@@ -213,21 +213,21 @@ export default function VideoShowcase() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="text-[#00ff88] tracking-[0.4em] uppercase text-xs font-bold mb-4 block font-label">Our Training</span>
-            <h2 className="text-4xl md:text-7xl font-display font-black text-white uppercase leading-none mb-10 italic">
-              Excellence In <span className="text-[#00ff88]">Motion</span>
+            <span className="text-accent-green tracking-[0.4em] uppercase text-xs font-bold mb-4 block font-label">Our Training</span>
+            <h2 className="text-4xl md:text-7xl font-display font-black text-text-primary uppercase leading-none mb-10 italic">
+              Excellence In <span className="text-accent-green">Motion</span>
             </h2>
           </motion.div>
 
           {/* Filtering System */}
           <div className="relative mb-16 max-w-2xl mx-auto flex justify-center">
-            <div className="flex items-center gap-2 md:gap-4 p-1 bg-white/5 rounded-full border border-white/10 relative">
+            <div className="flex items-center gap-2 md:gap-4 p-1 bg-bg-card rounded-full border border-border-primary/50 relative">
               {TABS.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`relative px-6 md:px-10 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors duration-300 font-label ${
-                    activeTab === tab ? 'text-black' : 'text-gray-400 hover:text-[#00ff88]'
+                    activeTab === tab ? 'text-text-on-green' : 'text-text-secondary hover:text-accent-green'
                   }`}
                 >
                   <span className="relative z-10">{tab}</span>
@@ -236,7 +236,7 @@ export default function VideoShowcase() {
                   {activeTab === tab && (
                     <motion.div 
                       layoutId="activeTabUnderline"
-                      className="absolute inset-0 bg-[#00ff88] rounded-full z-0"
+                      className="absolute inset-0 bg-accent-green rounded-full z-0"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -245,7 +245,7 @@ export default function VideoShowcase() {
                   {activeTab === tab && (
                     <motion.div 
                       layoutId="activeTabDot"
-                      className="absolute -top-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#00ff88] shadow-[0_0_10px_#00ff88] z-20"
+                      className="absolute -top-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-accent-green shadow-[0_0_10px_var(--accent-green)] z-20"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -284,13 +284,13 @@ export default function VideoShowcase() {
             {/* Navigation Arrows */}
             <button 
               onClick={() => scrollToIndex(Math.max(0, activeIndex - 1))}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-black/80 border border-[#00ff88]/30 text-[#00ff88] flex items-center justify-center hover:bg-[#00ff88] hover:text-black transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex cursor-pointer animate-none"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-bg-card/85 border border-border-primary text-accent-green flex items-center justify-center hover:bg-accent-green hover:text-text-on-green transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex cursor-pointer animate-none"
             >
               <ChevronLeft size={30} />
             </button>
             <button 
               onClick={() => scrollToIndex(Math.min(filteredVideos.length - 1, activeIndex + 1))}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-black/80 border border-[#00ff88]/30 text-[#00ff88] flex items-center justify-center hover:bg-[#00ff88] hover:text-black transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex cursor-pointer animate-none"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 rounded-full bg-bg-card/85 border border-border-primary text-accent-green flex items-center justify-center hover:bg-accent-green hover:text-text-on-green transition-all duration-300 opacity-0 group-hover:opacity-100 hidden md:flex cursor-pointer animate-none"
             >
               <ChevronRight size={30} />
             </button>
@@ -304,7 +304,7 @@ export default function VideoShowcase() {
                 initial={false}
                 animate={{
                   width: (activeIndex % 5) === i ? 24 : 8,
-                  backgroundColor: (activeIndex % 5) === i ? '#00ff88' : '#444444'
+                  backgroundColor: (activeIndex % 5) === i ? 'var(--accent-green)' : 'var(--border-primary)'
                 }}
                 className="h-2 rounded-full cursor-pointer"
                 onClick={() => scrollToIndex(i)}
@@ -316,7 +316,7 @@ export default function VideoShowcase() {
           <div className="flex justify-center mt-20">
             <button 
               onClick={() => router.push('/gallery')}
-              className="group relative inline-flex items-center justify-center px-10 py-4 font-bold tracking-widest text-[#00ff88] uppercase transition-all duration-300 border border-[#00ff88]/50 hover:bg-[#00ff88] hover:text-black rounded-sm font-label cursor-pointer"
+              className="group relative inline-flex items-center justify-center px-10 py-4 font-bold tracking-widest text-accent-green uppercase transition-all duration-300 border border-accent-green/50 hover:bg-accent-green hover:text-text-on-green rounded-sm font-label cursor-pointer"
             >
               View Gallery
               <ArrowLeft className="rotate-180 ml-2 group-hover:translate-x-1 transition-transform" size={18} />
@@ -333,22 +333,22 @@ export default function VideoShowcase() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed inset-0 z-[100] bg-[#080808]/95 backdrop-blur-3xl flex flex-col pt-4 md:pt-10 overflow-hidden"
+            className="fixed inset-0 z-[100] bg-bg-primary/95 backdrop-blur-3xl flex flex-col pt-4 md:pt-10 overflow-hidden"
           >
             {/* Modal Header */}
-            <div className="px-6 md:px-12 pb-6 border-b border-[#00ff88]/20 flex items-center justify-between shrink-0">
+            <div className="px-6 md:px-12 pb-6 border-b border-border-primary/50 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-4">
                 {activeModalVideo && (
                   <button 
                     onClick={() => setActiveModalVideo(null)}
-                    className="flex items-center gap-2 text-[#00ff88] hover:text-white transition-colors uppercase tracking-widest text-sm font-bold font-label cursor-pointer"
+                    className="flex items-center gap-2 text-accent-green hover:text-text-primary transition-colors uppercase tracking-widest text-sm font-bold font-label cursor-pointer"
                   >
                     <ArrowLeft size={20} /> Library
                   </button>
                 )}
                 {!activeModalVideo && (
-                  <h3 className="text-white font-display font-bold text-2xl md:text-4xl uppercase tracking-wider italic">
-                    Video <span className="text-[#00ff88]">Grid</span>
+                  <h3 className="text-text-primary font-display font-bold text-2xl md:text-4xl uppercase tracking-wider italic">
+                    Video <span className="text-accent-green">Grid</span>
                   </h3>
                 )}
               </div>
@@ -357,7 +357,7 @@ export default function VideoShowcase() {
                   setIsModalOpen(false);
                   setTimeout(() => setActiveModalVideo(null), 300);
                 }}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#00ff88] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer"
+                className="w-10 h-10 rounded-full bg-bg-card border border-border-primary/50 hover:bg-accent-green text-text-primary hover:text-text-on-green flex items-center justify-center transition-all cursor-pointer"
               >
                 <X size={24} />
               </button>
@@ -369,7 +369,7 @@ export default function VideoShowcase() {
                 <div className="w-full h-full max-w-6xl mx-auto flex flex-col pt-4 pb-20">
                   <button 
                     onClick={() => setActiveModalVideo(null)}
-                    className="self-start mb-6 flex items-center gap-2 px-6 py-2 bg-[#00ff88]/10 border border-[#00ff88]/50 text-[#00ff88] rounded-full hover:bg-[#00ff88] hover:text-black transition-all font-bold uppercase tracking-widest text-sm font-label cursor-pointer"
+                    className="self-start mb-6 flex items-center gap-2 px-6 py-2 bg-accent-green/10 border border-accent-green/50 text-accent-green rounded-full hover:bg-accent-green hover:text-text-on-green transition-all font-bold uppercase tracking-widest text-sm font-label cursor-pointer"
                   >
                     <ArrowLeft size={18} /> Back To Gallery
                   </button>
@@ -379,7 +379,7 @@ export default function VideoShowcase() {
                       autoPlay
                       controls
                       playsInline
-                      className={`rounded-2xl shadow-[0_0_50px_rgba(0,255,136,0.15)] bg-black border border-[#00ff88]/30 ${activeModalVideo.type === 'portrait' ? 'h-full max-h-[75vh] max-w-[90vw] object-contain' : 'w-full max-h-[75vh] object-contain'}`}
+                      className={`rounded-2xl shadow-[0_0_50px_var(--shadow-accent-glow)] bg-bg-card border border-accent-green/30 ${activeModalVideo.type === 'portrait' ? 'h-full max-h-[75vh] max-w-[90vw] object-contain' : 'w-full max-h-[75vh] object-contain'}`}
                     />
                   </div>
                 </div>
@@ -387,17 +387,17 @@ export default function VideoShowcase() {
                 <div className="w-full max-w-[1400px] mx-auto flex flex-col pb-32">
                   <button 
                     onClick={() => setIsModalOpen(false)}
-                    className="self-start mb-6 flex items-center gap-2 px-6 py-2 bg-gray-800/50 border border-gray-700 text-gray-300 rounded-full hover:bg-neutral-200 hover:text-black hover:border-white transition-all font-bold uppercase tracking-widest text-sm font-label cursor-pointer"
+                    className="self-start mb-6 flex items-center gap-2 px-6 py-2 bg-bg-card border border-border-primary/50 text-text-secondary rounded-full hover:bg-bg-secondary hover:text-text-primary hover:border-border-active transition-all font-bold uppercase tracking-widest text-sm font-label cursor-pointer"
                   >
                     <ArrowLeft size={18} /> Back To Home
                   </button>
                   <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-8 w-full">
                     {filteredVideos.map((video: VideoMetadata, idx: number) => (
                       <div key={idx} onClick={() => router.push(`/video/${video.id}`)} className="group flex flex-col gap-3 cursor-pointer">
-                        <div className={`relative w-full rounded-xl overflow-hidden bg-[#1a1a1a] border border-gray-800 group-hover:border-[#00ff88] transition-colors ${video.type === 'portrait' ? 'aspect-[9/16]' : 'aspect-video'}`}>
+                        <div className={`relative w-full rounded-xl overflow-hidden bg-bg-secondary border border-border-primary group-hover:border-accent-green transition-colors ${video.type === 'portrait' ? 'aspect-[9/16]' : 'aspect-video'}`}>
                           <video src={video.src} muted playsInline className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <Play className="text-[#00ff88] fill-[#00ff88]" size={30} />
+                            <Play className="text-accent-green fill-accent-green" size={30} />
                           </div>
                         </div>
                       </div>

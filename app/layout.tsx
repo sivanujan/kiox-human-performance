@@ -36,6 +36,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import NotificationProvider from "@/components/providers/NotificationProvider";
 import { TimezoneProvider } from "@/components/providers/TimezoneProvider";
 import PWAInstallButton from "@/components/PWAInstallButton";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -47,20 +48,37 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-[#e5e7eb] selection:bg-[#00ff41] selection:text-black font-sans relative overflow-x-hidden">
-        <AuthProvider>
-          <TimezoneProvider>
-            <NotificationProvider>
-              <Loader />
-              <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
-              <Navbar />
-              <main className="flex-1 w-full relative z-10">{children}</main>
-              <Footer />
-              <PWAInstallButton />
-            </NotificationProvider>
-          </TimezoneProvider>
-        </AuthProvider>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var stored = localStorage.getItem('kio-x-theme');
+              var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches 
+                ? 'dark' : 'light';
+              var theme = stored || preferred || 'dark';
+              document.documentElement.classList.remove('dark', 'light');
+              document.documentElement.classList.add(theme);
+            } catch(e) {}
+          })();
+        ` }} />
+      </head>
+      <body className="min-h-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-[var(--accent-green)] selection:text-[var(--text-on-green)] font-sans relative overflow-x-hidden">
+        <ThemeProvider>
+          <AuthProvider>
+            <TimezoneProvider>
+              <NotificationProvider>
+                <Loader />
+                <div className="bg-texture fixed inset-0 pointer-events-none z-50"></div>
+                <Navbar />
+                <main className="flex-1 w-full relative z-10">{children}</main>
+                <Footer />
+                <PWAInstallButton />
+              </NotificationProvider>
+            </TimezoneProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
