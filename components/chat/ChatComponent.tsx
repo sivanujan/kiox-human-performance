@@ -144,6 +144,15 @@ export default function ChatComponent() {
     }
   }, [isLoadingConversations]);
 
+  useEffect(() => {
+    if (isLoadingMessages) {
+      const timer = setTimeout(() => {
+        setIsLoadingMessages(false);
+      }, 3000); // 3 seconds fallback
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingMessages]);
+
   // Fetch all profiles belonging to the active tab's role
   useEffect(() => {
     const fetchProfilesForTab = async () => {
@@ -382,7 +391,7 @@ export default function ChatComponent() {
                 if (!isActiveConv) {
                   playNotificationSound();
                 } else {
-                  fetchMessages(selectedConversationRef.current.id);
+                  fetchMessages(selectedConversationRef.current.id, true);
                 }
               }
             }
@@ -433,7 +442,7 @@ export default function ChatComponent() {
                  if (!isActive) {
                   playNotificationSound();
                 } else {
-                  fetchMessages(selectedConversationRef.current.id);
+                  fetchMessages(selectedConversationRef.current.id, true);
                 }
               }
             }
@@ -552,10 +561,12 @@ export default function ChatComponent() {
     }
   };
 
-  const fetchMessages = async (conversationId: string) => {
+  const fetchMessages = async (conversationId: string, silent = false) => {
     if (!supabase) return;
     console.log("[KIO-X Chat] fetchMessages start for conversation:", conversationId);
-    setIsLoadingMessages(true);
+    if (!silent) {
+      setIsLoadingMessages(true);
+    }
     try {
       const isGroup = conversationId === 'group_coach' || conversationId === 'group_medical' || conversationId === 'group_medical_broadcast' || conversationId === 'group_parent' || conversationId === 'group_staff_medical';
       const isParentStaff = conversationId.startsWith('group_parent_staff_');
