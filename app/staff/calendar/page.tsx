@@ -779,9 +779,10 @@ export default function SharedCalendarPage() {
                           <button
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`w-full text-left px-2 py-1 ${style.bgSolid} text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex items-center justify-between gap-1 transition-all shadow-sm`}
+                            className={`w-full text-left px-2 py-1.5 ${style.bgSolid} text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex flex-col gap-0.5 transition-all shadow-sm`}
                           >
-                            <span className="truncate flex-1">{event.title} ({coachName}) // {formatTime(event.event_time)}</span>
+                            <span className="font-bold truncate w-full">{event.title} — {formatTime(event.event_time)}</span>
+                            <span className="text-[8px] opacity-75 font-normal truncate w-full">Coach: {coachName}</span>
                           </button>
                         );
                       })}
@@ -854,22 +855,19 @@ export default function SharedCalendarPage() {
                           <div
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`p-3 rounded-xl ${style.bgSolid} cursor-pointer transition-all flex flex-col gap-1.5 relative group hover:scale-[1.02] border-l-[3px] ${style.border}`}
+                            className={`p-3 rounded-xl ${style.bgSolid} cursor-pointer transition-all flex flex-col gap-1 relative group hover:scale-[1.02] border-l-[3px] ${style.border}`}
                           >
-                            <div className="flex justify-between items-start gap-2">
+                            <div className="flex justify-between items-baseline gap-2">
                               <span className="font-display font-black text-[10px] uppercase tracking-wider line-clamp-2 flex-1">
                                 {event.title}
                               </span>
+                              <span className="text-[9px] font-mono font-black shrink-0">
+                                {formatTime(event.event_time)}
+                              </span>
                             </div>
 
-                            <div className="flex items-center justify-between text-[8px] font-mono pt-1.5 border-t border-black/10">
-                              <span className="flex items-center gap-1 font-black">
-                                <Clock size={8} /> {formatTime(event.event_time)}
-                              </span>
-
-                              <span className="font-black uppercase">
-                                {coachName}
-                              </span>
+                            <div className="text-[8px] opacity-75 font-normal pt-1">
+                              <span>Coach: {coachName}</span>
                             </div>
                           </div>
                         );
