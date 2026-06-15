@@ -111,19 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setProfile(null);
 
-      // 2. Parallel sign out (Client + Server)
-      // We start both tasks in parallel
-      const signoutTasks = Promise.allSettled([
-        supabase.auth.signOut(),
-        fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
-      ]);
+      // 2. Trigger client-side Supabase sign out in the background
+      supabase.auth.signOut().catch(() => {});
 
-      // 3. Use a failsafe timeout (800ms) to prevent infinite buffering/hanging
-      // if the network requests to Supabase or server take too long.
-      await Promise.race([
-        signoutTasks,
-        new Promise(resolve => setTimeout(resolve, 800))
-      ]);
+      // 3. Await the server-side signout (which deletes cookies instantly without blocking on Supabase)
+      await fetch('/api/auth/signout', { method: 'POST' }).catch(() => {});
       
       // 4. Force immediate hard redirect
       // Using window.location.href ensures a complete cache and state purge

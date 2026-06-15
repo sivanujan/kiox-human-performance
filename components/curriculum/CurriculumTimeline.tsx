@@ -71,7 +71,7 @@ export default function CurriculumTimeline() {
         .from("training_sessions")
         .select("*")
         .eq("scheduled_date", dateStr)
-        .eq("is_curriculum", true)
+        .eq("session_category", "CURRICULUM")
         .order("start_time", { ascending: true });
 
       if (sessionRes.error) {

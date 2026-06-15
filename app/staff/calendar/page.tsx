@@ -63,6 +63,7 @@ interface CalendarEvent {
   is_external?: boolean;
   external_player_name?: string;
   payment_status?: string;
+  session_category?: string;
 }
 
 export default function SharedCalendarPage() {
@@ -193,11 +194,8 @@ export default function SharedCalendarPage() {
       if (eventsRes.error) throw eventsRes.error;
       if (sessionsRes.error) throw sessionsRes.error;
 
-      // Filter out curriculum sessions for non-superadmins
+      // Do not filter out curriculum sessions; show ALL to everyone in this shared calendar view
       let sessionsData = sessionsRes.data || [];
-      if (profile?.role !== "superadmin") {
-        sessionsData = sessionsData.filter((s: any) => !s.is_curriculum);
-      }
 
       const mappedSessions = sessionsData.map((s: any) => ({
         id: s.id,
@@ -214,7 +212,8 @@ export default function SharedCalendarPage() {
         is_emergency: s.is_emergency,
         is_external: s.is_external,
         external_player_name: s.external_player_name,
-        payment_status: s.payment_status
+        payment_status: s.payment_status,
+        session_category: s.session_category
       }));
 
       const combined = [...(eventsRes.data || []), ...mappedSessions].sort((a, b) => {
@@ -274,7 +273,12 @@ export default function SharedCalendarPage() {
   const getTypeStyle = (event: any) => {
     if (!event) return { bg: "", dot: "", border: "", text: "", bgSolid: "", label: "" };
     
-    if (event.is_emergency) {
+    // Determine category based on session_category or boolean fallbacks
+    const category = event.is_training_session 
+      ? (event.session_category || (event.is_emergency ? 'EMERGENCY' : (event.is_curriculum ? 'CURRICULUM' : 'SCHEDULE')))
+      : 'SCHEDULE';
+
+    if (category === 'EMERGENCY') {
       return {
         bg: "bg-red-500/10 border-red-500/20 text-red-500 hover:border-red-500/40",
         dot: "bg-red-500 shadow-[0_0_8px_#ef4444]",
@@ -285,75 +289,26 @@ export default function SharedCalendarPage() {
       };
     }
     
-    if (event.is_curriculum) {
-      return {
-        bg: "bg-purple-500/10 border-purple-500/20 text-purple-400 hover:border-purple-500/40",
-        dot: "bg-purple-500 shadow-[0_0_8px_#a855f7]",
-        border: "border-l-purple-500",
-        text: "text-purple-400 font-bold",
-        bgSolid: "bg-purple-500 hover:bg-white text-black",
-        label: "CURRICULUM"
-      };
-    }
-
-    if (event.is_external) {
+    if (category === 'CURRICULUM') {
       return {
         bg: "bg-blue-500/10 border-blue-500/20 text-blue-400 hover:border-blue-500/40",
         dot: "bg-blue-500 shadow-[0_0_8px_#3b82f6]",
         border: "border-l-blue-500",
         text: "text-blue-400 font-bold",
         bgSolid: "bg-blue-500 hover:bg-white text-black",
-        label: "EXTERNAL"
+        label: "CURRICULUM"
       };
     }
 
-    switch (event.session_type?.toUpperCase()) {
-      case "STRENGTH":
-        return {
-          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
-          dot: "bg-emerald-500 shadow-[0_0_8px_#10b981]",
-          border: "border-l-[#10b981]",
-          text: "text-[#00ff88]",
-          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
-          label: "STRENGTH"
-        };
-      case "TACTICAL":
-        return {
-          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
-          dot: "bg-amber-500 shadow-[0_0_8px_#f59e0b]",
-          border: "border-l-[#f59e0b]",
-          text: "text-[#00ff88]",
-          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
-          label: "TACTICAL"
-        };
-      case "CONDITIONING":
-        return {
-          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
-          dot: "bg-cyan-500 shadow-[0_0_8px_#06b6d4]",
-          border: "border-l-[#06b6d4]",
-          text: "text-[#00ff88]",
-          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
-          label: "CONDITIONING"
-        };
-      case "RECOVERY":
-        return {
-          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
-          dot: "bg-violet-500 shadow-[0_0_8px_#8b5cf6]",
-          border: "border-l-[#8b5cf6]",
-          text: "text-[#00ff88]",
-          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
-          label: "RECOVERY"
-        };
-      default:
-        return {
-          bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
-          dot: "bg-rose-500 shadow-[0_0_8px_#f43f5e]",
-          border: "border-l-[#f43f5e]",
-          text: "text-[#00ff88]",
-          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
-          label: event.session_type || "CUSTOM"
-        };
-    }
+    // Default SCHEDULE category is green (#22c55e or #00ff88 depending on theme context)
+    return {
+      bg: "bg-[#22c55e]/10 border-[#22c55e]/20 text-[#22c55e] hover:border-[#22c55e]/40",
+      dot: "bg-[#22c55e] shadow-[0_0_8px_#22c55e]",
+      border: "border-l-[#22c55e]",
+      text: "text-[#22c55e] font-bold",
+      bgSolid: "bg-[#22c55e] hover:bg-white text-black",
+      label: event.is_external ? "EXTERNAL SCHEDULE" : "SCHEDULE"
+    };
   };
 
   // Actions

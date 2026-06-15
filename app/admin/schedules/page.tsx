@@ -49,12 +49,12 @@ export default function AdminSchedules() {
       const start = format(startOfWeek(startOfMonth(currentMonth)), "yyyy-MM-dd");
       const end = format(endOfWeek(endOfMonth(currentMonth)), "yyyy-MM-dd");
 
-      // STRICTLY EXCLUDE curriculum sessions (is_curriculum = false)
+      // STRICTLY fetch schedule and emergency sessions
       const [sessionRes, athleteRes] = await Promise.all([
         supabase
           .from("training_sessions")
           .select("*")
-          .eq("is_curriculum", false)
+          .in("session_category", ["SCHEDULE", "EMERGENCY"])
           .gte("scheduled_date", start)
           .lte("scheduled_date", end),
         supabase
@@ -93,7 +93,7 @@ export default function AdminSchedules() {
   });
 
   const getSessionStyle = (session: TrainingSession) => {
-    if (session.is_emergency) {
+    if (session.session_category === 'EMERGENCY' || session.is_emergency) {
       return "bg-red-500/10 border-red-500/20 text-red-500 hover:border-red-500/40";
     }
     if (session.is_external) {
@@ -112,7 +112,7 @@ export default function AdminSchedules() {
   };
 
   const getSessionIndicatorColor = (session: TrainingSession) => {
-    if (session.is_emergency) return "bg-red-500";
+    if (session.session_category === 'EMERGENCY' || session.is_emergency) return "bg-red-500";
     if (session.is_external) return "bg-blue-500";
     switch (session.session_type?.toUpperCase()) {
       case 'STRENGTH': return "bg-amber-500";
@@ -226,7 +226,7 @@ export default function AdminSchedules() {
                         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getSessionIndicatorColor(session)}`} />
                         <div className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">
                           {session.start_time.slice(0, 5)}
-                          {session.is_emergency && <span className="text-red-500 ml-2">⚠️</span>}
+                          {(session.session_category === 'EMERGENCY' || session.is_emergency) && <span className="text-red-500 ml-2">⚠️</span>}
                           {session.is_external && <span className="text-blue-400 ml-2">👤</span>}
                         </div>
                         <div className="text-white font-bold text-[10px] uppercase truncate tracking-wide">{session.title}</div>
@@ -236,7 +236,7 @@ export default function AdminSchedules() {
                         <div className="mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                            <div className="w-1 h-1 rounded-full bg-white/20" />
                            <div className="text-[7px] text-white/40 font-black uppercase tracking-widest">
-                             {session.is_emergency ? 'EMERGENCY' : (session.is_external ? 'EXTERNAL CLIENT' : 'SCHEDULED')}
+                           {session.session_category === 'EMERGENCY' || session.is_emergency ? 'EMERGENCY' : (session.is_external ? 'EXTERNAL CLIENT' : 'SCHEDULED')}
                            </div>
                         </div>
                      </button>

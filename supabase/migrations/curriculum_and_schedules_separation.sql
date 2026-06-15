@@ -8,7 +8,12 @@ ADD COLUMN IF NOT EXISTS is_emergency BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS is_external BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS external_player_name TEXT,
 ADD COLUMN IF NOT EXISTS payment_status TEXT CHECK (payment_status IN ('PENDING', 'CONFIRMED')) DEFAULT 'PENDING',
-ADD COLUMN IF NOT EXISTS confirmed_by_admin BOOLEAN DEFAULT false;
+ADD COLUMN IF NOT EXISTS confirmed_by_admin BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS session_category TEXT CHECK (session_category IN ('CURRICULUM', 'SCHEDULE', 'EMERGENCY')) DEFAULT 'SCHEDULE';
+
+-- Populate session_category based on boolean flags
+UPDATE public.training_sessions SET session_category = 'CURRICULUM' WHERE is_curriculum = true;
+UPDATE public.training_sessions SET session_category = 'EMERGENCY' WHERE is_emergency = true;
 
 -- 2. Drop existing RLS policies on training_sessions
 DROP POLICY IF EXISTS "Admin/Staff can manage all training sessions" ON public.training_sessions;

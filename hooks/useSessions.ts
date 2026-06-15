@@ -26,6 +26,7 @@ export interface TrainingSession {
   external_player_name?: string | null;
   payment_status?: 'PENDING' | 'CONFIRMED';
   confirmed_by_admin?: boolean;
+  session_category?: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
 }
 
 export function useSessions() {

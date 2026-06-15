@@ -6,15 +6,10 @@ export async function POST() {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // 1. Sign out from Supabase (this handles server-side session cleanup)
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.warn("Server-side supabase.auth.signOut warning:", error.message);
-    }
-  } catch (err: any) {
-    console.error("Server-side supabase.auth.signOut exception:", err?.message || err);
-  }
+  // 1. Sign out from Supabase in the background (handles server-side session cleanup without blocking)
+  supabase.auth.signOut().catch((err: any) => {
+    console.error("Server-side supabase.auth.signOut background exception:", err?.message || err);
+  });
 
   // 2. Clear all Supabase cookies manually as a failsafe to ensure they are wiped
   try {

@@ -31,6 +31,7 @@ interface ScheduleItem {
   is_emergency: boolean;
   is_external: boolean;
   external_player_name: string;
+  session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
 }
 
 export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
@@ -54,7 +55,8 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
       is_curriculum: defaultIsCurriculum || false,
       is_emergency: false,
       is_external: false,
-      external_player_name: ""
+      external_player_name: "",
+      session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
     }
   ]);
 
@@ -83,7 +85,8 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
           is_curriculum: defaultIsCurriculum || false,
           is_emergency: false,
           is_external: false,
-          external_player_name: ""
+          external_player_name: "",
+          session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
         }
       ]);
     }
@@ -157,23 +160,24 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
             assigned_by: user?.id,
             coach_timezone: userTimezone,
             coach_id: item.coach_id || undefined,
-            is_curriculum: item.is_curriculum,
-            is_emergency: item.is_emergency,
+            is_curriculum: item.session_category === 'CURRICULUM',
+            is_emergency: item.session_category === 'EMERGENCY',
             is_external: item.is_external,
             external_player_name: item.is_external ? item.external_player_name : null,
             payment_status: item.is_external ? 'CONFIRMED' : 'PENDING',
-            confirmed_by_admin: item.is_external ? true : false
+            confirmed_by_admin: item.is_external ? true : false,
+            session_category: item.session_category
           });
 
           if (sessionRes.success) {
             // Notification dispatch flow
-            if (item.is_emergency) {
+            if (item.session_category === 'EMERGENCY') {
               // Get all coaches (staff)
               const { data: staffProfiles } = await supabase
                 .from("profiles")
                 .select("id")
                 .eq("role", "staff");
-
+ 
               if (staffProfiles && staffProfiles.length > 0) {
                 const notifications = staffProfiles.map((staff: any) => ({
                   recipient_id: staff.id,
@@ -185,11 +189,11 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
                 await supabase.from("system_notifications").insert(notifications);
               }
             } else if (item.coach_id) {
-              const label = item.is_curriculum ? "Curriculum Session" : "Schedule Session";
+              const label = item.session_category === 'CURRICULUM' ? "Curriculum Session" : "Schedule Session";
               await supabase.from("system_notifications").insert({
                 recipient_id: item.coach_id,
                 sender_id: user?.id,
-                title: item.is_curriculum ? "NEW CURRICULUM ASSIGNMENT" : "NEW SCHEDULE ASSIGNMENT",
+                title: item.session_category === 'CURRICULUM' ? "NEW CURRICULUM ASSIGNMENT" : "NEW SCHEDULE ASSIGNMENT",
                 message: `You have been assigned to ${label} "${item.title}" on ${dateStr} at ${item.start_time}.`,
                 type: "UPDATE"
               });
@@ -226,7 +230,8 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
         is_curriculum: defaultIsCurriculum || false,
         is_emergency: false,
         is_external: false,
-        external_player_name: ""
+        external_player_name: "",
+        session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
       }
     ]);
   };
@@ -418,58 +423,24 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
                             </div>
                          </div>
 
-                         {/* System Category Switches */}
-                         <div className="bg-black/35 p-4 rounded-2xl border border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {/* Curriculum Switch - SuperAdmin Only */}
-                            {isSuperAdmin && (
-                              <div className="flex items-center justify-between p-2">
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] font-black text-white uppercase tracking-wider">Curriculum</span>
-                                  <span className="text-[8px] text-gray-500 font-semibold tracking-normal normal-case">SuperAdmin program</span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => updateItem(item.id, { 
-                                    is_curriculum: !item.is_curriculum,
-                                    is_emergency: false,
-                                    is_external: false
-                                  })}
-                                  className={`w-10 h-6 rounded-full p-1 transition-colors outline-none ${
-                                    item.is_curriculum ? 'bg-purple-500' : 'bg-white/10'
-                                  }`}
-                                >
-                                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                                    item.is_curriculum ? 'translate-x-4' : 'translate-x-0'
-                                  }`} />
-                                </button>
-                              </div>
-                            )}
-
-                            {/* Emergency Switch */}
-                            <div className="flex items-center justify-between p-2">
-                              <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-white uppercase tracking-wider">Emergency</span>
-                                <span className="text-[8px] text-gray-500 font-semibold tracking-normal normal-case">Alerts all coaches</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => updateItem(item.id, { 
-                                  is_emergency: !item.is_emergency,
-                                  is_curriculum: false,
-                                  is_external: false
-                                })}
-                                className={`w-10 h-6 rounded-full p-1 transition-colors outline-none ${
-                                  item.is_emergency ? 'bg-red-500' : 'bg-white/10'
-                                }`}
-                              >
-                                <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                                  item.is_emergency ? 'translate-x-4' : 'translate-x-0'
-                                }`} />
-                              </button>
+                          {/* System Category Selector and External toggle */}
+                          <div className="bg-black/35 p-6 rounded-3xl border border-white/5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Category Selector */}
+                            <div className="space-y-2">
+                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Session Category</label>
+                               <select 
+                                 value={item.session_category}
+                                 onChange={e => updateItem(item.id, { session_category: e.target.value as any })}
+                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none appearance-none cursor-pointer"
+                               >
+                                  {isSuperAdmin && <option value="CURRICULUM" className="bg-[#111]">CURRICULUM (SUPERADMIN ONLY)</option>}
+                                  <option value="SCHEDULE" className="bg-[#111]">SCHEDULE (ONE-OFF SESSION)</option>
+                                  <option value="EMERGENCY" className="bg-[#111]">EMERGENCY (EXTRA PRACTICE)</option>
+                               </select>
                             </div>
 
                             {/* External Switch */}
-                            <div className="flex items-center justify-between p-2">
+                            <div className="flex items-center justify-between p-2 self-end">
                               <div className="flex flex-col">
                                 <span className="text-[9px] font-black text-white uppercase tracking-wider">External Booking</span>
                                 <span className="text-[8px] text-gray-500 font-semibold tracking-normal normal-case">Non-academy client</span>
@@ -477,9 +448,7 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
                               <button
                                 type="button"
                                 onClick={() => updateItem(item.id, { 
-                                  is_external: !item.is_external,
-                                  is_curriculum: false,
-                                  is_emergency: false
+                                  is_external: !item.is_external
                                 })}
                                 className={`w-10 h-6 rounded-full p-1 transition-colors outline-none ${
                                   item.is_external ? 'bg-[#22c55e]' : 'bg-white/10'
