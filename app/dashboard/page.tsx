@@ -302,7 +302,7 @@ export default function DashboardOverview() {
 
   if (hasActiveInjury) {
     return (
-      <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-8 relative">
+      <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
         {/* 1. Header (glowing profile, restricted indicator) */}
@@ -310,7 +310,7 @@ export default function DashboardOverview() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => setIsProfileModalOpen(true)}
-          className="relative group overflow-hidden bg-gradient-to-br from-red-500/[0.08] to-transparent border border-red-500/20 rounded-[24px] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all hover:bg-red-500/[0.12]"
+          className="relative group overflow-hidden bg-gradient-to-br from-red-500/[0.08] to-transparent border border-red-500/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all hover:bg-red-500/[0.12]"
         >
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
             <div className="relative shrink-0 group/avatar mx-auto sm:mx-0">
@@ -371,7 +371,7 @@ export default function DashboardOverview() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* The Active Injury & Declaration Form */}
-            <div className="bg-[#111] border border-red-500/20 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+            <div className="bg-[#111] border border-red-500/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none text-red-500">REHAB</div>
               
               <div className="relative z-10 space-y-8 text-left">
@@ -416,7 +416,7 @@ export default function DashboardOverview() {
                   <button 
                     onClick={handleRequestClearance}
                     disabled={clearanceLoading || clearanceMessage !== null || !declarationChecked}
-                    className="w-full py-5 bg-red-500 hover:bg-white hover:text-black text-white disabled:bg-red-500/20 disabled:text-red-500/40 disabled:cursor-not-allowed font-black text-xs rounded-2xl uppercase tracking-widest transition-all shadow-[0_15px_40px_rgba(239,68,68,0.2)] active-scale flex items-center justify-center gap-3"
+                    className="w-full py-4 bg-red-500 hover:bg-white hover:text-black text-white disabled:bg-red-500/20 disabled:text-red-500/40 disabled:cursor-not-allowed font-button text-xs rounded-xl uppercase tracking-widest transition-all shadow-[0_15px_40px_rgba(239,68,68,0.2)] active-scale flex items-center justify-center gap-3"
                   >
                     {clearanceLoading ? (
                       <>
@@ -451,7 +451,7 @@ export default function DashboardOverview() {
             </div>
 
             {/* General Recovery Protocol Tips for engagement */}
-            <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 text-left space-y-6">
+            <div className="bg-[#111] border border-white/5 rounded-[24px] p-5 md:p-8 text-left space-y-6 shadow-xl">
               <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                 <Activity size={18} /> Active Recovery Guidelines
               </div>
@@ -487,7 +487,7 @@ export default function DashboardOverview() {
 
           {/* RIGHT COLUMN: Coaching team to let them see who can approve them */}
           <div className="space-y-6 text-left">
-            <div className="bg-[#111] border border-white/5 rounded-[32px] p-8 space-y-8">
+            <div className="bg-[#111] border border-white/5 rounded-[24px] p-5 md:p-8 space-y-8 shadow-xl">
               <div className="text-white/30 font-display font-black text-xs tracking-[0.3em] uppercase">
                 COMMAND CLEARANCE STAFF
               </div>
@@ -528,7 +528,7 @@ export default function DashboardOverview() {
   }
 
   return (
-    <div className="pt-10 pb-20 px-6 md:px-10 max-w-7xl mx-auto space-y-8 relative">
+    <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
       {/* ========================
@@ -539,7 +539,7 @@ export default function DashboardOverview() {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
         onClick={() => setIsProfileModalOpen(true)}
-        className="relative group overflow-hidden bg-gradient-to-br from-[#22c55e]/[0.08] to-transparent border border-[#22c55e]/15 rounded-[24px] p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all"
+        className="relative group overflow-hidden bg-gradient-to-br from-[#22c55e]/[0.08] to-transparent border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all"
       >
         {/* Left: Profile */}
         <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
@@ -561,7 +561,7 @@ export default function DashboardOverview() {
           </div>
 
           <div>
-            <div className="text-[#22c55e] text-[10px] font-black tracking-[0.3em] uppercase mb-1">
+            <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase mb-1">
               {profile?.role === 'parent' ? 'Child Monitoring Portal // Active Tracker' : 'Athlete Portal // Baseline Active'}
             </div>
             <h2 className={`font-display font-black text-3xl sm:text-4xl text-white uppercase tracking-wider mb-4 leading-none`}>
@@ -583,7 +583,7 @@ export default function DashboardOverview() {
               {profile?.role !== 'parent' && (
                 <button
                    onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
-                   className="flex items-center gap-3 bg-[#22c55e] px-6 py-2 rounded-xl text-black font-black uppercase text-[9px] tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale"
+                   className="flex items-center gap-3 bg-[#22c55e] px-6 py-3 rounded-xl text-black font-button text-xs uppercase tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                 >
                    <Activity size={12} /> Daily Check-in
                 </button>
@@ -605,7 +605,7 @@ export default function DashboardOverview() {
            }}
            className="w-full sm:w-auto bg-black/40 border border-white/10 rounded-2xl p-6 text-center sm:text-right relative min-w-[200px] cursor-pointer group/next"
         >
-           <div className="text-white/20 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
+           <div className="text-white/20 font-display text-[10px] tracking-[0.3em] uppercase mb-1">
              NEXT OPS SESSION
            </div>
            <div className="text-white font-display font-black text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
@@ -876,9 +876,9 @@ export default function DashboardOverview() {
         <div className="space-y-6">
           
           {/* COACH'S PROTOCOL FEEDBACK - NEW */}
-          <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-8 relative overflow-hidden h-fit">
+          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-8">
-               <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
                   <MessageSquare size={18} /> COACH'S PROTOCOL FEEDBACK
                </div>
             </div>
@@ -902,9 +902,9 @@ export default function DashboardOverview() {
           </div>
 
           {/* TODAY'S SCHEDULE - NEW HIGH-FIDELITY TRACKING */}
-          <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-10 relative overflow-hidden h-fit">
+          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-10">
-               <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
                   <CalendarIcon size={18} /> Today's Operational Status
                </div>
                <div className="flex items-center gap-2 px-4 py-1.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full">
@@ -1041,12 +1041,12 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20 z-10 relative">
         
         {/* WEEKLY PLAN */}
-        <div className="bg-[#111] border border-[#22c55e]/20 rounded-3xl p-8 relative overflow-hidden h-fit lg:col-span-2">
+        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit lg:col-span-2">
            <div className="flex justify-between items-center mb-8">
-              <div className="text-white/30 font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+              <div className="text-white/30 font-display text-sm flex items-center gap-3 uppercase">
                  <CalendarIcon size={18} /> Weekly Plan Overview
               </div>
-              <Link href="/dashboard/booking" className="bg-[#22c55e] hover:bg-white text-black font-display font-black text-[10px] px-6 py-2 rounded-lg transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)]">
+              <Link href="/dashboard/booking" className="bg-[#22c55e] hover:bg-white text-black font-button text-xs px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale">
                 BOOK OPS +
               </Link>
            </div>

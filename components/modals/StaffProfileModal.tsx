@@ -180,12 +180,12 @@ export default function StaffProfileModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
                         First Name
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
                         <UserIcon
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors"
                           size={16}
                         />
                         <input
@@ -197,19 +197,19 @@ export default function StaffProfileModal({
                               ...p,
                               first_name: e.target.value }))
                           }
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                          className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans uppercase font-medium"
                         />
                       </div>
                     </div>
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
                         Last Name
                       </label>
-                      <div className="relative">
+                      <div className="relative group">
                         <UserIcon
-                          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors"
                           size={16}
                         />
                         <input
@@ -220,7 +220,7 @@ export default function StaffProfileModal({
                               ...p,
                               last_name: e.target.value }))
                           }
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                          className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans uppercase font-medium"
                         />
                       </div>
                     </div>
@@ -228,12 +228,12 @@ export default function StaffProfileModal({
 
                   {/* Username */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">
+                    <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
                       Operational Tag (Username)
                     </label>
-                    <div className="relative">
+                    <div className="relative group">
                       <Fingerprint
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors"
                         size={16}
                       />
                       <input
@@ -247,7 +247,7 @@ export default function StaffProfileModal({
                               .toLowerCase()
                               .replace(/\s/g, "_") }))
                         }
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all lowercase placeholder:text-white/5 font-bold"
+                        className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans lowercase font-medium"
                       />
                     </div>
                   </div>
@@ -267,7 +267,7 @@ export default function StaffProfileModal({
                           await signOut();
                         }
                       }}
-                      className="px-6 py-4 bg-red-950/20 border border-red-500/30 text-red-500 text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-[0_10px_30px_rgba(239,68,68,0.1)] flex items-center justify-center gap-3"
+                      className="px-6 py-3.5 bg-red-950/20 border border-red-500/30 text-red-500 text-[13px] font-semibold rounded-xl hover:bg-red-500 hover:text-white transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       <LogOut size={16} />
                       Log Out
@@ -275,7 +275,7 @@ export default function StaffProfileModal({
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-1 py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 py-3.5 bg-[#16a34a] hover:bg-[#15803d] active:scale-[0.99] text-white font-semibold text-[13px] rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 focus:ring-offset-1 focus:ring-offset-transparent shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <>

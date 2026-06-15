@@ -21,6 +21,7 @@ import {
   Calendar,
   CalendarDays,
   Layers,
+  Clipboard,
   X as CloseIcon,
   MessageSquare
 } from "lucide-react";
@@ -33,6 +34,7 @@ const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/staff' },
   { icon: <CalendarDays size={18} />, label: 'Calendar', href: '/staff/calendar' },
   { icon: <Layers size={18} />, label: 'Programs Matrix', href: '/staff/programs' },
+  { icon: <Clipboard size={18} />, label: 'Curriculum', href: '/staff/curriculum' },
   { icon: <Zap size={18} />, label: 'Special Ops', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'Session Requests', href: '/staff/bookings' },
   { icon: <MessageSquare size={18} />, label: 'Chat Uplink', href: '/staff/chat' },
@@ -57,11 +59,13 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         router.push("/signin");
       } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical') {
         router.push("/dashboard");
+      } else if (profile?.role === 'medical' && pathname !== '/staff/chat' && pathname !== '/staff/settings' && pathname !== '/staff/programs' && pathname !== '/staff/curriculum') {
+        router.push("/staff/chat");
       } else {
         fetchTeams();
       }
     }
-  }, [user, profile, loading, router]);
+  }, [user, profile, loading, router, pathname]);
 
   const fetchTeams = async () => {
     try {
@@ -101,6 +105,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
             <ChevronRight size={12} className="text-gray-600" />
             <span className="text-[var(--accent-green)] font-semibold">Programs Matrix</span>
+          </span>
+        );
+      case '/staff/curriculum':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Curriculum</span>
           </span>
         );
       case '/staff/special-sessions':
@@ -175,8 +187,8 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           {/* Brand Logo */}
           <div className="flex items-center justify-between">
             <Link href="/staff" className="flex items-center gap-3 active-scale">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-green)] to-emerald-700 flex items-center justify-center font-display text-lg font-black text-black">
-                K
+              <div className="w-9 h-9 rounded-xl border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
+                <Image src="/logo.png" alt="KIO-X" width={28} height={28} className="object-contain" priority unoptimized={true} />
               </div>
               <span className={`font-display text-lg font-black tracking-[3px] text-white`}>KIO-X</span>
             </Link>
@@ -204,7 +216,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
           {/* Navigation Links */}
           <nav className="space-y-1">
-            {staffNavItems.map((item) => {
+            {staffNavItems
+              .filter((item) => {
+                if (item.label === 'Curriculum' && profile?.role !== 'superadmin') {
+                  return false;
+                }
+                return profile?.role !== 'medical' || item.href === '/staff/chat' || item.href === '/staff/settings' || item.href === '/staff/programs' || item.href === '/staff/curriculum';
+              })
+              .map((item) => {
               const active = pathname === item.href;
               return (
                 <Link 

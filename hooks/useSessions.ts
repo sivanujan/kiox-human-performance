@@ -7,7 +7,7 @@ import { format } from "date-fns";
 export interface TrainingSession {
   id: string;
   title: string;
-  session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM';
+  session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM' | 'MEAL' | 'CURFEW' | 'LOGISTICS';
   scheduled_date: string;
   start_time: string;
   duration_minutes: number;
@@ -18,6 +18,14 @@ export interface TrainingSession {
   assigned_by?: string;
   notes?: string;
   coach_timezone?: string;
+  created_at?: string;
+  coach_id?: string;
+  is_curriculum?: boolean;
+  is_emergency?: boolean;
+  is_external?: boolean;
+  external_player_name?: string | null;
+  payment_status?: 'PENDING' | 'CONFIRMED';
+  confirmed_by_admin?: boolean;
 }
 
 export function useSessions() {

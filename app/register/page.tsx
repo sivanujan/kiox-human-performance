@@ -704,7 +704,7 @@ export default function RegisterPage() {
             </div>
             <span className="font-display text-3xl text-white group-hover:text-[#22c55e] transition-colors">KIO-X</span>
           </Link>
-          <div className="mt-4 font-label text-[#22c55e] opacity-60">Step {step} of 5</div>
+          <div className="mt-4 text-[13px] text-[#16a34a] opacity-80 font-medium">Step {step} of 5</div>
         </div>
 
         {/* Card - Match to signin */}
@@ -714,7 +714,7 @@ export default function RegisterPage() {
             <motion.div
               initial={{ width: "20%" }}
               animate={{ width: `${(step / 5) * 100}%` }}
-              className="h-full bg-[#22c55e] shadow-[0_0_10px_rgba(34,197,94,0.5)]"
+              className="h-full bg-[#16a34a] shadow-[0_0_10px_rgba(34,197,94,0.5)]"
             />
           </div>
 
@@ -730,11 +730,11 @@ export default function RegisterPage() {
                 <motion.div key="step1" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
                     <h2 className="font-display text-2xl text-white mb-1">Create Account</h2>
-                    <p className="font-label text-gray-500">Phase One: Access Credentials</p>
+                    <p className="text-[13px] text-gray-500">Phase One: Access Credentials</p>
                   </div>
                   <form onSubmit={handleSignUp} className="space-y-6">
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold">Select Role</label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Select Role</label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { value: "athlete", label: "Player" },
@@ -751,10 +751,10 @@ export default function RegisterPage() {
                               setChildQuery("");
                               setChildError("");
                             }}
-                            className={`py-3 px-4 rounded-xl border text-[11px] font-black uppercase tracking-wider transition-all ${
+                            className={`py-3 px-4 rounded-xl border text-[12px] font-medium transition-all ${
                               chosenRole === r.value
-                                ? "bg-[#22c55e] text-black border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-                                : "bg-black/30 text-gray-400 border-white/10 hover:border-[#22c55e]/30"
+                                ? "bg-[#16a34a] text-white border-[#16a34a] shadow-[0_0_15px_rgba(22,163,74,0.3)]"
+                                : "bg-white/[0.04] text-gray-400 border-white/[0.12] hover:border-white/[0.2]"
                             }`}
                           >
                             {r.label}
@@ -764,8 +764,8 @@ export default function RegisterPage() {
                     </div>
 
                     {chosenRole === "parent" && (
-                      <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-                        <label className="block font-label text-[#22c55e] font-bold text-[10px] tracking-[1px] uppercase">
+                      <div className="space-y-3 p-4 bg-white/[0.02] border border-white/[0.12] rounded-xl">
+                        <label className="block text-[11px] font-medium text-gray-400 tracking-[0.03em] uppercase">
                           Child's Player Email, Username or ID <span className="text-red-500">*</span>
                         </label>
                         <div className="flex gap-2">
@@ -782,27 +782,27 @@ export default function RegisterPage() {
                               setChildOtp("");
                             }}
                             placeholder="player@email.com or player_username"
-                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]/30 transition-all font-sans text-xs"
+                            className="flex-1 bg-white/[0.04] border border-white/[0.12] rounded-xl py-3 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                           />
                           <button
                             type="button"
                             disabled={isVerifyingChild || !childQuery.trim()}
                             onClick={handleVerifyChild}
-                            className="bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] hover:bg-[#22c55e] hover:text-black font-button px-4 rounded-xl text-[10px] tracking-[1px] transition-all disabled:opacity-30 flex items-center justify-center shrink-0"
+                            className="bg-[#16a34a]/10 border border-[#16a34a]/30 text-[#16a34a] hover:bg-[#16a34a] hover:text-white font-semibold px-4 rounded-xl text-[12px] transition-all disabled:opacity-30 flex items-center justify-center shrink-0"
                           >
                             {isVerifyingChild ? <Loader2 className="animate-spin" size={14} /> : "Verify"}
                           </button>
                         </div>
                         {childError && (
-                          <p className="text-[10px] text-red-500 font-bold uppercase tracking-[1px] mt-1">
+                          <p className="text-[11px] text-red-500 font-medium tracking-[0.03em] mt-1">
                             {childError}
                           </p>
                         )}
 
                         {/* OTP Verification Prompt */}
                         {isOtpSent && !isOtpVerified && pendingChild && (
-                          <div className="pt-3 mt-3 border-t border-white/5 space-y-2">
-                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.5px] leading-relaxed">
+                          <div className="pt-3 mt-3 border-t border-white/[0.12] space-y-2">
+                            <p className="text-[11px] text-gray-400 font-medium tracking-[0.03em] leading-relaxed">
                               🔒 A 6-digit security code has been transmitted to <span className="text-white font-mono">{obfuscatedChildEmail}</span>. Enter it below to authorize this link.
                             </p>
                             <div className="flex gap-2">
@@ -815,19 +815,19 @@ export default function RegisterPage() {
                                   setOtpError("");
                                 }}
                                 placeholder="ENTER 6-DIGIT OTP"
-                                className="flex-1 bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/30 transition-all font-mono text-center tracking-[4px] text-xs font-bold"
+                                className="flex-1 bg-white/[0.04] border border-white/[0.12] rounded-xl py-3 px-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-mono text-center tracking-[4px] text-[13px] font-medium"
                               />
                               <button
                                 type="button"
                                 disabled={isVerifyingOtp || childOtp.length !== 6}
                                 onClick={handleVerifyOtp}
-                                className="bg-[#22c55e] text-black hover:bg-[#4ade80] font-button px-4 rounded-xl text-[10px] tracking-[1px] transition-all disabled:opacity-30 disabled:hover:bg-[#22c55e] disabled:hover:text-black flex items-center justify-center shrink-0 font-bold"
+                                className="bg-[#16a34a] text-white hover:bg-[#15803d] font-semibold px-4 rounded-xl text-[12px] transition-all disabled:opacity-30 flex items-center justify-center shrink-0"
                               >
                                 {isVerifyingOtp ? <Loader2 className="animate-spin" size={14} /> : "Verify Code"}
                               </button>
                             </div>
                             {otpError && (
-                              <p className="text-[9px] text-red-500 font-bold uppercase tracking-[0.5px]">
+                              <p className="text-[11px] text-red-500 font-medium tracking-[0.03em]">
                                 ⚠️ {otpError}
                               </p>
                             )}
@@ -836,8 +836,8 @@ export default function RegisterPage() {
 
                         {/* Success Linked Child State */}
                         {isOtpVerified && verifiedChild && (
-                          <div className="text-[10px] text-[#22c55e] font-black uppercase tracking-[1px] mt-2 bg-[#22c55e]/10 border border-[#22c55e]/30 p-3 rounded-xl flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-ping" />
+                          <div className="text-[12px] text-[#16a34a] font-semibold tracking-[0.03em] mt-2 bg-[#16a34a]/10 border border-[#16a34a]/30 p-3 rounded-xl flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-ping" />
                             ✓ LINKED CHILD: {verifiedChild.name}
                           </div>
                         )}
@@ -845,19 +845,19 @@ export default function RegisterPage() {
                     )}
 
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold">Email Address</label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Email Address</label>
                       <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="email" value={formData.email} onChange={handleChange} required type="email" placeholder="name@example.com" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors" size={16} />
+                        <input name="email" value={formData.email} onChange={handleChange} required type="email" placeholder="name@example.com" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold">Password</label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Password</label>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="password" value={formData.password} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors" size={16} />
+                        <input name="password" value={formData.password} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-11 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                       {/* Strength Bar */}
@@ -877,24 +877,24 @@ export default function RegisterPage() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <label className="block font-label text-[#22c55e] font-bold">Confirm Password</label>
+                        <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Confirm Password</label>
                         {formData.confirmPassword && formData.password !== formData.confirmPassword && (
                           <span className="font-label text-[#ef4444] animate-pulse">Mismatch</span>
                         )}
                       </div>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans font-medium" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors" size={16} />
+                        <input name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-11 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     </div>
-                    <button type="submit" disabled={loading} className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                      {loading ? <Loader2 className="animate-spin" /> : <>Next <ChevronRight size={18} /></>}
+                    <button type="submit" disabled={loading} className="w-full bg-[#16a34a] hover:bg-[#15803d] active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 focus:ring-offset-1 focus:ring-offset-transparent shadow-[0_0_20px_rgba(34,197,94,0.2)]">
+                      {loading ? <Loader2 className="animate-spin" /> : <>Next <ChevronRight size={16} /></>}
                     </button>
-                    <p className="text-center text-[10px] font-bold text-gray-500 tracking-[2px] uppercase">
-                      Already have an account? <Link href="/signin" className="text-[#22c55e] hover:underline">Sign In</Link>
+                    <p className="text-center text-[11px] font-medium text-gray-500 tracking-[0.03em]">
+                      Already have an account? <Link href="/signin" className="text-[#16a34a] hover:underline font-semibold">Sign In</Link>
                     </p>
                   </form>
                 </motion.div>
@@ -936,14 +936,14 @@ export default function RegisterPage() {
                       <button
                         onClick={handleResendEmail}
                         disabled={loading || resendTimer > 0}
-                        className="w-full py-4 font-label border border-white/10 text-gray-500 hover:text-white hover:border-[#22c55e]/50 disabled:opacity-30 transition-all rounded-xl"
+                        className="w-full py-3.5 bg-white/5 border border-white/[0.12] text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-all rounded-xl text-[13px] font-semibold"
                       >
                         {resendTimer > 0 ? `Resend Link In ${Math.floor(resendTimer / 60)}:${(resendTimer % 60).toString().padStart(2, '0')}` : "Resend Verification Email"}
                       </button>
 
                       <button
                         onClick={prevStep}
-                        className="w-full py-2 text-[8px] font-black uppercase tracking-[2px] text-gray-500 hover:text-[#22c55e] transition-colors"
+                        className="w-full py-2 text-[11px] font-semibold text-gray-500 hover:text-[#16a34a] transition-colors"
                       >
                         Wrong email? Edit Address
                       </button>
@@ -956,30 +956,30 @@ export default function RegisterPage() {
                 <motion.div key="step3" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
                     <h2 className="font-display text-2xl text-white mb-1">Personal Identity</h2>
-                    <p className="font-label text-gray-500">Phase Three: Base Profile</p>
+                    <p className="text-[13px] text-gray-500">Phase Three: Base Profile</p>
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="block font-label text-[#22c55e] font-bold">First Name <span className="text-red-500">*</span></label>
-                        <input name="firstName" value={formData.firstName} onChange={handleChange} required type="text" placeholder="First Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium" />
+                        <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">First Name <span className="text-red-500">*</span></label>
+                        <input name="firstName" value={formData.firstName} onChange={handleChange} required type="text" placeholder="First Name" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                       </div>
                       <div className="space-y-2">
-                        <label className="block font-label text-[#22c55e] font-bold">Last Name <span className="text-red-500">*</span></label>
-                        <input name="lastName" value={formData.lastName} onChange={handleChange} required type="text" placeholder="Last Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium" />
+                        <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Last Name <span className="text-red-500">*</span></label>
+                        <input name="lastName" value={formData.lastName} onChange={handleChange} required type="text" placeholder="Last Name" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold">Username <span className="text-red-500">*</span></label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Username <span className="text-red-500">*</span></label>
                       <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                        <input name="username" value={formData.username} onChange={handleChange} required type="text" placeholder="CHOOSE_A_HANDLE" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium lowercase" />
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors" size={16} />
+                        <input name="username" value={formData.username} onChange={handleChange} required type="text" placeholder="choose_a_handle" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans lowercase" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e]">Date of Birth <span className="text-red-500">*</span></label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Date of Birth <span className="text-red-500">*</span></label>
                       <div className="relative group">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors pointer-events-none" size={18} />
+                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#16a34a] transition-colors pointer-events-none" size={16} />
                         <input
                           name="dob"
                           value={formData.dob}
@@ -987,7 +987,7 @@ export default function RegisterPage() {
                           required
                           type="date"
                           max={format(subYears(new Date(), 5), "yyyy-MM-dd")}
-                          className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm [color-scheme:dark]"
+                          className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-4 text-[13px] text-white focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans [color-scheme:dark]"
                         />
                       </div>
                     </div>
@@ -1005,9 +1005,9 @@ export default function RegisterPage() {
                         nextStep();
                       }}
                       disabled={!formData.firstName || !formData.lastName || !formData.dob || !formData.username}
-                      className="w-full bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+                      className="w-full bg-[#16a34a] hover:bg-[#15803d] active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 focus:ring-offset-1 focus:ring-offset-transparent shadow-[0_0_20px_rgba(34,197,94,0.2)]"
                     >
-                      Continue <ChevronRight size={18} />
+                      Continue <ChevronRight size={16} />
                     </button>
                     {errorMsg && <p className="text-red-500 text-[9px] font-black uppercase tracking-widest text-center mt-4">{errorMsg}</p>}
                   </div>
@@ -1018,18 +1018,18 @@ export default function RegisterPage() {
                 <motion.div key="step4" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
                     <h2 className="font-display text-2xl text-white mb-1">Connectivity</h2>
-                    <p className="font-label text-gray-400">Phase Four: Contact Details</p>
+                    <p className="text-[13px] text-gray-500">Phase Four: Contact Details</p>
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="block font-label text-[#22c55e]">Phone Number <span className="text-red-500">*</span></label>
+                        <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Phone Number <span className="text-red-500">*</span></label>
                         <div className="flex gap-2">
                           <select
                             name="countryCode"
                             value={formData.countryCode}
                             onChange={handleChange}
-                            className="w-[140px] bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-[11px] appearance-none cursor-pointer"
+                            className="w-[140px] bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans appearance-none cursor-pointer"
                           >
                             {countries.map(c => (
                               <option key={c.name} value={c.code} className="bg-[#111] text-white">
@@ -1048,7 +1048,7 @@ export default function RegisterPage() {
                             required
                             type="tel"
                             placeholder="77 123 4567"
-                            className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm font-medium"
+                            className="flex-1 bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                           />
                         </div>
                       </div>
@@ -1057,53 +1057,53 @@ export default function RegisterPage() {
                     <div className="space-y-4">
                       {/* Address Line 1 */}
                       <div className="space-y-2">
-                        <label className="block font-label text-[#22c55e]">Address Line 1 <span className="text-red-500">*</span></label>
-                        <input name="addressLine1" value={formData.addressLine1} onChange={handleChange} required type="text" placeholder="Street address, P.O. box" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                        <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Address Line 1 <span className="text-red-500">*</span></label>
+                        <input name="addressLine1" value={formData.addressLine1} onChange={handleChange} required type="text" placeholder="Street address, P.O. box" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                       </div>
 
                       {/* Address Line 2 */}
                       <div className="space-y-2">
-                        <label className="block font-label text-gray-500">Address Line 2 (Optional)</label>
-                        <input name="addressLine2" value={formData.addressLine2} onChange={handleChange} type="text" placeholder="Apartment, suite, unit" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                        <label className="block text-[12px] font-medium text-gray-500 tracking-[0.03em]">Address Line 2 (Optional)</label>
+                        <input name="addressLine2" value={formData.addressLine2} onChange={handleChange} type="text" placeholder="Apartment, suite, unit" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                       </div>
 
                       {/* City & State */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="block font-label text-[#22c55e]">City <span className="text-red-500">*</span></label>
-                          <input name="city" value={formData.city} onChange={handleChange} required type="text" placeholder="City" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">City <span className="text-red-500">*</span></label>
+                          <input name="city" value={formData.city} onChange={handleChange} required type="text" placeholder="City" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                         </div>
                         <div className="space-y-2">
-                          <label className="block font-label text-[#22c55e]">State / Province <span className="text-red-500">*</span></label>
-                          <input name="state" value={formData.state} onChange={handleChange} required type="text" placeholder="State / Region" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">State / Province <span className="text-red-500">*</span></label>
+                          <input name="state" value={formData.state} onChange={handleChange} required type="text" placeholder="State / Region" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                         </div>
                       </div>
 
                       {/* Country - Now at the end */}
                       <div className="space-y-2 pt-2">
-                        <label className="block font-label text-gray-500">Country (Auto-locked)</label>
+                        <label className="block text-[12px] font-medium text-gray-500 tracking-[0.03em]">Country (Auto-locked)</label>
                         <div className="relative">
-                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700" size={16} />
+                          <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                           <input
                             name="country"
                             value={formData.country}
                             readOnly
-                            className="w-full bg-white/5 border border-white/5 rounded-xl py-4 pl-12 pr-6 text-white/40 font-black tracking-[1px] font-sans text-sm uppercase cursor-not-allowed"
+                            className="w-full bg-white/5 border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-4 text-white/40 font-semibold tracking-[0.03em] font-sans text-[13px] uppercase cursor-not-allowed"
                           />
                         </div>
                       </div>
                     </div>
                     {chosenRole === 'athlete' && (
-                      <div className="pt-6 border-t border-white/5 space-y-4">
-                        <h3 className="font-label text-white/40">Emergency Contact <span className="text-red-500">*</span></h3>
+                      <div className="pt-6 border-t border-white/[0.12] space-y-4">
+                        <h3 className="text-[12px] font-medium text-gray-400 tracking-[0.03em]">Emergency Contact <span className="text-red-500">*</span></h3>
                         <div className="space-y-4">
-                          <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required={chosenRole === 'athlete'} type="text" placeholder="Contact Name" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm" />
+                          <input name="emergencyName" value={formData.emergencyName} onChange={handleChange} required={chosenRole === 'athlete'} type="text" placeholder="Contact Name" className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" />
                           <div className="flex gap-2">
                             <select
                               name="emergencyCountryCode"
                               value={formData.emergencyCountryCode}
                               onChange={handleChange}
-                              className="w-[140px] bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-[11px] appearance-none cursor-pointer"
+                              className="w-[140px] bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans appearance-none cursor-pointer"
                             >
                               {countries.map(c => (
                                 <option key={c.name} value={c.code} className="bg-[#111] text-white">
@@ -1121,15 +1121,15 @@ export default function RegisterPage() {
                               maxLength={15}
                               required={chosenRole === 'athlete'}
                               type="tel"
-                              placeholder="CONTACT PHONE"
-                              className="flex-1 bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans text-sm"
+                              placeholder="Contact Phone"
+                              className="flex-1 bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                             />
                           </div>
                         </div>
                       </div>
                     )}
                     <div className="flex gap-4">
-                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 text-white/40 font-button py-4 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all">
+                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 hover:bg-white/10 active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center">
                         <ChevronLeft size={18} />
                       </button>
                       <button
@@ -1158,9 +1158,9 @@ export default function RegisterPage() {
                           }
                         }}
                         disabled={!formData.phone || !formData.addressLine1 || !formData.city || !formData.state || (chosenRole === 'athlete' && (!formData.emergencyName || !formData.emergencyPhone))}
-                        className="flex-[3] bg-[#22c55e] text-black font-button py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]"
+                        className="flex-[3] bg-[#16a34a] hover:bg-[#15803d] active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 focus:ring-offset-1 focus:ring-offset-transparent shadow-[0_0_20px_rgba(34,197,94,0.2)]"
                       >
-                        Continue <ChevronRight size={18} />
+                        Continue <ChevronRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -1171,30 +1171,30 @@ export default function RegisterPage() {
                 <motion.div key="step5" custom={direction} variants={slideVariants} initial="initial" animate="animate" exit="exit">
                   <div className="mb-8">
                     <h2 className="font-display text-2xl text-white mb-1">Performance Registry</h2>
-                    <p className="font-label text-gray-500">Phase Five: Athlete Statistics</p>
+                    <p className="text-[13px] text-gray-500">Phase Five: Athlete Statistics</p>
                   </div>
 
-                  {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-[2px] text-center">{errorMsg}</div>}
-                  {successMsg && <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-500 text-[10px] font-black uppercase tracking-[2px] text-center">{successMsg}</div>}
+                  {errorMsg && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[11px] font-medium tracking-[0.03em] text-center">{errorMsg}</div>}
+                  {successMsg && <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-500 text-[11px] font-medium tracking-[0.03em] text-center">{successMsg}</div>}
 
                   <form onSubmit={handleProfileUpdate} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Height Field */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Height <span className="text-red-500">*</span></label>
-                          <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                          <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Height <span className="text-red-500">*</span></label>
+                          <div className="flex bg-white/[0.04] p-1 rounded-lg border border-white/[0.12]">
                             <button 
                               type="button"
                               onClick={() => toggleHeightUnit('cm')}
-                              className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${heightUnit === 'cm' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
+                              className={`px-3 py-1 rounded-md text-[10px] font-semibold transition-all ${heightUnit === 'cm' ? 'bg-[#16a34a] text-white shadow-[0_0_15px_rgba(22,163,74,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
                             >
                               CM
                             </button>
                             <button 
                               type="button"
                               onClick={() => toggleHeightUnit('ft')}
-                              className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${heightUnit === 'ft' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
+                              className={`px-3 py-1 rounded-md text-[10px] font-semibold transition-all ${heightUnit === 'ft' ? 'bg-[#16a34a] text-white shadow-[0_0_15px_rgba(22,163,74,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
                             >
                               FT
                             </button>
@@ -1211,7 +1211,7 @@ export default function RegisterPage() {
                             min="50"
                             max="300"
                             placeholder="185" 
-                            className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" 
+                            className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" 
                           />
                         ) : (
                           <div className="flex gap-2">
@@ -1228,9 +1228,9 @@ export default function RegisterPage() {
                                 min="1"
                                 max="9"
                                 placeholder="6"
-                                className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm"
+                                className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                               />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-600 font-bold">FT</span>
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 font-semibold">FT</span>
                             </div>
                             <div className="flex-1 relative">
                               <input 
@@ -1245,14 +1245,14 @@ export default function RegisterPage() {
                                 min="0"
                                 max="11"
                                 placeholder="1"
-                                className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-4 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm"
+                                className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                               />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-600 font-bold">IN</span>
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 font-semibold">IN</span>
                             </div>
                           </div>
                         )}
                         {formData.height && (
-                          <p className="text-[9px] text-gray-500 font-bold italic pl-1">
+                          <p className="text-[11px] text-gray-500 italic pl-1 font-medium">
                             {heightUnit === 'cm' 
                               ? `${Math.floor(Number(formData.height) / 30.48)}'${Math.round((Number(formData.height) % 30.48) / 2.54)}"`
                               : `${formData.height} cm`}
@@ -1264,19 +1264,19 @@ export default function RegisterPage() {
                       {/* Weight Field */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Weight <span className="text-red-500">*</span></label>
-                          <div className="flex bg-black/40 p-1 rounded-lg border border-white/5">
+                          <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Weight <span className="text-red-500">*</span></label>
+                          <div className="flex bg-white/[0.04] p-1 rounded-lg border border-white/[0.12]">
                             <button 
                               type="button"
                               onClick={() => toggleWeightUnit('kg')}
-                              className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${weightUnit === 'kg' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
+                              className={`px-3 py-1 rounded-md text-[10px] font-semibold transition-all ${weightUnit === 'kg' ? 'bg-[#16a34a] text-white shadow-[0_0_15px_rgba(22,163,74,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
                             >
                               KG
                             </button>
                             <button 
                               type="button"
                               onClick={() => toggleWeightUnit('lbs')}
-                              className={`px-3 py-1 rounded-md text-[9px] font-bold transition-all ${weightUnit === 'lbs' ? 'bg-[#22c55e] text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
+                              className={`px-3 py-1 rounded-md text-[10px] font-semibold transition-all ${weightUnit === 'lbs' ? 'bg-[#16a34a] text-white shadow-[0_0_15px_rgba(22,163,74,0.3)]' : 'text-gray-500 hover:text-gray-300'}`}
                             >
                               LBS
                             </button>
@@ -1293,7 +1293,7 @@ export default function RegisterPage() {
                             min="20"
                             max="500"
                             placeholder="82" 
-                            className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm" 
+                            className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" 
                           />
                         ) : (
                           <div className="relative">
@@ -1309,13 +1309,13 @@ export default function RegisterPage() {
                               min="44"
                               max="1100"
                               placeholder="180"
-                              className="w-full bg-black/30 border border-white/10 rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all text-sm"
+                              className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans"
                             />
-                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] text-gray-600 font-bold">LBS</span>
+                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 font-semibold">LBS</span>
                           </div>
                         )}
                         {formData.weight && (
-                          <p className="text-[9px] text-gray-500 font-bold italic pl-1">
+                          <p className="text-[11px] text-gray-500 italic pl-1 font-medium">
                             {weightUnit === 'kg' 
                               ? `${Math.round(Number(formData.weight) * 2.20462)} lbs`
                               : `${formData.weight} kg`}
@@ -1325,7 +1325,7 @@ export default function RegisterPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold uppercase tracking-widest text-[10px]">Position Played <span className="text-red-500">*</span></label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Position Played <span className="text-red-500">*</span></label>
                       <input 
                         name="position" 
                         value={formData.position} 
@@ -1338,13 +1338,13 @@ export default function RegisterPage() {
                         required 
                         type="text" 
                         placeholder="eg: Forward" 
-                        className={`w-full bg-black/30 border ${fieldErrors.position ? 'border-red-500/50 focus:border-red-500' : formData.position && !fieldErrors.position ? 'border-green-500/30 focus:border-green-500' : 'border-white/10 focus:border-[#22c55e]/50'} rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:bg-black/50 transition-all text-sm font-medium`} 
+                        className={`w-full bg-white/[0.04] border ${fieldErrors.position ? 'border-red-500/50 focus:border-red-500' : formData.position && !fieldErrors.position ? 'border-[#16a34a]/30 focus:border-[#16a34a]' : 'border-white/[0.12] focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06]'} rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 hover:border-white/[0.2] transition-all font-sans`} 
                       />
-                      {fieldErrors.position && <p className="text-red-500 text-[9px] font-bold uppercase tracking-wider pl-1">{fieldErrors.position}</p>}
+                      {fieldErrors.position && <p className="text-red-500 text-[11px] font-semibold tracking-[0.03em] pl-1">{fieldErrors.position}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block font-label text-[#22c55e] font-bold uppercase tracking-widest text-[10px]">Main Goals <span className="text-red-500">*</span></label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Main Goals <span className="text-red-500">*</span></label>
                       <textarea 
                         name="goals" 
                         value={formData.goals} 
@@ -1357,14 +1357,14 @@ export default function RegisterPage() {
                         required 
                         rows={2} 
                         placeholder="eg: Speed, Agility, Strength" 
-                        className={`w-full bg-black/30 border ${fieldErrors.goals ? 'border-red-500/50 focus:border-red-500' : formData.goals && !fieldErrors.goals ? 'border-green-500/30 focus:border-green-500' : 'border-white/10 focus:border-[#22c55e]/50'} rounded-xl py-4 px-6 text-white placeholder:text-gray-500 focus:bg-black/50 transition-all text-sm font-medium resize-none`} 
+                        className={`w-full bg-white/[0.04] border ${fieldErrors.goals ? 'border-red-500/50 focus:border-red-500' : formData.goals && !fieldErrors.goals ? 'border-[#16a34a]/30 focus:border-[#16a34a]' : 'border-white/[0.12] focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06]'} rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 hover:border-white/[0.2] transition-all font-sans resize-none`} 
                       />
-                      {fieldErrors.goals && <p className="text-red-500 text-[9px] font-bold uppercase tracking-wider pl-1">{fieldErrors.goals}</p>}
-                      <p className="text-[8px] text-gray-500 uppercase tracking-widest pl-1 font-bold">Max 10 goals, comma-separated</p>
+                      {fieldErrors.goals && <p className="text-red-500 text-[11px] font-semibold tracking-[0.03em] pl-1">{fieldErrors.goals}</p>}
+                      <p className="text-[11px] text-gray-500 tracking-[0.03em] pl-1 font-semibold">Max 10 goals, comma-separated</p>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black tracking-[2px] text-gray-500 uppercase">Medical History (Optional)</label>
+                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Medical History (Optional)</label>
                       <textarea 
                         name="medicalHistory" 
                         value={formData.medicalHistory} 
@@ -1376,31 +1376,31 @@ export default function RegisterPage() {
                         onBlur={(e) => validatePhase5Field('medicalHistory', e.target.value)}
                         rows={2} 
                         placeholder="Any previous injuries or conditions..." 
-                        className={`w-full bg-black/30 border ${fieldErrors.medicalHistory ? 'border-red-500/50 focus:border-red-500' : formData.medicalHistory && !fieldErrors.medicalHistory ? 'border-green-500/30 focus:border-green-500' : 'border-white/10 focus:border-[#22c55e]/50'} rounded-xl py-4 px-6 text-white placeholder:text-gray-700 focus:bg-black/50 transition-all text-sm resize-none`} 
+                        className={`w-full bg-white/[0.04] border ${fieldErrors.medicalHistory ? 'border-red-500/50 focus:border-red-500' : formData.medicalHistory && !fieldErrors.medicalHistory ? 'border-[#16a34a]/30 focus:border-[#16a34a]' : 'border-white/[0.12] focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06]'} rounded-xl py-3.5 px-4 text-[13px] text-white placeholder:text-gray-600 hover:border-white/[0.2] transition-all font-sans resize-none`} 
                       />
-                      {fieldErrors.medicalHistory && <p className="text-red-500 text-[9px] font-bold uppercase tracking-wider pl-1">{fieldErrors.medicalHistory}</p>}
+                      {fieldErrors.medicalHistory && <p className="text-red-500 text-[11px] font-semibold tracking-[0.03em] pl-1">{fieldErrors.medicalHistory}</p>}
                     </div>
 
-                    <div className="p-5 bg-white/5 border border-white/10 rounded-2xl">
+                    <div className="p-5 bg-white/5 border border-white/[0.12] rounded-2xl">
                       <div className="flex items-start gap-4">
                         <div className="relative pt-1 shrink-0 flex items-center justify-center w-4 h-4 mt-0.5">
-                          <input type="checkbox" name="waiverAccepted" checked={formData.waiverAccepted} onChange={handleChange} className="w-4 h-4 appearance-none border border-white/20 rounded checked:bg-[#22c55e] checked:border-[#22c55e] transition-all cursor-pointer" />
-                          {formData.waiverAccepted && <Check className="absolute text-black pointer-events-none" size={12} strokeWidth={4} />}
+                          <input type="checkbox" name="waiverAccepted" checked={formData.waiverAccepted} onChange={handleChange} className="w-4 h-4 appearance-none border border-white/[0.12] rounded checked:bg-[#16a34a] checked:border-[#16a34a] transition-all cursor-pointer" />
+                          {formData.waiverAccepted && <Check className="absolute text-white pointer-events-none" size={12} strokeWidth={4} />}
                         </div>
-                        <p className="text-[8px] text-gray-400 leading-relaxed font-bold uppercase tracking-widest">
+                        <p className="text-[11px] text-gray-400 leading-relaxed font-semibold tracking-[0.03em]">
                           I voluntarily participate and assume full responsibility for any injury or damages and hereby release, indemnify, and hold harmless the KIO-X Performance Center.
                         </p>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
-                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 text-white/40 font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all">
+                      <button type="button" onClick={prevStep} className="flex-1 bg-white/5 hover:bg-white/10 active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl transition-all duration-200 flex items-center justify-center">
                         <ChevronLeft size={18} />
                       </button>
                       <button
                         type="submit"
                         disabled={loading || (!successMsg && (!formData.waiverAccepted || !formData.height || !formData.weight || !formData.position || !formData.goals))}
-                        className={`flex-[3] ${successMsg ? 'bg-white text-black underline underline-offset-4' : 'bg-[#22c55e] text-black'} font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] shadow-[0_0_30px_rgba(34,197,94,0.2)] disabled:opacity-30 disabled:hover:scale-100 transition-all`}
+                        className={`flex-[3] ${successMsg ? 'bg-white text-black underline underline-offset-4' : 'bg-[#16a34a] text-white hover:bg-[#15803d]'} font-semibold text-[13px] py-3.5 rounded-xl flex items-center justify-center gap-2 hover:scale-[1.01] shadow-[0_0_20px_rgba(34,197,94,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
                       >
                         {loading ? (
                           <Loader2 className="animate-spin" />

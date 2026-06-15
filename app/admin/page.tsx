@@ -163,16 +163,34 @@ export default function AdminDashboard() {
           .order('start_time', { ascending: true })
       ]);
 
+      const getJsonSafe = async (res: Response) => {
+        try {
+          if (!res.ok) {
+            console.error(`Fetch failed for ${res.url} with status ${res.status}`);
+            return { error: `HTTP ${res.status}` };
+          }
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return await res.json();
+          }
+          console.error(`Fetch returned non-JSON for ${res.url}`);
+          return { error: "Non-JSON response" };
+        } catch (e) {
+          console.error(`Error parsing JSON for ${res.url}:`, e);
+          return { error: "JSON parse error" };
+        }
+      };
+
       const [athData, alrtData, noteData, wellData] = await Promise.all([
-        athRes.json(),
-        alrtRes.json(),
-        noteRes.json(),
-        wellRes.json()
+        getJsonSafe(athRes),
+        getJsonSafe(alrtRes),
+        getJsonSafe(noteRes),
+        getJsonSafe(wellRes)
       ]);
 
-      if (!athData.error) setAthletes(athData);
-      if (!alrtData.error) setAlerts(alrtData);
-      if (!noteData.error) setStaffNotes(noteData);
+      if (athData && !athData.error) setAthletes(athData);
+      if (alrtData && !alrtData.error) setAlerts(alrtData);
+      if (noteData && !noteData.error) setStaffNotes(noteData);
 
       if (!wellData.error) {
         const logsExist = wellData.completion_count > 0;

@@ -96,7 +96,7 @@ export default function ArchitectureMatrix() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (user && (profile?.role === 'superadmin' || profile?.role === 'staff')) {
+      if (user && (profile?.role === 'superadmin' || profile?.role === 'staff' || profile?.role === 'medical')) {
         fetchPrograms();
         fetchStaff();
       } else if (!user || profile) {
@@ -252,7 +252,7 @@ export default function ArchitectureMatrix() {
 
   // Filter programs based on selected options and search text
   const filteredPrograms = programs
-    .filter(program => profile?.role === 'superadmin' || program.coach_id === user?.id)
+    .filter(program => profile?.role === 'superadmin' || profile?.role === 'medical' || program.coach_id === user?.id)
     .filter(program => {
       const matchesSearch = program.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             program.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -278,20 +278,22 @@ export default function ArchitectureMatrix() {
               </span>
             </div>
           </div>
-          <button 
-            onClick={() => {
-              const nextAdding = !isAdding;
-              setIsAdding(nextAdding);
-              if (!nextAdding) {
-                setEditingId(null);
-                setIsCustomCategory(false);
-                setCustomCategory("");
-              }
-            }}
-            className="px-8 py-4 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[2px] rounded-xl flex items-center gap-2 hover:bg-[#4ade80] transition-all"
-          >
-            {isAdding ? "Cancel Matrix" : <><Plus size={18} /> New Architecture</>}
-          </button>
+          {profile?.role !== 'medical' && (
+            <button 
+              onClick={() => {
+                const nextAdding = !isAdding;
+                setIsAdding(nextAdding);
+                if (!nextAdding) {
+                  setEditingId(null);
+                  setIsCustomCategory(false);
+                  setCustomCategory("");
+                }
+              }}
+              className="px-8 py-4 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[2px] rounded-xl flex items-center gap-2 hover:bg-[#4ade80] transition-all"
+            >
+              {isAdding ? "Cancel Matrix" : <><Plus size={18} /> New Architecture</>}
+            </button>
+          )}
         </div>
 
         {/* Search Input & Filter Dropdown */}
@@ -601,7 +603,7 @@ export default function ArchitectureMatrix() {
                   <div className="w-12 h-12 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center">
                     <Package className="text-[#22c55e]" size={20} />
                   </div>
-                  {(profile?.role === 'superadmin' || program.coach_id === user?.id) && (
+                  {profile?.role !== 'medical' && (profile?.role === 'superadmin' || program.coach_id === user?.id) && (
                     <div className="flex items-center gap-4">
                       <button 
                         onClick={() => handleEditClick(program)}
@@ -652,7 +654,7 @@ export default function ArchitectureMatrix() {
                   </div>
                 </div>
 
-                {(profile?.role === 'superadmin' || program.coach_id === user?.id) && (
+                {(profile?.role === 'superadmin' || profile?.role === 'medical' || program.coach_id === user?.id) && (
                   <button 
                     onClick={() => {
                       setActiveProgram(program);
@@ -661,7 +663,7 @@ export default function ArchitectureMatrix() {
                     }}
                     className="w-full mt-6 py-3 bg-transparent border border-[#00ff88] rounded-xl text-[9px] font-black text-[#00ff88] uppercase tracking-[3px] hover:bg-[#00ff88] hover:text-black transition-all flex items-center justify-center gap-2"
                   >
-                    <Calendar size={14} /> Manage Schedule
+                    <Calendar size={14} /> {profile?.role === 'medical' ? "View Schedule" : "Manage Schedule"}
                   </button>
                 )}
               </div>
@@ -697,51 +699,53 @@ export default function ArchitectureMatrix() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              <div className={`grid grid-cols-1 ${profile?.role === 'medical' ? '' : 'lg:grid-cols-2'} gap-12`}>
                 {/* New Entry Form */}
-                <form onSubmit={handleAddSchedule} className="space-y-6">
-                  <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[3px]">Add Recurring Session</h4>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Day of Week</label>
-                      <select 
-                        value={newSchedule.day_of_week}
-                        onChange={e => setNewSchedule({...newSchedule, day_of_week: parseInt(e.target.value)})}
-                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
-                      >
-                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((d, i) => (
-                          <option key={i} value={i}>{d.toUpperCase()}</option>
-                        ))}
-                      </select>
+                {profile?.role !== 'medical' && (
+                  <form onSubmit={handleAddSchedule} className="space-y-6">
+                    <h4 className="text-[11px] font-black text-white/40 uppercase tracking-[3px]">Add Recurring Session</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Day of Week</label>
+                        <select 
+                          value={newSchedule.day_of_week}
+                          onChange={e => setNewSchedule({...newSchedule, day_of_week: parseInt(e.target.value)})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                        >
+                          {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((d, i) => (
+                            <option key={i} value={i}>{d.toUpperCase()}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Start Time</label>
+                        <input 
+                          type="time"
+                          value={newSchedule.start_time}
+                          onChange={e => setNewSchedule({...newSchedule, start_time: e.target.value})}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
+                          style={{ colorScheme: 'dark' }}
+                        />
+                      </div>
                     </div>
+
                     <div>
-                      <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Start Time</label>
+                      <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Session Title</label>
                       <input 
-                        type="time"
-                        value={newSchedule.start_time}
-                        onChange={e => setNewSchedule({...newSchedule, start_time: e.target.value})}
+                        required
+                        placeholder="e.g. Tactical Conditioning"
+                        value={newSchedule.title}
+                        onChange={e => setNewSchedule({...newSchedule, title: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
-                        style={{ colorScheme: 'dark' }}
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="text-[9px] font-black text-white/40 uppercase tracking-[2px] mb-2 block">Session Title</label>
-                    <input 
-                      required
-                      placeholder="e.g. Tactical Conditioning"
-                      value={newSchedule.title}
-                      onChange={e => setNewSchedule({...newSchedule, title: e.target.value})}
-                      className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none"
-                    />
-                  </div>
-
-                  <button className="w-full py-4 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-white transition-all">
-                    Initialize Session
-                  </button>
-                </form>
+                    <button className="w-full py-4 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-white transition-all">
+                      Initialize Session
+                    </button>
+                  </form>
+                )}
 
                 {/* Existing Schedule */}
                 <div className="space-y-6">
@@ -758,12 +762,14 @@ export default function ArchitectureMatrix() {
                             <p className="text-[10px] text-white/40 uppercase tracking-[2px]">{s.start_time.substring(0, 5)} // {s.duration_minutes} MIN</p>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => handleDeleteSchedule(s.id)}
-                          className="p-2 text-gray-600 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {profile?.role !== 'medical' && (
+                          <button 
+                            onClick={() => handleDeleteSchedule(s.id)}
+                            className="p-2 text-gray-600 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     ))}
                     {programSchedule.length === 0 && (

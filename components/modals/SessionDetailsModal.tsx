@@ -7,6 +7,7 @@ import { useSessions, TrainingSession } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
+import { createClient } from "@/utils/supabase/client";
 
 
 interface SessionDetailsModalProps {
@@ -21,8 +22,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const [mounted, setMounted] = useState(false);
   const [athleteLogs, setAthleteLogs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"INFO" | "ROSTER">("INFO");
+  const [creatorName, setCreatorName] = useState<string | null>(null);
+  const [assignedCoachName, setAssignedCoachName] = useState<string | null>(null);
 
+  const supabase = createClient();
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
+  const isFacilityWide = session ? ["MEAL", "CURFEW", "LOGISTICS"].includes(session.session_type) : false;
 
   useEffect(() => {
     setMounted(true);
@@ -36,10 +41,45 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
   const loadSessionData = async () => {
     if (!session) return;
+    
+    // Fetch creator's name
+    if (session.assigned_by) {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", session.assigned_by)
+        .single();
+      if (profileData) {
+        setCreatorName(`${profileData.first_name || ""} ${profileData.last_name || ""}`.trim());
+      } else {
+        setCreatorName(null);
+      }
+    } else {
+      setCreatorName(null);
+    }
+
+    // Fetch assigned coach's name
+    if (session.coach_id) {
+      const { data: coachData } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", session.coach_id)
+        .single();
+      if (coachData) {
+        setAssignedCoachName(`${coachData.first_name || ""} ${coachData.last_name || ""}`.trim());
+      } else {
+        setAssignedCoachName(null);
+      }
+    } else {
+      setAssignedCoachName(null);
+    }
+
+    if (isFacilityWide) return;
+
     const { data } = await getSessionLoads(session.id);
     
     // Initialize logs for all assigned athletes if they don't exist
-    const logs = session.assigned_athletes.map(id => {
+    const logs = (session.assigned_athletes || []).map(id => {
       const existing = data?.find((d: any) => d.athlete_id === id);
       return existing || {
         athlete_id: id,
@@ -104,9 +144,9 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
              </div>
              <div className="flex items-center gap-4">
                 {isStaff && (
-                  <button className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all">
-                    <Trash2 size={24} />
-                  </button>
+                   <button className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all">
+                     <Trash2 size={24} />
+                   </button>
                 )}
                 <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
                    <X size={28} />
@@ -116,62 +156,92 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
           <div className="flex h-[500px]">
              {/* Tabs Sidebar */}
-             <div className="w-[120px] border-r border-white/5 flex flex-col items-center py-10 gap-8">
-                {[
-                   { id: 'INFO', icon: <Activity size={24} />, label: 'INFO' },
-                   { id: 'ROSTER', icon: <Users size={24} />, label: 'ROSTER' }
-                ].map(tab => (
-                   <button 
-                     key={tab.id}
-                     onClick={() => setActiveTab(tab.id as any)}
-                     className={`flex flex-col items-center gap-2 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
-                   >
-                      {tab.icon}
-                      <span className="text-[8px] font-black tracking-widest">{tab.label}</span>
-                   </button>
-                ))}
-             </div>
+             {!isFacilityWide && (
+                <div className="w-[120px] border-r border-white/5 flex flex-col items-center py-10 gap-8">
+                   {[
+                      { id: 'INFO', icon: <Activity size={24} />, label: 'INFO' },
+                      { id: 'ROSTER', icon: <Users size={24} />, label: 'ROSTER' }
+                   ].map(tab => (
+                      <button 
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex flex-col items-center gap-2 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
+                      >
+                         {tab.icon}
+                         <span className="text-[8px] font-black tracking-widest">{tab.label}</span>
+                      </button>
+                   ))}
+                </div>
+             )}
 
              {/* Content Area */}
              <div className="flex-1 overflow-y-auto p-12 scrollbar-hide">
-                {activeTab === 'INFO' ? (
+                {activeTab === 'INFO' || isFacilityWide ? (
                    <div className="space-y-12">
-                      <div className="grid grid-cols-2 gap-12">
-                         <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                            <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TARGET INTENSITY MATRIX</div>
-                            <div className="text-4xl font-display text-[#22c55e]">{session.target_load_au} AU</div>
-                            <div className="text-gray-500 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
+                      {isFacilityWide ? (
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PROTOCOL CREATOR</div>
+                               <div className="text-xl font-display text-[#22c55e] uppercase truncate">
+                                  {creatorName || "SYSTEM CENTRAL"}
+                               </div>
+                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">INITIALIZED BY COMMAND PROFILE</div>
+                            </div>
+                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">ASSIGNED COACH</div>
+                               <div className="text-xl font-display text-sky-400 uppercase truncate">
+                                  {assignedCoachName || "UNASSIGNED"}
+                               </div>
+                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">LEAD COACH FOR PROTOCOL</div>
+                            </div>
+                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">INITIALIZED TIMESTAMP</div>
+                               <div className="text-sm font-mono text-white mt-1">
+                                  {session.created_at ? format(new Date(session.created_at), "yyyy-MM-dd HH:mm") : "N/A"}
+                                </div>
+                               <div className="text-gray-500 text-[8px] font-black uppercase mt-4">SYSTEM RECORD ENTRY TIME</div>
+                            </div>
                          </div>
-                         <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                            <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">UNIT ASSIGNMENT</div>
-                            <div className="text-4xl font-display text-white">{session.assigned_athletes.length} SUBJECTS</div>
-                            <div className="text-gray-500 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
+                      ) : (
+                         <div className="grid grid-cols-2 gap-12">
+                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TARGET INTENSITY MATRIX</div>
+                               <div className="text-4xl font-display text-[#22c55e]">{session.target_load_au} AU</div>
+                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
+                            </div>
+                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">UNIT ASSIGNMENT</div>
+                               <div className="text-4xl font-display text-white">{(session.assigned_athletes || []).length} SUBJECTS</div>
+                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
+                            </div>
                          </div>
-                      </div>
+                      )}
 
                       <div className="space-y-4">
                          <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">MISSION NOTES</div>
                          <p className="text-white/60 text-sm leading-relaxed italic">"{session.notes || 'No operational modifications recorded for this session.'}"</p>
                       </div>
 
-                      <div className="pt-12 flex gap-4">
-                         {isStaff && session.status === 'SCHEDULED' && (
-                           <button 
-                             onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
-                             className="flex-1 py-4 bg-[#22c55e] text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
-                           >
-                              <Play size={18} fill="currentColor" /> MARK IN PROGRESS
-                           </button>
-                         )}
-                         {isStaff && session.status === 'IN_PROGRESS' && (
-                           <button 
-                             onClick={() => setActiveTab('ROSTER')}
-                             className="flex-1 py-4 bg-amber-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
-                           >
-                              <CheckCircle2 size={18} /> INITIALIZE COMPLETION LOG
-                           </button>
-                         )}
-                      </div>
+                      {!isFacilityWide && (
+                         <div className="pt-12 flex gap-4">
+                            {isStaff && session.status === 'SCHEDULED' && (
+                              <button 
+                                onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
+                                className="flex-1 py-4 bg-[#22c55e] text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                              >
+                                 <Play size={18} fill="currentColor" /> MARK IN PROGRESS
+                              </button>
+                            )}
+                            {isStaff && session.status === 'IN_PROGRESS' && (
+                              <button 
+                                onClick={() => setActiveTab('ROSTER')}
+                                className="flex-1 py-4 bg-amber-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                              >
+                                 <CheckCircle2 size={18} /> INITIALIZE COMPLETION LOG
+                              </button>
+                            )}
+                         </div>
+                      )}
                    </div>
                 ) : (
                    <div className="space-y-8">

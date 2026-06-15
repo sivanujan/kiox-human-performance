@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   Zap
 } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 interface ManageScheduleModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
     notes: ""
   });
   const [submitting, setSubmitting] = useState(false);
+  const { profile } = useAuth();
 
   useEffect(() => {
     if (isOpen && program) {
@@ -188,12 +190,12 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
 
         <div className="flex-1 overflow-y-auto p-8">
            {activeTab === 'schedule' ? (
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+             <div className={`grid grid-cols-1 ${profile?.role === 'medical' ? '' : 'lg:grid-cols-2'} gap-12`}>
                 {/* List Section */}
                 <div className="space-y-6">
                    <div className="flex items-center justify-between">
                       <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Operational Sessions</h3>
-                      {!isAdding && (
+                      {!isAdding && profile?.role !== 'medical' && (
                         <button 
                           onClick={() => setIsAdding(true)}
                           className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
@@ -228,12 +230,14 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                                    </div>
                                 </div>
                              </div>
-                             <button 
-                              onClick={() => handleDelete(session.id)}
-                              className="p-3 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                             >
-                                <Trash2 size={16} />
-                             </button>
+                             {profile?.role !== 'medical' && (
+                               <button 
+                                onClick={() => handleDelete(session.id)}
+                                className="p-3 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                               >
+                                  <Trash2 size={16} />
+                               </button>
+                             )}
                           </div>
                         ))}
                      </div>
@@ -241,138 +245,161 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                 </div>
 
                 {/* Form Section */}
-                <div className="relative">
-                   {isAdding ? (
-                     <div className="bg-[#111] border border-[#22c55e]/10 rounded-3xl p-8 sticky top-0">
-                        <h3 className="text-xs font-black text-[#22c55e] uppercase tracking-widest mb-8">New Session Configuration</h3>
-                        <form onSubmit={handleAdd} className="space-y-6">
-                           <div className="space-y-2">
-                              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Session Identity</label>
-                              <input 
-                                 required
-                                 value={formData.title}
-                                 onChange={e => setFormData({...formData, title: e.target.value})}
-                                 placeholder="e.g. MORNING CONDITIONING"
-                                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none transition-all"
-                              />
-                           </div>
-
-                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Recurring Days</label>
-                              <div className="flex justify-between gap-2">
-                                 {DAYS.map((d, i) => (
-                                   <button
-                                     key={i}
-                                     type="button"
-                                     onClick={() => handleDayToggle(i)}
-                                     className={`flex-1 py-3 rounded-xl text-[10px] font-black transition-all border ${
-                                       formData.days.includes(i) 
-                                         ? 'bg-[#22c55e] text-black border-[#22c55e]' 
-                                         : 'bg-black text-gray-500 border-white/10 hover:border-white/20'
-                                     }`}
-                                   >
-                                     {d.slice(0, 1)}
-                                   </button>
-                                 ))}
-                              </div>
-                           </div>
-
-                           <div className="grid grid-cols-2 gap-4">
+                {profile?.role !== 'medical' && (
+                   <div className="relative">
+                      {isAdding ? (
+                        <div className="bg-[#111] border border-[#22c55e]/10 rounded-3xl p-8 sticky top-0">
+                           <h3 className="text-xs font-black text-[#22c55e] uppercase tracking-widest mb-8">New Session Configuration</h3>
+                           <form onSubmit={handleAdd} className="space-y-6">
                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Commencement</label>
+                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Session Identity</label>
                                  <input 
-                                    type="time"
-                                    value={formData.start_time}
-                                    onChange={e => setFormData({...formData, start_time: e.target.value})}
-                                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
+                                    required
+                                    value={formData.title}
+                                    onChange={e => setFormData({...formData, title: e.target.value})}
+                                    placeholder="e.g. MORNING CONDITIONING"
+                                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none transition-all"
                                  />
                               </div>
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Duration (MIN)</label>
-                                 <input 
-                                    type="number"
-                                    value={formData.duration_minutes}
-                                    onChange={e => setFormData({...formData, duration_minutes: parseInt(e.target.value)})}
-                                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
-                                 />
-                              </div>
-                           </div>
 
-                           <div className="flex gap-4 pt-4">
-                              <button 
-                                 type="button"
-                                 onClick={() => setIsAdding(false)}
-                                 className="flex-1 py-4 border border-white/10 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-white/5 transition-all"
-                              >
-                                 Abort
-                              </button>
-                              <button 
-                                 type="submit"
-                                 disabled={submitting}
-                                 className="flex-1 py-4 bg-[#22c55e] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2"
-                              >
-                                 {submitting ? <Loader2 className="animate-spin" size={14} /> : <><Zap size={14} /> Commit</>}
-                              </button>
-                           </div>
-                        </form>
-                     </div>
-                   ) : (
-                     <div className="h-full flex flex-col items-center justify-center text-center opacity-30 select-none p-12">
-                        <Zap size={64} className="text-gray-600 mb-6" />
-                        <h4 className="text-xs font-black text-gray-500 uppercase tracking-[4px]">Configuration Engine Idle</h4>
-                        <p className="text-[9px] text-gray-600 uppercase mt-2 max-w-[200px]">Initialize a new session block to expand the tactical matrix.</p>
-                     </div>
-                   )}
-                </div>
+                              <div className="space-y-3">
+                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Recurring Days</label>
+                                 <div className="flex justify-between gap-2">
+                                    {DAYS.map((d, i) => (
+                                      <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => handleDayToggle(i)}
+                                        className={`flex-1 py-3 rounded-xl text-[10px] font-black transition-all border ${
+                                          formData.days.includes(i) 
+                                            ? 'bg-[#22c55e] text-black border-[#22c55e]' 
+                                            : 'bg-black text-gray-500 border-white/10 hover:border-white/20'
+                                        }`}
+                                      >
+                                        {d.slice(0, 1)}
+                                      </button>
+                                    ))}
+                                 </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                 <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Commencement</label>
+                                    <input 
+                                       type="time"
+                                       value={formData.start_time}
+                                       onChange={e => setFormData({...formData, start_time: e.target.value})}
+                                       className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
+                                    />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Duration (MIN)</label>
+                                    <input 
+                                       type="number"
+                                       value={formData.duration_minutes}
+                                       onChange={e => setFormData({...formData, duration_minutes: parseInt(e.target.value)})}
+                                       className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
+                                    />
+                                 </div>
+                              </div>
+
+                              <div className="flex gap-4 pt-4">
+                                 <button 
+                                    type="button"
+                                    onClick={() => setIsAdding(false)}
+                                    className="flex-1 py-4 border border-white/10 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-white/5 transition-all"
+                                 >
+                                    Abort
+                                 </button>
+                                 <button 
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="flex-1 py-4 bg-[#22c55e] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2"
+                                 >
+                                    {submitting ? <Loader2 className="animate-spin" size={14} /> : <><Zap size={14} /> Commit</>}
+                                 </button>
+                              </div>
+                           </form>
+                        </div>
+                      ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-center opacity-30 select-none p-12">
+                           <Zap size={64} className="text-gray-600 mb-6" />
+                           <h4 className="text-xs font-black text-gray-500 uppercase tracking-[4px]">Configuration Engine Idle</h4>
+                           <p className="text-[9px] text-gray-600 uppercase mt-2 max-w-[200px]">Initialize a new session block to expand the tactical matrix.</p>
+                        </div>
+                      )}
+                   </div>
+                 )}
              </div>
            ) : (
              <div className="max-w-2xl mx-auto space-y-8">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Protocol Phases</h3>
-                  <button 
-                    onClick={() => setSyllabus([...syllabus, { title: "", status: "locked" }])}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
-                  >
-                     <Plus size={14} /> Add Phase
-                  </button>
+                  {profile?.role !== 'medical' && (
+                    <button 
+                      onClick={() => setSyllabus([...syllabus, { title: "", status: "locked" }])}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                    >
+                       <Plus size={14} /> Add Phase
+                    </button>
+                  )}
                 </div>
 
                 <div className="space-y-4">
                    {syllabus.map((phase, idx) => (
-                     <div key={idx} className="bg-white/[0.03] border border-white/5 p-6 rounded-2xl flex gap-4 items-center">
-                        <input 
-                          placeholder="PHASE TITLE..."
-                          value={phase.title}
-                          onChange={e => {
-                            const updated = [...syllabus];
-                            updated[idx].title = e.target.value;
-                            setSyllabus(updated);
-                          }}
-                          className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none transition-all"
-                        />
-                        <select 
-                          value={phase.status}
-                          onChange={e => {
-                            const updated = [...syllabus];
-                            updated[idx].status = e.target.value;
-                            setSyllabus(updated);
-                          }}
-                          className="bg-black border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black text-white focus:border-[#22c55e] outline-none uppercase"
-                        >
-                          <option value="completed">Completed</option>
-                          <option value="active">Active</option>
-                          <option value="locked">Locked</option>
-                        </select>
-                        <button 
-                          onClick={() => {
-                            const updated = [...syllabus];
-                            updated.splice(idx, 1);
-                            setSyllabus(updated);
-                          }}
-                          className="p-3 text-gray-600 hover:text-red-500 transition-colors"
-                        >
-                           <Trash2 size={18} />
-                        </button>
+                     <div key={idx} className="bg-white/[0.03] border border-white/5 p-6 rounded-2xl flex gap-4 items-center justify-between">
+                        {profile?.role === 'medical' ? (
+                          <>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-bold text-white uppercase tracking-wider">{phase.title || "Untitled Phase"}</h4>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                phase.status === 'completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                phase.status === 'active' ? 'bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/30' :
+                                'bg-white/5 text-white/40 border border-white/10'
+                              }`}>
+                                {phase.status}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <input 
+                              placeholder="PHASE TITLE..."
+                              value={phase.title}
+                              onChange={e => {
+                                const updated = [...syllabus];
+                                updated[idx].title = e.target.value;
+                                setSyllabus(updated);
+                              }}
+                              className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none transition-all"
+                            />
+                            <select 
+                              value={phase.status}
+                              onChange={e => {
+                                const updated = [...syllabus];
+                                updated[idx].status = e.target.value;
+                                setSyllabus(updated);
+                              }}
+                              className="bg-black border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black text-white focus:border-[#22c55e] outline-none uppercase"
+                            >
+                              <option value="completed">Completed</option>
+                              <option value="active">Active</option>
+                              <option value="locked">Locked</option>
+                            </select>
+                            <button 
+                              onClick={() => {
+                                const updated = [...syllabus];
+                                updated.splice(idx, 1);
+                                setSyllabus(updated);
+                              }}
+                              className="p-3 text-gray-600 hover:text-red-500 transition-colors"
+                            >
+                               <Trash2 size={18} />
+                            </button>
+                          </>
+                        )}
                      </div>
                    ))}
                    {syllabus.length === 0 && (
@@ -382,13 +409,15 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                    )}
                 </div>
 
-                <button 
-                  disabled={submitting}
-                  onClick={saveSyllabus}
-                  className="w-full py-5 bg-[#22c55e] text-black rounded-2xl text-[11px] font-black uppercase tracking-[3px] hover:bg-white transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
-                >
-                  {submitting ? <Loader2 className="animate-spin" size={18} /> : <><CheckCircle2 size={18} /> Deploy Syllabus Updates</>}
-                </button>
+                {profile?.role !== 'medical' && (
+                  <button 
+                    disabled={submitting}
+                    onClick={saveSyllabus}
+                    className="w-full py-5 bg-[#22c55e] text-black rounded-2xl text-[11px] font-black uppercase tracking-[3px] hover:bg-white transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
+                  >
+                    {submitting ? <Loader2 className="animate-spin" size={18} /> : <><CheckCircle2 size={18} /> Deploy Syllabus Updates</>}
+                  </button>
+                )}
              </div>
            )}
         </div>

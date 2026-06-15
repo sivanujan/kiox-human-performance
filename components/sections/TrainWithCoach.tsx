@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Flame } from 'lucide-react';
+import Link from 'next/link';
 
 export default function TrainWithCoach() {
   const ref = useRef(null);
@@ -197,13 +198,15 @@ export default function TrainWithCoach() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 w-full">
-              <motion.button
-                whileHover={{ scale: 1.03, boxShadow: '0 10px 40px var(--shadow-accent-glow)' }}
-                whileTap={{ scale: 0.97 }}
-                className="w-full sm:flex-1 bg-accent-green text-text-on-green border-none py-5 px-8 rounded text-xs font-black tracking-[0.25em] uppercase cursor-pointer whitespace-nowrap font-label shadow-lg"
-              >
-                BOOK TRAINING →
-              </motion.button>
+              <Link href="/book" className="w-full sm:flex-1">
+                <motion.button
+                  whileHover={{ scale: 1.03, boxShadow: '0 10px 40px var(--shadow-accent-glow)' }}
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full bg-accent-green text-text-on-green border-none py-5 px-8 rounded text-xs font-black tracking-[0.25em] uppercase cursor-pointer whitespace-nowrap font-label shadow-lg"
+                >
+                  BOOK TRAINING →
+                </motion.button>
+              </Link>
               <motion.button
                 whileHover={{ scale: 1.03, backgroundColor: 'var(--shadow-accent)' }}
                 whileTap={{ scale: 0.97 }}

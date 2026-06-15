@@ -38,6 +38,7 @@ const athleteNavItems = [
   { icon: <MessageSquare size={18} />, label: 'CHAT TERMINAL', href: '/dashboard/chat' },
   { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking/coach', badge: 'NEW' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
+  { icon: <Clipboard size={18} />, label: 'CURRICULUM', href: '/dashboard/curriculum' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -191,8 +192,82 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : 'Elite Performer';
   const status = profile?.status || 'OPTIMIZED';
 
+  const getBreadcrumbs = () => {
+    switch (pathname) {
+      case '/dashboard':
+        return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
+      case '/dashboard/profile':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">My Profile</span>
+          </span>
+        );
+      case '/dashboard/program':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">My Program</span>
+          </span>
+        );
+      case '/dashboard/calendar':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Calendar</span>
+          </span>
+        );
+      case '/dashboard/progress':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Progress</span>
+          </span>
+        );
+      case '/dashboard/chat':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Chat Terminal</span>
+          </span>
+        );
+      case '/dashboard/booking/coach':
+      case '/dashboard/booking':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Book Session</span>
+          </span>
+        );
+      case '/dashboard/settings':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Settings</span>
+          </span>
+        );
+      case '/dashboard/curriculum':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Curriculum</span>
+          </span>
+        );
+      default:
+        return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-secondary)] flex text-[var(--text-primary)]">
       {/* Sidebar Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -201,144 +276,147 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-[140] bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed lg:static inset-y-0 left-0 z-[150]
-        w-[280px] bg-[var(--bg-sidebar)] border-r border-[var(--border-primary)]
-        flex flex-col overflow-y-auto transform transition-transform duration-300
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        {/* Logo */}
-        <div className="p-6 border-b border-[var(--border-primary)] flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full border border-white/10 bg-black/50 flex items-center justify-center overflow-hidden shadow-[0_0_15px_var(--shadow-accent)]">
-                <Image src="/logo.png" alt="KIO-X" width={32} height={32} priority className="w-8 h-8 object-contain" />
-             </div>
-             <span className="font-display text-2xl tracking-widest text-[var(--accent-green)]">KIO-X</span>
-          </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-gray-500 hover:text-white">
-            <X size={20} />
-          </button>
-        </div>
+      {/* Sidebar Component */}
+      <aside className={`fixed top-0 bottom-0 left-0 z-[250] w-[280px] bg-[var(--bg-card)] border-r border-[var(--border-primary)] flex flex-col justify-between p-6 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="space-y-8 flex-1 flex flex-col overflow-y-auto pr-1 custom-scrollbar">
+          {/* Brand Logo */}
+          <div className="flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-3 active-scale">
+              <div className="w-9 h-9 rounded-xl border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
+                <Image src="/logo.png" alt="KIO-X" width={28} height={28} className="object-contain" priority unoptimized={true} />
+              </div>
+              <span className={`font-display text-lg font-black tracking-[3px] text-white`}>KIO-X</span>
+            </Link>
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1 rounded bg-white/5 border border-white/10 text-gray-500 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          </div>
 
-        {/* Profile Block */}
-        <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mb-4">
-              <Avatar 
+          {/* User Profile Block */}
+          <div className="p-4 bg-black/20 border border-white/5 rounded-2xl flex items-center gap-4">
+             <Avatar 
                 src={profile?.avatar_url}
                 name={userName}
-                size="xl"
-                className="rounded-2xl border-2 border-[var(--accent-green)] shadow-[0_0_30px_var(--shadow-accent-glow)]"
-              />
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-[var(--accent-green)] flex items-center justify-center text-[var(--text-on-green)] border-2 border-[var(--bg-sidebar)] shadow-[0_0_10px_var(--accent-green)]">
-                <Activity size={12} fill="currentColor" />
-              </div>
-            </div>
-            
-            <div className="font-display text-lg text-[var(--text-primary)] mb-1 uppercase tracking-wider truncate w-full px-2">
-              {userName}
-            </div>
-            <div className="flex flex-col gap-1 items-center">
-              <div className="px-3 py-1 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded-full text-[var(--accent-green)] text-[8px] font-black uppercase tracking-[2px]">
-                {profile?.role === 'parent' ? 'Parent Account' : 'Elite Performer'}
-              </div>
-              <div className="text-gray-400 text-[9px] font-bold uppercase tracking-[1px] mt-1">
-                {userTeam?.name || "Independent Unit"}
-              </div>
-            </div>
+                role="athlete"
+                size="md"
+             />
+             <div className="min-w-0">
+                <div className="text-sm font-extrabold text-white truncate tracking-wide">{userName}</div>
+                <div className="text-[10px] text-gray-500 font-medium truncate tracking-normal mt-0.5">
+                  {profile?.role === 'parent' ? 'Parent Monitor' : 'Elite Performer'}
+                </div>
+             </div>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-1">
+            {(() => {
+              const isParent = profile?.role === 'parent';
+              const navItems = isParent ? [
+                { icon: athleteNavItems[0].icon, label: 'Overview', href: '/dashboard' },
+                { icon: athleteNavItems[1].icon, label: 'My Profile', href: '/dashboard/profile' },
+                { icon: athleteNavItems[2].icon, label: "Child's Program", href: '/dashboard/program' },
+                { icon: athleteNavItems[3].icon, label: "Child's Calendar", href: '/dashboard/calendar' },
+                { icon: athleteNavItems[4].icon, label: "Child's Progress", href: '/dashboard/progress' },
+                { icon: athleteNavItems[5].icon, label: 'Chat Terminal', href: '/dashboard/chat' },
+                { icon: athleteNavItems[8].icon, label: 'Curriculum', href: '/dashboard/curriculum' },
+                { icon: athleteNavItems[7].icon, label: 'Settings', href: '/dashboard/settings' },
+              ] : [
+                { icon: athleteNavItems[0].icon, label: 'Overview', href: '/dashboard' },
+                { icon: athleteNavItems[1].icon, label: 'My Profile', href: '/dashboard/profile' },
+                { icon: athleteNavItems[2].icon, label: 'My Program', href: '/dashboard/program' },
+                { icon: athleteNavItems[3].icon, label: 'Calendar', href: '/dashboard/calendar' },
+                { icon: athleteNavItems[4].icon, label: 'Progress', href: '/dashboard/progress' },
+                { icon: athleteNavItems[5].icon, label: 'Chat Terminal', href: '/dashboard/chat' },
+                { icon: athleteNavItems[6].icon, label: 'Book Session', href: '/dashboard/booking/coach', badge: 'NEW' },
+                { icon: athleteNavItems[8].icon, label: 'Curriculum', href: '/dashboard/curriculum' },
+                { icon: athleteNavItems[7].icon, label: 'Settings', href: '/dashboard/settings' },
+              ];
+
+              return navItems.map((item, i) => {
+                const active = pathname === item.href || (item.href === '/dashboard/booking/coach' && pathname.startsWith('/dashboard/booking'));
+                const isDisabled = hasActiveInjury && item.href !== '/dashboard';
+                return (
+                  <Link 
+                    key={i}
+                    href={isDisabled ? '#' : item.href}
+                    onClick={(e) => {
+                      if (isDisabled) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-bold transition-all relative group active-scale ${
+                      active 
+                        ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 font-black' 
+                        : isDisabled
+                          ? 'text-white/10 cursor-not-allowed opacity-20 pointer-events-none'
+                          : 'text-gray-400 hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <span className={`${active ? 'text-[var(--accent-green)]' : isDisabled ? 'text-red-500/30' : 'text-gray-500 group-hover:text-white transition-colors'}`}>
+                      {item.icon}
+                    </span>
+                    <span className="tracking-wide">{item.label}</span>
+                    {item.badge && !isDisabled && (
+                      <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
+                        {item.badge}
+                      </span>
+                    )}
+                    {isDisabled && (
+                      <span className="ml-auto text-[7px] font-black tracking-widest text-red-500/60 bg-red-500/10 border border-red-500/25 px-1.5 py-0.5 rounded uppercase">
+                         Locked
+                      </span>
+                    )}
+                  </Link>
+                );
+              });
+            })()}
+          </nav>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="flex-1 py-6 px-4 space-y-2">
-          <div className="text-gray-500 text-[9px] font-black uppercase tracking-[3px] ml-4 mb-4">Operational Menu</div>
-          {(() => {
-            const isParent = profile?.role === 'parent';
-            const navItems = isParent ? [
-              { icon: athleteNavItems[0].icon, label: 'OVERVIEW', href: '/dashboard' },
-              { icon: athleteNavItems[1].icon, label: 'MY PROFILE', href: '/dashboard/profile' },
-              { icon: athleteNavItems[2].icon, label: "CHILD'S PROGRAM", href: '/dashboard/program' },
-              { icon: athleteNavItems[3].icon, label: "CHILD'S CALENDAR", href: '/dashboard/calendar' },
-              { icon: athleteNavItems[4].icon, label: "CHILD'S PROGRESS", href: '/dashboard/progress' },
-              { icon: athleteNavItems[5].icon, label: 'CHAT TERMINAL', href: '/dashboard/chat' },
-              { icon: athleteNavItems[7].icon, label: 'SETTINGS', href: '/dashboard/settings' },
-            ] : athleteNavItems;
-
-            return navItems.map((item, i) => {
-              const isActive = pathname === item.href;
-              const isDisabled = hasActiveInjury && item.href !== '/dashboard';
-              return (
-                <Link
-                  key={i}
-                  href={isDisabled ? '#' : item.href}
-                  onClick={(e) => {
-                    if (isDisabled) {
-                      e.preventDefault();
-                    }
-                  }}
-                  className={`flex items-center gap-3 px-5 py-4 rounded-2xl text-[11px] font-black tracking-[2px] uppercase transition-all group ${
-                    isActive 
-                      ? 'bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_10px_20px_var(--shadow-accent)]' 
-                      : isDisabled
-                        ? 'text-white/10 cursor-not-allowed opacity-20 hover:bg-transparent pointer-events-none'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
-                  }`}
-                >
-                  <span className={isActive ? 'text-[var(--text-on-green)]' : isDisabled ? 'text-red-500/30' : 'text-[var(--accent-green)] group-hover:scale-110 transition-transform'}>{item.icon}</span>
-                  {item.label}
-                  {item.badge && !isDisabled && (
-                    <span className="ml-auto bg-red-500 text-white text-[7px] px-1.5 py-0.5 rounded-sm font-black animate-pulse">
-                      {item.badge}
-                    </span>
-                  )}
-                  {isDisabled && (
-                    <span className="ml-auto text-[7px] font-black tracking-widest text-red-500/60 bg-red-500/10 border border-red-500/25 px-1.5 py-0.5 rounded uppercase">
-                       Locked
-                    </span>
-                  )}
-                  {isActive && <ChevronRight size={14} className="ml-auto" />}
-                </Link>
-              );
-            });
-          })()}
-        </nav>
-
-        {/* Sign Out */}
-        <div className="p-6 border-t border-white/5 mt-auto">
-          <button
+        {/* Exit/Signout Option */}
+        <div className="pt-6 border-t border-white/5">
+          <button 
             onClick={handleSignOut}
-            className="w-full py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-black uppercase tracking-[3px] flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
+            className="active-scale w-full py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-bold tracking-wider flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
           >
-            <LogOut size={14} /> Terminate Session
+            <LogOut size={14} /> Exit Matrix
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#080808] relative">
+      <main className="flex-1 lg:ml-[280px] min-h-screen relative overflow-y-auto bg-[var(--bg-secondary)]">
         {/* Background Grid */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ 
           backgroundImage: 'linear-gradient(var(--accent-green) 1px, transparent 1px), linear-gradient(90deg, var(--accent-green) 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
         }} />
 
-        {/* Mobile Top Header */}
-        <header className="sticky top-0 z-[130] bg-[var(--bg-header)] backdrop-blur-xl border-b border-[var(--border-primary)] px-4 lg:px-10 h-[70px] lg:h-[80px] flex items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-4">
-             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 bg-white/5 border border-white/10 rounded-xl text-[var(--accent-green)] hover:bg-[var(--accent-green)]/10 transition-all">
-                <Menu size={20} />
-             </button>
-             <div className="w-1 h-5 md:w-1.5 md:h-6 bg-[var(--accent-green)] rounded-full shadow-[0_0_10px_var(--accent-green)] hidden xs:block" />
-             <div>
-                <div className="text-[var(--accent-green)] text-[8px] md:text-[9px] font-black tracking-[3px] uppercase mb-0.5 hidden sm:block">Tactical Performance Hub</div>
-                <h1 className="font-display text-sm md:text-2xl text-[var(--text-primary)] uppercase tracking-wider truncate max-w-[150px] sm:max-w-none">
-                   <span className="hidden sm:inline">System Online // </span><span className="text-[var(--accent-green)]">{profile?.first_name || 'Protocol'}</span>
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-[100] bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-[#22c55e] active-scale transition-all"
+            >
+              <Menu size={20} />
+            </button>
+             <div className="w-1 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e] hidden xs:block" />
+             <div className="hidden xs:block space-y-0.5">
+                <div className="mb-0.5">
+                  {getBreadcrumbs()}
+                </div>
+                <h1 className="font-sans text-sm md:text-base font-bold text-white tracking-wide truncate max-w-[150px] md:max-w-none">
+                  System Online • <span className="text-[#22c55e] font-semibold">{profile?.first_name || 'Protocol'}</span>
                    {profile?.role === 'parent' && (
                       <span className="text-white/40 text-[9px] font-black tracking-[2px] ml-2">
                         (MONITORING: {childProfile ? `${childProfile.first_name} ${childProfile.last_name || ''}`.toUpperCase() : 'CHILD'})
@@ -348,26 +426,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              </div>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
-            <ThemeToggle />
+          <div className="flex items-center gap-3 md:gap-4">
+            <ThemeToggle variant="icon" />
             <NotificationDropdown />
-            <Link href="/dashboard/profile" className="flex items-center gap-3 group">
-               <div className="text-right hidden md:block">
-                  <div className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[2px]">{userName}</div>
-                  <div className="text-[8px] font-bold text-[var(--accent-green)] uppercase tracking-[1px]">{status}</div>
+            <Link href="/dashboard/profile" className="flex items-center gap-3 group sm:px-4 sm:py-2 bg-transparent sm:bg-white/[0.02] border-none sm:border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all active-scale">
+               <div className="text-right hidden sm:block leading-tight">
+                  <div className="text-sm font-extrabold text-white tracking-wide">{userName}</div>
+                  <div className="text-[10px] text-gray-500 font-medium tracking-normal mt-0.5">
+                    {status}
+                  </div>
                </div>
                <Avatar 
                   src={profile?.avatar_url}
                   name={userName}
                   size="md"
-                  className="group-hover:border-[var(--accent-green)] transition-all"
+                  className="group-hover:border-[#22c55e] transition-all"
                />
             </Link>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto relative z-10 custom-scrollbar">
+        <div className="relative z-10 p-4 md:p-10">
           {children}
         </div>
       </main>

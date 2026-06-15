@@ -57,6 +57,12 @@ interface CalendarEvent {
     avatar_url: string | null;
     username: string;
   };
+  is_training_session?: boolean;
+  is_curriculum?: boolean;
+  is_emergency?: boolean;
+  is_external?: boolean;
+  external_player_name?: string;
+  payment_status?: string;
 }
 
 export default function SharedCalendarPage() {
@@ -165,17 +171,59 @@ export default function SharedCalendarPage() {
   const fetchEvents = async () => {
     try {
       setError(null);
-      const { data, error: fetchErr } = await supabase
-        .from("coach_calendar_events")
-        .select(`
-          *,
-          coach:profiles!coach_id(first_name, last_name, avatar_url, username)
-        `)
-        .order("event_date", { ascending: true })
-        .order("event_time", { ascending: true });
+      const [eventsRes, sessionsRes] = await Promise.all([
+        supabase
+          .from("coach_calendar_events")
+          .select(`
+            *,
+            coach:profiles!coach_id(first_name, last_name, avatar_url, username)
+          `)
+          .order("event_date", { ascending: true })
+          .order("event_time", { ascending: true }),
+        supabase
+          .from("training_sessions")
+          .select(`
+            *,
+            coach:profiles!coach_id(first_name, last_name, avatar_url, username)
+          `)
+          .order("scheduled_date", { ascending: true })
+          .order("start_time", { ascending: true })
+      ]);
 
-      if (fetchErr) throw fetchErr;
-      setEvents(data || []);
+      if (eventsRes.error) throw eventsRes.error;
+      if (sessionsRes.error) throw sessionsRes.error;
+
+      // Filter out curriculum sessions for non-superadmins
+      let sessionsData = sessionsRes.data || [];
+      if (profile?.role !== "superadmin") {
+        sessionsData = sessionsData.filter((s: any) => !s.is_curriculum);
+      }
+
+      const mappedSessions = sessionsData.map((s: any) => ({
+        id: s.id,
+        title: s.title,
+        event_date: s.scheduled_date,
+        event_time: s.start_time,
+        session_type: s.session_type,
+        notes: s.notes || "",
+        coach_id: s.coach_id || "",
+        created_at: s.created_at,
+        coach: s.coach,
+        is_training_session: true,
+        is_curriculum: s.is_curriculum,
+        is_emergency: s.is_emergency,
+        is_external: s.is_external,
+        external_player_name: s.external_player_name,
+        payment_status: s.payment_status
+      }));
+
+      const combined = [...(eventsRes.data || []), ...mappedSessions].sort((a, b) => {
+        const dateCompare = a.event_date.localeCompare(b.event_date);
+        if (dateCompare !== 0) return dateCompare;
+        return a.event_time.localeCompare(b.event_time);
+      });
+
+      setEvents(combined);
     } catch (err: any) {
       console.error("Error fetching calendar events:", err);
       const errMsg = err?.message || err?.details || (typeof err === 'object' ? JSON.stringify(err) : String(err)) || "Unknown connection error";
@@ -223,42 +271,87 @@ export default function SharedCalendarPage() {
     return `${h12}:${minutes} ${ampm}`;
   };
 
-  const getTypeStyle = (type: string) => {
-    switch (type?.toUpperCase()) {
+  const getTypeStyle = (event: any) => {
+    if (!event) return { bg: "", dot: "", border: "", text: "", bgSolid: "", label: "" };
+    
+    if (event.is_emergency) {
+      return {
+        bg: "bg-red-500/10 border-red-500/20 text-red-500 hover:border-red-500/40",
+        dot: "bg-red-500 shadow-[0_0_8px_#ef4444]",
+        border: "border-l-red-500",
+        text: "text-red-500 font-bold",
+        bgSolid: "bg-red-500 hover:bg-white text-black",
+        label: "EMERGENCY"
+      };
+    }
+    
+    if (event.is_curriculum) {
+      return {
+        bg: "bg-purple-500/10 border-purple-500/20 text-purple-400 hover:border-purple-500/40",
+        dot: "bg-purple-500 shadow-[0_0_8px_#a855f7]",
+        border: "border-l-purple-500",
+        text: "text-purple-400 font-bold",
+        bgSolid: "bg-purple-500 hover:bg-white text-black",
+        label: "CURRICULUM"
+      };
+    }
+
+    if (event.is_external) {
+      return {
+        bg: "bg-blue-500/10 border-blue-500/20 text-blue-400 hover:border-blue-500/40",
+        dot: "bg-blue-500 shadow-[0_0_8px_#3b82f6]",
+        border: "border-l-blue-500",
+        text: "text-blue-400 font-bold",
+        bgSolid: "bg-blue-500 hover:bg-white text-black",
+        label: "EXTERNAL"
+      };
+    }
+
+    switch (event.session_type?.toUpperCase()) {
       case "STRENGTH":
         return {
           bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-emerald-500 shadow-[0_0_8px_#10b981]",
           border: "border-l-[#10b981]",
-          text: "text-[#00ff88]"
+          text: "text-[#00ff88]",
+          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
+          label: "STRENGTH"
         };
       case "TACTICAL":
         return {
           bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-amber-500 shadow-[0_0_8px_#f59e0b]",
           border: "border-l-[#f59e0b]",
-          text: "text-[#00ff88]"
+          text: "text-[#00ff88]",
+          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
+          label: "TACTICAL"
         };
       case "CONDITIONING":
         return {
           bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-cyan-500 shadow-[0_0_8px_#06b6d4]",
           border: "border-l-[#06b6d4]",
-          text: "text-[#00ff88]"
+          text: "text-[#00ff88]",
+          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
+          label: "CONDITIONING"
         };
       case "RECOVERY":
         return {
           bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-violet-500 shadow-[0_0_8px_#8b5cf6]",
           border: "border-l-[#8b5cf6]",
-          text: "text-[#00ff88]"
+          text: "text-[#00ff88]",
+          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
+          label: "RECOVERY"
         };
       default:
         return {
           bg: "bg-[#00ff88]/10 border-[#00ff88]/20 text-[#00ff88] hover:border-[#00ff88]/40",
           dot: "bg-rose-500 shadow-[0_0_8px_#f43f5e]",
           border: "border-l-[#f43f5e]",
-          text: "text-[#00ff88]"
+          text: "text-[#00ff88]",
+          bgSolid: "bg-[#00ff88] hover:bg-white text-black",
+          label: event.session_type || "CUSTOM"
         };
     }
   };
@@ -333,6 +426,18 @@ export default function SharedCalendarPage() {
           .eq("id", formData.id);
 
         if (updateErr) throw updateErr;
+
+        // Notify coach of update if they are not the updater
+        if (payload.coach_id && payload.coach_id !== user.id) {
+          await supabase.from("system_notifications").insert({
+            recipient_id: payload.coach_id,
+            sender_id: user.id,
+            title: "SCHEDULE ASSIGNMENT UPDATED",
+            message: `You are assigned to "${payload.title}" on ${payload.event_date} at ${payload.event_time.slice(0, 5)}.`,
+            type: "UPDATE"
+          });
+        }
+
         setSuccessMessage("Operational session updated successfully.");
       } else {
         const { error: insertErr } = await supabase
@@ -340,6 +445,18 @@ export default function SharedCalendarPage() {
           .insert([payload]);
 
         if (insertErr) throw insertErr;
+
+        // Notify coach of assignment if they are not the creator
+        if (payload.coach_id && payload.coach_id !== user.id) {
+          await supabase.from("system_notifications").insert({
+            recipient_id: payload.coach_id,
+            sender_id: user.id,
+            title: "NEW SCHEDULE ASSIGNMENT",
+            message: `You are assigned to "${payload.title}" on ${payload.event_date} at ${payload.event_time.slice(0, 5)}.`,
+            type: "UPDATE"
+          });
+        }
+
         setSuccessMessage("New operational session deployed to matrix.");
       }
 
@@ -654,7 +771,7 @@ export default function SharedCalendarPage() {
                     {/* Events list */}
                     <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[60px] md:max-h-[80px] custom-scrollbar">
                       {dayEvents.map(event => {
-                        const style = getTypeStyle(event.session_type);
+                        const style = getTypeStyle(event);
                         const coachName = event.coach 
                           ? `${event.coach.first_name || event.coach.username}`
                           : "Coach";
@@ -662,9 +779,9 @@ export default function SharedCalendarPage() {
                           <button
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`w-full text-left px-2 py-1 bg-[#00ff88] hover:bg-white text-black text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex items-center justify-between gap-1 transition-all shadow-sm`}
+                            className={`w-full text-left px-2 py-1 ${style.bgSolid} text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex items-center justify-between gap-1 transition-all shadow-sm`}
                           >
-                            <span className="truncate flex-1">{coachName} // {formatTime(event.event_time)}</span>
+                            <span className="truncate flex-1">{event.title} ({coachName}) // {formatTime(event.event_time)}</span>
                           </button>
                         );
                       })}
@@ -728,7 +845,7 @@ export default function SharedCalendarPage() {
                       </div>
                     ) : (
                       dayEvents.map(event => {
-                        const style = getTypeStyle(event.session_type);
+                        const style = getTypeStyle(event);
                         const coachName = event.coach 
                           ? `${event.coach.first_name || event.coach.username}`
                           : "Coach";
@@ -737,7 +854,7 @@ export default function SharedCalendarPage() {
                           <div
                             key={event.id}
                             onClick={() => openDetailModal(event)}
-                            className={`p-3 rounded-xl bg-[#00ff88] hover:bg-white text-black cursor-pointer transition-all flex flex-col gap-1.5 relative group hover:scale-[1.02] border-l-[3px] ${style.border}`}
+                            className={`p-3 rounded-xl ${style.bgSolid} cursor-pointer transition-all flex flex-col gap-1.5 relative group hover:scale-[1.02] border-l-[3px] ${style.border}`}
                           >
                             <div className="flex justify-between items-start gap-2">
                               <span className="font-display font-black text-[10px] uppercase tracking-wider line-clamp-2 flex-1">
@@ -956,16 +1073,16 @@ export default function SharedCalendarPage() {
               className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl z-10"
             >
               {/* Type Accent Line */}
-              <div className={`h-1.5 w-full ${getTypeStyle(selectedEvent.session_type).dot.split(" ")[0]}`} />
+              <div className={`h-1.5 w-full ${getTypeStyle(selectedEvent).dot.split(" ")[0]}`} />
 
               <div className="p-6 space-y-6">
                 {/* Header */}
                 <div className="flex justify-between items-start gap-4">
                   <div>
                     <span className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider border ${
-                      getTypeStyle(selectedEvent.session_type).bg
+                      getTypeStyle(selectedEvent).bg
                     }`}>
-                      {selectedEvent.session_type}
+                      {getTypeStyle(selectedEvent).label}
                     </span>
                     <h3 className="text-white font-display text-xl font-black uppercase tracking-wider mt-3 leading-snug">
                       {selectedEvent.title}
@@ -995,6 +1112,22 @@ export default function SharedCalendarPage() {
                       {formatTime(selectedEvent.event_time)}
                     </span>
                   </div>
+
+                  {selectedEvent.is_external && selectedEvent.external_player_name && (
+                    <div className="flex items-center gap-3 text-xs text-[#00ff88]">
+                      <User size={14} className="text-[#00ff88]" />
+                      <span className="font-bold">
+                        Player: <span className="text-white font-mono">{selectedEvent.external_player_name}</span>
+                        {selectedEvent.payment_status && (
+                          <span className={`ml-2 px-1.5 py-0.5 rounded text-[8px] font-black ${
+                            selectedEvent.payment_status === 'CONFIRMED' ? 'bg-[#22c55e]/15 text-[#22c55e]' : 'bg-amber-500/15 text-amber-500'
+                          }`}>
+                            {selectedEvent.payment_status}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3 text-xs text-gray-300">
                     <User size={14} className="text-[#00ff88]" />
@@ -1027,7 +1160,7 @@ export default function SharedCalendarPage() {
                 {/* Permissions check for actions */}
                 {(() => {
                   const isOwner = selectedEvent.coach_id === user?.id;
-                  const canEdit = isAdmin || isOwner;
+                  const canEdit = (isAdmin || isOwner) && !selectedEvent.is_training_session;
 
                   return canEdit ? (
                     <div className="pt-4 flex gap-3 border-t border-white/5">
@@ -1047,6 +1180,12 @@ export default function SharedCalendarPage() {
                         <Edit2 size={12} />
                         Edit Details
                       </button>
+                    </div>
+                  ) : selectedEvent.is_training_session ? (
+                    <div className="pt-4 text-center border-t border-white/5">
+                      <p className="text-amber-500 text-[9px] font-black uppercase tracking-[3px]">
+                        Curriculum Training Session // Manage via Global Schedules or Curriculum
+                      </p>
                     </div>
                   ) : (
                     <div className="pt-4 text-center border-t border-white/5">

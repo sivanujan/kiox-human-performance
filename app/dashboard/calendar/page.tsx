@@ -261,14 +261,29 @@ export default function AthleteCalendarPage() {
                                </span>
                              )}
                          </div>
-                         <h4 className={`font-display text-lg uppercase tracking-wider mb-4 transition-colors ${isSessionPast ? 'text-gray-500' : 'text-white group-hover:text-[#22c55e]'}`}>{session.title}</h4>
-                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
+                         <h4 className={`font-display text-lg uppercase tracking-wider mb-2 transition-colors ${isSessionPast ? 'text-gray-500' : 'text-white group-hover:text-[#22c55e]'}`}>{session.title}</h4>
+                         
+                         {session.notes && (
+                           <p className="text-[11px] text-white/50 leading-relaxed font-sans mb-4 p-3 bg-white/[0.01] border border-white/5 rounded-2xl italic">
+                             "{session.notes}"
+                           </p>
+                         )}
+
+                         <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500">
                                 <Clock size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
+                                {session.duration_minutes && <span className="text-gray-600">({session.duration_minutes}m)</span>}
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-500">
-                               <Users size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {session.max_capacity || 20} MAX
-                            </div>
+                            {session.location && (
+                              <div className="text-[10px] font-bold text-gray-500 truncate max-w-[150px]">
+                                 📍 {session.location}
+                              </div>
+                            )}
+                            {!session.is_program && (
+                              <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 ml-auto">
+                                 <Users size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {session.confirmed_count || 0}/{session.max_capacity || 20} MAX
+                              </div>
+                            )}
                          </div>
                       </div>
                     )})

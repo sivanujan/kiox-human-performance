@@ -92,12 +92,12 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
     }
   };
 
-  const handleAction = async (bookingId: string, status: 'CONFIRMED' | 'CANCELLED') => {
+  const handleAction = async (bookingId: string, status: 'CONFIRMED' | 'CANCELLED', isExternal = false) => {
     try {
       const res = await fetch('/api/admin/bookings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId, status })
+        body: JSON.stringify({ bookingId, status, isExternal })
       });
       const data = await res.json();
       if (!data.error) {
@@ -336,7 +336,9 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
           filteredBookings.map((b) => (
             <div 
               key={b.id} 
-              className="bg-white/[0.03] border border-white/5 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-[#22c55e]/20 transition-all group/item"
+              className={`bg-white/[0.03] border p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-[#22c55e]/20 transition-all group/item ${
+                b.is_external ? 'border-purple-500/10 hover:border-purple-500/30' : 'border-white/5'
+              }`}
             >
               {/* Left Column (span 4): Avatar + Name + Location + load stats */}
               <div className="md:col-span-4 flex items-center gap-3 min-w-0">
@@ -354,14 +356,22 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                      <span className="text-gray-500 text-[10px] tracking-wide flex items-center gap-1.5 truncate">
                         <Globe size={10} /> {b.athlete.timezone?.split('/')[1]?.replace('_', ' ') || 'UTC'}
                      </span>
-                     <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-[10px] font-bold tracking-wide flex items-center gap-1 ${
-                          b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-[#22c55e]'
-                        }`}>
-                           <Activity size={10} /> {b.athlete.weekly_load || 0} AU
-                        </span>
-                        <span className="text-[9px] text-gray-500 font-mono">Load</span>
-                     </div>
+                     {b.is_external ? (
+                       <div className="mt-1">
+                         <span className="px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-[8px] font-black text-purple-400 uppercase tracking-widest">
+                           External Player
+                         </span>
+                       </div>
+                     ) : (
+                       <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className={`text-[10px] font-bold tracking-wide flex items-center gap-1 ${
+                            b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-[#22c55e]'
+                          }`}>
+                             <Activity size={10} /> {b.athlete.weekly_load || 0} AU
+                          </span>
+                          <span className="text-[9px] text-gray-500 font-mono">Load</span>
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>
@@ -380,6 +390,11 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                      <Clock size={10} /> Local: {b.session_time_athlete_local}
                   </div>
                 )}
+                {b.notes && (
+                  <div className="text-[9px] text-gray-500 italic mt-1 truncate max-w-xs" title={b.notes}>
+                    Notes: {b.notes}
+                  </div>
+                )}
               </div>
 
               {/* Right Column (span 4): Actions */}
@@ -387,18 +402,18 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                  {b.status === 'PENDING' ? (
                    <div className="flex items-center gap-2 w-full md:w-auto">
                       <button 
-                        onClick={() => handleAction(b.id, 'CANCELLED')}
+                        onClick={() => handleAction(b.id, 'CANCELLED', b.is_external)}
                         className="h-10 w-10 flex items-center justify-center bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all flex-shrink-0"
-                        title="Reject Booking"
+                        title={b.is_external ? "Reject Booking" : "Reject Booking"}
                       >
                          <XSquare size={16} />
                       </button>
                       <button 
-                        onClick={() => handleAction(b.id, 'CONFIRMED')}
+                        onClick={() => handleAction(b.id, 'CONFIRMED', b.is_external)}
                         className="h-10 px-4 bg-[#22c55e] text-black font-semibold text-xs tracking-wide rounded-xl hover:bg-white transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] flex items-center gap-1.5 flex-1 md:flex-none justify-center"
                       >
                          <CheckCircle2 size={12} />
-                         <span>Authorize</span>
+                         <span>{b.is_external ? 'Confirm Payment' : 'Authorize'}</span>
                       </button>
                    </div>
                  ) : (
@@ -408,7 +423,7 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                      'bg-purple-500/10 text-purple-500 border border-purple-500/30'
                    }`}>
                       {b.status === 'CONFIRMED' ? <CheckCircle2 size={12} /> : b.status === 'CANCELLED' ? <XSquare size={12} /> : <Users size={12} />}
-                      {b.status === 'CONFIRMED' ? 'Confirmed' : b.status === 'CANCELLED' ? 'Cancelled' : b.status}
+                      {b.status === 'CONFIRMED' ? (b.is_external ? 'Paid & Confirmed' : 'Confirmed') : b.status === 'CANCELLED' ? 'Cancelled' : b.status}
                    </div>
                  )}
               </div>

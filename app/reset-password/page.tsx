@@ -18,18 +18,20 @@ export default function ResetPasswordPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: "WEAK", color: "#ef4444" });
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
      // Check if we have a session (Supabase auto-signs in from the recovery link)
      const checkSession = async () => {
-         const { data: { session } } = await supabase.auth.getSession();
-         if (!session) {
-             // If no session, we might want to redirect, but for now we let Supabase handle the URL hash
-         }
-     }
-     if (!authLoading) checkSession();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+              // If no session, we might want to redirect, but for now we let Supabase handle the URL hash
+          }
+      }
+      if (!authLoading) checkSession();
   }, [supabase.auth, authLoading]);
 
   const calculateStrength = (pass: string) => {
@@ -132,10 +134,21 @@ export default function ResetPasswordPage() {
             <form className="space-y-6" onSubmit={handleResetPassword}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">New Password</label>
+                  <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">New Password</label>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={password} onChange={handlePasswordChange} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
+                    <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 transition-all duration-200 ${
+                      passwordFocused ? 'text-[#22c55e] opacity-100' : 'text-gray-500 opacity-50'
+                    }`} size={16} />
+                    <input 
+                      value={password} 
+                      onChange={handlePasswordChange} 
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
+                      required 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-12 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" 
+                    />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                   </div>
                   
@@ -153,20 +166,31 @@ export default function ResetPasswordPage() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <label className="block text-[10px] font-black tracking-[2px] text-[#22c55e] uppercase">Confirm Password</label>
+                    <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">Confirm Password</label>
                     {password && confirmPassword && password !== confirmPassword && (
                         <span className="text-[8px] font-black text-red-500 uppercase flex items-center gap-1"><AlertCircle size={10} /> Mismatch</span>
                     )}
                   </div>
                   <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors" size={18} />
-                    <input value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required type={showPassword ? "text" : "password"} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl py-4 pl-12 pr-12 text-white placeholder:text-gray-700 focus:outline-none focus:border-[#22c55e]/50 focus:bg-black/50 transition-all font-sans" />
+                    <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 transition-all duration-200 ${
+                      confirmPasswordFocused ? 'text-[#22c55e] opacity-100' : 'text-gray-500 opacity-50'
+                    }`} size={16} />
+                    <input 
+                      value={confirmPassword} 
+                      onChange={e => setConfirmPassword(e.target.value)} 
+                      onFocus={() => setConfirmPasswordFocused(true)}
+                      onBlur={() => setConfirmPasswordFocused(false)}
+                      required 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl py-3.5 pl-10 pr-12 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans" 
+                    />
                   </div>
                 </div>
               </div>
 
-              <button type="submit" disabled={loading || passwordStrength.label === "WEAK"} className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[2px] py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#4ade80] hover:scale-[1.02] disabled:opacity-50 transition-all shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                {loading ? 'Securing...' : 'Establish Password'} <ArrowRight size={18} />
+              <button type="submit" disabled={loading || passwordStrength.label === "WEAK"} className="w-full bg-[#16a34a] hover:bg-[#15803d] active:scale-[0.99] text-white font-semibold text-[13px] py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#16a34a]/50 focus:ring-offset-1 focus:ring-offset-transparent shadow-[0_0_20px_rgba(34,197,94,0.2)]">
+                {loading ? 'Securing...' : 'Establish Password'} <ArrowRight size={16} />
               </button>
             </form>
           ) : (

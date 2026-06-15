@@ -26,6 +26,15 @@ export async function GET(request: Request) {
       session_type, 
       is_special, 
       max_capacity,
+      notes,
+      location,
+      duration_minutes,
+      is_curriculum,
+      is_emergency,
+      is_external,
+      external_player_name,
+      payment_status,
+      confirmed_by_admin,
       bookings:session_bookings(status, athlete_id)
     `)
     .gte('scheduled_date', start)
@@ -48,6 +57,15 @@ export async function GET(request: Request) {
       session_type: session.session_type,
       is_special: session.is_special,
       max_capacity: session.max_capacity,
+      notes: session.notes,
+      location: session.location,
+      duration_minutes: session.duration_minutes,
+      is_curriculum: session.is_curriculum,
+      is_emergency: session.is_emergency,
+      is_external: session.is_external,
+      external_player_name: session.external_player_name,
+      payment_status: session.payment_status,
+      confirmed_by_admin: session.confirmed_by_admin,
       user_booking_status: userBooking?.status || null,
       confirmed_count: confirmedCount
     };
