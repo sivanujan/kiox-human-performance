@@ -24,9 +24,18 @@ export interface TrainingSession {
   is_emergency?: boolean;
   is_external?: boolean;
   external_player_name?: string | null;
+  external_person_phone?: string | null;
+  external_person_email?: string | null;
+  training_start_date?: string | null;
+  training_end_date?: string | null;
   payment_status?: 'PENDING' | 'CONFIRMED';
+  payment_notes?: string | null;
   confirmed_by_admin?: boolean;
   session_category?: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
+  coach?: {
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 export function useSessions() {

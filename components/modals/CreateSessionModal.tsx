@@ -31,6 +31,12 @@ interface ScheduleItem {
   is_emergency: boolean;
   is_external: boolean;
   external_player_name: string;
+  external_person_phone: string;
+  external_person_email: string;
+  training_start_date: string;
+  training_end_date: string;
+  payment_status: 'PENDING' | 'CONFIRMED';
+  payment_notes: string;
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
 }
 
@@ -56,7 +62,13 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
       is_emergency: false,
       is_external: false,
       external_player_name: "",
-      session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
+      external_person_phone: "",
+      external_person_email: "",
+      training_start_date: defaultDate || format(new Date(), "yyyy-MM-dd"),
+      training_end_date: defaultDate || format(new Date(), "yyyy-MM-dd"),
+      payment_status: "PENDING",
+      payment_notes: "",
+      session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE')
     }
   ]);
 
@@ -69,7 +81,8 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedDates(defaultDate ? [defaultDate] : [format(new Date(), "yyyy-MM-dd")]);
+      const initialDate = defaultDate || format(new Date(), "yyyy-MM-dd");
+      setSelectedDates(defaultDate ? [defaultDate] : [initialDate]);
       if (defaultDate) {
         setCurrentMonth(new Date(defaultDate));
       }
@@ -86,6 +99,12 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
           is_emergency: false,
           is_external: false,
           external_player_name: "",
+          external_person_phone: "",
+          external_person_email: "",
+          training_start_date: initialDate,
+          training_end_date: initialDate,
+          payment_status: "PENDING",
+          payment_notes: "",
           session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
         }
       ]);
@@ -164,12 +183,16 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
             is_emergency: item.session_category === 'EMERGENCY',
             is_external: item.is_external,
             external_player_name: item.is_external ? item.external_player_name : null,
-            payment_status: item.is_external ? 'CONFIRMED' : 'PENDING',
-            confirmed_by_admin: item.is_external ? true : false,
-            session_category: item.session_category
+            external_person_phone: item.is_external ? item.external_person_phone : null,
+            external_person_email: item.is_external ? item.external_person_email : null,
+            training_start_date: item.is_external ? item.training_start_date : null,
+            training_end_date: item.is_external ? item.training_end_date : null,
+            payment_status: item.is_external ? item.payment_status : 'PENDING',
+            payment_notes: item.is_external ? item.payment_notes : null,
+            confirmed_by_admin: item.is_external ? (item.payment_status === 'CONFIRMED') : false
           });
 
-          if (sessionRes.success) {
+          if (sessionRes.success && sessionRes.data) {
             // Notification dispatch flow
             if (item.session_category === 'EMERGENCY') {
               // Get all coaches (staff)
@@ -180,13 +203,13 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
  
               if (staffProfiles && staffProfiles.length > 0) {
                 const notifications = staffProfiles.map((staff: any) => ({
-                  recipient_id: staff.id,
-                  sender_id: user?.id,
-                  title: "🚨 EMERGENCY SESSION DETECTED",
-                  message: `An emergency session "${item.title}" was created for ${dateStr} at ${item.start_time}.`,
-                  type: "ALERT"
+                  staff_id: staff.id,
+                  type: "EMERGENCY_SESSION",
+                  message: `Emergency session scheduled on ${dateStr} at ${item.start_time}`,
+                  related_id: sessionRes.data.id,
+                  is_read: false
                 }));
-                await supabase.from("system_notifications").insert(notifications);
+                await supabase.from("staff_notifications").insert(notifications);
               }
             } else if (item.coach_id) {
               const label = item.session_category === 'CURRICULUM' ? "Curriculum Session" : "Schedule Session";
@@ -217,6 +240,7 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
   };
 
   const addItem = () => {
+    const defaultDateStr = selectedDates[0] || format(new Date(), "yyyy-MM-dd");
     setScheduleItems(prev => [
       ...prev,
       {
@@ -231,10 +255,17 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
         is_emergency: false,
         is_external: false,
         external_player_name: "",
+        external_person_phone: "",
+        external_person_email: "",
+        training_start_date: defaultDateStr,
+        training_end_date: defaultDateStr,
+        payment_status: "PENDING",
+        payment_notes: "",
         session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
       }
     ]);
   };
+
 
   const removeItem = (id: string) => {
     setScheduleItems(prev => prev.filter(item => item.id !== id));
@@ -461,20 +492,94 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
                             </div>
                          </div>
 
-                         {/* Conditional External Player Name Field */}
-                         {item.is_external && (
-                           <div className="space-y-2 animate-fade-in">
-                             <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">External Player Name</label>
-                             <input 
-                               required
-                               type="text"
-                               value={item.external_player_name}
-                               onChange={e => updateItem(item.id, { external_player_name: e.target.value })}
-                               placeholder="EX: MARCUS RASHFORD"
-                               className="w-full bg-[#22c55e]/5 border border-[#22c55e]/25 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
-                             />
-                           </div>
-                         )}
+                          {/* Conditional External Player Name Field */}
+                          {item.is_external && (
+                            <div className="space-y-4 p-6 bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-2xl animate-fade-in">
+                              <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[3px]">External Client Registry</div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">External Person Name</label>
+                                  <input 
+                                    required
+                                    type="text"
+                                    value={item.external_player_name}
+                                    onChange={e => updateItem(item.id, { external_player_name: e.target.value })}
+                                    placeholder="EX: MARCUS RASHFORD"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Phone Number</label>
+                                  <input 
+                                    required
+                                    type="text"
+                                    value={item.external_person_phone}
+                                    onChange={e => updateItem(item.id, { external_person_phone: e.target.value })}
+                                    placeholder="EX: +44 7911 123456"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Email (Optional)</label>
+                                  <input 
+                                    type="email"
+                                    value={item.external_person_email}
+                                    onChange={e => updateItem(item.id, { external_person_email: e.target.value })}
+                                    placeholder="EX: MARCUS@MANUTD.COM"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training Start Date</label>
+                                  <input 
+                                    required
+                                    type="date"
+                                    value={item.training_start_date}
+                                    onChange={e => updateItem(item.id, { training_start_date: e.target.value })}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training End Date</label>
+                                  <input 
+                                    required
+                                    type="date"
+                                    value={item.training_end_date}
+                                    onChange={e => updateItem(item.id, { training_end_date: e.target.value })}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Payment Status</label>
+                                  <select 
+                                    value={item.payment_status}
+                                    onChange={e => updateItem(item.id, { payment_status: e.target.value as any })}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
+                                  >
+                                    <option value="PENDING" className="bg-[#111]">PENDING</option>
+                                    <option value="CONFIRMED" className="bg-[#111]">CONFIRMED</option>
+                                  </select>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Payment Notes (Optional)</label>
+                                  <input 
+                                    type="text"
+                                    value={item.payment_notes}
+                                    onChange={e => updateItem(item.id, { payment_notes: e.target.value })}
+                                    placeholder="EX: INVOICE SENT, PENDING STRIPE SYNC"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                          {/* Notes */}
                          <div className="space-y-2">

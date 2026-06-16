@@ -24,6 +24,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const [activeTab, setActiveTab] = useState<"INFO" | "ROSTER">("INFO");
   const [creatorName, setCreatorName] = useState<string | null>(null);
   const [assignedCoachName, setAssignedCoachName] = useState<string | null>(null);
+  const [updatingPayment, setUpdatingPayment] = useState(false);
 
   const supabase = createClient();
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
@@ -93,6 +94,29 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   };
 
   if (!mounted || !isOpen || !session) return null;
+
+  const handleConfirmPayment = async () => {
+    if (!session || !isStaff) return;
+    setUpdatingPayment(true);
+    try {
+      const { error } = await supabase
+        .from("training_sessions")
+        .update({
+          payment_status: 'CONFIRMED',
+          confirmed_by_admin: true,
+          payment_confirmed_at: new Date().toISOString(),
+          payment_confirmed_by: profile?.id
+        })
+        .eq("id", session.id);
+
+      if (error) throw error;
+      onClose();
+    } catch (err: any) {
+      alert(`Failed to confirm payment: ${err.message}`);
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
 
   const handleUpdateLog = (athleteId: string, updates: any) => {
     if (!isStaff) return;
@@ -201,6 +225,72 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                 </div>
                                <div className="text-gray-500 text-[8px] font-black uppercase mt-4">SYSTEM RECORD ENTRY TIME</div>
                             </div>
+                         </div>
+                      ) : session.is_external ? (
+                         <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">EXTERNAL CLIENT</div>
+                                  <div className="text-xl font-display text-[#22c55e] uppercase truncate">
+                                     {session.external_player_name}
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">REGISTERED NAME</div>
+                               </div>
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PHONE NUMBER</div>
+                                  <div className="text-base font-mono text-white truncate">
+                                     {session.external_person_phone || 'N/A'}
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT DIRECT LINE</div>
+                               </div>
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">EMAIL ADDRESS</div>
+                                  <div className="text-base font-mono text-white truncate">
+                                     {session.external_person_email || 'N/A'}
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT INBOX</div>
+                               </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TRAINING PERIOD</div>
+                                  <div className="text-xs font-bold text-white uppercase mt-1">
+                                     {session.training_start_date || 'N/A'} TO {session.training_end_date || 'N/A'}
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">CONTRACTED TIMELINE</div>
+                               </div>
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PAYMENT STATUS</div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                                       session.payment_status === 'CONFIRMED' 
+                                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                                         : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                     }`}>
+                                        {session.payment_status || 'PENDING'}
+                                     </span>
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">FINANCIAL CLEARANCE</div>
+                               </div>
+                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PAYMENT NOTES</div>
+                                  <div className="text-xs text-white/70 italic truncate mt-1">
+                                     {session.payment_notes || 'No notes specified.'}
+                                  </div>
+                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">TRANSACTION METADATA</div>
+                                </div>
+                            </div>
+
+                            {session.payment_status !== 'CONFIRMED' && isStaff && (
+                               <button
+                                 onClick={handleConfirmPayment}
+                                 disabled={updatingPayment}
+                                 className="w-full py-4 bg-emerald-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 mt-4"
+                               >
+                                 {updatingPayment ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />} CONFIRM PAYMENT & VALIDATE SESSION
+                               </button>
+                            )}
                          </div>
                       ) : (
                          <div className="grid grid-cols-2 gap-12">

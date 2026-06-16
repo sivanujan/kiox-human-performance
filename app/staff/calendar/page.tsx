@@ -736,7 +736,7 @@ export default function SharedCalendarPage() {
                             onClick={() => openDetailModal(event)}
                             className={`w-full text-left px-2 py-1.5 ${style.bgSolid} text-[9px] font-black uppercase rounded border-l-[3px] ${style.border} flex flex-col gap-0.5 transition-all shadow-sm`}
                           >
-                            <span className="font-bold truncate w-full">{event.title} — {formatTime(event.event_time)}</span>
+                            <span className="font-bold truncate w-full">{event.is_emergency ? "🚨 " : ""}{event.title} — {formatTime(event.event_time)}</span>
                             <span className="text-[8px] opacity-75 font-normal truncate w-full">Coach: {coachName}</span>
                           </button>
                         );
@@ -814,7 +814,7 @@ export default function SharedCalendarPage() {
                           >
                             <div className="flex justify-between items-baseline gap-2">
                               <span className="font-display font-black text-[10px] uppercase tracking-wider line-clamp-2 flex-1">
-                                {event.title}
+                                {event.is_emergency ? "🚨 " : ""}{event.title}
                               </span>
                               <span className="text-[9px] font-mono font-black shrink-0">
                                 {formatTime(event.event_time)}

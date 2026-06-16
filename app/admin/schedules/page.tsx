@@ -49,12 +49,12 @@ export default function AdminSchedules() {
       const start = format(startOfWeek(startOfMonth(currentMonth)), "yyyy-MM-dd");
       const end = format(endOfWeek(endOfMonth(currentMonth)), "yyyy-MM-dd");
 
-      // STRICTLY fetch schedule and emergency sessions
+      // STRICTLY fetch schedule and emergency sessions (where is_curriculum = false)
       const [sessionRes, athleteRes] = await Promise.all([
         supabase
           .from("training_sessions")
-          .select("*")
-          .in("session_category", ["SCHEDULE", "EMERGENCY"])
+          .select("*, coach:profiles!coach_id(first_name, last_name)")
+          .eq("is_curriculum", false)
           .gte("scheduled_date", start)
           .lte("scheduled_date", end),
         supabase
@@ -64,15 +64,15 @@ export default function AdminSchedules() {
       ]);
 
       if (sessionRes.error) {
-        console.error("Session fetch error:", sessionRes.error);
-        setError("Failed to load schedule sessions.");
+        console.error("Session fetch error:", sessionRes.error.message, sessionRes.error.details, sessionRes.error.hint);
+        setError(`Failed to load schedule sessions: ${sessionRes.error.message}`);
       } else {
         setSessions(sessionRes.data || []);
       }
 
       if (athleteRes.error) {
-        console.error("Athlete fetch error:", athleteRes.error);
-        setError("Failed to load athlete profiles.");
+        console.error("Athlete fetch error:", athleteRes.error.message, athleteRes.error.details, athleteRes.error.hint);
+        setError(`Failed to load athlete profiles: ${athleteRes.error.message}`);
       } else {
         setAthletes(athleteRes.data || []);
       }
@@ -93,7 +93,7 @@ export default function AdminSchedules() {
   });
 
   const getSessionStyle = (session: TrainingSession) => {
-    if (session.session_category === 'EMERGENCY' || session.is_emergency) {
+    if (session.is_emergency) {
       return "bg-red-500/10 border-red-500/20 text-red-500 hover:border-red-500/40";
     }
     if (session.is_external) {
@@ -112,7 +112,7 @@ export default function AdminSchedules() {
   };
 
   const getSessionIndicatorColor = (session: TrainingSession) => {
-    if (session.session_category === 'EMERGENCY' || session.is_emergency) return "bg-red-500";
+    if (session.is_emergency) return "bg-red-500";
     if (session.is_external) return "bg-blue-500";
     switch (session.session_type?.toUpperCase()) {
       case 'STRENGTH': return "bg-amber-500";
@@ -132,28 +132,28 @@ export default function AdminSchedules() {
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-4 pb-12">
       {/* Header & Month Control */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 pb-10 border-b border-white/5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-white/5">
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <CalendarIcon className="text-[#22c55e]" size={16} />
-            <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Operational Scheduler</span>
+          <div className="flex items-center gap-1.5 mb-1">
+            <CalendarIcon className="text-[#22c55e]" size={12} />
+            <span className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px]">Operational Scheduler</span>
           </div>
-          <h1 className="font-display text-6xl text-white uppercase tracking-wider">Schedules Matrix</h1>
+          <h1 className="font-display text-xl text-white uppercase tracking-wider">Schedules Matrix</h1>
         </div>
 
-        <div className="flex items-center gap-6 bg-[#111] border border-white/5 p-4 rounded-[28px] shadow-2xl">
-          <button onClick={prevMonth} className="p-3 rounded-xl hover:bg-white/5 transition-all text-white/40 hover:text-white">
-            <ChevronLeft size={24} />
+        <div className="flex items-center gap-2 bg-[#111] border border-white/5 p-1 rounded-xl">
+          <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-white/5 transition-all text-white/40 hover:text-white">
+            <ChevronLeft size={14} />
           </button>
-          <div className="px-6 border-x border-white/5">
-            <div className="text-white font-display text-2xl tracking-[0.2em] uppercase min-w-[200px] text-center">
+          <div className="px-3 border-x border-white/5">
+            <div className="text-white font-display text-xs tracking-[0.1em] uppercase min-w-[120px] text-center">
               {format(currentMonth, "MMMM yyyy")}
             </div>
           </div>
-          <button onClick={nextMonth} className="p-3 rounded-xl hover:bg-white/5 transition-all text-white/40 hover:text-white">
-            <ChevronRight size={24} />
+          <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-white/5 transition-all text-white/40 hover:text-white">
+            <ChevronRight size={14} />
           </button>
         </div>
 
@@ -162,9 +162,9 @@ export default function AdminSchedules() {
             setSelectedDateForCreation(undefined);
             setIsCreateModalOpen(true);
           }}
-          className="bg-[#22c55e] text-black px-10 py-5 rounded-[24px] font-display text-sm tracking-[0.2em] hover:bg-white transition-all uppercase shadow-xl flex items-center justify-center gap-3"
+          className="bg-[#22c55e] text-black px-4 py-2.5 rounded-lg font-display text-[10px] tracking-[0.1em] hover:bg-white transition-all uppercase flex items-center justify-center gap-1.5"
         >
-          <Plus size={20} /> INITIALIZE SESSION
+          <Plus size={12} /> INITIALIZE SESSION
         </button>
       </div>
 
@@ -224,20 +224,48 @@ export default function AdminSchedules() {
                        className={`w-full text-left p-3 rounded-xl border relative group transition-all hover:translate-y-[-2px] hover:shadow-xl ${getSessionStyle(session)}`}
                      >
                         <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getSessionIndicatorColor(session)}`} />
-                        <div className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">
-                          {session.start_time.slice(0, 5)}
-                          {(session.session_category === 'EMERGENCY' || session.is_emergency) && <span className="text-red-500 ml-2">⚠️</span>}
-                          {session.is_external && <span className="text-blue-400 ml-2">👤</span>}
+                        
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <div className="text-white font-bold text-xs uppercase truncate tracking-wide flex-1">{session.title}</div>
+                          <div className="text-[8px] font-black text-white/40 uppercase tracking-widest shrink-0 mt-0.5">
+                            {session.start_time.slice(0, 5)}
+                          </div>
                         </div>
-                        <div className="text-white font-bold text-[10px] uppercase truncate tracking-wide">{session.title}</div>
-                        {session.external_player_name && (
-                          <div className="text-[8px] text-gray-500 font-mono mt-1 truncate">Player: {session.external_player_name}</div>
-                        )}
-                        <div className="mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                           <div className="w-1 h-1 rounded-full bg-white/20" />
-                           <div className="text-[7px] text-white/40 font-black uppercase tracking-widest">
-                           {session.session_category === 'EMERGENCY' || session.is_emergency ? 'EMERGENCY' : (session.is_external ? 'EXTERNAL CLIENT' : 'SCHEDULED')}
-                           </div>
+
+                        <div className="flex flex-col gap-1">
+                          {session.coach ? (
+                            <div className="text-[8px] text-white/50 font-bold uppercase tracking-wider">
+                              Coach: {session.coach.first_name} {session.coach.last_name || ""}
+                            </div>
+                          ) : (
+                            <div className="text-[8px] text-white/30 font-bold uppercase tracking-wider">
+                              Coach: Unassigned
+                            </div>
+                          )}
+
+                          {session.is_external && session.external_player_name && (
+                            <div className="text-[8px] text-gray-500 font-mono truncate">
+                              Client: {session.external_player_name}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                          {session.is_emergency && (
+                            <span className="px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-500 text-[6px] font-black tracking-widest uppercase">
+                              🚨 EMERGENCY
+                            </span>
+                          )}
+
+                          {session.is_external && (
+                            <span className={`px-1.5 py-0.5 rounded text-[6px] font-black tracking-widest uppercase border ${
+                              session.payment_status === 'CONFIRMED'
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                            }`}>
+                              {session.payment_status || 'PENDING'}
+                            </span>
+                          )}
                         </div>
                      </button>
                    ))}

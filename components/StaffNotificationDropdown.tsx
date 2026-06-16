@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Check, Trash2, Loader2, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useAuth } from "./providers/AuthProvider";
+import SessionDetailsModal from "./modals/SessionDetailsModal";
 
 export default function StaffNotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSession, setSelectedSession] = useState<any | null>(null);
   const { user } = useAuth();
   const supabase = createClient();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -121,10 +123,20 @@ export default function StaffNotificationDropdown() {
                 >
                   <div 
                     className="flex gap-3 cursor-pointer"
-                    onClick={() => {
+                    onClick={async () => {
                       if (notif.type === 'PROGRAM_ASSIGNED') {
                         window.location.href = '/staff#assigned-architectures';
                         setIsOpen(false);
+                      } else if (notif.type === 'EMERGENCY_SESSION' && notif.related_id) {
+                        const { data } = await supabase
+                          .from("training_sessions")
+                          .select("*, coach:profiles!coach_id(first_name, last_name)")
+                          .eq("id", notif.related_id)
+                          .single();
+                        if (data) {
+                          setSelectedSession(data);
+                          setIsOpen(false);
+                        }
                       }
                     }}
                   >
@@ -161,6 +173,14 @@ export default function StaffNotificationDropdown() {
             )}
           </div>
         </div>
+      )}
+      
+      {selectedSession && (
+        <SessionDetailsModal
+          isOpen={!!selectedSession}
+          onClose={() => setSelectedSession(null)}
+          session={selectedSession}
+        />
       )}
     </div>
   );
