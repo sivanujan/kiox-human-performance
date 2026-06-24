@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { createClient as createCookieClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export async function GET() {
   const supabase = createClient(
@@ -129,4 +131,68 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json(profileData);
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("id");
+
+    if (!userId) {
+      return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+    }
+
+    // 1. Verify that the requester is a Super Admin
+    const cookieStore = await cookies();
+    const cookieClient = createCookieClient(cookieStore);
+    
+    const { data: { user: currentUser }, error: authCheckError } = await cookieClient.auth.getUser();
+    if (authCheckError || !currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data: currentProfile, error: profileCheckError } = await cookieClient
+      .from("profiles")
+      .select("role")
+      .eq("id", currentUser.id)
+      .single();
+
+    if (profileCheckError || !currentProfile || currentProfile.role !== 'superadmin') {
+      return NextResponse.json({ error: "Forbidden: Super Admin access required" }, { status: 403 });
+    }
+
+    // 2. Instantiate the Admin/Service Role Client
+    const adminSupabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // 3. Remove the user from any training sessions assigned_athletes array
+    const { data: sessions } = await adminSupabase
+      .from('training_sessions')
+      .select('id, assigned_athletes')
+      .contains('assigned_athletes', [userId]);
+
+    if (sessions && sessions.length > 0) {
+      for (const session of sessions) {
+        const updatedAthletes = session.assigned_athletes.filter((id: string) => id !== userId);
+        await adminSupabase
+          .from('training_sessions')
+          .update({ assigned_athletes: updatedAthletes })
+          .eq('id', session.id);
+      }
+    }
+
+    // 4. Delete the user from Auth (this cascades to profiles, bookings, and notifications)
+    const { error: deleteError } = await adminSupabase.auth.admin.deleteUser(userId);
+    
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: "Agent successfully decommissioned." });
+  } catch (err: any) {
+    console.error("User Deletion Error:", err);
+    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
+  }
 }

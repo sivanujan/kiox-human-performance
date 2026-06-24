@@ -21,7 +21,8 @@ import {
   ExternalLink,
   History,
   ShieldAlert,
-  ArrowUpDown
+  ArrowUpDown,
+  Trash2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -202,6 +203,27 @@ export default function UserInventory() {
     } else {
        const err = await res.json();
        alert(`Verification Error: ${err.error}`);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to decommission agent ${userName}? This action is permanent and removes all profile history.`)) return;
+    if (!confirm(`WARNING: This will permanently delete user credentials, bookings, and profiles for ${userName}. Confirm one last time to proceed.`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/users?id=${userId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        alert("Agent decommissioned successfully.");
+        fetchProfiles();
+      } else {
+        const err = await res.json();
+        alert(`Decommissioning Error: ${err.error}`);
+      }
+    } catch (err: any) {
+      alert(`Decommissioning Error: ${err.message}`);
     }
   };
 
@@ -471,6 +493,21 @@ export default function UserInventory() {
                             </span>
                           </div>
 
+                          {/* Delete User */}
+                          {profile?.role === 'superadmin' && user?.id !== user_profile.id && (
+                            <div className="relative group">
+                              <button 
+                                onClick={() => handleDeleteUser(user_profile.id, `${user_profile.first_name} ${user_profile.last_name}`)}
+                                className="w-10 h-10 bg-red-500/5 border border-red-500/20 rounded-xl text-red-500 hover:bg-red-500 hover:text-text-on-green transition-all flex items-center justify-center active-scale"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-card border border-border-primary text-[8px] font-black uppercase tracking-widest text-red-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                                Decommission
+                              </span>
+                            </div>
+                          )}
+
                           {/* Reset Password */}
                           {user_profile.role === 'staff' ? (
                             <div className="relative group">
@@ -587,6 +624,14 @@ export default function UserInventory() {
                       className="p-2 bg-red-400/10 rounded-lg text-red-400"
                      >
                        <Zap size={14} />
+                     </button>
+                   )}
+                   {profile?.role === 'superadmin' && user?.id !== user_profile.id && (
+                     <button 
+                      onClick={() => handleDeleteUser(user_profile.id, `${user_profile.first_name} ${user_profile.last_name}`)}
+                      className="p-2 bg-red-500/10 rounded-lg text-red-500"
+                     >
+                       <Trash2 size={14} />
                      </button>
                    )}
                 </div>
