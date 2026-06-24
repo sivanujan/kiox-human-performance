@@ -29,6 +29,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const supabase = createClient();
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
   const isFacilityWide = session ? ["MEAL", "CURFEW", "LOGISTICS"].includes(session.session_type) : false;
+  const canDelete = profile?.role === 'superadmin' || (profile?.role === 'staff' && !session?.is_curriculum);
 
   useEffect(() => {
     setMounted(true);
@@ -118,6 +119,29 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
     }
   };
 
+  const handleDeleteSession = async () => {
+    if (!session || !canDelete) return;
+    
+    const confirmMessage = session.is_curriculum 
+      ? "Are you sure you want to delete this curriculum session? This will remove it from the calendar."
+      : "Are you sure you want to delete this training session? All bookings and loads will be removed.";
+      
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      const { error } = await supabase
+        .from("training_sessions")
+        .delete()
+        .eq("id", session.id);
+
+      if (error) throw error;
+      alert("Session deleted successfully.");
+      onClose();
+    } catch (err: any) {
+      alert(`Failed to delete session: ${err.message}`);
+    }
+  };
+
   const handleUpdateLog = (athleteId: string, updates: any) => {
     if (!isStaff) return;
     setAthleteLogs(prev => prev.map(l => l.athlete_id === athleteId ? { ...l, ...updates } : l));
@@ -166,9 +190,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    <div className="flex items-center gap-2"><MapPin size={14} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
                 </div>
              </div>
-             <div className="flex items-center gap-4">
-                {isStaff && (
-                   <button className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all">
+              <div className="flex items-center gap-4">
+                {canDelete && (
+                   <button 
+                     onClick={handleDeleteSession}
+                     className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                   >
                      <Trash2 size={24} />
                    </button>
                 )}
