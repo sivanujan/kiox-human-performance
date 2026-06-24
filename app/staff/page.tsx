@@ -246,12 +246,12 @@ export default function StaffPortal() {
 
   if (!isHydrated || loading || authLoading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-6">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center gap-6">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full border-2 border-[#22c55e]/10 animate-ping absolute inset-0" />
-          <div className="w-20 h-20 rounded-full border-t-2 border-[#22c55e] animate-spin" />
+          <div className="w-20 h-20 rounded-full border-2 border-[var(--accent-green)]/10 animate-ping absolute inset-0" />
+          <div className="w-20 h-20 rounded-full border-t-2 border-[var(--accent-green)] animate-spin" />
         </div>
-        <div className="font-label text-[#22c55e] animate-pulse">
+        <div className="font-label text-[var(--accent-green)] animate-pulse">
           Syncing Operational Matrix...
         </div>
       </div>
@@ -268,7 +268,7 @@ export default function StaffPortal() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden">
       {/* ========================
           NAVIGATION HEADER
           ======================== */}
@@ -281,33 +281,33 @@ export default function StaffPortal() {
             ======================== */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
           <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={18} />
             <input
               placeholder="Search athletes or logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-3 md:py-4 pl-12 pr-4 text-white text-xs md:text-sm font-label focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-gray-600 shadow-2xl"
+              className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 md:py-4 pl-12 pr-4 text-[var(--text-primary)] text-xs md:text-sm font-label focus:outline-none focus:border-[var(--accent-green)] transition-all placeholder:text-[var(--text-muted)] shadow-2xl"
             />
           </div>
         </div>
 
         {/* Onboarding Banner */}
         {showOnboarding && (
-          <div className="bg-[#111] border border-[#22c55e]/20 rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden group/onboard z-10">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden group/onboard z-10">
             {/* Background Accent */}
             <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover/onboard:opacity-[0.04] transition-opacity">
-              <Zap size={140} className="text-[#22c55e]" />
+              <Zap size={140} className="text-[var(--accent-green)]" />
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative z-10">
               <div>
-                <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase mb-1">Onboarding Guide</div>
-                <h2 className="text-white font-display text-lg md:text-xl font-black uppercase tracking-wider">Getting Started</h2>
-                <p className="text-gray-400 text-xs mt-1 font-sans">Follow these steps to initialize your trainer dashboard and start tracking performance.</p>
+                <div className="text-[var(--accent-green)] font-display text-[10px] tracking-[0.3em] uppercase mb-1">Onboarding Guide</div>
+                <h2 className="text-[var(--text-primary)] font-display text-lg md:text-xl font-black uppercase tracking-wider">Getting Started</h2>
+                <p className="text-[var(--text-secondary)] text-xs mt-1 font-sans">Follow these steps to initialize your trainer dashboard and start tracking performance.</p>
               </div>
               <button 
                 onClick={handleDismissOnboarding}
-                className="px-4 py-2 border border-white/10 hover:border-white/20 hover:bg-white/5 rounded-xl text-[10px] text-gray-400 hover:text-white transition-all uppercase font-label font-bold"
+                className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--border-active)] hover:bg-[var(--bg-card-hover)] rounded-xl text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all uppercase font-label font-bold"
               >
                 Dismiss
               </button>
@@ -319,10 +319,10 @@ export default function StaffPortal() {
                 { step: "Step 2", title: "Create a training program", desc: "Design customized training protocols under Training Programs." },
                 { step: "Step 3", title: "Schedule a session", desc: "Book live training sessions to gather active load metrics and recovery data." }
               ].map((item, index) => (
-                <div key={index} className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                  <span className="text-[9px] font-black text-[#22c55e] uppercase tracking-widest">{item.step}</span>
-                  <h4 className="text-white font-bold uppercase tracking-wider text-xs mt-1 mb-2">{item.title}</h4>
-                  <p className="text-gray-400 text-[11px] leading-relaxed font-sans">{item.desc}</p>
+                <div key={index} className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl">
+                  <span className="text-[9px] font-black text-[var(--accent-green)] uppercase tracking-widest">{item.step}</span>
+                  <h4 className="text-[var(--text-primary)] font-bold uppercase tracking-wider text-xs mt-1 mb-2">{item.title}</h4>
+                  <p className="text-[var(--text-secondary)] text-[11px] leading-relaxed font-sans">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -354,20 +354,20 @@ export default function StaffPortal() {
         />
 
         {/* NEW: ASSIGNED ARCHITECTURES SECTION */}
-        <div id="assigned-architectures" className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">
+        <div id="assigned-architectures" className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">
            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/arch:opacity-10 transition-opacity">MATRIX</div>
            <div className="flex items-center justify-between mb-8">
-              <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+              <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3 uppercase">
                  <ShieldAlert className="animate-pulse" size={18} /> My Training Programs
               </div>
-              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
+              <div className="px-3 py-1 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded-full text-[var(--accent-green)] text-[10px] font-black uppercase tracking-widest">
                  {myPrograms.length} TOTAL PROGRAMS
               </div>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myPrograms.length === 0 ? (
-                 <div className="col-span-full py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl bg-black/20">
+                 <div className="col-span-full py-12 text-center text-[var(--text-secondary)] font-label italic border border-dashed border-[var(--border-primary)] rounded-2xl bg-[var(--bg-primary)]/20">
                     NO OPERATIONAL ARCHITECTURES ASSIGNED TO YOUR IDENTITY
                  </div>
               ) : (
@@ -377,7 +377,7 @@ export default function StaffPortal() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-black/40 border border-white/5 rounded-2xl p-6 hover:border-[#22c55e]/30 transition-all cursor-pointer group/card relative"
+                    className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-6 hover:border-[var(--accent-green)]/30 transition-all cursor-pointer group/card relative"
                     onClick={() => {
                       setSelectedProgram(prog);
                       setIsProgramModalOpen(true);
@@ -385,25 +385,25 @@ export default function StaffPortal() {
                   >
                     <div className="flex flex-col h-full">
                        <div className="flex justify-between items-start mb-4">
-                          <div className="w-10 h-10 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center">
-                             <Target className="text-[#22c55e]" size={18} />
+                          <div className="w-10 h-10 rounded-lg bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 flex items-center justify-center">
+                             <Target className="text-[var(--accent-green)]" size={18} />
                           </div>
-                          <span className="text-[8px] font-black bg-[#22c55e] text-black px-2 py-0.5 rounded uppercase tracking-tighter">Active</span>
+                          <span className="text-[8px] font-black bg-[var(--accent-green)] text-[var(--text-on-green)] px-2 py-0.5 rounded uppercase tracking-tighter">Active</span>
                        </div>
                        
-                       <h4 className="text-white font-bold uppercase tracking-wider text-sm mb-2 group-hover:text-[#22c55e] transition-colors">{prog.title}</h4>
-                       <p className="text-gray-500 text-[10px] font-medium leading-relaxed line-clamp-2 mb-6">
+                       <h4 className="text-[var(--text-primary)] font-bold uppercase tracking-wider text-sm mb-2 group-hover:text-[var(--accent-green)] transition-colors">{prog.title}</h4>
+                       <p className="text-[var(--text-secondary)] text-[10px] font-medium leading-relaxed line-clamp-2 mb-6">
                          {prog.description}
                        </p>
 
-                       <div className="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                       <div className="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-primary)]/50">
                           <div className="space-y-1">
-                             <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">Category</p>
-                             <p className="text-[9px] text-[#22c55e] font-black uppercase">{prog.category}</p>
+                             <p className="text-[7px] text-[var(--text-muted)] font-black uppercase tracking-widest">Category</p>
+                             <p className="text-[9px] text-[var(--accent-green)] font-black uppercase">{prog.category}</p>
                           </div>
                           <div className="space-y-1">
-                             <p className="text-[7px] text-gray-600 font-black uppercase tracking-widest">Duration</p>
-                             <p className="text-[9px] text-white font-black uppercase">{prog.duration}</p>
+                             <p className="text-[7px] text-[var(--text-muted)] font-black uppercase tracking-widest">Duration</p>
+                             <p className="text-[9px] text-[var(--text-primary)] font-black uppercase">{prog.duration}</p>
                           </div>
                         </div>
                         <button 
@@ -412,7 +412,7 @@ export default function StaffPortal() {
                             setSelectedProgram(prog);
                             setIsScheduleModalOpen(true);
                           }}
-                          className="mt-4 w-full flex items-center justify-center gap-2 py-2 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl text-[8px] font-black text-[#22c55e] uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                          className="mt-4 w-full flex items-center justify-center gap-2 py-2 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 rounded-xl text-[8px] font-black text-[var(--accent-green)] uppercase tracking-widest hover:bg-[var(--accent-green)] hover:text-[var(--text-on-green)] transition-all"
                         >
                            <Zap size={10} /> Configure Matrix
                         </button>
@@ -425,20 +425,20 @@ export default function StaffPortal() {
 
         {/* NEW: PROTOCOL ASSIGNMENTS SECTION */}
 
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-8 shadow-xl relative overflow-hidden group/proto">
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-8 shadow-xl relative overflow-hidden group/proto">
            <div className="absolute top-0 right-0 p-8 opacity-5 font-display text-7xl pointer-events-none group-hover/proto:opacity-10 transition-opacity">PROTO</div>
            <div id="protocol-assignments" className="flex items-center justify-between mb-8">
-              <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+              <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3 uppercase">
                  <Layers className="animate-pulse" size={18} /> Assigned Athletes
               </div>
-              <div className="px-3 py-1 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-full text-[#22c55e] text-[10px] font-black uppercase tracking-widest">
+              <div className="px-3 py-1 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded-full text-[var(--accent-green)] text-[10px] font-black uppercase tracking-widest">
                  {enrolledAthletes.length} ACTIVE ATHLETES
               </div>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {enrolledAthletes.length === 0 ? (
-                 <div className="col-span-full py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl bg-black/20">
+                 <div className="col-span-full py-12 text-center text-[var(--text-secondary)] font-label italic border border-dashed border-[var(--border-primary)] rounded-2xl bg-[var(--bg-primary)]/20">
                     NO ATHLETES CURRENTLY ASSIGNED TO YOUR PROGRAMS
                  </div>
               ) : (
@@ -448,24 +448,24 @@ export default function StaffPortal() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-black/40 border border-white/5 rounded-2xl p-6 hover:border-[#22c55e]/30 transition-all cursor-pointer group/card"
+                    className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-6 hover:border-[var(--accent-green)]/30 transition-all cursor-pointer group/card"
                     onClick={() => {
                       setSelectedAthlete(enroll.user_id);
                       document.getElementById('management-core')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
                     <div className="flex items-center gap-4 mb-4">
-                       <div className="w-12 h-12 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center overflow-hidden">
-                          <Zap className="text-[#22c55e]" size={20} />
+                       <div className="w-12 h-12 rounded-xl bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 flex items-center justify-center overflow-hidden">
+                          <Zap className="text-[var(--accent-green)]" size={20} />
                        </div>
                        <div>
-                          <h4 className="text-white font-bold uppercase tracking-wider text-sm">{athletes.find(a => a.id === enroll.user_id)?.first_name} {athletes.find(a => a.id === enroll.user_id)?.last_name}</h4>
-                          <p className="text-[#22c55e] text-[9px] font-black uppercase tracking-[2px]">{enroll.program?.title}</p>
+                          <h4 className="text-[var(--text-primary)] font-bold uppercase tracking-wider text-sm">{athletes.find(a => a.id === enroll.user_id)?.first_name} {athletes.find(a => a.id === enroll.user_id)?.last_name}</h4>
+                          <p className="text-[var(--accent-green)] text-[9px] font-black uppercase tracking-[2px]">{enroll.program?.title}</p>
                        </div>
                     </div>
-                    <div className="flex justify-between items-center text-[8px] font-black text-gray-500 uppercase tracking-widest pt-4 border-t border-white/5">
+                    <div className="flex justify-between items-center text-[8px] font-black text-[var(--text-secondary)] uppercase tracking-widest pt-4 border-t border-[var(--border-primary)]/50">
                        <span>Phase: {enroll.program?.level}</span>
-                       <span className="text-[#22c55e] group-hover/card:translate-x-1 transition-transform flex items-center gap-1">Manage <ArrowRight size={10} /></span>
+                       <span className="text-[var(--accent-green)] group-hover/card:translate-x-1 transition-transform flex items-center gap-1">Manage <ArrowRight size={10} /></span>
                     </div>
                   </motion.div>
                 ))
@@ -503,8 +503,8 @@ export default function StaffPortal() {
            {/* Booking panels would go here if needed, adding specific responsive grid spacing */}
         </div>
         {/* STAFF PROTOCOL LOGS */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
-           <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+           <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3 mb-6 md:mb-8 uppercase">
               <MessageSquare size={18} /> Notes / Activity Log
            </div>
            
@@ -513,12 +513,12 @@ export default function StaffPortal() {
                 placeholder="ADD PROTOCOL NOTE..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#22c55e]"
+                className="flex-1 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 px-5 text-[var(--text-primary)] text-xs font-sans placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-green)]"
               />
               <button 
                 onClick={handleAddNote}
                 disabled={isSavingNote}
-                className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
+                className="bg-[var(--accent-green)] text-[var(--text-on-green)] font-button text-xs px-6 py-3 rounded-xl hover:bg-[var(--accent-green-dim)] transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[100px] flex items-center justify-center active-scale"
               >
                 {isSavingNote ? <Loader2 className="animate-spin" size={16} /> : "COMMIT"}
               </button>
@@ -533,7 +533,7 @@ export default function StaffPortal() {
                 const query = searchQuery.toLowerCase();
                 return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
               }).length === 0 ? (
-                <div className="py-12 text-center text-gray-500 font-label italic border border-dashed border-white/5 rounded-2xl">
+                <div className="py-12 text-center text-[var(--text-secondary)] font-label italic border border-dashed border-[var(--border-primary)] rounded-2xl">
                   {searchQuery ? "NO SEARCH RESULTS FOUND" : "PROTOCOL LOG CLEAR // NO RECENT NOTES"}
                 </div>
               ) : (
@@ -545,20 +545,20 @@ export default function StaffPortal() {
                   const query = searchQuery.toLowerCase();
                   return athleteSearch.includes(query) || noteSearch.includes(query) || authorSearch.includes(query);
                 }).map((note, i) => (
-                  <div key={i} className="p-4 bg-white/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                  <div key={i} className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] border-l-4 border-l-[var(--accent-green)] rounded-xl relative group">
                     <div className="flex justify-between items-start mb-2">
-                      <div className="font-label text-[#22c55e]">
+                      <div className="font-label text-[var(--accent-green)]">
                         {note.user_id ? "Athlete Record" : "General Protocol"}
                       </div>
-                      <span className="text-gray-500 font-label">{new Date(note.created_at).toLocaleDateString()}</span>
+                      <span className="text-[var(--text-muted)] font-label">{new Date(note.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p className="text-gray-200 text-xs leading-relaxed italic font-sans">"{note.note}"</p>
+                    <p className="text-[var(--text-primary)] text-xs leading-relaxed italic font-sans">"{note.note}"</p>
                     <div className="flex justify-between items-center mt-3">
-                       <span className="text-[#22c55e] font-label opacity-70">
+                       <span className="text-[var(--accent-green)] font-label opacity-70">
                          {note.added_by?.first_name} {note.added_by?.last_name}
                        </span>
                        {note.user_id && (
-                         <span className="text-gray-500 font-label">
+                         <span className="text-[var(--text-muted)] font-label">
                            Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
                          </span>
                        )}
@@ -571,18 +571,18 @@ export default function StaffPortal() {
 
         {/* FOOTER SECTION: WELLNESS */}
         <div className="pb-10 relative z-10 w-full lg:w-3/5">
-          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-5 md:p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
-                <div className="text-[#22c55e] font-display text-sm flex items-center gap-3">
+                <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3">
                    <Activity size={18} /> ATHLETE WELLNESS
                 </div>
-                 <div className="text-[#22c55e] font-stat text-xl">
-                   {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : <span className="font-display text-white/40 font-black tracking-[0.2em] italic">NO DATA RECEIVED</span>}
+                 <div className="text-[var(--accent-green)] font-stat text-xl">
+                   {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : <span className="font-display text-[var(--text-muted)] font-black tracking-[0.2em] italic">NO DATA RECEIVED</span>}
                  </div>
              </div>
              <ProgressBar value={wellnessStats.readyPercent} height={8} />
              {!logsExist && (
-               <div className="mt-6 p-4 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-2xl text-[#22c55e] text-xs font-sans tracking-wide">
+               <div className="mt-6 p-4 bg-[var(--accent-green)]/5 border border-[var(--accent-green)]/20 rounded-2xl text-[var(--accent-green)] text-xs font-sans tracking-wide">
                   Tip: Create a session to start tracking your athletes' performance.
                </div>
              )}
@@ -592,11 +592,11 @@ export default function StaffPortal() {
                   { label: 'EXTREME SORENESS', count: wellnessStats.extremeSoreness, icon: '🩹', color: '#ef4444' },
                   { label: 'HYDRATION ISSUES', count: wellnessStats.hydrationFlags, icon: '💧', color: '#8b5cf6' },
                 ].map((issue, i) => (
-                   <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
-                     <div className="flex items-center gap-3 text-gray-400 font-label font-bold group-hover:text-white transition-colors">
+                   <div key={i} className="flex justify-between items-center bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-primary)] group">
+                     <div className="flex items-center gap-3 text-[var(--text-secondary)] font-label font-bold group-hover:text-[var(--text-primary)] transition-colors">
                        <span className="text-lg">{issue.icon}</span> {issue.label}
                      </div>
-                     <div className="px-3 py-1 bg-black/40 font-stat rounded-full" style={{ color: issue.color }}>
+                     <div className="px-3 py-1 bg-[var(--bg-primary)] font-stat rounded-full" style={{ color: issue.color }}>
                        {logsExist ? `${issue.count} SUBJECTS` : <span className="text-[10px] opacity-40">---</span>}
                      </div>
                   </div>
@@ -694,7 +694,7 @@ export default function StaffPortal() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-[#0a0a0a] border border-[#22c55e]/20 rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none font-display text-9xl">OP</div>
               
@@ -702,14 +702,14 @@ export default function StaffPortal() {
                 <div className="flex justify-between items-start mb-10">
                   <div>
                     <div className="flex items-center gap-2 mb-3">
-                       <Zap className="text-[#22c55e]" size={14} />
-                       <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px]">Architecture Specification</span>
+                       <Zap className="text-[var(--accent-green)]" size={14} />
+                       <span className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[3px]">Architecture Specification</span>
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">{selectedProgram.title}</h3>
+                    <h3 className="text-3xl md:text-4xl font-display font-black text-[var(--text-primary)] uppercase tracking-tight">{selectedProgram.title}</h3>
                   </div>
                   <button 
                     onClick={() => setIsProgramModalOpen(false)}
-                    className="p-3 bg-white/5 border border-white/10 rounded-full text-gray-500 hover:text-white hover:border-white/20 transition-all"
+                    className="p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)] transition-all"
                   >
                     <ArrowRight className="rotate-45" size={20} />
                   </button>
@@ -718,37 +718,37 @@ export default function StaffPortal() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                    <div className="space-y-8">
                       <div className="space-y-4">
-                         <h5 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Protocol Description</h5>
-                         <p className="text-sm text-gray-300 leading-relaxed font-sans italic">
+                         <h5 className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Protocol Description</h5>
+                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-sans italic">
                             "{selectedProgram.description}"
                          </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
                          <div className="space-y-2">
-                            <h5 className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Target Phase</h5>
-                            <div className="px-3 py-2 bg-black border border-white/10 rounded-xl text-[11px] font-bold text-white uppercase">{selectedProgram.level}</div>
+                            <h5 className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Target Phase</h5>
+                            <div className="px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl text-[11px] font-bold text-[var(--text-primary)] uppercase">{selectedProgram.level}</div>
                          </div>
                          <div className="space-y-2">
-                            <h5 className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Operational Category</h5>
-                            <div className="px-3 py-2 bg-black border border-[#22c55e]/20 rounded-xl text-[11px] font-bold text-[#22c55e] uppercase">{selectedProgram.category}</div>
+                            <h5 className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Operational Category</h5>
+                            <div className="px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl text-[11px] font-bold text-[var(--accent-green)] uppercase">{selectedProgram.category}</div>
                          </div>
                       </div>
                    </div>
 
                    <div className="space-y-8">
-                      <div className="bg-[#111] border border-white/5 rounded-2xl p-6 space-y-6">
+                      <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-6 space-y-6">
                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Timeline</span>
-                            <span className="text-[10px] font-bold text-white uppercase">{selectedProgram.duration}</span>
+                            <span className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Timeline</span>
+                            <span className="text-[10px] font-bold text-[var(--text-primary)] uppercase">{selectedProgram.duration}</span>
                          </div>
                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Enrolment Cap</span>
-                            <span className="text-[10px] font-bold text-white uppercase">{selectedProgram.max_athletes} Agents</span>
+                            <span className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Enrolment Cap</span>
+                            <span className="text-[10px] font-bold text-[var(--text-primary)] uppercase">{selectedProgram.max_athletes} Agents</span>
                          </div>
                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Valuation</span>
-                            <span className="text-[10px] font-bold text-[#22c55e] uppercase">${selectedProgram.price} USD</span>
+                            <span className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Valuation</span>
+                            <span className="text-[10px] font-bold text-[var(--accent-green)] uppercase">${selectedProgram.price} USD</span>
                          </div>
                       </div>
 
@@ -758,7 +758,7 @@ export default function StaffPortal() {
                              setIsProgramModalOpen(false);
                              document.getElementById('protocol-assignments')?.scrollIntoView({ behavior: 'smooth' });
                            }}
-                           className="w-full bg-[#22c55e] text-black py-4 rounded-xl font-black text-[11px] uppercase tracking-[2px] hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
+                           className="w-full bg-[var(--accent-green)] text-[var(--text-on-green)] py-4 rounded-xl font-black text-[11px] uppercase tracking-[2px] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)] transition-all shadow-[0_0_20px_var(--shadow-accent-glow)] flex items-center justify-center gap-3"
                          >
                            Manage Assigned Units <ArrowRight size={14} />
                          </button>

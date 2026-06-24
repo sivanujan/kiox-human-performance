@@ -1,9 +1,9 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT),
-  secure: process.env.EMAIL_SECURE === 'true',
+  secure: process.env.EMAIL_SECURE === "true",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -31,7 +31,11 @@ export async function sendEmail({ to, subject, html }: EmailOptions) {
   }
 }
 
-export function getInviteEmailTemplate(agentName: string, inviteLink: string, teamName: string) {
+export function getInviteEmailTemplate(
+  agentName: string,
+  inviteLink: string,
+  teamName: string,
+) {
   return `
     <!DOCTYPE html>
     <html>
@@ -197,7 +201,12 @@ export function getInviteEmailTemplate(agentName: string, inviteLink: string, te
   `;
 }
 
-export function getBookingRequestTemplate(athleteName: string, date: string, time: string, sessionTitle: string) {
+export function getBookingRequestTemplate(
+  athleteName: string,
+  date: string,
+  time: string,
+  sessionTitle: string,
+) {
   return `
     <!DOCTYPE html>
     <html>
@@ -368,7 +377,13 @@ export function getBookingRequestTemplate(athleteName: string, date: string, tim
   `;
 }
 
-export function getBookingConfirmationTemplate(name: string, date: string, time: string, sessionTitle: string, isCoach: boolean = false) {
+export function getBookingConfirmationTemplate(
+  name: string,
+  date: string,
+  time: string,
+  sessionTitle: string,
+  isCoach: boolean = false,
+) {
   return `
     <!DOCTYPE html>
     <html>
@@ -527,7 +542,7 @@ export function getBookingConfirmationTemplate(name: string, date: string, time:
             <div class="value">${time}</div>
           </div>
           
-          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/${isCoach ? 'admin' : 'schedule'}" class="btn">View Schedule</a>
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/${isCoach ? "admin" : "schedule"}" class="btn">View Schedule</a>
         </div>
         
         <div class="footer">
@@ -539,7 +554,10 @@ export function getBookingConfirmationTemplate(name: string, date: string, time:
   `;
 }
 
-export function getProgramApprovalTemplate(athleteName: string, programTitle: string) {
+export function getProgramApprovalTemplate(
+  athleteName: string,
+  programTitle: string,
+) {
   return `
     <!DOCTYPE html>
     <html>
@@ -700,6 +718,405 @@ export function getProgramApprovalTemplate(athleteName: string, programTitle: st
         <div class="footer">
           <div class="footer-text">KIO-X HUMAN PERFORMANCE // ELITE DIVISION</div>
         </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+export function getExternalClientWelcomeTemplate(
+  name: string,
+  sessionTitle: string,
+  date: string,
+  time: string,
+  email: string,
+  tempPass: string,
+) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>KIO-X External Session Invitation</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #080808;
+          font-family: 'Inter', sans-serif;
+          color: #ffffff;
+        }
+        
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #0a0a0a;
+          border: 1px solid #22c55e33;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        .header {
+          padding: 60px 40px;
+          background: linear-gradient(135deg, #22c55e11 0%, #000000 100%);
+          border-bottom: 1px solid #22c55e11;
+          text-align: center;
+        }
+        
+        .logo {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          font-size: 32px;
+          letter-spacing: 0.3em;
+          color: #ffffff;
+          margin-bottom: 10px;
+          text-transform: uppercase;
+        }
+        
+        .badge {
+          display: inline-block;
+          padding: 4px 12px;
+          background-color: #22c55e1a;
+          border: 1px solid #22c55e;
+          color: #22c55e;
+          font-size: 10px;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          letter-spacing: 2px;
+          border-radius: 100px;
+          text-transform: uppercase;
+        }
+        
+        .content {
+          padding: 60px 40px;
+          text-align: center;
+        }
+        
+        h1 {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 36px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.02em;
+          margin-bottom: 24px;
+          line-height: 1.1;
+        }
+        
+        p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #888888;
+          margin-bottom: 32px;
+        }
+        
+        .session-card {
+          background-color: #111111;
+          border: 1px solid #ffffff0d;
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 40px;
+          text-align: left;
+        }
+        
+        .label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #444444;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 8px;
+        }
+        
+        .value {
+          font-size: 18px;
+          font-weight: 700;
+          color: #ffffff;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+        }
+        
+        .creds-card {
+          background-color: #0a140d;
+          border: 1px solid #22c55e22;
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 40px;
+          text-align: left;
+        }
+        
+        .cred-item {
+          margin-bottom: 12px;
+        }
+        
+        .cred-label {
+          font-size: 9px;
+          font-weight: 700;
+          color: #22c55e;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .cred-value {
+          font-size: 16px;
+          font-family: monospace;
+          color: #ffffff;
+          font-weight: bold;
+        }
+        
+        .btn {
+          display: inline-block;
+          padding: 20px 40px;
+          background-color: #22c55e;
+          color: #000000 !important;
+          text-decoration: none;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          font-size: 14px;
+          letter-spacing: 2px;
+          border-radius: 16px;
+          text-transform: uppercase;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2);
+        }
+        
+        .footer {
+          padding: 40px;
+          background-color: #050505;
+          text-align: center;
+          border-top: 1px solid #ffffff08;
+        }
+        
+        .footer-text {
+          font-size: 12px;
+          color: #333333;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">KIO-X</div>
+          <div class="badge">External Access Provisioned</div>
+        </div>
+        
+        <div class="content">
+          <h1>Tactical Session Invitation</h1>
+          <p>Hello <strong>${name}</strong>, you have been registered for a private performance session on the KIO-X Elite platform.</p>
+          
+          <div class="session-card">
+            <div class="label">SESSION TYPE</div>
+            <div class="value" style="color: #22c55e;">${sessionTitle}</div>
+            
+            <div class="label">OPERATIONAL DATE</div>
+            <div class="value">${date}</div>
+            
+            <div class="label">COMMENCEMENT TIME</div>
+            <div class="value">${time}</div>
+          </div>
+          
+          <div class="creds-card">
+            <div class="cred-item">
+              <div class="cred-label">ACCESS EMAIL</div>
+              <div class="cred-value">${email}</div>
+            </div>
+            <div class="cred-item">
+              <div class="cred-label">TEMPORARY PASSWORD</div>
+              <div class="cred-value">${tempPass}</div>
+            </div>
+            <p style="font-size: 11px; color: #22c55e; margin: 8px 0 0 0; line-height: 1.4;">
+              * Note: This temporary credential allows you to access this scheduled session only.
+            </p>
+          </div>
+          
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/signin" class="btn">Sign In to Session</a>
+        </div>
+        
+        <div class="footer">
+          <div class="footer-text">KIO-X HUMAN PERFORMANCE // EXTERNAL BOOKINGS</div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+export function getInternalAthleteWelcomeTemplate(
+  name: string,
+  email: string,
+  username: string,
+  tempPass: string,
+) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>KIO-X Tactical Access Provisioned</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #080808;
+          font-family: 'Inter', sans-serif;
+          color: #ffffff;
+        }
+        
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #0a0a0a;
+          border: 1px solid #22c55e33;
+          border-radius: 24px;
+          overflow: hidden;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        .header {
+          padding: 60px 40px;
+          background: linear-gradient(135deg, #22c55e11 0%, #000000 100%);
+          border-bottom: 1px solid #22c55e11;
+          text-align: center;
+        }
+        
+        .logo {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          font-size: 32px;
+          letter-spacing: 0.3em;
+          color: #ffffff;
+          margin-bottom: 10px;
+          text-transform: uppercase;
+        }
+        
+        .badge {
+          display: inline-block;
+          padding: 4px 12px;
+          background-color: #22c55e1a;
+          border: 1px solid #22c55e;
+          color: #22c55e;
+          font-size: 10px;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          letter-spacing: 2px;
+          border-radius: 100px;
+          text-transform: uppercase;
+        }
+        
+        .content {
+          padding: 60px 40px;
+          text-align: center;
+        }
+        
+        h1 {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 36px;
+          font-weight: 900;
+          text-transform: uppercase;
+          margin-bottom: 24px;
+          line-height: 1.1;
+        }
+        
+        p {
+          font-size: 16px;
+          line-height: 1.6;
+          color: #888888;
+          margin-bottom: 32px;
+        }
+        
+        .creds-card {
+          background-color: #0a140d;
+          border: 1px solid #22c55e22;
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 40px;
+          text-align: left;
+        }
+        
+        .cred-item {
+          margin-bottom: 12px;
+        }
+        
+        .cred-label {
+          font-size: 9px;
+          font-weight: 700;
+          color: #22c55e;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .cred-value {
+          font-size: 16px;
+          font-family: monospace;
+          color: #ffffff;
+          font-weight: bold;
+        }
+        
+        .btn {
+          display: inline-block;
+          padding: 20px 40px;
+          background-color: #22c55e;
+          color: #000000 !important;
+          text-decoration: none;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 900;
+          font-size: 14px;
+          letter-spacing: 2px;
+          border-radius: 16px;
+          text-transform: uppercase;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2);
+        }
+        
+        .footer {
+          padding: 40px;
+          background-color: #050505;
+          text-align: center;
+          border-top: 1px solid #ffffff08;
+          font-size: 12px;
+          color: #333333;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">KIO-X</div>
+          <div class="badge">Internal Access Provisioned</div>
+        </div>
+        <div class="content">
+          <h1>Tactical Athlete Profile Initialized</h1>
+          <p>Hello <strong>${name}</strong>, your internal athlete profile has been successfully provisioned on the KIO-X Elite platform.</p>
+          <div class="creds-card">
+            <div class="cred-item">
+              <div class="cred-label">ACCESS EMAIL</div>
+              <div class="cred-value">${email}</div>
+            </div>
+            <div class="cred-item">
+              <div class="cred-label">USERNAME</div>
+              <div class="cred-value">${username}</div>
+            </div>
+            <div class="cred-item">
+              <div class="cred-label">TEMPORARY PASSWORD</div>
+              <div class="cred-value">${tempPass}</div>
+            </div>
+            <p style="font-size: 11px; color: #22c55e; margin: 8px 0 0 0; line-height: 1.4;">
+              * Note: Please change this password upon your first login.
+            </p>
+          </div>
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/signin" class="btn">Sign In to Dashboard</a>
+        </div>
+        <div class="footer">KIO-X HUMAN PERFORMANCE // INTERNAL REGISTRY</div>
       </div>
     </body>
     </html>

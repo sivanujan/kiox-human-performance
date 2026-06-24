@@ -64,44 +64,49 @@ export async function GET() {
   if (athleteIds.length > 0) {
     const { data } = await adminDb
       .from('profiles')
-      .select('id, first_name, last_name, avatar_url, weekly_load, timezone, country, country_code')
+      .select('id, first_name, last_name, avatar_url, weekly_load, timezone, country, country_code, role')
       .in('id', athleteIds);
     athletes = data || [];
   }
 
   // Enrich standard bookings
-  const enrichedBookings = bookings.map((b: any) => ({
-    ...b,
-    is_external: false,
-    athlete: athletes?.find((a: any) => a.id === b.athlete_id) || null
-  }));
+  const enrichedBookings = bookings.map((b: any) => {
+    const athlete = athletes?.find((a: any) => a.id === b.athlete_id) || null;
+    return {
+      ...b,
+      is_external: athlete?.role === 'external',
+      athlete
+    };
+  });
 
-  // Map external sessions to a format consistent with bookings
-  const mappedExtSessions = extSessions.map((s: any) => ({
-    id: s.id,
-    is_external: true,
-    status: s.payment_status === 'CONFIRMED' ? 'CONFIRMED' : (s.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING'),
-    payment_status: s.payment_status || 'PENDING',
-    notes: s.notes,
-    booked_at: s.created_at,
-    athlete_id: null,
-    athlete: {
-      first_name: s.external_player_name || 'External Player',
-      last_name: '(External)',
-      avatar_url: '',
-      country_code: 'EXT',
-      weekly_load: 0,
-      timezone: 'UTC'
-    },
-    session: {
+  // Map external sessions to a format consistent with bookings, excluding those already in session_bookings
+  const mappedExtSessions = extSessions
+    .filter((s: any) => !bookings.some((b: any) => b.session_id === s.id))
+    .map((s: any) => ({
       id: s.id,
-      title: s.title,
-      session_type: s.session_type || 'CUSTOM',
-      scheduled_date: s.scheduled_date,
-      start_time: s.start_time,
-      max_capacity: s.max_capacity || 1
-    }
-  }));
+      is_external: true,
+      status: s.payment_status === 'CONFIRMED' ? 'CONFIRMED' : (s.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING'),
+      payment_status: s.payment_status || 'PENDING',
+      notes: s.notes,
+      booked_at: s.created_at,
+      athlete_id: null,
+      athlete: {
+        first_name: s.external_player_name || 'External Player',
+        last_name: '(External)',
+        avatar_url: '',
+        country_code: 'EXT',
+        weekly_load: 0,
+        timezone: 'UTC'
+      },
+      session: {
+        id: s.id,
+        title: s.title,
+        session_type: s.session_type || 'CUSTOM',
+        scheduled_date: s.scheduled_date,
+        start_time: s.start_time,
+        max_capacity: s.max_capacity || 1
+      }
+    }));
 
   // Merge lists and sort by date/time
   const combined = [...enrichedBookings, ...mappedExtSessions].sort((a: any, b: any) => {

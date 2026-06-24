@@ -22,6 +22,14 @@ export function useLiveMonitor() {
   useEffect(() => {
     initializeMonitor();
 
+    // Re-fetch when navigating back to the page
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        initializeMonitor();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     // Subscribe to REAL-TIME sensor updates
     const channelId = `live_monitor_${Math.random().toString(36).slice(2, 9)}`;
     const channel = supabase
@@ -36,6 +44,7 @@ export function useLiveMonitor() {
       .subscribe();
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
       supabase.removeChannel(channel);
     };
   }, []);

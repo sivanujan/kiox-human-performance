@@ -109,28 +109,28 @@ export default function AthleteCalendarPage() {
   return (
     <div className="p-4 md:p-10 space-y-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-10 border-b border-white/5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-10 border-b border-[var(--border-primary)]/50">
         <div>
           <div className="flex items-center gap-3 mb-4">
-             <div className="p-2 bg-[#22c55e]/10 rounded-xl">
-                <CalendarIcon className="text-[#22c55e]" size={20} />
+             <div className="p-2 bg-[var(--accent-green)]/10 rounded-xl">
+                <CalendarIcon className="text-[var(--accent-green)]" size={20} />
              </div>
-             <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[5px]">Tactical Timeline</span>
+             <span className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[5px]">Tactical Timeline</span>
           </div>
-          <h1 className="font-display text-5xl md:text-7xl text-white uppercase tracking-wider">
+          <h1 className="font-display text-5xl md:text-7xl text-[var(--text-primary)] uppercase tracking-wider">
              Monthly Calendar
           </h1>
         </div>
 
-        <div className="flex items-center gap-4 bg-[#111] p-2 rounded-2xl border border-white/5 shadow-2xl">
-           <button onClick={prevMonth} className="p-3 hover:bg-white/5 rounded-xl text-gray-400 hover:text-white transition-all">
+        <div className="flex items-center gap-4 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-primary)]/50 shadow-2xl">
+           <button onClick={prevMonth} className="p-3 hover:bg-[var(--bg-card-hover)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all">
               <ChevronLeft size={24} />
            </button>
            <div className="px-6 text-center min-w-[180px]">
-              <div className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px] mb-1">{format(currentDate, 'yyyy')}</div>
-              <div className="text-white font-display text-2xl uppercase tracking-widest">{format(currentDate, 'MMMM')}</div>
+              <div className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[3px] mb-1">{format(currentDate, 'yyyy')}</div>
+              <div className="text-[var(--text-primary)] font-display text-2xl uppercase tracking-widest">{format(currentDate, 'MMMM')}</div>
            </div>
-           <button onClick={nextMonth} className="p-3 hover:bg-white/5 rounded-xl text-gray-400 hover:text-white transition-all">
+           <button onClick={nextMonth} className="p-3 hover:bg-[var(--bg-card-hover)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all">
               <ChevronRight size={24} />
            </button>
         </div>
@@ -139,19 +139,19 @@ export default function AthleteCalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
         {/* Calendar Grid */}
         <div className="lg:col-span-3">
-          <div className="bg-[#111] border border-white/5 rounded-[40px] overflow-hidden shadow-2xl">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-primary)]/50 rounded-[40px] overflow-hidden shadow-2xl">
             {/* Day Names */}
-            <div className="grid grid-cols-7 border-b border-white/5 bg-white/[0.02]">
+            <div className="grid grid-cols-7 border-b border-[var(--border-primary)]/50 bg-[var(--bg-primary)]/40">
               {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(d => (
-                <div key={d} className="py-6 text-center text-[10px] font-black text-gray-500 tracking-[4px]">{d}</div>
+                <div key={d} className="py-6 text-center text-[10px] font-black text-[var(--text-secondary)] tracking-[4px]">{d}</div>
               ))}
             </div>
 
             {/* Days */}
             <div className="grid grid-cols-7 relative">
               {loading && (
-                <div className="absolute inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
-                   <Loader2 className="animate-spin text-[#22c55e]" size={40} />
+                <div className="absolute inset-0 z-50 bg-[var(--bg-primary)]/40 backdrop-blur-[2px] flex items-center justify-center">
+                   <Loader2 className="animate-spin text-[var(--accent-green)]" size={40} />
                 </div>
               )}
               
@@ -167,24 +167,24 @@ export default function AthleteCalendarPage() {
                     key={i}
                     onClick={() => setSelectedDay(day)}
                     className={`
-                      min-h-[140px] p-4 border-r border-b border-white/5 cursor-pointer transition-all relative group
-                      ${!isCurrentMonth ? 'opacity-20 grayscale' : isPastDate ? 'opacity-40 grayscale-[0.8]' : 'hover:bg-white/[0.02]'}
-                      ${isSelected ? 'bg-[#22c55e]/5' : ''}
+                      min-h-[140px] p-4 border-r border-b border-[var(--border-primary)]/50 cursor-pointer transition-all relative group
+                      ${!isCurrentMonth ? 'opacity-20 grayscale' : isPastDate ? 'opacity-40 grayscale-[0.8]' : 'hover:bg-[var(--bg-card-hover)]'}
+                      ${isSelected ? 'bg-[var(--accent-green)]/5' : ''}
                     `}
                   >
                     <div className="flex justify-between items-start mb-2">
                        <span className={`
                          text-sm font-display 
-                         ${isTodayDate ? 'text-[#22c55e]' : isSelected ? 'text-white' : 'text-white/40'}
+                         ${isTodayDate ? 'text-[var(--accent-green)]' : isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}
                        `}>
                           {format(day, 'dd')}
                        </span>
                        {daySessions.length > 0 && (
-                         <div className="flex gap-1">
-                           {daySessions.slice(0, 3).map((s, si) => (
-                             <div key={si} className={`w-1.5 h-1.5 rounded-full ${s.is_special ? 'bg-amber-500 shadow-[0_0_5px_#f59e0b]' : 'bg-[#22c55e] shadow-[0_0_5px_#22c55e]'}`} />
-                           ))}
-                         </div>
+                          <div className="flex gap-1">
+                            {daySessions.slice(0, 3).map((s, si) => (
+                              <div key={si} className={`w-1.5 h-1.5 rounded-full ${s.is_special ? 'bg-amber-500 shadow-[0_0_5px_#f59e0b]' : 'bg-[var(--accent-green)] shadow-[0_0_5px_var(--accent-green)]'}`} />
+                            ))}
+                          </div>
                        )}
                     </div>
 
@@ -194,22 +194,22 @@ export default function AthleteCalendarPage() {
                           return (
                           <div key={si} className={`
                             px-2 py-1 rounded text-[8px] font-black uppercase tracking-wider truncate
-                            ${isSessionPast ? 'bg-white/5 text-white/40 border border-white/10' : 
+                            ${isSessionPast ? 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-primary)]/50' : 
                               s.is_special ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 
-                              'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20'}
+                              'bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20'}
                           `}>
                             {formatTimeOnly(s.start_time, s.coach_timezone || 'UTC')} {s.title}
                           </div>
                         )})}
                        {daySessions.length > 2 && (
-                         <div className="text-[7px] font-black text-gray-500 text-center mt-1">
-                           + {daySessions.length - 2} MORE
-                         </div>
+                          <div className="text-[7px] font-black text-[var(--text-muted)] text-center mt-1">
+                            + {daySessions.length - 2} MORE
+                          </div>
                        )}
                     </div>
 
                     {isTodayDate && (
-                      <div className="absolute top-0 left-0 w-full h-[2px] bg-[#22c55e] shadow-[0_0_10px_#22c55e]" />
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-[var(--accent-green)] shadow-[0_0_10px_var(--accent-green)]" />
                     )}
                   </motion.div>
                 );
@@ -226,65 +226,65 @@ export default function AthleteCalendarPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-[#111] border border-white/5 rounded-[40px] p-8 space-y-8 sticky top-24"
+              className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-[40px] p-8 space-y-8 sticky top-24"
             >
                <div>
-                  <div className="text-[#22c55e] text-[10px] font-black uppercase tracking-[3px] mb-2">{format(selectedDay!, 'EEEE')}</div>
-                  <h3 className="text-white font-display text-3xl uppercase tracking-wider">{format(selectedDay!, 'MMMM dd')}</h3>
+                  <div className="text-[var(--accent-green)] text-[10px] font-black uppercase tracking-[3px] mb-2">{format(selectedDay!, 'EEEE')}</div>
+                  <h3 className="text-[var(--text-primary)] font-display text-3xl uppercase tracking-wider">{format(selectedDay!, 'MMMM dd')}</h3>
                </div>
 
                <div className="space-y-4">
                   {selectedDaySessions.length === 0 ? (
-                    <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl">
-                       <p className="text-white/20 text-[10px] font-black uppercase tracking-[3px]">No Operations Scheduled</p>
+                    <div className="py-20 text-center border border-dashed border-[var(--border-primary)]/50 rounded-3xl">
+                       <p className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-[3px]">No Operations Scheduled</p>
                     </div>
                   ) : (
                     selectedDaySessions.map((session) => {
                       const isSessionPast = isBefore(new Date(`${session.scheduled_date}T${session.start_time}`), new Date());
                       return (
-                      <div key={session.id} className={`p-6 bg-white/[0.03] border border-white/5 rounded-3xl hover:border-[#22c55e]/30 transition-all group ${isSessionPast ? 'opacity-60' : ''}`}>
+                      <div key={session.id} className={`p-6 bg-[var(--bg-secondary)] border border-[var(--border-primary)]/50 rounded-3xl hover:border-[var(--accent-green)]/30 transition-all group ${isSessionPast ? 'opacity-60' : ''}`}>
                          <div className="flex items-center gap-3 mb-3">
                              <div className={`p-2 rounded-lg ${
-                               isSessionPast ? 'bg-white/10 text-gray-500' :
-                               session.is_program ? 'bg-[#22c55e]/20 text-[#22c55e]' :
+                               isSessionPast ? 'bg-[var(--bg-primary)] text-[var(--text-muted)]' :
+                               session.is_program ? 'bg-[var(--accent-green)]/20 text-[var(--accent-green)]' :
                                session.is_special ? 'bg-amber-500/10 text-amber-500 pulse-amber' : 
-                               'bg-[#22c55e]/10 text-[#22c55e]'
+                               'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
                              }`}>
                                 {session.is_program ? <ShieldCheck size={14} /> : session.is_special ? <Zap size={14} /> : <Target size={14} />}
                              </div>
-                             <span className={`text-[8px] font-black uppercase tracking-widest ${isSessionPast ? 'text-gray-500' : session.is_special ? 'text-amber-500' : 'text-[#22c55e]'}`}>
+                             <span className={`text-[8px] font-black uppercase tracking-widest ${isSessionPast ? 'text-[var(--text-secondary)]' : session.is_special ? 'text-amber-500' : 'text-[var(--accent-green)]'}`}>
                                 {session.is_program ? 'Protocol Core' : session.is_special ? 'Special Ops' : session.session_type || 'Training'}
                              </span>
                              {isSessionPast && (
-                               <span className="ml-auto px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[7px] font-black text-gray-500 uppercase tracking-widest">
+                               <span className="ml-auto px-2 py-0.5 bg-[var(--bg-primary)] border border-[var(--border-primary)]/50 rounded text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-widest">
                                   SESSION ENDED
                                </span>
                              )}
-                         </div>
-                         <h4 className={`font-display text-lg uppercase tracking-wider mb-2 transition-colors ${isSessionPast ? 'text-gray-500' : 'text-white group-hover:text-[#22c55e]'}`}>{session.title}</h4>
-                         
-                         {session.notes && (
-                           <p className="text-[11px] text-white/50 leading-relaxed font-sans mb-4 p-3 bg-white/[0.01] border border-white/5 rounded-2xl italic">
-                             "{session.notes}"
-                           </p>
-                         )}
+                          </div>
+                          <h4 className={`font-display text-lg uppercase tracking-wider mb-2 transition-colors ${isSessionPast ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)] group-hover:text-[var(--accent-green)]'}`}>{session.title}</h4>
+                          
+                          {session.notes && (
+                            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed font-sans mb-4 p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)]/50 rounded-2xl italic">
+                              "{session.notes}"
+                            </p>
+                          )}
 
-                         <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-4 border-t border-white/5">
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500">
-                                <Clock size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
-                                {session.duration_minutes && <span className="text-gray-600">({session.duration_minutes}m)</span>}
-                            </div>
-                            {session.location && (
-                              <div className="text-[10px] font-bold text-gray-500 truncate max-w-[150px]">
-                                 📍 {session.location}
-                              </div>
-                            )}
-                            {!session.is_program && (
-                              <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 ml-auto">
-                                 <Users size={12} className={isSessionPast ? 'text-gray-600' : 'text-[#22c55e]'} /> {session.confirmed_count || 0}/{session.max_capacity || 20} MAX
-                              </div>
-                            )}
-                         </div>
+                          <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-4 border-t border-[var(--border-primary)]/50">
+                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)]">
+                                 <Clock size={12} className={isSessionPast ? 'text-[var(--text-muted)]' : 'text-[var(--accent-green)]'} /> {formatTimeOnly(session.start_time, session.coach_timezone || 'UTC')}
+                                 {session.duration_minutes && <span className="text-[var(--text-muted)]">({session.duration_minutes}m)</span>}
+                             </div>
+                             {session.location && (
+                               <div className="text-[10px] font-bold text-[var(--text-secondary)] truncate max-w-[150px]">
+                                  📍 {session.location}
+                               </div>
+                             )}
+                             {!session.is_program && (
+                               <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)] ml-auto">
+                                  <Users size={12} className={isSessionPast ? 'text-[var(--text-muted)]' : 'text-[var(--accent-green)]'} /> {session.confirmed_count || 0}/{session.max_capacity || 20} MAX
+                               </div>
+                             )}
+                          </div>
                       </div>
                     )})
                   )}

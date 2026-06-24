@@ -7,10 +7,7 @@ import {
   CheckCircle2, 
   XSquare, 
   AlertCircle,
-  Loader2,
   Calendar,
-  ChevronRight,
-  User,
   Activity,
   ArrowRight,
   Globe,
@@ -19,6 +16,7 @@ import {
 import { format } from "date-fns";
 import Avatar from "@/components/ui/Avatar";
 import { motion } from "framer-motion";
+import { SkeletonRow, Skeleton } from "@/components/ui/Skeleton";
 
 interface AdminBookingsPanelProps {
   hideTitle?: boolean;
@@ -26,7 +24,7 @@ interface AdminBookingsPanelProps {
 
 export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsPanelProps) {
   const [bookings, setBookings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<'PENDING' | 'ALL'>('PENDING');
   const [mockBookings, setMockBookings] = useState<any[]>([
     {
@@ -131,64 +129,74 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
   const approvedCount = activeBookings.filter(b => b.status === 'CONFIRMED').length;
   const pendingCount = activeBookings.filter(b => b.status === 'PENDING').length;
 
-  if (loading) {
+  if (loading && bookings.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 bg-black/20 border border-white/5 rounded-3xl">
-        <Loader2 className="text-[#22c55e]/80 animate-spin" size={24} />
+      <div className="w-full bg-bg-card border border-border-card rounded-[24px] md:rounded-[32px] p-5 md:p-8 space-y-4">
+        {/* Header skeleton */}
+        <div className="flex items-center gap-3 mb-6">
+          <Skeleton className="w-5 h-5 rounded" />
+          <Skeleton className="h-5 w-40" />
+        </div>
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded-2xl" />)}
+        </div>
+        {/* Row skeletons */}
+        {[1,2,3].map(i => <SkeletonRow key={i} />)}
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-[#111] border border-white/5 rounded-[24px] md:rounded-[32px] p-5 md:p-8 relative overflow-hidden group">
+    <div className="w-full bg-bg-card border border-border-card rounded-[24px] md:rounded-[32px] p-5 md:p-8 relative overflow-hidden group">
       
       {/* Title Header */}
       {!hideTitle && (
         <div className="mb-6 relative z-10">
-          <h3 className="text-white font-display text-xl font-bold tracking-wide flex items-center gap-3">
-            <Users size={20} className="text-[#22c55e]/80" /> Session Requests
+          <h3 className="text-text-primary font-display text-xl font-bold tracking-wide flex items-center gap-3">
+            <Users size={20} className="text-accent-green" /> Session Requests
           </h3>
-          <p className="text-gray-400 text-xs mt-1">Manage and approve incoming session requests</p>
+          <p className="text-text-secondary text-xs mt-1">Manage and approve incoming session requests</p>
         </div>
       )}
 
       {/* Quick Stats Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 relative z-10">
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center justify-between hover:border-[#22c55e]/10 transition-colors">
+        <div className="bg-bg-input border border-border-input rounded-2xl p-4 flex items-center justify-between hover:border-accent-green/10 transition-colors">
           <div>
-            <span className="text-[10px] text-gray-500 font-semibold tracking-wider block">Total Requests</span>
-            <span className="text-xl md:text-2xl font-bold text-white mt-1 block">{totalCount}</span>
+            <span className="text-[10px] text-text-muted font-semibold tracking-wider block">Total Requests</span>
+            <span className="text-xl md:text-2xl font-bold text-text-primary mt-1 block">{totalCount}</span>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
+          <div className="w-8 h-8 rounded-lg bg-bg-card border border-border-card flex items-center justify-center text-text-secondary">
             <Calendar size={16} />
           </div>
         </div>
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center justify-between hover:border-[#22c55e]/10 transition-colors">
+        <div className="bg-bg-input border border-border-input rounded-2xl p-4 flex items-center justify-between hover:border-accent-green/10 transition-colors">
           <div>
-            <span className="text-[10px] text-gray-500 font-semibold tracking-wider block">Approved Sessions</span>
-            <span className="text-xl md:text-2xl font-bold text-white mt-1 block">{approvedCount}</span>
+            <span className="text-[10px] text-text-muted font-semibold tracking-wider block">Approved Sessions</span>
+            <span className="text-xl md:text-2xl font-bold text-text-primary mt-1 block">{approvedCount}</span>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]/80">
+          <div className="w-8 h-8 rounded-lg bg-accent-green/10 border border-accent-green/20 flex items-center justify-center text-accent-green">
             <CheckCircle2 size={16} />
           </div>
         </div>
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center justify-between hover:border-[#22c55e]/10 transition-colors">
+        <div className="bg-bg-input border border-border-input rounded-2xl p-4 flex items-center justify-between hover:border-accent-green/10 transition-colors">
           <div>
-            <span className="text-[10px] text-gray-500 font-semibold tracking-wider block">Pending Approval</span>
-            <span className="text-xl md:text-2xl font-bold text-white mt-1 block">{pendingCount}</span>
+            <span className="text-[10px] text-text-muted font-semibold tracking-wider block">Pending Approval</span>
+            <span className="text-xl md:text-2xl font-bold text-text-primary mt-1 block">{pendingCount}</span>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500/80">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
             <Clock size={16} />
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/10 w-full mb-6 relative z-10">
+      <div className="flex border-b border-border-card w-full mb-6 relative z-10">
         <button 
           onClick={() => setFilter('PENDING')}
           className={`pb-3 px-4 text-xs font-bold transition-all relative ${
-            filter === 'PENDING' ? 'text-[#22c55e]' : 'text-gray-400 hover:text-white'
+            filter === 'PENDING' ? 'text-accent-green' : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           <span>Pending ({
@@ -199,21 +207,21 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
           {filter === 'PENDING' && (
             <motion.div 
               layoutId="activeTabUnderline" 
-              className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#22c55e]" 
+              className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent-green" 
             />
           )}
         </button>
         <button 
           onClick={() => setFilter('ALL')}
           className={`pb-3 px-4 text-xs font-bold transition-all relative ${
-            filter === 'ALL' ? 'text-[#22c55e]' : 'text-gray-400 hover:text-white'
+            filter === 'ALL' ? 'text-accent-green' : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           <span>All Logs</span>
           {filter === 'ALL' && (
             <motion.div 
               layoutId="activeTabUnderline" 
-              className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#22c55e]" 
+              className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent-green" 
             />
           )}
         </button>
@@ -224,25 +232,25 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
         {filteredBookings.length === 0 ? (
           <div className="space-y-4">
             {displayedMockBookings.length > 0 && filter === 'PENDING' && (
-              <div className="p-2.5 px-4 bg-[#1a1a1a] border border-white/5 rounded-xl text-[#22c55e] text-[10px] font-mono tracking-wider flex items-center gap-2">
-                 <AlertCircle size={12} className="text-[#22c55e] flex-shrink-0" />
+              <div className="p-2.5 px-4 bg-bg-input border border-border-input rounded-xl text-accent-green text-[10px] font-mono tracking-wider flex items-center gap-2">
+                 <AlertCircle size={12} className="text-accent-green flex-shrink-0" />
                  <span>Standby Mode: Showing simulated booking requests. Click "Authorize" to accept.</span>
               </div>
             )}
             
             {displayedMockBookings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 px-4 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
-                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 mb-4">
-                  <Inbox size={24} className="text-gray-400" />
+              <div className="flex flex-col items-center justify-center py-16 px-4 border border-dashed border-border-input rounded-2xl bg-bg-secondary/10">
+                <div className="w-12 h-12 rounded-full bg-bg-input border border-border-input flex items-center justify-center text-text-muted mb-4">
+                  <Inbox size={24} className="text-text-muted" />
                 </div>
-                <h3 className="text-white font-bold text-base mb-1">No pending requests</h3>
-                <p className="text-gray-400 text-xs text-center max-w-sm mb-6">
+                <h3 className="text-text-primary font-bold text-base mb-1">No pending requests</h3>
+                <p className="text-text-muted text-xs text-center max-w-sm mb-6">
                   There are currently no new session bookings awaiting staff authorization.
                 </p>
                 {filter === 'PENDING' && (
                   <button 
                     onClick={() => setFilter('ALL')}
-                    className="px-4 py-2 bg-white/5 border border-white/10 hover:border-[#22c55e]/30 hover:bg-[#22c55e]/5 text-white/80 hover:text-[#22c55e] text-xs font-bold rounded-xl transition-all"
+                    className="px-4 py-2 bg-bg-input border border-border-input hover:border-accent-green/30 hover:bg-bg-card-hover text-text-secondary hover:text-accent-green text-xs font-bold rounded-xl transition-all"
                   >
                     View all logs
                   </button>
@@ -252,47 +260,47 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
               displayedMockBookings.map((b) => (
                 <div 
                   key={b.id} 
-                  className="bg-white/[0.03] border border-white/5 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-[#22c55e]/20 transition-all group/item"
+                  className="bg-bg-card border border-border-card p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-accent-green/20 transition-all group/item"
                 >
                   {/* Left Column (span 4): Avatar + Name + Location + load stats */}
                   <div className="md:col-span-4 flex items-center gap-3 min-w-0">
                     <Avatar src={b.athlete.avatar_url} name={`${b.athlete.first_name} ${b.athlete.last_name}`} size="md" role="athlete" />
                     <div className="min-w-0">
-                      <h4 className="text-white font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
+                      <h4 className="text-text-primary font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
                          {b.athlete.first_name} {b.athlete.last_name}
                          {b.athlete.country_code && (
-                           <span className="text-[9px] bg-white/5 border border-white/10 px-1 rounded text-gray-400 font-mono">
+                           <span className="text-[9px] bg-bg-input border border-border-input px-1 rounded text-text-secondary font-mono">
                              {b.athlete.country_code}
                            </span>
                          )}
                       </h4>
                       <div className="flex flex-col gap-0.5 mt-1">
-                         <span className="text-gray-500 text-[10px] tracking-wide flex items-center gap-1.5 truncate">
+                         <span className="text-text-muted text-[10px] tracking-wide flex items-center gap-1.5 truncate">
                             <Globe size={10} /> {b.athlete.timezone?.split('/')[1]?.replace('_', ' ') || 'UTC'}
                          </span>
                          <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={`text-[10px] font-bold tracking-wide flex items-center gap-1 ${
-                              b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-[#22c55e]'
+                              b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-accent-green'
                             }`}>
                                <Activity size={10} /> {b.athlete.weekly_load || 0} AU
                             </span>
-                            <span className="text-[9px] text-gray-500 font-mono">Load</span>
+                            <span className="text-[9px] text-text-muted font-mono">Load</span>
                          </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Center Column (span 4): Date + Session Info */}
-                  <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-white/5 pt-3 md:pt-0 md:pl-4">
-                    <div className="text-gray-500 text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
-                       <Calendar size={10} className="text-[#22c55e]/80" /> 
+                  <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-4">
+                    <div className="text-text-muted text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
+                       <Calendar size={10} className="text-accent-green" /> 
                        <span>{b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d, yyyy') : 'TBD'} • {b.session?.start_time?.slice(0, 5) || 'TBD'}</span>
                     </div>
-                    <div className="text-white/80 font-display text-sm tracking-wide group-hover/item:text-[#22c55e] transition-colors truncate" title={b.session.title}>
+                    <div className="text-text-primary font-display text-sm tracking-wide group-hover/item:text-accent-green transition-colors truncate" title={b.session.title}>
                        {b.session.title}
                     </div>
                     {b.session_time_athlete_local && (
-                      <div className="mt-1 text-[10px] font-semibold text-[#22c55e]/70 tracking-wide flex items-center gap-1.5">
+                      <div className="mt-1 text-[10px] font-semibold text-accent-green/70 tracking-wide flex items-center gap-1.5">
                          <Clock size={10} /> Local: {b.session_time_athlete_local}
                       </div>
                     )}
@@ -311,7 +319,7 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                           </button>
                           <button 
                             onClick={() => handleMockAction(b.id, 'CONFIRMED')}
-                            className="h-10 px-4 bg-[#22c55e] text-black font-semibold text-xs tracking-wide rounded-xl hover:bg-white transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] flex items-center gap-1.5 flex-1 md:flex-none justify-center"
+                            className="h-10 px-4 bg-accent-green text-text-on-green font-semibold text-xs tracking-wide rounded-xl hover:bg-accent-green-dim transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] flex items-center gap-1.5 flex-1 md:flex-none justify-center"
                           >
                              <CheckCircle2 size={12} />
                              <span>Authorize</span>
@@ -319,7 +327,7 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                        </div>
                      ) : (
                        <div className={`px-4 py-2 rounded-lg text-[10px] font-bold tracking-wider flex items-center gap-2 ${
-                         b.status === 'CONFIRMED' ? 'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/30' : 
+                         b.status === 'CONFIRMED' ? 'bg-accent-green/10 text-accent-green border border-accent-green/30' : 
                          b.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500 border border-red-500/30' :
                          'bg-purple-500/10 text-purple-500 border border-purple-500/30'
                        }`}>
@@ -336,24 +344,24 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
           filteredBookings.map((b) => (
             <div 
               key={b.id} 
-              className={`bg-white/[0.03] border p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-[#22c55e]/20 transition-all group/item ${
-                b.is_external ? 'border-purple-500/10 hover:border-purple-500/30' : 'border-white/5'
+              className={`bg-bg-card border p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-accent-green/20 transition-all group/item ${
+                b.is_external ? 'border-purple-500/10 hover:border-purple-500/30' : 'border-border-card'
               }`}
             >
               {/* Left Column (span 4): Avatar + Name + Location + load stats */}
               <div className="md:col-span-4 flex items-center gap-3 min-w-0">
                 <Avatar src={b.athlete.avatar_url} name={`${b.athlete.first_name} ${b.athlete.last_name}`} size="md" role="athlete" />
                 <div className="min-w-0">
-                  <h4 className="text-white font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
+                  <h4 className="text-text-primary font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
                      {b.athlete.first_name} {b.athlete.last_name}
                      {b.athlete.country_code && (
-                       <span className="text-[9px] bg-white/5 border border-white/10 px-1 rounded text-gray-400 font-mono">
+                       <span className="text-[9px] bg-bg-input border border-border-input px-1 rounded text-text-secondary font-mono">
                          {b.athlete.country_code}
                        </span>
                      )}
                   </h4>
                   <div className="flex flex-col gap-0.5 mt-1">
-                     <span className="text-gray-500 text-[10px] tracking-wide flex items-center gap-1.5 truncate">
+                     <span className="text-text-muted text-[10px] tracking-wide flex items-center gap-1.5 truncate">
                         <Globe size={10} /> {b.athlete.timezone?.split('/')[1]?.replace('_', ' ') || 'UTC'}
                      </span>
                      {b.is_external ? (
@@ -365,11 +373,11 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                      ) : (
                        <div className="flex items-center gap-1.5 mt-0.5">
                           <span className={`text-[10px] font-bold tracking-wide flex items-center gap-1 ${
-                            b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-[#22c55e]'
+                            b.athlete.weekly_load > 600 ? 'text-amber-500' : 'text-accent-green'
                           }`}>
                              <Activity size={10} /> {b.athlete.weekly_load || 0} AU
                           </span>
-                          <span className="text-[9px] text-gray-500 font-mono">Load</span>
+                          <span className="text-[9px] text-text-muted font-mono">Load</span>
                        </div>
                      )}
                   </div>
@@ -377,21 +385,21 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
               </div>
 
               {/* Center Column (span 4): Date + Session Info */}
-              <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-white/5 pt-3 md:pt-0 md:pl-4">
-                <div className="text-gray-500 text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
-                   <Calendar size={10} className="text-[#22c55e]/80" /> 
+              <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-4">
+                <div className="text-text-muted text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
+                   <Calendar size={10} className="text-accent-green" /> 
                    <span>{b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d, yyyy') : 'TBD'} • {b.session?.start_time?.slice(0, 5) || 'TBD'}</span>
                 </div>
-                <div className="text-white/80 font-display text-sm tracking-wide group-hover/item:text-[#22c55e] transition-colors truncate" title={b.session.title}>
+                <div className="text-text-primary font-display text-sm tracking-wide group-hover/item:text-accent-green transition-colors truncate" title={b.session.title}>
                    {b.session.title}
                 </div>
                 {b.session_time_athlete_local && (
-                  <div className="mt-1 text-[10px] font-semibold text-[#22c55e]/70 tracking-wide flex items-center gap-1.5">
+                  <div className="mt-1 text-[10px] font-semibold text-accent-green/70 tracking-wide flex items-center gap-1.5">
                      <Clock size={10} /> Local: {b.session_time_athlete_local}
                   </div>
                 )}
                 {b.notes && (
-                  <div className="text-[9px] text-gray-500 italic mt-1 truncate max-w-xs" title={b.notes}>
+                  <div className="text-[9px] text-text-muted italic mt-1 truncate max-w-xs" title={b.notes}>
                     Notes: {b.notes}
                   </div>
                 )}
@@ -410,7 +418,7 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                       </button>
                       <button 
                         onClick={() => handleAction(b.id, 'CONFIRMED', b.is_external)}
-                        className="h-10 px-4 bg-[#22c55e] text-black font-semibold text-xs tracking-wide rounded-xl hover:bg-white transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] flex items-center gap-1.5 flex-1 md:flex-none justify-center"
+                        className="h-10 px-4 bg-accent-green text-text-on-green font-semibold text-xs tracking-wide rounded-xl hover:bg-accent-green-dim transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] flex items-center gap-1.5 flex-1 md:flex-none justify-center"
                       >
                          <CheckCircle2 size={12} />
                          <span>{b.is_external ? 'Confirm Payment' : 'Authorize'}</span>
@@ -418,7 +426,7 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                    </div>
                  ) : (
                    <div className={`px-4 py-2 rounded-lg text-[10px] font-bold tracking-wider flex items-center gap-2 ${
-                     b.status === 'CONFIRMED' ? 'bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/30' : 
+                     b.status === 'CONFIRMED' ? 'bg-accent-green/10 text-accent-green border border-accent-green/30' : 
                      b.status === 'CANCELLED' ? 'bg-red-500/10 text-red-500 border border-red-500/30' :
                      'bg-purple-500/10 text-purple-500 border border-purple-500/30'
                    }`}>
@@ -433,8 +441,8 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
       </div>
 
       {filter === 'ALL' && bookings.length > 50 && (
-        <div className="mt-6 pt-6 border-t border-white/5 flex justify-center">
-           <button className="text-[10px] font-bold text-gray-500 tracking-wider flex items-center gap-2 hover:text-[#22c55e] transition-all">
+        <div className="mt-6 pt-6 border-t border-border-card flex justify-center">
+           <button className="text-[10px] font-bold text-text-muted tracking-wider flex items-center gap-2 hover:text-accent-green transition-all">
               View Historical Archive <ArrowRight size={12} />
            </button>
         </div>

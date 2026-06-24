@@ -19,6 +19,17 @@ interface CreateSessionModalProps {
   defaultIsCurriculum?: boolean;
 }
 
+interface ExternalClientEntry {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  payment_status: 'PENDING' | 'CONFIRMED';
+  payment_notes: string;
+  training_start_date: string;
+  training_end_date: string;
+}
+
 interface ScheduleItem {
   id: string;
   title: string;
@@ -30,20 +41,15 @@ interface ScheduleItem {
   is_curriculum: boolean;
   is_emergency: boolean;
   is_external: boolean;
-  external_player_name: string;
-  external_person_phone: string;
-  external_person_email: string;
-  training_start_date: string;
-  training_end_date: string;
-  payment_status: 'PENDING' | 'CONFIRMED';
-  payment_notes: string;
+  external_clients: ExternalClientEntry[];
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
 }
 
 export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
   const { user, profile } = useAuth();
   const { userTimezone } = useTimezone();
-  const { createSession, loading } = useSessions();
+  const { createSession, loading: sessionLoading } = useSessions();
+  const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
@@ -61,13 +67,18 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
       is_curriculum: defaultIsCurriculum || false,
       is_emergency: false,
       is_external: false,
-      external_player_name: "",
-      external_person_phone: "",
-      external_person_email: "",
-      training_start_date: defaultDate || format(new Date(), "yyyy-MM-dd"),
-      training_end_date: defaultDate || format(new Date(), "yyyy-MM-dd"),
-      payment_status: "PENDING",
-      payment_notes: "",
+      external_clients: [
+        {
+          first_name: "",
+          last_name: "",
+          email: "",
+          phone: "",
+          payment_status: "PENDING",
+          payment_notes: "",
+          training_start_date: defaultDate || format(new Date(), "yyyy-MM-dd"),
+          training_end_date: defaultDate || format(new Date(), "yyyy-MM-dd")
+        }
+      ],
       session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE')
     }
   ]);
@@ -98,13 +109,18 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
           is_curriculum: defaultIsCurriculum || false,
           is_emergency: false,
           is_external: false,
-          external_player_name: "",
-          external_person_phone: "",
-          external_person_email: "",
-          training_start_date: initialDate,
-          training_end_date: initialDate,
-          payment_status: "PENDING",
-          payment_notes: "",
+          external_clients: [
+            {
+              first_name: "",
+              last_name: "",
+              email: "",
+              phone: "",
+              payment_status: "PENDING",
+              payment_notes: "",
+              training_start_date: initialDate,
+              training_end_date: initialDate
+            }
+          ],
           session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
         }
       ]);
@@ -157,85 +173,129 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
 
     // Validation check for external player name
     for (const item of scheduleItems) {
-      if (item.is_external && !item.external_player_name.trim()) {
-        setError("Please specify the external player's name.");
-        return;
+      if (item.is_external) {
+        if (item.external_clients.length === 0) {
+          setError("Please add at least one external client.");
+          return;
+        }
+        for (const client of item.external_clients) {
+          if (!client.first_name.trim() || !client.last_name.trim() || !client.email.trim()) {
+            setError("First Name, Last Name, and Email are required for all external clients.");
+            return;
+          }
+        }
       }
     }
 
+    setLoading(true);
     try {
       const insertPromises = selectedDates.flatMap((dateStr) => {
         return scheduleItems.map(async (item) => {
-          const sessionRes = await createSession({
-            title: item.title,
-            session_type: "LOGISTICS",
-            scheduled_date: dateStr,
-            start_time: `${item.start_time}:00`,
-            duration_minutes: item.duration_minutes,
-            location: item.location || "HQ FIELD",
-            target_load_au: undefined,
-            assigned_athletes: [],
-            notes: item.notes,
-            assigned_by: user?.id,
-            coach_timezone: userTimezone,
-            coach_id: item.coach_id || undefined,
-            is_curriculum: item.session_category === 'CURRICULUM',
-            is_emergency: item.session_category === 'EMERGENCY',
-            is_external: item.is_external,
-            external_player_name: item.is_external ? item.external_player_name : null,
-            external_person_phone: item.is_external ? item.external_person_phone : null,
-            external_person_email: item.is_external ? item.external_person_email : null,
-            training_start_date: item.is_external ? item.training_start_date : null,
-            training_end_date: item.is_external ? item.training_end_date : null,
-            payment_status: item.is_external ? item.payment_status : 'PENDING',
-            payment_notes: item.is_external ? item.payment_notes : null,
-            confirmed_by_admin: item.is_external ? (item.payment_status === 'CONFIRMED') : false
-          });
-
-          if (sessionRes.success && sessionRes.data) {
-            // Notification dispatch flow
-            if (item.session_category === 'EMERGENCY') {
-              // Get all coaches (staff)
-              const { data: staffProfiles } = await supabase
-                .from("profiles")
-                .select("id")
-                .eq("role", "staff");
- 
-              if (staffProfiles && staffProfiles.length > 0) {
-                const notifications = staffProfiles.map((staff: any) => ({
-                  staff_id: staff.id,
-                  type: "EMERGENCY_SESSION",
-                  message: `Emergency session scheduled on ${dateStr} at ${item.start_time}`,
-                  related_id: sessionRes.data.id,
-                  is_read: false
-                }));
-                await supabase.from("staff_notifications").insert(notifications);
-              }
-            } else if (item.coach_id) {
-              const label = item.session_category === 'CURRICULUM' ? "Curriculum Session" : "Schedule Session";
-              await supabase.from("system_notifications").insert({
-                recipient_id: item.coach_id,
-                sender_id: user?.id,
-                title: item.session_category === 'CURRICULUM' ? "NEW CURRICULUM ASSIGNMENT" : "NEW SCHEDULE ASSIGNMENT",
-                message: `You have been assigned to ${label} "${item.title}" on ${dateStr} at ${item.start_time}.`,
-                type: "UPDATE"
-              });
+          if (item.is_external) {
+            const res = await fetch('/api/admin/sessions/external', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                session_data: {
+                  title: item.title,
+                  start_time: item.start_time,
+                  duration_minutes: item.duration_minutes,
+                  location: item.location,
+                  notes: item.notes,
+                  coach_id: item.coach_id || null
+                },
+                dates: [dateStr],
+                external_clients: item.external_clients
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              return { success: false, error: data.error || "Failed to create external sessions" };
             }
-          }
+            return { success: true, data };
+          } else {
+            const sessionRes = await createSession({
+              title: item.title,
+              session_type: "LOGISTICS",
+              scheduled_date: dateStr,
+              start_time: `${item.start_time}:00`,
+              duration_minutes: item.duration_minutes,
+              location: item.location || "HQ FIELD",
+              target_load_au: undefined,
+              assigned_athletes: [],
+              notes: item.notes,
+              assigned_by: user?.id,
+              coach_timezone: userTimezone,
+              coach_id: item.coach_id || undefined,
+              is_curriculum: item.session_category === 'CURRICULUM',
+              is_emergency: item.session_category === 'EMERGENCY',
+              is_external: false,
+              payment_status: 'PENDING',
+              confirmed_by_admin: false
+            });
 
-          return sessionRes;
+            if (sessionRes.success && sessionRes.data) {
+              // Notification dispatch flow
+              if (item.session_category === 'EMERGENCY') {
+                // Get all coaches (staff)
+                const { data: staffProfiles } = await supabase
+                  .from("profiles")
+                  .select("id")
+                  .eq("role", "staff");
+   
+                if (staffProfiles && staffProfiles.length > 0) {
+                  const notifications = staffProfiles.map((staff: any) => ({
+                    staff_id: staff.id,
+                    type: "EMERGENCY_SESSION",
+                    message: `Emergency session scheduled on ${dateStr} at ${item.start_time}`,
+                    related_id: sessionRes.data.id,
+                    is_read: false
+                  }));
+                  await supabase.from("staff_notifications").insert(notifications);
+                }
+              } else if (item.coach_id) {
+                const label = item.session_category === 'CURRICULUM' ? "Curriculum Session" : "Schedule Session";
+                await supabase.from("system_notifications").insert({
+                  recipient_id: item.coach_id,
+                  sender_id: user?.id,
+                  title: item.session_category === 'CURRICULUM' ? "NEW CURRICULUM ASSIGNMENT" : "NEW SCHEDULE ASSIGNMENT",
+                  message: `You have been assigned to ${label} "${item.title}" on ${dateStr} at ${item.start_time}.`,
+                  type: "UPDATE"
+                });
+              }
+            }
+
+            return sessionRes;
+          }
         });
       });
 
       const results = await Promise.all(insertPromises);
       const failed = results.find(r => !r.success);
       if (!failed) {
+        const externalResults = results.filter(r => r.data && r.data.clients);
+        if (externalResults.length > 0) {
+          const clients = externalResults.flatMap(r => r.data.clients);
+          let msg = "External Sessions Created Successfully!\n\nPlease provide these credentials to the new clients (in case the email delivery fails):\n\n";
+          let hasNew = false;
+          clients.forEach(c => {
+            if(c.isNew) {
+              hasNew = true;
+              msg += `${c.first_name} ${c.last_name}:\nEmail: ${c.email}\nUsername: ${c.username}\nTemp Password: ${c.tempPassword}\n\n`;
+            }
+          });
+          if (hasNew) {
+            alert(msg);
+          }
+        }
         onClose();
       } else {
         setError(failed.error || "Failed to initialize schedule.");
       }
     } catch (err: any) {
       setError(err.message || "A mission-critical error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -254,13 +314,18 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
         is_curriculum: defaultIsCurriculum || false,
         is_emergency: false,
         is_external: false,
-        external_player_name: "",
-        external_person_phone: "",
-        external_person_email: "",
-        training_start_date: defaultDateStr,
-        training_end_date: defaultDateStr,
-        payment_status: "PENDING",
-        payment_notes: "",
+        external_clients: [
+          {
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+            payment_status: "PENDING",
+            payment_notes: "",
+            training_start_date: defaultDateStr,
+            training_end_date: defaultDateStr
+          }
+        ],
         session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
       }
     ]);
@@ -495,88 +560,158 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
                           {/* Conditional External Player Name Field */}
                           {item.is_external && (
                             <div className="space-y-4 p-6 bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-2xl animate-fade-in">
-                              <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[3px]">External Client Registry</div>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">External Person Name</label>
-                                  <input 
-                                    required
-                                    type="text"
-                                    value={item.external_player_name}
-                                    onChange={e => updateItem(item.id, { external_player_name: e.target.value })}
-                                    placeholder="EX: MARCUS RASHFORD"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Phone Number</label>
-                                  <input 
-                                    required
-                                    type="text"
-                                    value={item.external_person_phone}
-                                    onChange={e => updateItem(item.id, { external_person_phone: e.target.value })}
-                                    placeholder="EX: +44 7911 123456"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
-                                  />
-                                </div>
+                              <div className="flex justify-between items-center pb-2 border-b border-[#22c55e]/10">
+                                <div className="text-[9px] font-black text-[#22c55e] uppercase tracking-[3px]">External Client Registry</div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const defaultDateStr = selectedDates[0] || format(new Date(), "yyyy-MM-dd");
+                                    updateItem(item.id, {
+                                      external_clients: [
+                                        ...item.external_clients,
+                                        {
+                                          first_name: "",
+                                          last_name: "",
+                                          email: "",
+                                          phone: "",
+                                          payment_status: "PENDING",
+                                          payment_notes: "",
+                                          training_start_date: defaultDateStr,
+                                          training_end_date: defaultDateStr
+                                        }
+                                      ]
+                                    });
+                                  }}
+                                  className="px-3 py-1.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-lg text-[#22c55e] text-[8px] font-black uppercase tracking-wider hover:bg-[#22c55e] hover:text-black transition-all"
+                                >
+                                  + Add Client
+                                </button>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Email (Optional)</label>
-                                  <input 
-                                    type="email"
-                                    value={item.external_person_email}
-                                    onChange={e => updateItem(item.id, { external_person_email: e.target.value })}
-                                    placeholder="EX: MARCUS@MANUTD.COM"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training Start Date</label>
-                                  <input 
-                                    required
-                                    type="date"
-                                    value={item.training_start_date}
-                                    onChange={e => updateItem(item.id, { training_start_date: e.target.value })}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training End Date</label>
-                                  <input 
-                                    required
-                                    type="date"
-                                    value={item.training_end_date}
-                                    onChange={e => updateItem(item.id, { training_end_date: e.target.value })}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
-                                  />
-                                </div>
-                              </div>
+                              <div className="space-y-6">
+                                {item.external_clients.map((client, clientIdx) => {
+                                  const updateClient = (updates: Partial<ExternalClientEntry>) => {
+                                    const updatedClients = [...item.external_clients];
+                                    updatedClients[clientIdx] = { ...client, ...updates };
+                                    updateItem(item.id, { external_clients: updatedClients });
+                                  };
+                                  const removeClient = () => {
+                                    const updatedClients = item.external_clients.filter((_, cIdx) => cIdx !== clientIdx);
+                                    updateItem(item.id, { external_clients: updatedClients });
+                                  };
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Payment Status</label>
-                                  <select 
-                                    value={item.payment_status}
-                                    onChange={e => updateItem(item.id, { payment_status: e.target.value as any })}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
-                                  >
-                                    <option value="PENDING" className="bg-[#111]">PENDING</option>
-                                    <option value="CONFIRMED" className="bg-[#111]">CONFIRMED</option>
-                                  </select>
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Payment Notes (Optional)</label>
-                                  <input 
-                                    type="text"
-                                    value={item.payment_notes}
-                                    onChange={e => updateItem(item.id, { payment_notes: e.target.value })}
-                                    placeholder="EX: INVOICE SENT, PENDING STRIPE SYNC"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
-                                  />
-                                </div>
+                                  return (
+                                    <div key={clientIdx} className="space-y-4 p-4 bg-black/40 border border-white/5 rounded-xl relative">
+                                      {item.external_clients.length > 1 && (
+                                        <button
+                                          type="button"
+                                          onClick={removeClient}
+                                          className="absolute top-3 right-3 text-[9px] font-black text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors animate-fade-in"
+                                        >
+                                          Remove Client
+                                        </button>
+                                      )}
+                                      <div className="text-[9px] font-black text-sky-400 uppercase tracking-[2px]">Client #{clientIdx + 1}</div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">First Name</label>
+                                          <input 
+                                            required
+                                            type="text"
+                                            value={client.first_name}
+                                            onChange={e => updateClient({ first_name: e.target.value })}
+                                            placeholder="EX: MARCUS"
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
+                                          />
+                                        </div>
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Last Name</label>
+                                          <input 
+                                            required
+                                            type="text"
+                                            value={client.last_name}
+                                            onChange={e => updateClient({ last_name: e.target.value })}
+                                            placeholder="EX: RASHFORD"
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Phone Number</label>
+                                          <input 
+                                            required
+                                            type="text"
+                                            value={client.phone}
+                                            onChange={e => updateClient({ phone: e.target.value })}
+                                            placeholder="EX: +44 7911 123456"
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                          />
+                                        </div>
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Email</label>
+                                          <input 
+                                            required
+                                            type="email"
+                                            value={client.email}
+                                            onChange={e => updateClient({ email: e.target.value })}
+                                            placeholder="EX: MARCUS@MANUTD.COM"
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training Start Date</label>
+                                          <input 
+                                            required
+                                            type="date"
+                                            value={client.training_start_date}
+                                            onChange={e => updateClient({ training_start_date: e.target.value })}
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                          />
+                                        </div>
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training End Date</label>
+                                          <input 
+                                            required
+                                            type="date"
+                                            value={client.training_end_date}
+                                            onChange={e => updateClient({ training_end_date: e.target.value })}
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                          />
+                                        </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Payment Status</label>
+                                          <select 
+                                            value={client.payment_status}
+                                            onChange={e => updateClient({ payment_status: e.target.value as any })}
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
+                                          >
+                                            <option value="PENDING" className="bg-[#111]">PENDING</option>
+                                            <option value="CONFIRMED" className="bg-[#111]">CONFIRMED</option>
+                                          </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Payment Notes (Optional)</label>
+                                          <input 
+                                            type="text"
+                                            value={client.payment_notes}
+                                            onChange={e => updateClient({ payment_notes: e.target.value })}
+                                            placeholder="EX: INVOICE SENT, PENDING STRIPE SYNC"
+                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}

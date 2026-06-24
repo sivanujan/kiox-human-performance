@@ -14,7 +14,6 @@ import {
   Activity,
   Stethoscope,
   BarChart3,
-  Loader2,
   AlertCircle,
   Video,
   User,
@@ -25,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAthleteRoster, AthleteStatus } from "@/hooks/useAthleteRoster";
 import LoadProgressBar from "./LoadProgressBar";
+import { SkeletonRow } from "@/components/ui/Skeleton";
 
 
 
@@ -107,36 +107,36 @@ export default function AthleteRoster({
   };
 
   return (
-    <div className="w-full overflow-hidden bg-[#111] border border-white/5 rounded-[32px] shadow-2xl flex flex-col h-full">
+    <div className="w-full overflow-hidden bg-bg-card border border-border-card rounded-[32px] shadow-2xl flex flex-col h-full">
       {/* Header Section */}
-      <div className="px-4 md:px-10 py-6 md:py-8 border-b border-white/5 space-y-6 md:space-y-8 bg-white/[0.01]">
+      <div className="px-4 md:px-10 py-6 md:py-8 border-b border-border-card space-y-6 md:space-y-8 bg-bg-secondary/10">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#22c55e] flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-bg-input border border-border-input flex items-center justify-center text-accent-green flex-shrink-0">
               <Users className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">My Athletes</div>
-              <h2 className="font-display text-xl md:text-2xl text-white font-black tracking-wide uppercase truncate">
-                My Athletes <span className="text-gray-400 font-stat ml-2">({stats.total})</span>
+              <div className="text-accent-green font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">My Athletes</div>
+              <h2 className="font-display text-xl md:text-2xl text-text-primary font-black tracking-wide uppercase truncate">
+                My Athletes <span className="text-text-muted font-stat ml-2">({stats.total})</span>
               </h2>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
               <input 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search athletes..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-2.5 md:py-3 text-xs text-white font-label focus:border-[#22c55e] outline-none transition-all placeholder:text-gray-500 shadow-xl"
+                className="w-full bg-bg-input border border-border-input rounded-2xl pl-12 pr-4 py-2.5 md:py-3 text-xs text-text-primary font-label focus:border-accent-green outline-none transition-all placeholder:text-text-muted shadow-xl"
               />
             </div>
             <select 
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-2xl px-4 py-2.5 md:py-3 text-[10px] font-label text-gray-400 focus:border-[#22c55e] outline-none cursor-pointer appearance-none text-center sm:text-left"
+              className="w-full sm:w-auto bg-bg-input border border-border-input rounded-2xl px-4 py-2.5 md:py-3 text-[10px] font-label text-text-secondary focus:border-accent-green outline-none cursor-pointer appearance-none text-center sm:text-left"
             >
               <option value="NAME">BY NAME</option>
               <option value="LOAD">BY LOAD</option>
@@ -160,13 +160,13 @@ export default function AthleteRoster({
               onClick={() => setStatusFilter(filter.id as any)}
               className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border font-mono text-xs tracking-wider uppercase whitespace-nowrap touch-manipulation transition-all min-h-[38px] ${
                 statusFilter === filter.id 
-                  ? "bg-white/10 border-white/20 text-white" 
-                  : "bg-[#161616] border-white/5 text-gray-500 hover:text-white/60"
+                  ? "bg-bg-card-hover border-border-active text-text-primary" 
+                  : "bg-bg-input border-border-input text-text-muted hover:text-text-secondary"
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: filter.dotColor }} />
               <span>{filter.label}</span>
-              <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-white/5 border border-white/10 text-gray-400 font-mono">
+              <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-bg-input border border-border-input text-text-secondary font-mono">
                 {filter.count}
               </span>
             </button>
@@ -177,20 +177,19 @@ export default function AthleteRoster({
       {/* Athlete List */}
       <div className="flex-1 overflow-y-auto px-6 pt-6 pb-36 space-y-3 scrollbar-hide">
         {loading ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="animate-spin text-[#22c55e]" size={32} />
-            <div className="text-gray-400 font-label font-bold tracking-widest">Syncing Roster...</div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => <SkeletonRow key={i} />)}
           </div>
         ) : (
           <AnimatePresence>
             {athletes.length === 0 ? (
               <div className="space-y-3 w-full">
                 <div className="py-32 flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-gray-500 mb-6 border border-white/5">
+                  <div className="w-20 h-20 rounded-full bg-bg-input flex items-center justify-center text-text-muted mb-6 border border-border-input">
                     <AlertCircle size={40} />
                   </div>
-                  <h3 className="font-display text-xl text-white font-black uppercase tracking-widest mb-2">No Athletes Detected</h3>
-                  <p className="text-gray-400 font-label font-bold max-w-[280px]">
+                  <h3 className="font-display text-xl text-text-primary font-black uppercase tracking-widest mb-2">No Athletes Detected</h3>
+                  <p className="text-text-muted font-label font-bold max-w-[280px]">
                     Ensure users are registered with the 'athlete' role to populate this unit inventory.
                   </p>
                 </div>
@@ -204,28 +203,28 @@ export default function AthleteRoster({
                   // Get subtle row tint matching status
                   const getRowStyle = (status: string) => {
                     switch (status) {
-                      case 'READY': return 'bg-[#161616] border-green-500/20 hover:border-green-500/40 shadow-[inset_0_0_12px_rgba(34,197,94,0.03)]';
-                      case 'MONITOR': return 'bg-[#161616] border-amber-500/20 hover:border-amber-500/40 shadow-[inset_0_0_12px_rgba(245,158,11,0.03)]';
+                      case 'READY': return 'bg-bg-card border-green-500/20 hover:border-green-500/40 shadow-[inset_0_0_12px_rgba(34,197,94,0.03)]';
+                      case 'MONITOR': return 'bg-bg-card border-amber-500/20 hover:border-amber-500/40 shadow-[inset_0_0_12px_rgba(245,158,11,0.03)]';
                       case 'ALERT':
-                      case 'INJURED': return 'bg-[#161616] border-red-500/20 hover:border-red-500/40 shadow-[inset_0_0_12px_rgba(239,68,68,0.03)]';
-                      default: return 'bg-[#161616] border-white/5 hover:border-white/10';
+                      case 'INJURED': return 'bg-bg-card border-red-500/20 hover:border-red-500/40 shadow-[inset_0_0_12px_rgba(239,68,68,0.03)]';
+                      default: return 'bg-bg-card border-border-card hover:border-border-primary';
                     }
                   };
 
                   // Get colored initials circle background
                   const getAvatarBg = (status: string) => {
                     switch (status) {
-                      case 'READY': return 'bg-green-500/10 border-green-500/20 text-[#00ff88]';
+                      case 'READY': return 'bg-green-500/10 border-green-500/20 text-accent-green';
                       case 'MONITOR': return 'bg-amber-500/10 border-amber-500/20 text-[#f59e0b]';
                       case 'ALERT':
                       case 'INJURED': return 'bg-red-500/10 border-red-500/20 text-[#ef4444]';
-                      default: return 'bg-gray-800 border-gray-700 text-white';
+                      default: return 'bg-bg-input border-border-input text-text-primary';
                     }
                   };
 
                   const loadBarColor = 
                     athlete.weekly_load < 500 ? '#3b82f6' :
-                    athlete.weekly_load <= 650 ? '#00ff88' :
+                    athlete.weekly_load <= 650 ? '#22c55e' :
                     athlete.weekly_load <= 800 ? '#f59e0b' : '#ef4444';
 
                   return (
@@ -242,27 +241,27 @@ export default function AthleteRoster({
                           {getInitials(athleteName)}
                         </div>
                         {/* Online dot */}
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#111] bg-green-400" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-bg-card bg-green-400" />
                       </div>
 
                       {/* SECTION 2 — Identity (fixed width, text truncates) */}
                       <div className="flex-shrink-0 w-[160px] min-w-0">
-                        <div className="font-display text-sm font-bold text-white tracking-wider uppercase truncate">
+                        <div className="font-display text-sm font-bold text-text-primary tracking-wider uppercase truncate">
                           {athleteName}
                         </div>
-                        <div className="font-mono text-xs text-gray-500 tracking-wider truncate mt-0.5">
+                        <div className="font-mono text-xs text-text-muted tracking-wider truncate mt-0.5">
                           @{athlete.username} • {athlete.sport}
                         </div>
                       </div>
 
                       {/* SECTION 2.5 — Recovery (fixed width) */}
-                      <div className="flex-shrink-0 w-[110px] px-2 flex flex-col gap-1 border-x border-white/5">
-                        <div className="font-mono text-[9px] text-gray-500 tracking-widest uppercase mb-0.5">RECOVERY</div>
+                      <div className="flex-shrink-0 w-[110px] px-2 flex flex-col gap-1 border-x border-border-card">
+                        <div className="font-mono text-[9px] text-text-muted tracking-widest uppercase mb-0.5">RECOVERY</div>
                         <div className="flex items-end gap-1.5 leading-none h-5">
-                          <span className="font-display text-base font-black text-white">{(athlete as any).recovery_score || 75}%</span>
+                          <span className="font-display text-base font-black text-text-primary">{(athlete as any).recovery_score || 75}%</span>
                           <div className={`w-1.5 h-1.5 rounded-full mb-1 ${((athlete as any).recovery_score || 75) > 80 ? 'bg-green-400' : ((athlete as any).recovery_score || 75) > 50 ? 'bg-orange-400' : 'bg-red-400'}`} />
                         </div>
-                        <div className="h-1 bg-gray-800 rounded-full w-full overflow-hidden mt-0.5">
+                        <div className="h-1 bg-bg-input rounded-full w-full overflow-hidden mt-0.5">
                           <div 
                             className="h-full transition-all duration-1000" 
                             style={{ 
@@ -277,22 +276,22 @@ export default function AthleteRoster({
                       <div className="flex-1 min-w-0 px-2">
                         {/* Header row */}
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="font-mono text-xs text-gray-400 font-bold uppercase">
-                            Training Load: <span className="text-white">{athlete.weekly_load}</span> / 650
+                          <span className="font-mono text-xs text-text-secondary font-bold uppercase">
+                            Training Load: <span className="text-text-primary">{athlete.weekly_load}</span> / 650
                             <span className={`ml-1 text-xs ${
                               athlete.load_trend === 'up' ? 'text-red-400' : 
                               athlete.load_trend === 'down' ? 'text-green-400' : 
-                              'text-gray-500'
+                              'text-text-muted'
                             }`}>
                               {athlete.load_trend === 'up' ? '↑' : 
                                athlete.load_trend === 'down' ? '↓' : '→'}
                             </span>
                           </span>
-                          <span className="font-mono text-xs text-gray-600 tracking-wider truncate ml-2">
+                          <span className="font-mono text-xs text-text-muted tracking-wider truncate ml-2">
                             {athlete.last_session ? (
                               `LAST: ${athlete.last_session.title.toUpperCase()}`
                             ) : (
-                              <span className="px-2 py-0.5 text-[9px] rounded-full bg-white/5 border border-white/10 text-gray-500 uppercase font-mono tracking-wider font-normal">
+                              <span className="px-2 py-0.5 text-[9px] rounded-full bg-bg-input border border-border-input text-text-muted uppercase font-mono tracking-wider font-normal">
                                 LAST SESSION: N/A
                               </span>
                             )}
@@ -300,7 +299,7 @@ export default function AthleteRoster({
                         </div>
 
                         {/* Progress bar */}
-                        <div className="h-2 bg-gray-800 rounded-full w-full relative overflow-visible">
+                        <div className="h-2 bg-bg-input rounded-full w-full relative overflow-visible">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -318,11 +317,11 @@ export default function AthleteRoster({
                         <span 
                           title={getStatusTooltip(athlete.computed_status as any)}
                           className={`px-3 py-1 rounded font-mono text-xs font-bold tracking-widest uppercase w-full text-center cursor-help ${
-                            athlete.computed_status === 'READY' ? 'bg-green-500/20 text-green-400 border border-green-500/50' :
-                            athlete.computed_status === 'MONITOR' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50' :
-                            athlete.computed_status === 'ALERT' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
-                            athlete.computed_status === 'INJURED' ? 'bg-red-500/20 text-red-400 border border-red-500/50' :
-                            'bg-gray-500/20 text-gray-400 border border-gray-500/50'
+                            athlete.computed_status === 'READY' ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/50' :
+                            athlete.computed_status === 'MONITOR' ? 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/50' :
+                            athlete.computed_status === 'ALERT' ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/50' :
+                            athlete.computed_status === 'INJURED' ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/50' :
+                            'bg-bg-input text-text-muted border border-border-input'
                           }`}
                         >
                           {athlete.computed_status}
@@ -330,9 +329,9 @@ export default function AthleteRoster({
 
                         {/* Risk badge */}
                         <span className={`font-mono text-xs tracking-wider uppercase flex items-center gap-1 ${
-                          athlete.injury_risk === 'high' ? 'text-red-400' :
-                          athlete.injury_risk === 'medium' ? 'text-orange-400' :
-                          'text-green-400'
+                          athlete.injury_risk === 'high' ? 'text-red-500' :
+                          athlete.injury_risk === 'medium' ? 'text-orange-500' :
+                          'text-accent-green'
                         }`}>
                           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                                 style={{ backgroundColor: 
@@ -349,7 +348,7 @@ export default function AthleteRoster({
                         <button
                           title="Configure Training Plan"
                           onClick={() => onSelectAthlete(athlete.id)}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-[#22c55e] hover:bg-white text-black font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(34,197,94,0.2)]"
+                          className="flex items-center gap-1.5 px-4 py-2 bg-accent-green hover:bg-accent-green-dim text-text-on-green font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(34,197,94,0.2)]"
                         >
                           View
                         </button>
@@ -361,7 +360,7 @@ export default function AthleteRoster({
                             e.stopPropagation();
                             setActiveDropdownId(activeDropdownId === athlete.id ? null : athlete.id);
                           }}
-                          className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-xl text-gray-400 hover:text-white transition-all touch-manipulation"
+                          className="w-9 h-9 flex items-center justify-center bg-bg-input hover:bg-bg-card-hover border border-border-input rounded-xl text-text-secondary hover:text-text-primary transition-all touch-manipulation"
                         >
                           <MoreVertical size={14} />
                         </button>
@@ -376,16 +375,16 @@ export default function AthleteRoster({
                                 setActiveDropdownId(null);
                               }}
                             />
-                            <div className="absolute right-0 top-full mt-2 w-56 bg-[#161616] border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                            <div className="absolute right-0 top-full mt-2 w-56 bg-bg-card border border-border-card rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onLogSession(athlete.id);
                                   setActiveDropdownId(null);
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-all text-left"
                               >
-                                <Zap size={14} className="text-yellow-400" />
+                                <Zap size={14} className="text-yellow-500" />
                                 <span>Log Training Session</span>
                               </button>
                               <button
@@ -394,9 +393,9 @@ export default function AthleteRoster({
                                   onLogInjury(athlete.id);
                                   setActiveDropdownId(null);
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-all text-left"
                               >
-                                <Stethoscope size={14} className="text-red-400" />
+                                <Stethoscope size={14} className="text-red-500" />
                                 <span>Register Injury Record</span>
                               </button>
                               <button
@@ -405,9 +404,9 @@ export default function AthleteRoster({
                                   onAssess(athlete.id);
                                   setActiveDropdownId(null);
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-all text-left"
                               >
-                                <BarChart3 size={14} className="text-[#22c55e]" />
+                                <BarChart3 size={14} className="text-accent-green" />
                                 <span>Performance Assessment</span>
                               </button>
                               <button
@@ -416,9 +415,9 @@ export default function AthleteRoster({
                                   onViewAnalytics(athlete.id);
                                   setActiveDropdownId(null);
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-all text-left"
                               >
-                                <Video size={14} className="text-blue-400" />
+                                <Video size={14} className="text-blue-500" />
                                 <span>Video Analytics</span>
                               </button>
                               {onAssignProgram && (
@@ -428,9 +427,9 @@ export default function AthleteRoster({
                                     onAssignProgram(athlete.id);
                                     setActiveDropdownId(null);
                                   }}
-                                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 transition-all text-left border-t border-white/5"
+                                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-mono text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-all text-left border-t border-border-card"
                                 >
-                                  <Layers size={14} className="text-[#22c55e]" />
+                                  <Layers size={14} className="text-accent-green" />
                                   <span>Assign Program</span>
                                 </button>
                               )}
@@ -448,12 +447,12 @@ export default function AthleteRoster({
       </div>
 
       {/* Footer Inventory Link */}
-      <div className="px-4 md:px-8 py-6 md:py-8 border-t border-white/5 bg-white/[0.01] flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="px-4 md:px-8 py-6 md:py-8 border-t border-border-card bg-bg-secondary/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center sm:items-start">
-             <div className="font-label text-gray-500 font-bold text-[9px] uppercase tracking-widest">REGISTRY: SQUAD_OMEGA_ACTIVE</div>
-             <div className="font-label text-gray-500 font-bold text-[9px] uppercase tracking-widest hidden xs:block">ENCRYPTION: AES_256_ACTIVE</div>
+             <div className="font-label text-text-muted font-bold text-[9px] uppercase tracking-widest">REGISTRY: SQUAD_OMEGA_ACTIVE</div>
+             <div className="font-label text-text-muted font-bold text-[9px] uppercase tracking-widest hidden xs:block">ENCRYPTION: AES_256_ACTIVE</div>
           </div>
-         <button className="font-button text-[#22c55e] text-[10px] hover:tracking-[0.2em] transition-all flex items-center gap-3 group active-scale">
+         <button className="font-button text-accent-green text-[10px] hover:tracking-[0.2em] transition-all flex items-center gap-3 group active-scale">
             TACTICAL INVENTORY <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
          </button>
       </div>

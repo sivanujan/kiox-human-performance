@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { 
   Calendar as CalendarIcon, 
   ChevronLeft, 
   ChevronRight, 
   Plus, 
-  Loader2, 
   AlertCircle 
 } from "lucide-react";
 import { 
@@ -25,6 +24,7 @@ import { createClient } from "@/utils/supabase/client";
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import { TrainingSession } from "@/hooks/useSessions";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function AdminSchedules() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -40,6 +40,15 @@ export default function AdminSchedules() {
 
   useEffect(() => {
     fetchData();
+
+    // Re-fetch when navigating back to this page (tab focus / Next.js navigation)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [currentMonth]);
 
   const fetchData = async () => {
@@ -177,11 +186,6 @@ export default function AdminSchedules() {
 
       {/* Calendar Grid */}
       <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-[48px] overflow-hidden shadow-2xl relative">
-        {loading && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
-             <Loader2 size={48} className="animate-spin text-[#22c55e]" />
-          </div>
-        )}
 
         {/* Days Header */}
         <div className="grid grid-cols-7 border-b border-white/5">
@@ -194,85 +198,98 @@ export default function AdminSchedules() {
 
         {/* Grid Cells */}
         <div className="grid grid-cols-7">
-          {days.map((day, idx) => {
-            const daySessions = sessions.filter(s => isSameDay(new Date(s.scheduled_date), day));
-            const isToday = isSameDay(day, new Date());
-            const isCurrentMonth = isSameMonth(day, currentMonth);
-
-            return (
-              <div 
-                key={idx}
-                onClick={() => openCreateModalForDate(day)}
-                className={`min-h-[160px] p-4 border-r border-b border-white/5 transition-all ${
-                  !isCurrentMonth ? 'opacity-20' : ''
-                } ${isToday ? 'bg-[#22c55e]/[0.02]' : ''} hover:bg-white/[0.03] last:border-r-0 cursor-pointer`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                   <span className={`font-display text-xl tracking-widest ${isToday ? 'text-[#22c55e]' : 'text-white/40'}`}>
-                      {format(day, "dd")}
-                   </span>
-                </div>
-
+          {loading ? (
+            // Skeleton grid — shows the calendar structure without blocking
+            Array.from({ length: 35 }).map((_, idx) => (
+              <div key={idx} className="min-h-[160px] p-4 border-r border-b border-white/5">
+                <Skeleton className="h-6 w-8 mb-4" />
                 <div className="space-y-2">
-                   {daySessions.map(session => (
-                     <button
-                       key={session.id}
-                       onClick={(e) => { 
-                         e.stopPropagation(); 
-                         setSelectedSession(session); 
-                       }}
-                       className={`w-full text-left p-3 rounded-xl border relative group transition-all hover:translate-y-[-2px] hover:shadow-xl ${getSessionStyle(session)}`}
-                     >
-                        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getSessionIndicatorColor(session)}`} />
-                        
-                        <div className="flex justify-between items-start gap-2 mb-1">
-                          <div className="text-white font-bold text-xs uppercase truncate tracking-wide flex-1">{session.title}</div>
-                          <div className="text-[8px] font-black text-white/40 uppercase tracking-widest shrink-0 mt-0.5">
-                            {session.start_time.slice(0, 5)}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          {session.coach ? (
-                            <div className="text-[8px] text-white/50 font-bold uppercase tracking-wider">
-                              Coach: {session.coach.first_name} {session.coach.last_name || ""}
-                            </div>
-                          ) : (
-                            <div className="text-[8px] text-white/30 font-bold uppercase tracking-wider">
-                              Coach: Unassigned
-                            </div>
-                          )}
-
-                          {session.is_external && session.external_player_name && (
-                            <div className="text-[8px] text-gray-500 font-mono truncate">
-                              Client: {session.external_player_name}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                          {session.is_emergency && (
-                            <span className="px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-500 text-[6px] font-black tracking-widest uppercase">
-                              🚨 EMERGENCY
-                            </span>
-                          )}
-
-                          {session.is_external && (
-                            <span className={`px-1.5 py-0.5 rounded text-[6px] font-black tracking-widest uppercase border ${
-                              session.payment_status === 'CONFIRMED'
-                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                            }`}>
-                              {session.payment_status || 'PENDING'}
-                            </span>
-                          )}
-                        </div>
-                     </button>
-                   ))}
+                  <Skeleton className="h-10 w-full rounded-xl" />
+                  {idx % 3 === 0 && <Skeleton className="h-10 w-full rounded-xl" />}
                 </div>
               </div>
-            );
-          })}
+            ))
+          ) : (
+            days.map((day, idx) => {
+              const daySessions = sessions.filter(s => isSameDay(new Date(s.scheduled_date), day));
+              const isToday = isSameDay(day, new Date());
+              const isCurrentMonth = isSameMonth(day, currentMonth);
+
+              return (
+                <div 
+                  key={idx}
+                  onClick={() => openCreateModalForDate(day)}
+                  className={`min-h-[160px] p-4 border-r border-b border-white/5 transition-all ${
+                    !isCurrentMonth ? 'opacity-20' : ''
+                  } ${isToday ? 'bg-[#22c55e]/[0.02]' : ''} hover:bg-white/[0.03] last:border-r-0 cursor-pointer`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                     <span className={`font-display text-xl tracking-widest ${isToday ? 'text-[#22c55e]' : 'text-white/40'}`}>
+                        {format(day, "dd")}
+                     </span>
+                  </div>
+
+                  <div className="space-y-2">
+                     {daySessions.map(session => (
+                       <button
+                         key={session.id}
+                         onClick={(e) => { 
+                           e.stopPropagation(); 
+                           setSelectedSession(session); 
+                         }}
+                         className={`w-full text-left p-3 rounded-xl border relative group transition-all hover:translate-y-[-2px] hover:shadow-xl ${getSessionStyle(session)}`}
+                       >
+                          <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getSessionIndicatorColor(session)}`} />
+                          
+                          <div className="flex justify-between items-start gap-2 mb-1">
+                            <div className="text-white font-bold text-xs uppercase truncate tracking-wide flex-1">{session.title}</div>
+                            <div className="text-[8px] font-black text-white/40 uppercase tracking-widest shrink-0 mt-0.5">
+                              {session.start_time.slice(0, 5)}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            {session.coach ? (
+                              <div className="text-[8px] text-white/50 font-bold uppercase tracking-wider">
+                                Coach: {session.coach.first_name} {session.coach.last_name || ""}
+                              </div>
+                            ) : (
+                              <div className="text-[8px] text-white/30 font-bold uppercase tracking-wider">
+                                Coach: Unassigned
+                              </div>
+                            )}
+
+                            {session.is_external && session.external_player_name && (
+                              <div className="text-[8px] text-gray-500 font-mono truncate">
+                                Client: {session.external_player_name}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                            {session.is_emergency && (
+                              <span className="px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-500 text-[6px] font-black tracking-widest uppercase">
+                                🚨 EMERGENCY
+                              </span>
+                            )}
+
+                            {session.is_external && (
+                              <span className={`px-1.5 py-0.5 rounded text-[6px] font-black tracking-widest uppercase border ${
+                                session.payment_status === 'CONFIRMED'
+                                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                  : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                              }`}>
+                                {session.payment_status || 'PENDING'}
+                              </span>
+                            )}
+                          </div>
+                       </button>
+                     ))}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

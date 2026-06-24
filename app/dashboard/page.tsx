@@ -4,7 +4,8 @@ import { createClient } from '@/utils/supabase/client';
 import { format } from "date-fns";
 import { TrainingSession } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Activity, 
@@ -51,8 +52,10 @@ import { useTimezone } from "@/hooks/useTimezone";
 export default function DashboardOverview() {
   const { user, profile, loading: authLoading } = useAuth();
   const { formatTimeOnly, userTimezone } = useTimezone();
+  const pathname = usePathname();
   const supabase = createClient();
   const athleteId = (profile?.role === 'parent' && profile.parent_of) ? profile.parent_of : user?.id;
+  const isExternal = profile?.role === 'external';
 
   const [metrics, setMetrics] = useState<any>(null);
   const [schedule, setSchedule] = useState<any[]>([]);
@@ -98,8 +101,13 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     if (!authLoading && athleteId) {
-      fetchDashboardData();
-      fetchAthleteSessions();
+      if (isExternal) {
+        setLoading(true);
+        fetchAthleteSessions().finally(() => setLoading(false));
+      } else {
+        fetchDashboardData();
+        fetchAthleteSessions();
+      }
 
       // Listen for admin resolving the clearance request in real-time
       const channel = supabase
@@ -115,17 +123,32 @@ export default function DashboardOverview() {
           (payload: any) => {
             // When any alert for this athlete is updated (e.g., resolved by admin), re-fetch
             if (payload.new?.is_resolved === true) {
-              fetchDashboardData();
+              if (!isExternal) fetchDashboardData();
             }
           }
         )
         .subscribe();
 
+      // Re-fetch when tab becomes visible (navigation return)
+      const handleVisibility = () => {
+        if (document.visibilityState === 'visible') {
+          if (isExternal) {
+            fetchAthleteSessions();
+          } else {
+            fetchDashboardData();
+            fetchAthleteSessions();
+          }
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibility);
+
       return () => {
         supabase.removeChannel(channel);
+        document.removeEventListener('visibilitychange', handleVisibility);
       };
     }
-  }, [athleteId, authLoading]);
+  // pathname ensures data reloads when navigating back to this page
+  }, [athleteId, authLoading, pathname]);
 
   // Sync clearance button state with server — reset when admin resolves the request
   useEffect(() => {
@@ -320,12 +343,12 @@ export default function DashboardOverview() {
                   role="athlete"
                   size="xl"
               />
-              <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-red-500">
-                 <Camera size={24} className="text-red-500 mb-1" />
-                 <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
+              <div className="absolute inset-0 bg-bg-primary/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-red-500">
+                <Camera size={24} className="text-red-500 mb-1" />
+                <span className="text-[8px] font-black text-text-primary uppercase tracking-widest">MODIFY</span>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)] border-2 border-[#0a0a0a] flex items-center justify-center text-black">
-                 <ShieldCheck size={12} strokeWidth={3} />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)] border-2 border-bg-primary flex items-center justify-center text-black">
+                <ShieldCheck size={12} strokeWidth={3} />
               </div>
             </div>
 
@@ -333,30 +356,30 @@ export default function DashboardOverview() {
               <div className="text-red-500 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
                 Medical Restricted Access // Tactical Lock
               </div>
-              <h2 className={`font-display font-black text-3xl sm:text-4xl text-white uppercase tracking-wider mb-2 leading-none`}>
+              <h2 className={`font-display font-black text-3xl sm:text-4xl text-text-primary uppercase tracking-wider mb-2 leading-none`}>
                 {athleteName.toUpperCase()}
               </h2>
               <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-3">
-                <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
-                   <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Training:</span>
-                   <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
-                     RESTRICTED
-                   </span>
+                <div className="flex items-center gap-3 bg-bg-input px-4 py-1.5 rounded-lg border border-border-input">
+                  <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Training:</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-red-500">
+                    RESTRICTED
+                  </span>
                 </div>
-                <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
-                   <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Prognosis:</span>
-                   <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                     Rehabilitating
-                   </span>
+                <div className="flex items-center gap-3 bg-bg-input px-4 py-1.5 rounded-lg border border-border-input">
+                  <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Prognosis:</span>
+                  <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">
+                    Rehabilitating
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="w-full sm:w-auto bg-black/40 border border-white/5 rounded-2xl p-6 text-center sm:text-right relative min-w-[200px]">
+          <div className="w-full sm:w-auto bg-bg-input border border-border-input rounded-2xl p-6 text-center sm:text-right relative min-w-[200px]">
              <div className="text-red-500/30 text-[10px] font-black tracking-[0.3em] uppercase mb-1">
                LOCK STATUS
              </div>
-              <div className="text-white font-display font-black text-lg tracking-wider mb-2 uppercase">
+              <div className="text-text-primary font-display font-black text-lg tracking-wider mb-2 uppercase">
                 SYSTEM RESTRICTED
               </div>
               <div className="text-red-500 font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">
@@ -371,7 +394,7 @@ export default function DashboardOverview() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* The Active Injury & Declaration Form */}
-            <div className="bg-[#111] border border-red-500/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden">
+            <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none text-red-500">REHAB</div>
               
               <div className="relative z-10 space-y-8 text-left">
@@ -379,32 +402,32 @@ export default function DashboardOverview() {
                   <div className="text-red-500 font-display font-black text-sm tracking-widest uppercase flex items-center gap-2 mb-2">
                     <ShieldCheck size={18} /> Active Injury Logged
                   </div>
-                  <h3 className="text-white font-display font-black text-2xl uppercase tracking-wide">
+                  <h3 className="text-text-primary font-display font-black text-2xl uppercase tracking-wide">
                     {performanceData.activeInjuries[0]?.injury_type || 'Clinical Record'}
                   </h3>
-                  <p className="text-white/40 text-[10px] md:text-xs font-mono uppercase tracking-wider mt-1">
+                  <p className="text-text-muted text-[10px] md:text-xs font-mono uppercase tracking-wider mt-1">
                     Prognosis Area: {performanceData.activeInjuries[0]?.body_part || 'Systemic'} // Severity: {performanceData.activeInjuries[0]?.severity || 'High'}
                   </p>
                 </div>
 
-                <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
-                  <div className="text-white/20 text-[9px] font-black tracking-[3px] uppercase mb-2">CLINICAL OBSERVATIONS</div>
-                  <p className="text-white/70 text-xs leading-relaxed italic">
+                <div className="p-6 bg-bg-input border border-border-input rounded-2xl">
+                  <div className="text-text-muted text-[9px] font-black tracking-[3px] uppercase mb-2">CLINICAL OBSERVATIONS</div>
+                  <p className="text-text-secondary text-xs leading-relaxed italic">
                     "{performanceData.activeInjuries[0]?.notes || 'No notes provided by staff.'}"
                   </p>
                 </div>
 
                 {/* The Checkbox Declaration Form */}
-                <div className="pt-6 border-t border-white/5 space-y-6">
+                <div className="pt-6 border-t border-border-card space-y-6">
                   <div className="flex items-start gap-4 p-4 bg-red-500/[0.03] border border-red-500/10 rounded-2xl hover:bg-red-500/[0.05] transition-all cursor-pointer select-none" onClick={() => setDeclarationChecked(!declarationChecked)}>
-                    <div className="flex items-center justify-center shrink-0 w-6.5 h-6.5 rounded-lg border-2 border-red-500/30 transition-all bg-black/40 mt-0.5 relative">
+                    <div className="flex items-center justify-center shrink-0 w-6.5 h-6.5 rounded-lg border-2 border-red-500/30 transition-all bg-bg-input mt-0.5 relative">
                       {declarationChecked && (
                         <div className="absolute inset-1 bg-red-500 rounded-md" />
                       )}
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-xs uppercase tracking-wide mb-1">Recovery & Fitness Declaration</h4>
-                      <p className="text-white/50 text-[10.5px] leading-relaxed">
+                      <h4 className="text-text-primary font-bold text-xs uppercase tracking-wide mb-1">Recovery & Fitness Declaration</h4>
+                      <p className="text-text-secondary text-[10.5px] leading-relaxed">
                         {profile?.role === 'parent'
                           ? `I hereby formally declare that my child (${athleteName}) has recovered from their injury, is currently pain-free, and I am requesting administrative clearance for them to return to active tactical and training protocols.`
                           : "I hereby formally declare that I have recovered from my injury, am currently pain-free, and am requesting administrative clearance to return to active tactical and training protocols."
@@ -416,7 +439,7 @@ export default function DashboardOverview() {
                   <button 
                     onClick={handleRequestClearance}
                     disabled={clearanceLoading || clearanceMessage !== null || !declarationChecked}
-                    className="w-full py-4 bg-red-500 hover:bg-white hover:text-black text-white disabled:bg-red-500/20 disabled:text-red-500/40 disabled:cursor-not-allowed font-button text-xs rounded-xl uppercase tracking-widest transition-all shadow-[0_15px_40px_rgba(239,68,68,0.2)] active-scale flex items-center justify-center gap-3"
+                    className="w-full py-4 bg-red-500 hover:bg-red-600 text-white disabled:bg-red-500/20 disabled:text-red-500/40 disabled:cursor-not-allowed font-button text-xs rounded-xl uppercase tracking-widest transition-all shadow-[0_15px_40px_rgba(239,68,68,0.2)] active-scale flex items-center justify-center gap-3"
                   >
                     {clearanceLoading ? (
                       <>
@@ -438,8 +461,8 @@ export default function DashboardOverview() {
 
                   {/* Feedback Message */}
                   {(clearanceMessage || performanceData.clearanceRequest) && (
-                    <div className="p-4 bg-[#22c55e]/10 border border-[#22c55e]/30 rounded-xl text-[#22c55e] text-[10px] font-black uppercase tracking-widest text-center flex items-center justify-center gap-2 animate-pulse">
-                      <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
+                    <div className="p-4 bg-accent-green/10 border border-accent-green/30 rounded-xl text-accent-green text-[10px] font-black uppercase tracking-widest text-center flex items-center justify-center gap-2 animate-pulse">
+                      <span className="w-2 h-2 rounded-full bg-accent-green" />
                       {profile?.role === 'parent'
                         ? "Clearance Request Pending Command Staff Approval for Child"
                         : "Clearance Request Pending Command Staff Approval"
@@ -451,22 +474,22 @@ export default function DashboardOverview() {
             </div>
 
             {/* General Recovery Protocol Tips for engagement */}
-            <div className="bg-[#111] border border-white/5 rounded-[24px] p-5 md:p-8 text-left space-y-6 shadow-xl">
-              <div className="text-[#22c55e] font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
+            <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 text-left space-y-6 shadow-xl">
+              <div className="text-accent-green font-display font-black text-sm tracking-[0.2em] uppercase flex items-center gap-3">
                 <Activity size={18} /> Active Recovery Guidelines
               </div>
-              <p className="text-white/40 text-[11px] leading-relaxed">
+              <p className="text-text-secondary text-[11px] leading-relaxed">
                 While under a medical restricted training block, you must prioritize low-intensity mobility and systemic preservation. Follow these recommended baselines:
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
-                  <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">1. Hydration Target</div>
-                  <div className="text-lg font-display font-black text-[#22c55e]">3.8 LITERS / DAY</div>
+                <div className="p-4 bg-bg-input border border-border-input rounded-xl">
+                  <div className="text-[10px] text-text-muted font-black tracking-widest uppercase mb-1">1. Hydration Target</div>
+                  <div className="text-lg font-display font-black text-accent-green">3.8 LITERS / DAY</div>
                 </div>
-                <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
-                  <div className="text-[10px] text-white/30 font-black tracking-widest uppercase mb-1">2. Core Sleep Baseline</div>
-                  <div className="text-lg font-display font-black text-[#22c55e]">8.5 HOURS / NIGHT</div>
+                <div className="p-4 bg-bg-input border border-border-input rounded-xl">
+                  <div className="text-[10px] text-text-muted font-black tracking-widest uppercase mb-1">2. Core Sleep Baseline</div>
+                  <div className="text-lg font-display font-black text-accent-green">8.5 HOURS / NIGHT</div>
                 </div>
               </div>
 
@@ -476,8 +499,8 @@ export default function DashboardOverview() {
                   '🥩 High protein preservation intake (+1.8g per kg body weight)',
                   '🧘 Mental visualization of operational tactics to sustain sharpness',
                 ].map((tip, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-white/60 text-[10px] uppercase tracking-wider bg-white/5 p-3 rounded-xl border border-white/5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                  <div key={idx} className="flex items-center gap-3 text-text-secondary text-[10px] uppercase tracking-wider bg-bg-input p-3 rounded-xl border border-border-input">
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent-green" />
                     {tip}
                   </div>
                 ))}
@@ -487,11 +510,11 @@ export default function DashboardOverview() {
 
           {/* RIGHT COLUMN: Coaching team to let them see who can approve them */}
           <div className="space-y-6 text-left">
-            <div className="bg-[#111] border border-white/5 rounded-[24px] p-5 md:p-8 space-y-8 shadow-xl">
-              <div className="text-white/30 font-display font-black text-xs tracking-[0.3em] uppercase">
+            <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 space-y-8 shadow-xl">
+              <div className="text-text-muted font-display font-black text-xs tracking-[0.3em] uppercase">
                 COMMAND CLEARANCE STAFF
               </div>
-              <p className="text-white/40 text-[10.5px] leading-relaxed">
+              <p className="text-text-secondary text-[10.5px] leading-relaxed">
                 Only verified superadmins and coaching staff can approve recovery status and restore dashboard access.
               </p>
               <CoachingTeamSection gridClass="grid-cols-1" />
@@ -527,6 +550,193 @@ export default function DashboardOverview() {
     );
   }
 
+  if (isExternal) {
+    return (
+      <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+        {/* Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative group overflow-hidden bg-gradient-to-br from-accent-green/[0.08] to-transparent border border-accent-green/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10"
+        >
+          {/* Left: Profile */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
+            <Avatar 
+                src={profile?.avatar_url}
+                name={athleteName}
+                role="athlete"
+                size="xl"
+            />
+            <div>
+              <div className="text-accent-green font-display text-[10px] tracking-[0.3em] uppercase mb-1">
+                External Guest Portal // Private Access
+              </div>
+              <h2 className="font-display font-black text-3xl sm:text-4xl text-text-primary uppercase tracking-wider mb-2 leading-none">
+                {athleteName.toUpperCase()}
+              </h2>
+              <div className="flex items-center justify-center sm:justify-start gap-3 bg-bg-input px-4 py-1.5 rounded-lg border border-border-input w-fit">
+                 <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Access Status:</span>
+                 <span className="text-[10px] font-black text-accent-green uppercase tracking-widest">
+                   Authorized
+                 </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-bg-input border border-border-input rounded-2xl p-6 text-center sm:text-right relative min-w-[200px] w-full sm:w-auto">
+             <div className="text-text-muted font-display text-[10px] tracking-[0.3em] uppercase mb-1">
+               ASSIGNED SESSIONS
+             </div>
+             <div className="text-accent-green font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+               {todaySessions.length}
+             </div>
+          </div>
+        </motion.div>
+
+        {/* Sessions List */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 z-10 relative">
+          <div className="lg:col-span-2 space-y-6 text-left">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-[10px] font-black text-accent-green uppercase tracking-[4px]">Private Sessions Schedule</span>
+            </div>
+
+            {todaySessions.length === 0 ? (
+              <div className="bg-bg-card border border-border-card rounded-[24px] p-10 text-center flex flex-col items-center justify-center gap-4 shadow-xl">
+                <div className="w-16 h-16 rounded-full bg-accent-green/5 border border-accent-green/20 flex items-center justify-center text-accent-green text-2xl">
+                  📅
+                </div>
+                <div>
+                  <h3 className="font-display font-black text-lg text-text-primary uppercase tracking-widest mb-1">No Scheduled Entries</h3>
+                  <p className="text-text-secondary text-xs">There are no upcoming training sessions assigned to your profile. Please check the Calendar tab or contact the administration to request a session.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {todaySessions.map((session, i) => {
+                  const isPendingPayment = session.payment_status?.toUpperCase() === 'PENDING';
+                  return (
+                    <motion.div 
+                      key={session.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="bg-bg-card border border-border-card rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-accent-green/30 transition-all shadow-xl"
+                    >
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-[9px] font-black text-accent-green uppercase tracking-[2px]">Private Session</span>
+                            <span className={`text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-widest ${
+                              isPendingPayment ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-accent-green/10 text-accent-green border-accent-green/20'
+                            }`}>
+                              Payment: {session.payment_status}
+                            </span>
+                          </div>
+                          <h3 className="font-display font-black text-xl md:text-2xl text-text-primary uppercase tracking-wide">
+                            {session.title}
+                          </h3>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                          <div className="space-y-1">
+                            <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Date</div>
+                            <div className="font-semibold text-text-primary uppercase">{format(new Date(session.scheduled_date), "MMM dd, yyyy")}</div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Commences</div>
+                            <div className="font-semibold text-text-primary">{formatTimeOnly(session.start_time)}</div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Duration</div>
+                            <div className="font-semibold text-text-primary">{session.duration_minutes} Mins</div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest">Location</div>
+                            <div className="font-semibold text-text-primary flex items-center gap-1.5">
+                              <MapPin size={12} className="text-accent-green" />
+                              <span className="uppercase">{session.location || "HQ FIELD"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {session.notes && (
+                          <div className="bg-bg-input border border-border-input rounded-xl p-4 text-xs text-text-secondary leading-relaxed">
+                            <span className="font-black text-text-primary block mb-1 uppercase tracking-widest text-[8px]">Session Briefing:</span>
+                            {session.notes}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="shrink-0 flex md:flex-col gap-3">
+                        <Link 
+                          href="/dashboard/calendar"
+                          className="flex items-center justify-center gap-2 bg-bg-input border border-border-input hover:border-accent-green/30 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-text-primary transition-all active-scale"
+                        >
+                          View Calendar
+                        </Link>
+                        <Link 
+                          href="/dashboard/chat"
+                          className="flex items-center justify-center gap-2 bg-accent-green hover:bg-accent-green/90 px-6 py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest text-text-on-green transition-all active-scale font-semibold"
+                        >
+                          Chat Terminal
+                        </Link>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar: Coach and Support Info */}
+          <div className="space-y-6 text-left">
+            <div className="bg-bg-card border border-border-card rounded-[24px] p-6 md:p-8 space-y-6 shadow-xl">
+              <div className="text-text-muted font-display font-black text-xs tracking-[0.3em] uppercase">
+                COACHING STAFF
+              </div>
+              <p className="text-text-secondary text-[10.5px] leading-relaxed">
+                Contact your assigned coach or system administration using the chat terminal if you need to coordinate scheduling adjustments or logistics.
+              </p>
+              <CoachingTeamSection gridClass="grid-cols-1" />
+            </div>
+
+            <div className="bg-bg-card border border-border-card rounded-[24px] p-6 md:p-8 space-y-6 shadow-xl">
+              <div className="text-text-muted font-display font-black text-xs tracking-[0.3em] uppercase">
+                PORTAL TERMINOLOGY
+              </div>
+              <div className="space-y-4 text-[10.5px]">
+                <div className="space-y-1">
+                  <span className="font-bold text-text-primary block uppercase tracking-widest">External Guest Status</span>
+                  <span className="text-text-secondary leading-relaxed block">Allows exclusive access to private performance sessions explicitly scheduled for your user account.</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="font-bold text-text-primary block uppercase tracking-widest">Payment Status</span>
+                  <span className="text-text-secondary leading-relaxed block">Indicates whether the invoice generated for this private session bookings schedule has been confirmed.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Change Password Modals */}
+        <AthleteProfileModal 
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onChangePassword={() => {
+            setIsProfileModalOpen(false);
+            setIsPassModalOpen(true);
+          }}
+        />
+        <ChangePasswordModal
+          isOpen={isPassModalOpen}
+          onClose={() => setIsPassModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10 relative">
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#22c55e 1px, transparent 1px), linear-gradient(90deg, #22c55e 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
@@ -537,9 +747,9 @@ export default function DashboardOverview() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ x: 5, backgroundColor: "rgba(34, 197, 94, 0.05)" }}
+        whileHover={{ x: 5, backgroundColor: "var(--color-bg-card-hover)" }}
         onClick={() => setIsProfileModalOpen(true)}
-        className="relative group overflow-hidden bg-gradient-to-br from-[#22c55e]/[0.08] to-transparent border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all"
+        className="relative group overflow-hidden bg-gradient-to-br from-accent-green/[0.08] to-transparent border border-accent-green/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-8 sm:gap-12 z-10 cursor-pointer transition-all"
       >
         {/* Left: Profile */}
         <div className="flex flex-col sm:flex-row items-center gap-6 w-full sm:w-auto text-center sm:text-left">
@@ -551,39 +761,39 @@ export default function DashboardOverview() {
                 role="athlete"
                 size="xl"
             />
-            <div className="absolute inset-0 bg-black/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-[#22c55e]">
-               <Camera size={24} className="text-[#22c55e] mb-1" />
-               <span className="text-[8px] font-black text-white uppercase tracking-widest">MODIFY</span>
+            <div className="absolute inset-0 bg-bg-primary/60 rounded-xl flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-all backdrop-blur-[2px] border-2 border-accent-green">
+               <Camera size={24} className="text-accent-green mb-1" />
+               <span className="text-[8px] font-black text-text-primary uppercase tracking-widest">MODIFY</span>
             </div>
-            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg ${hasActiveInjury ? 'bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)]' : 'bg-[#22c55e] shadow-[0_4px_10px_rgba(34,197,94,0.3)]'} border-2 border-[#0a0a0a] flex items-center justify-center text-black`}>
+            <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg ${hasActiveInjury ? 'bg-red-500 shadow-[0_4px_10px_rgba(239,68,68,0.3)]' : 'bg-accent-green shadow-[0_4px_10px_rgba(34,197,94,0.3)]'} border-2 border-bg-primary flex items-center justify-center text-black`}>
                {hasActiveInjury ? <ShieldCheck size={12} strokeWidth={3} /> : <Activity size={12} strokeWidth={3} />}
             </div>
           </div>
 
           <div>
-            <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase mb-1">
+            <div className="text-accent-green font-display text-[10px] tracking-[0.3em] uppercase mb-1">
               {profile?.role === 'parent' ? 'Child Monitoring Portal // Active Tracker' : 'Athlete Portal // Baseline Active'}
             </div>
-            <h2 className={`font-display font-black text-3xl sm:text-4xl text-white uppercase tracking-wider mb-4 leading-none`}>
+            <h2 className={`font-display font-black text-3xl sm:text-4xl text-text-primary uppercase tracking-wider mb-4 leading-none`}>
               {athleteName.toUpperCase()}
             </h2>
             <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4">
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
-                 <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Training:</span>
+              <div className="flex items-center gap-3 bg-bg-input px-4 py-1.5 rounded-lg border border-border-input">
+                 <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Training:</span>
                  <span className={`text-[10px] font-black uppercase tracking-widest ${statusColor}`}>
                    {statusLabel}
                  </span>
               </div>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-lg border border-white/5">
-                 <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Recovery:</span>
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest">
+              <div className="flex items-center gap-3 bg-bg-input px-4 py-1.5 rounded-lg border border-border-input">
+                 <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Recovery:</span>
+                 <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">
                    {hasActiveInjury ? 0 : readinessScore}%
                  </span>
               </div>
               {profile?.role !== 'parent' && (
                 <button
                    onClick={(e) => { e.stopPropagation(); setIsCheckinModalOpen(true); }}
-                   className="flex items-center gap-3 bg-[#22c55e] px-6 py-3 rounded-xl text-black font-button text-xs uppercase tracking-widest hover:bg-white transition-all transform hover:scale-105 active-scale shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+                   className="flex items-center gap-3 bg-accent-green px-6 py-3 rounded-xl text-text-on-green font-button text-xs uppercase tracking-widest hover:bg-text-primary hover:text-bg-primary transition-all transform hover:scale-105 active-scale shadow-[0_0_15px_rgba(34,197,94,0.3)]"
                 >
                    <Activity size={12} /> Daily Check-in
                 </button>
@@ -603,16 +813,16 @@ export default function DashboardOverview() {
                setIsSessionModalOpen(true);
              }
            }}
-           className="w-full sm:w-auto bg-black/40 border border-white/10 rounded-2xl p-6 text-center sm:text-right relative min-w-[200px] cursor-pointer group/next"
+           className="w-full sm:w-auto bg-bg-input border border-border-input rounded-2xl p-6 text-center sm:text-right relative min-w-[200px] cursor-pointer group/next"
         >
-           <div className="text-white/20 font-display text-[10px] tracking-[0.3em] uppercase mb-1">
+           <div className="text-text-muted font-display text-[10px] tracking-[0.3em] uppercase mb-1">
              NEXT OPS SESSION
            </div>
-           <div className="text-white font-display font-black text-lg tracking-wider mb-2 uppercase group-hover/next:text-[#22c55e] transition-colors">
+           <div className="text-text-primary font-display font-black text-lg tracking-wider mb-2 uppercase group-hover/next:text-accent-green transition-colors">
               {nextSession.session}
             </div>
-            <div className="text-[#22c55e] font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
-             {nextSession.date && <span className="text-white/50 text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
+            <div className="text-accent-green font-display font-black text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.4)]">
+             {nextSession.date && <span className="text-text-muted text-xs tracking-widest mr-3 font-black uppercase">{nextSession.date} //</span>}
              {nextSession.time}
            </div>
            <div className="absolute bottom-2 right-4 text-[40px] opacity-5 font-display pointer-events-none">
@@ -667,7 +877,6 @@ export default function DashboardOverview() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 z-10 relative">
-        
         {/* LEFT COLUMN */}
         <div className="space-y-6">
           
@@ -680,12 +889,12 @@ export default function DashboardOverview() {
                 { label: 'POWER OUTPUT', value: `${metrics?.power_output || 0} W`, trend: '↑' },
                 { label: 'HIGH INTENSITY', value: metrics?.high_intensity_efforts || 0, unit: 'efforts' },
               ].map((m, i) => (
-                <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl flex justify-between items-center group">
+                <div key={i} className="bg-bg-input border border-border-input p-4 rounded-xl flex justify-between items-center group">
                   <div>
-                    <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{m.label}</div>
-                    <div className="text-xl font-display font-black text-white mt-1 group-hover:text-[#22c55e] transition-colors">{m.value}</div>
+                    <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{m.label}</div>
+                    <div className="text-xl font-display font-black text-text-primary mt-1 group-hover:text-accent-green transition-colors">{m.value}</div>
                   </div>
-                  <div className="text-[#22c55e] font-black">{m.trend}</div>
+                  <div className="text-accent-green font-black">{m.trend}</div>
                 </div>
               ))}
             </div>
@@ -702,18 +911,18 @@ export default function DashboardOverview() {
                 { label: 'DUELS WON', value: `${metrics?.duels_won || 0}%` },
                 { label: 'PRESSURES', value: metrics?.pressures || 0 },
               ].map((m, i) => (
-                <div key={i} className="bg-black/40 border border-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-display font-black text-[#22c55e]">{m.value}</div>
-                  <div className="text-[8px] font-black text-white/20 tracking-[1.5px] uppercase mt-2">{m.label}</div>
+                <div key={i} className="bg-bg-input border border-border-input rounded-xl p-4 text-center">
+                  <div className="text-2xl font-display font-black text-accent-green">{m.value}</div>
+                  <div className="text-[8px] font-black text-text-muted tracking-[1.5px] uppercase mt-2">{m.label}</div>
                 </div>
               ))}
             </div>
             
             {/* Heatmap Placeholder */}
-            <div className="bg-[#00ff41]/5 border border-[#00ff41]/20 rounded-xl p-5 flex items-center justify-between cursor-pointer group hover:bg-[#00ff41]/10 transition-all">
+            <div className="bg-accent-green/[0.05] border border-accent-green/20 rounded-xl p-5 flex items-center justify-between cursor-pointer group hover:bg-accent-green/10 transition-all">
               <div>
-                <div className="text-[#22c55e] font-display font-black text-sm tracking-wider uppercase">Tactical Heatmap</div>
-                <div className="text-white/30 text-[10px] uppercase font-bold mt-1">Access Spatial Density Matrix →</div>
+                <div className="text-accent-green font-display font-black text-sm tracking-wider uppercase">Tactical Heatmap</div>
+                <div className="text-text-muted text-[10px] uppercase font-bold mt-1">Access Spatial Density Matrix →</div>
               </div>
               <div className="text-4xl filter grayscale group-hover:grayscale-0 transition-all">🗺️</div>
             </div>
@@ -729,16 +938,16 @@ export default function DashboardOverview() {
               ].map((m, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between items-baseline">
-                    <div className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{m.label}</div>
-                    <div className="text-sm font-display font-black text-[#22c55e]">{m.value}</div>
+                    <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">{m.label}</div>
+                    <div className="text-sm font-display font-black text-accent-green">{m.value}</div>
                   </div>
-                  {m.progress !== undefined && <ProgressBar value={m.progress} color="#22c55e" height={4} />}
+                  {m.progress !== undefined && <ProgressBar value={m.progress} color="var(--color-accent-green)" height={4} />}
                 </div>
               ))}
-              <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                 <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">STRESS LEVEL</span>
+              <div className="pt-4 border-t border-border-card flex justify-between items-center">
+                 <span className="text-[10px] text-text-muted font-bold uppercase tracking-widest">STRESS LEVEL</span>
                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-                   metrics?.stress_level === 'low' ? 'bg-[#22c55e]/10 text-[#22c55e]' : metrics?.stress_level === 'moderate' ? 'bg-amber-500/10 text-amber-500' : 'bg-red-500/10 text-red-500'
+                   metrics?.stress_level === 'low' ? 'bg-accent-green/10 text-accent-green' : metrics?.stress_level === 'moderate' ? 'bg-amber-500/10 text-amber-500' : 'bg-red-500/10 text-red-500'
                  }`}>
                    {metrics?.stress_level?.toUpperCase() || 'LOW'}
                  </span>
@@ -749,30 +958,30 @@ export default function DashboardOverview() {
           {/* MY ELITE PROGRAM */}
           <CollapsibleSection title="🔥 MY ELITE PROGRAM" defaultOpen={true}>
             {performanceData.activePlan ? (
-              <div className="bg-[#22c55e]/5 border border-[#22c55e]/20 p-6 rounded-3xl relative overflow-hidden group">
+              <div className="bg-accent-green/[0.05] border border-accent-green/20 p-6 rounded-3xl relative overflow-hidden group">
                  <div className="flex justify-between items-start mb-6">
                     <div>
-                       <div className="text-[#22c55e] text-[10px] font-black tracking-[4px] uppercase mb-1">CURRENT PHASE</div>
-                       <h3 className="text-white font-display font-black text-2xl tracking-wider uppercase">{performanceData.activePlan.title}</h3>
+                       <div className="text-accent-green text-[10px] font-black tracking-[4px] uppercase mb-1">CURRENT PHASE</div>
+                       <h3 className="text-text-primary font-display font-black text-2xl tracking-wider uppercase">{performanceData.activePlan.title}</h3>
                     </div>
-                    <div className="bg-[#22c55e] text-black font-display font-black text-[10px] px-4 py-1 rounded-full tracking-widest">
+                    <div className="bg-accent-green text-text-on-green font-display font-black text-[10px] px-4 py-1 rounded-full tracking-widest">
                        {performanceData.activePlan.phase.toUpperCase()}
                     </div>
                  </div>
                  
-                 <div className="p-4 bg-black/40 border border-white/5 rounded-2xl mb-6">
-                    <div className="text-white/20 text-[9px] font-black tracking-[3px] uppercase mb-2">COACH INSTRUCTIONS</div>
-                    <p className="text-white/70 text-xs leading-relaxed italic">"{performanceData.activePlan.notes}"</p>
+                 <div className="p-4 bg-bg-input border border-border-input rounded-2xl mb-6">
+                    <div className="text-text-muted text-[9px] font-black tracking-[3px] uppercase mb-2">COACH INSTRUCTIONS</div>
+                    <p className="text-text-secondary text-xs leading-relaxed italic">"{performanceData.activePlan.notes}"</p>
                  </div>
 
-                 <div className="flex justify-between items-center text-[9px] font-black text-white/20 uppercase tracking-[2px]">
+                 <div className="flex justify-between items-center text-[9px] font-black text-text-muted uppercase tracking-[2px]">
                     <div>EFFECTIVE: {format(new Date(performanceData.activePlan.effective_date), "MMM d, yyyy")}</div>
-                    <div className="text-[#22c55e]">AUTO-SYNCHRONIZED</div>
-                 </div>
-                 <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.03] font-display font-black pointer-events-none group-hover:opacity-[0.06] transition-opacity">PLAN</div>
-              </div>
+                    <div className="text-accent-green">AUTO-SYNCHRONIZED</div>
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.03] font-display font-black pointer-events-none group-hover:opacity-[0.06] transition-opacity">PLAN</div>
+               </div>
             ) : (
-              <div className="py-12 text-center bg-white/[0.02] border border-white/5 rounded-3xl text-white/10 uppercase font-bold text-[10px] tracking-widest italic">
+              <div className="py-12 text-center bg-bg-input/20 border border-border-input rounded-3xl text-text-muted/40 uppercase font-bold text-[10px] tracking-widest italic">
                 NO ACTIVE PROGRAM ASSIGNED
               </div>
             )}
@@ -781,9 +990,9 @@ export default function DashboardOverview() {
           {/* PROVISIONAL RECOVERY HUB */}
           <CollapsibleSection title="🩺 RECOVERY HUB" defaultOpen={performanceData.activeInjuries.length > 0}>
              <div className="space-y-4">
-                <div className="text-[10px] text-white/20 font-bold uppercase tracking-widest mb-1">ACTIVE CLINICAL LOGS</div>
+                <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">ACTIVE CLINICAL LOGS</div>
                 {performanceData.activeInjuries.length === 0 ? (
-                  <div className="py-6 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-white/10 uppercase font-bold text-[9px] tracking-widest italic">
+                  <div className="py-6 text-center bg-bg-input/20 border border-border-input rounded-2xl text-text-muted/40 uppercase font-bold text-[9px] tracking-widest italic">
                     NO ACTIVE INJURIES // OPTIMAL STATUS
                   </div>
                 ) : (
@@ -801,11 +1010,11 @@ export default function DashboardOverview() {
                                {injury.severity} SEVERITY
                              </div>
                           </div>
-                          <div className="text-white font-bold text-sm uppercase tracking-wide mb-1">{injury.body_part}</div>
-                          <div className="text-white/40 text-[10px] font-medium leading-relaxed mb-3">"{injury.notes}"</div>
+                          <div className="text-text-primary font-bold text-sm uppercase tracking-wide mb-1">{injury.body_part}</div>
+                          <div className="text-text-secondary text-[10px] font-medium leading-relaxed mb-3">"{injury.notes}"</div>
                           <div className="flex justify-between items-center pt-3 border-t border-red-500/10">
                              <div className="text-red-500/60 text-[9px] font-black uppercase tracking-widest">STATUS: {injury.status.toUpperCase()}</div>
-                             <div className="text-white/10 text-[8px] font-black uppercase">{format(new Date(injury.logged_at), "MMM d")}</div>
+                             <div className="text-text-muted text-[8px] font-black uppercase">{format(new Date(injury.logged_at), "MMM d")}</div>
                           </div>
                        </div>
                     </div>
@@ -820,16 +1029,16 @@ export default function DashboardOverview() {
               {[
                 { label: 'SLEEP', value: `${metrics?.sleep_score || 0}/10`, icon: '😴', progress: (metrics?.sleep_score || 0) * 10 },
                 { label: 'SORENESS', value: `${metrics?.soreness || 0}/10`, icon: '🩹', progress: (metrics?.soreness || 0) * 10, invert: true },
-                { label: 'HYDRATION', value: (metrics?.hydration || 'Optimal').toUpperCase(), icon: '💧', color: metrics?.hydration === 'Low' ? '#f59e0b' : '#22c55e' },
-                { label: 'MOOD', value: (metrics?.mood || 'Good').toUpperCase(), icon: '😊', color: '#22c55e' },
+                { label: 'HYDRATION', value: (metrics?.hydration || 'Optimal').toUpperCase(), icon: '💧', color: metrics?.hydration === 'Low' ? '#f59e0b' : 'var(--color-accent-green)' },
+                { label: 'MOOD', value: (metrics?.mood || 'Good').toUpperCase(), icon: '😊', color: 'var(--color-accent-green)' },
               ].map((m, i) => (
                 <WellnessCard key={i} {...m} />
               ))}
             </div>
 
             {/* Recommendations */}
-            <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-2xl p-6">
-              <div className="text-[#22c55e] font-display font-black text-[11px] tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
+            <div className="bg-accent-green/[0.02] border border-accent-green/10 rounded-2xl p-6">
+              <div className="text-accent-green font-display font-black text-[11px] tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
                 <Target size={14} /> Recovery Protocol
               </div>
               <div className="space-y-3">
@@ -838,15 +1047,15 @@ export default function DashboardOverview() {
                   '❄️ Cold plunge protocol (8 min)',
                   '🥩 Optimize protein intake (+20g)',
                 ].map((r, i) => (
-                  <div key={i} className="flex items-center gap-3 text-white/40 text-[11px] uppercase tracking-wider bg-white/5 p-2 rounded-lg border border-white/5">
-                    <div className="w-1 h-1 rounded-full bg-[#22c55e]" />
+                  <div key={i} className="flex items-center gap-3 text-text-secondary text-[11px] uppercase tracking-wider bg-bg-input p-2 rounded-lg border border-border-input">
+                    <div className="w-1 h-1 rounded-full bg-accent-green" />
                     {r}
                   </div>
                 ))}
               </div>
             </div>
           </CollapsibleSection>
-
+ 
           {/* GOALS & PROGRESS */}
           <CollapsibleSection title="🎯 GOALS & PROGRESS">
              <GoalProgressBar 
@@ -871,51 +1080,51 @@ export default function DashboardOverview() {
              />
           </CollapsibleSection>
         </div>
-
+ 
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
           
           {/* COACH'S PROTOCOL FEEDBACK - NEW */}
-          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
+          <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-8">
-               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+               <div className="text-accent-green font-display text-sm flex items-center gap-3 uppercase">
                   <MessageSquare size={18} /> COACH'S PROTOCOL FEEDBACK
                </div>
             </div>
-
+ 
             <div className="space-y-4">
               {!metrics?.protocol_directives || metrics.protocol_directives.includes('PROTOCOL NEUTRAL') ? (
-                <div className="py-10 text-center text-white/10 uppercase font-bold text-[10px] tracking-widest italic border border-dashed border-white/5 rounded-2xl">
+                <div className="py-10 text-center text-text-muted/40 uppercase font-bold text-[10px] tracking-widest italic border border-dashed border-border-input rounded-2xl bg-bg-input/10">
                   Subject Protocol Neutral // No Directives Found
                 </div>
               ) : (
-                <div className="p-5 bg-[#22c55e]/5 border-l-4 border-l-[#22c55e] rounded-xl relative group">
+                <div className="p-5 bg-accent-green/5 border-l-4 border-l-accent-green border-border-card rounded-xl relative group">
                   <div className="flex justify-between items-start mb-2">
-                     <span className="text-[#22c55e] text-[9px] font-display font-black tracking-wider uppercase">COACHING STAFF // TACTICAL DIRECTIVE</span>
-                     <span className="text-white/10 text-[8px] font-black uppercase tracking-widest">LATEST UPDATE</span>
+                     <span className="text-accent-green text-[9px] font-display font-black tracking-wider uppercase">COACHING STAFF // TACTICAL DIRECTIVE</span>
+                     <span className="text-text-muted/40 text-[8px] font-black uppercase tracking-widest">LATEST UPDATE</span>
                   </div>
-                  <p className="text-white/70 text-sm leading-relaxed italic whitespace-pre-wrap">"{metrics.protocol_directives}"</p>
+                  <p className="text-text-secondary text-sm leading-relaxed italic whitespace-pre-wrap">"{metrics.protocol_directives}"</p>
                 </div>
               )}
             </div>
             <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none uppercase">LOG</div>
           </div>
-
+ 
           {/* TODAY'S SCHEDULE - NEW HIGH-FIDELITY TRACKING */}
-          <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
+          <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit">
             <div className="flex justify-between items-center mb-10">
-               <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 uppercase">
+               <div className="text-accent-green font-display text-sm flex items-center gap-3 uppercase">
                   <CalendarIcon size={18} /> Today's Operational Status
                </div>
-               <div className="flex items-center gap-2 px-4 py-1.5 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full">
-                  <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
-                  <span className="text-[9px] font-black text-[#22c55e] lg:tracking-widest">LIVE OPS</span>
+               <div className="flex items-center gap-2 px-4 py-1.5 bg-accent-green/10 border border-accent-green/20 rounded-full">
+                  <div className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
+                  <span className="text-[9px] font-black text-accent-green lg:tracking-widest">LIVE OPS</span>
                </div>
             </div>
-
+ 
             <div className="space-y-4 mb-2">
               {todaySessionsFiltered.length === 0 ? (
-                <div className="py-12 text-center text-white/10 uppercase font-bold text-[10px] tracking-widest italic border border-white/5 rounded-2xl bg-white/[0.01]">
+                <div className="py-12 text-center text-text-muted/40 uppercase font-bold text-[10px] tracking-widest italic border border-border-input rounded-2xl bg-bg-input/10">
                   Field Operations Clear // No Sessions Detected
                 </div>
               ) : (
@@ -926,25 +1135,25 @@ export default function DashboardOverview() {
                       setSelectedSession(s);
                       setIsSessionModalOpen(true);
                     }}
-                    className={`w-full text-left flex items-center gap-6 p-6 rounded-2xl border-l-[6px] border border-white/5 transition-all group hover:scale-[1.02] hover:bg-white/[0.05] ${
+                    className={`w-full text-left flex items-center gap-6 p-6 rounded-2xl border-l-[6px] border border-border-input transition-all group hover:scale-[1.02] hover:bg-bg-card-hover ${
                     s.session_type === 'STRENGTH' ? 'border-l-amber-500 bg-amber-500/5' :
                     s.session_type === 'TACTICAL' ? 'border-l-blue-500 bg-blue-500/5' :
-                    s.session_type === 'CONDITIONING' ? 'border-l-[#22c55e] bg-[#22c55e]/5' :
+                    s.session_type === 'CONDITIONING' ? 'border-l-accent-green bg-accent-green/5' :
                     'border-l-purple-500 bg-purple-500/5'
                   }`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
                          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
-                           s.status === 'IN_PROGRESS' ? 'bg-[#22c55e] text-black animate-pulse' : 'bg-white/5 text-white/40'
+                           s.status === 'IN_PROGRESS' ? 'bg-accent-green text-text-on-green animate-pulse' : 'bg-bg-input text-text-secondary'
                          }`}>
                            {s.status}
                          </span>
-                         <span className="text-white/20 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                         <span className="text-text-muted text-[9px] font-bold uppercase tracking-widest flex items-center gap-1.5">
                             <Clock size={10} /> {formatTimeOnly(s.start_time, (s as any).coach_timezone || 'UTC')}
                          </span>
                       </div>
-                      <h4 className="text-white font-display font-black text-lg tracking-wider uppercase truncate group-hover:text-[#22c55e] transition-colors">{s.title}</h4>
-                      <div className="flex items-center gap-3 text-white/30 text-[9px] font-black tracking-widest uppercase mt-1">
+                      <h4 className="text-text-primary font-display font-black text-lg tracking-wider uppercase truncate group-hover:text-accent-green transition-colors">{s.title}</h4>
+                      <div className="flex items-center gap-3 text-text-muted text-[9px] font-black tracking-widest uppercase mt-1">
                          <div className="flex items-center gap-1.5"><MapPin size={10} /> {s.location || 'HQ FIELD'}</div>
                          <div className="flex items-center gap-1.5"><Activity size={10} /> {s.duration_minutes}m</div>
                       </div>
@@ -956,22 +1165,22 @@ export default function DashboardOverview() {
             
             <div className="absolute top-0 right-0 p-8 opacity-5 font-display font-black text-8xl pointer-events-none">SQUAD</div>
           </div>
-
+ 
           {/* PERSONAL ALERTS */}
           <AthleteAlertsCard athleteId={user?.id || ''} />
-
+ 
           {/* PERSONAL TRAINING LOAD */}
           <AthleteLoadCard athleteId={user?.id || ''} currentAu={metrics?.weekly_load || 0} />
-
+ 
           {/* COACHING TEAM AVAILABILITY */}
           <CoachingTeamSection />
-
+ 
           {/* VIDEO & TACTICAL FEEDBACK */}
           <CollapsibleSection title="🎬 TACTICAL REVIEW" defaultOpen={true}>
              <div className="space-y-4 mb-6">
-                <div className="text-[10px] text-white/20 font-bold uppercase tracking-widest mb-1">COACH FEEDBACK TRANSMISSIONS</div>
+                <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest mb-1">COACH FEEDBACK TRANSMISSIONS</div>
                 {performanceData.videoFeedback.length === 0 ? (
-                  <div className="py-8 text-center bg-white/[0.02] border border-white/5 rounded-2xl text-white/10 uppercase font-bold text-[9px] tracking-widest italic">
+                  <div className="py-8 text-center bg-bg-input/20 border border-border-input rounded-2xl text-text-muted/40 uppercase font-bold text-[9px] tracking-widest italic">
                     NO TACTICAL CLIPS ASSIGNED
                   </div>
                 ) : (
@@ -993,20 +1202,20 @@ export default function DashboardOverview() {
                       // Supabase storage links or direct file links can be played natively
                       isDirectVideo = true;
                     }
-
+ 
                     return (
-                    <div key={i} className="flex flex-col gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div key={i} className="flex flex-col gap-3 bg-bg-input p-4 rounded-xl border border-border-input">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                           <Play size={14} className="text-blue-500" />
-                          <span className="text-xs text-white font-bold tracking-wide uppercase">{clip.title}</span>
+                          <span className="text-xs text-text-primary font-bold tracking-wide uppercase">{clip.title}</span>
                         </div>
                         <div className="bg-blue-500/10 text-blue-500 text-[9px] font-display font-black px-3 py-1 rounded-full uppercase tracking-widest">
                           {clip.category}
                         </div>
                       </div>
                       
-                      <div className="relative rounded-lg overflow-hidden aspect-video bg-black/40 border border-white/5">
+                      <div className="relative rounded-lg overflow-hidden aspect-video bg-bg-primary border border-border-input">
                          {isDirectVideo ? (
                            <video 
                              className="w-full h-full object-cover" 
@@ -1027,8 +1236,8 @@ export default function DashboardOverview() {
                            />
                          )}
                       </div>
-
-                      {clip.notes && <p className="text-[10px] text-white/30 italic leading-relaxed px-1 mt-1">"{clip.notes}"</p>}
+ 
+                      {clip.notes && <p className="text-[10px] text-text-muted italic leading-relaxed px-1 mt-1">"{clip.notes}"</p>}
                     </div>
                   )})
                 )}
@@ -1036,17 +1245,17 @@ export default function DashboardOverview() {
           </CollapsibleSection>
         </div>
       </div>
-
+ 
       {/* DASHBOARD BOTTOM SECTION - NOTIFICATIONS & SCHEDULE */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20 z-10 relative">
         
         {/* WEEKLY PLAN */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit lg:col-span-2">
+        <div className="bg-bg-card border border-border-card rounded-[24px] p-5 md:p-8 shadow-xl relative overflow-hidden h-fit lg:col-span-2">
            <div className="flex justify-between items-center mb-8">
-              <div className="text-white/30 font-display text-sm flex items-center gap-3 uppercase">
+              <div className="text-text-muted font-display text-sm flex items-center gap-3 uppercase">
                  <CalendarIcon size={18} /> Weekly Plan Overview
               </div>
-              <Link href="/dashboard/booking" className="bg-[#22c55e] hover:bg-white text-black font-button text-xs px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale">
+              <Link href="/dashboard/booking" className="bg-accent-green hover:bg-text-primary hover:text-bg-primary text-text-on-green font-button text-xs px-6 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.2)] active-scale">
                 BOOK OPS +
               </Link>
            </div>

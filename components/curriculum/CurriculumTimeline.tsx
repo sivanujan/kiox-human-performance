@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar as CalendarIcon, 
@@ -10,7 +10,7 @@ import {
   Clock, 
   MapPin, 
   Users, 
-  Loader2, 
+  Loader2,
   AlertCircle,
   Phone,
   UserCheck,
@@ -37,6 +37,7 @@ export default function CurriculumTimeline() {
   const [athletes, setAthletes] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadStatus, setLoadStatus] = useState("Initializing...");
   const [error, setError] = useState<string | null>(null);
   
   // Modals
@@ -58,11 +59,21 @@ export default function CurriculumTimeline() {
 
   useEffect(() => {
     fetchDayData();
+
+    // Re-fetch when navigating back to this page
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDayData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [selectedDate]);
 
   const fetchDayData = async () => {
     setLoading(true);
     setError(null);
+    setLoadStatus("Fetching sessions...");
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
 
@@ -71,7 +82,7 @@ export default function CurriculumTimeline() {
         .from("training_sessions")
         .select("*")
         .eq("scheduled_date", dateStr)
-        .eq("session_category", "CURRICULUM")
+        .eq("is_curriculum", true)
         .order("start_time", { ascending: true });
 
       if (sessionRes.error) {
@@ -81,6 +92,7 @@ export default function CurriculumTimeline() {
         setSessions(sessionRes.data || []);
       }
 
+      setLoadStatus("Fetching profiles & settings...");
       // 2. Fetch profiles
       const [athletesRes, coachesRes, contactRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("role", "athlete"),
@@ -94,9 +106,11 @@ export default function CurriculumTimeline() {
         setContactInfo(contactRes.data.value);
         setEditContactData(contactRes.data.value);
       }
+      setLoadStatus("Data processing complete.");
     } catch (err: any) {
       console.error("Timeline data synchronization error:", err);
       setError(err?.message || "Error syncing day timeline.");
+      setLoadStatus("Error occurred.");
     } finally {
       setLoading(false);
     }
@@ -243,13 +257,32 @@ export default function CurriculumTimeline() {
 
         {/* Timeline Sequence */}
         <div className="bg-[#0a0a0a] border border-white/5 rounded-[36px] p-8 min-h-[400px] relative">
-          {loading && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 rounded-[36px] flex items-center justify-center">
-              <Loader2 size={36} className="animate-spin text-[#22c55e]" />
-            </div>
-          )}
 
-          {sessions.length === 0 ? (
+          {loading ? (
+            // Skeleton rows — show timeline structure while loading
+            <div className="relative border-l-2 border-white/5 ml-4 sm:ml-24 pl-8 py-4 space-y-8">
+              <div className="absolute top-0 right-0 p-2 text-[10px] text-green-500 font-mono bg-black/40 rounded border border-green-500/20">
+                STATUS: {loadStatus}
+              </div>
+              {[1, 2, 3].map(i => (
+                <div key={i} className="relative">
+                  {/* Dot */}
+                  <div className="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-white/[0.06] animate-pulse" />
+                  {/* Time label */}
+                  <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end gap-1">
+                    <div className="h-4 w-14 bg-white/[0.06] rounded animate-pulse" />
+                    <div className="h-2 w-10 bg-white/[0.04] rounded animate-pulse" />
+                  </div>
+                  {/* Card */}
+                  <div className="w-full bg-[#111] border border-white/5 p-6 rounded-2xl space-y-3">
+                    <div className="h-4 w-1/3 bg-white/[0.06] rounded animate-pulse" />
+                    <div className="h-3 w-2/3 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-2 w-1/4 bg-white/[0.03] rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : sessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <Info size={40} className="text-gray-600 mb-4" />
               <h4 className="text-xs font-black text-gray-500 uppercase tracking-[4px]">Matrix Core Idle</h4>

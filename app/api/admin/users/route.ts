@@ -109,5 +109,24 @@ export async function POST(req: Request) {
     }, { status: 500 });
   }
 
+  // 3. Send the Welcome Email with Credentials
+  const { sendEmail, getInternalAthleteWelcomeTemplate } = await import("@/utils/email");
+  const emailHtml = getInternalAthleteWelcomeTemplate(
+    `${first_name} ${last_name}`,
+    email,
+    username,
+    password
+  );
+
+  const { success: emailSuccess, error: emailError } = await sendEmail({
+    to: email,
+    subject: "PROTOCOL INITIATED: Tactical Access Provisioned",
+    html: emailHtml
+  });
+
+  if (!emailSuccess) {
+    console.error("Failed to send welcome email to internal user:", emailError);
+  }
+
   return NextResponse.json(profileData);
 }

@@ -36,6 +36,15 @@ export function useAthleteRoster() {
 
   useEffect(() => {
     fetchRoster();
+
+    // Re-fetch when the user navigates back to this tab/page
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchRoster();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   const fetchRoster = async () => {

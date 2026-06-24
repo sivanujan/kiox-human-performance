@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { 
   Users as UsersIcon, 
@@ -23,6 +23,7 @@ import {
   Check
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { SkeletonStatCard } from "@/components/ui/Skeleton";
 
 // Dashboard Components
 import SwipeableCards from "@/components/dashboard/SwipeableCards";
@@ -125,23 +126,38 @@ export default function AdminDashboard() {
   const [activeSession, setActiveSession] = useState<any>(null);
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const fetchingRef = useRef(false);
 
   useEffect(() => {
     setIsHydrated(true);
     
-    // Only proceed if auth is settled and we aren't already fetching
-    if (!authLoading && !fetchingRef.current) {
-        if (!user) {
-            router.push("/signin");
-        } else if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
-            router.push("/dashboard");
-        } else {
-            fetchAdminData();
-        }
+    // Reset fetch guard on every mount/navigation so data always loads fresh
+    fetchingRef.current = false;
+
+    if (!authLoading) {
+      if (!user) {
+        router.push("/signin");
+      } else if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
+        router.push("/dashboard");
+      } else {
+        fetchAdminData();
+      }
     }
-  }, [user?.id, profile?.role, authLoading]); // Use primitive values to avoid reference change loops
+  // pathname ensures this re-runs when navigating back to this page
+  }, [user?.id, profile?.role, authLoading, pathname]);
+
+  // Also re-fetch when tab becomes visible again (e.g. switching browser tabs)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && user && !authLoading) {
+        fetchAdminData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [user?.id, authLoading]);
 
   const fetchAdminData = async () => {
     // Only show full loader if we have no athletes yet
@@ -257,7 +273,7 @@ export default function AdminDashboard() {
     }
   };
 
-  if (!isHydrated || loading || authLoading) {
+  if (!isHydrated || authLoading) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center gap-6">
         <div className="relative">
@@ -266,6 +282,17 @@ export default function AdminDashboard() {
         </div>
         <div className="font-label text-[#22c55e] animate-pulse">
           Syncing Operational Matrix...
+        </div>
+      </div>
+    );
+  }
+
+  // Data is loading but auth is done — render skeleton layout so the page doesn't blank
+  if (loading && athletes.length === 0) {
+    return (
+      <div className="pt-6 md:pt-10 pb-20 px-4 md:px-10 max-w-7xl mx-auto space-y-6 md:space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => <SkeletonStatCard key={i} />)}
         </div>
       </div>
     );
@@ -297,29 +324,29 @@ export default function AdminDashboard() {
           ======================== */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
         <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#22c55e]/10 border-2 border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)] flex items-center justify-center text-xl md:text-2xl font-display text-[#22c55e]">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[var(--accent-green)]/10 border-2 border-[var(--accent-green)] shadow-[0_0_20px_var(--shadow-accent)] flex items-center justify-center text-xl md:text-2xl font-display text-[var(--accent-green)]">
             {profile?.first_name ? profile.first_name[0].toUpperCase() : 'A'}
           </div>
           <div>
-            <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">
+            <div className="text-[var(--accent-green)] font-label font-bold mb-0.5 md:mb-1 text-[10px] md:text-xs">
               Operations Control // Admin Oversight
             </div>
-            <div className="text-white font-display text-2xl md:text-4xl font-black tracking-tight leading-none uppercase">
+            <div className="text-[var(--text-primary)] font-display text-2xl md:text-4xl font-black tracking-tight leading-none uppercase">
               {profile?.role === 'superadmin' ? 'SYSTEM ADMIN' : 'CHIEF'} {profile?.last_name?.toUpperCase() || 'OFFICER'}
             </div>
-            <div className="text-gray-400 font-label mt-1 text-[9px] md:text-xs">
+            <div className="text-[var(--text-muted)] font-label mt-1 text-[9px] md:text-xs">
               KIO-X COMMAND CORE
             </div>
           </div>
         </div>
 
         <div className="relative w-full md:w-[320px]">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" size={18} />
           <input
             placeholder="Search athletes or logs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#111] border border-[#22c55e]/20 rounded-xl py-3 md:py-4 pl-12 pr-4 text-white text-xs md:text-sm font-label focus:outline-none focus:border-[#22c55e] transition-all placeholder:text-gray-500 shadow-2xl"
+            className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 md:py-4 pl-12 pr-4 text-[var(--text-primary)] text-xs md:text-sm font-label focus:outline-none focus:border-[var(--accent-green)] transition-all placeholder:text-[var(--text-muted)] shadow-2xl"
           />
         </div>
       </div>
@@ -330,21 +357,21 @@ export default function AdminDashboard() {
       <div className="flex flex-col gap-10">
         {/* Onboarding Banner */}
         {showOnboarding && (
-          <div className="bg-[#111] border border-[#22c55e]/20 rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden group/onboard z-10">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-6 md:p-8 shadow-2xl relative overflow-hidden group/onboard z-10">
             {/* Background Accent */}
             <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover/onboard:opacity-[0.04] transition-opacity">
-              <Zap size={140} className="text-[#22c55e]" />
+              <Zap size={140} className="text-[var(--accent-green)]" />
             </div>
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative z-10">
               <div>
-                <div className="text-[#22c55e] font-display text-[10px] tracking-[0.3em] uppercase mb-1">Onboarding Guide</div>
-                <h2 className="text-white font-display text-lg md:text-xl font-black uppercase tracking-wider">Getting Started</h2>
-                <p className="text-gray-400 text-xs mt-1 font-sans">Follow these steps to initialize your trainer dashboard and start tracking performance.</p>
+                <div className="text-[var(--accent-green)] font-display text-[10px] tracking-[0.3em] uppercase mb-1">Onboarding Guide</div>
+                <h2 className="text-[var(--text-primary)] font-display text-lg md:text-xl font-black uppercase tracking-wider">Getting Started</h2>
+                <p className="text-[var(--text-secondary)] text-xs mt-1 font-sans">Follow these steps to initialize your trainer dashboard and start tracking performance.</p>
               </div>
               <button 
                 onClick={handleDismissOnboarding}
-                className="px-4 py-2 border border-white/10 hover:border-white/20 hover:bg-white/5 rounded-xl text-[10px] text-gray-400 hover:text-white transition-all uppercase font-label font-bold"
+                className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--border-active)] hover:bg-[var(--bg-card-hover)] rounded-xl text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all uppercase font-label font-bold"
               >
                 Dismiss
               </button>
@@ -356,10 +383,10 @@ export default function AdminDashboard() {
                 { step: "Step 2", title: "Create a training program", desc: "Design customized training protocols under Training Programs." },
                 { step: "Step 3", title: "Schedule a session", desc: "Book live training sessions to gather active load metrics and recovery data." }
               ].map((item, index) => (
-                <div key={index} className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                  <span className="text-[9px] font-black text-[#22c55e] uppercase tracking-widest">{item.step}</span>
-                  <h4 className="text-white font-bold uppercase tracking-wider text-xs mt-1 mb-2">{item.title}</h4>
-                  <p className="text-gray-400 text-[11px] leading-relaxed font-sans">{item.desc}</p>
+                <div key={index} className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl">
+                  <span className="text-[9px] font-black text-[var(--accent-green)] uppercase tracking-widest">{item.step}</span>
+                  <h4 className="text-[var(--text-primary)] font-bold uppercase tracking-wider text-xs mt-1 mb-2">{item.title}</h4>
+                  <p className="text-[var(--text-secondary)] text-[11px] leading-relaxed font-sans">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -369,9 +396,9 @@ export default function AdminDashboard() {
           {/* Top Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative z-10">
             {[
-              { label: 'My Athletes', value: teamStats.total, icon: <UsersIcon className="w-5 h-5 text-[#00ff88]" /> },
-              { label: 'PENDING CLEARANCE', value: teamStats.pending, icon: <ShieldAlert className="w-5 h-5 text-white" /> },
-              { label: 'Active Athletes', value: teamStats.active, icon: <Activity className="w-5 h-5 text-[#00ff88]" /> },
+              { label: 'My Athletes', value: teamStats.total, icon: <UsersIcon className="w-5 h-5 text-[var(--accent-green)]" /> },
+              { label: 'PENDING CLEARANCE', value: teamStats.pending, icon: <ShieldAlert className="w-5 h-5 text-[var(--text-primary)]" /> },
+              { label: 'Active Athletes', value: teamStats.active, icon: <Activity className="w-5 h-5 text-[var(--accent-green)]" /> },
             ].map((card, i) => (
               <motion.div
                 key={i}
@@ -379,17 +406,17 @@ export default function AdminDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 whileHover={{ y: -4 }}
-                className="bg-[#111] border border-white/5 rounded-[24px] p-6 flex items-center justify-between group cursor-default transition-all relative overflow-hidden h-[120px] hover:border-b-2 hover:border-b-[#00ff88]"
+                className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-6 flex items-center justify-between group cursor-default transition-all relative overflow-hidden h-[120px] hover:border-b-2 hover:border-b-[var(--accent-green)]"
               >
                 <div>
-                  <span className="text-gray-400 font-mono text-[10px] tracking-[0.2em] uppercase font-bold block mb-1">
+                  <span className="text-[var(--text-secondary)] font-mono text-[10px] tracking-[0.2em] uppercase font-bold block mb-1">
                     {card.label}
                   </span>
-                  <span className="text-4xl font-display font-black text-[#00ff88] tracking-tight">
+                  <span className="text-4xl font-display font-black text-[var(--accent-green)] tracking-tight">
                     {card.value}
                   </span>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-[#00ff88]/10 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-[var(--bg-primary)] flex items-center justify-center border border-[var(--border-primary)] group-hover:bg-[var(--accent-green)]/10 transition-colors">
                   {card.icon}
                 </div>
               </motion.div>
@@ -437,46 +464,46 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 pt-4">
           <Link 
             href="/admin/users"
-            className="bg-[#111] border border-[#22c55e]/10 rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl active-scale"
+            className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[var(--accent-green)]/40 hover:bg-[var(--bg-card-hover)] transition-all group shadow-xl active-scale"
           >
             <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform flex-shrink-0">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 flex items-center justify-center text-[var(--accent-green)] group-hover:scale-110 transition-transform flex-shrink-0">
                 <UsersIcon className="w-6 h-6 md:w-7 md:h-7" />
               </div>
                <div>
-                 <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Squad Database</div>
-                 <div className="font-display text-lg md:text-2xl text-white font-black tracking-wide uppercase">Registry</div>
-                 <div className="text-gray-400 font-label mt-0.5 text-[9px] hidden xs:block">Invite Staff // Verify Athletes</div>
+                 <div className="text-[var(--accent-green)] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Squad Database</div>
+                 <div className="font-display text-lg md:text-2xl text-[var(--text-primary)] font-black tracking-wide uppercase">Registry</div>
+                 <div className="text-[var(--text-secondary)] font-label mt-0.5 text-[9px] hidden xs:block">Invite Staff // Verify Athletes</div>
                </div>
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:bg-[#22c55e] group-hover:text-black transition-all flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--accent-green)] group-hover:text-[var(--text-on-green)] transition-all flex-shrink-0">
               <ArrowRight size={18} />
             </div>
           </Link>
 
           <Link 
             href="/gallery"
-            className="bg-[#111] border border-[#22c55e]/10 rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[#22c55e]/40 hover:bg-[#22c55e]/5 transition-all group shadow-xl active-scale"
+            className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[20px] md:rounded-[28px] p-6 md:p-8 flex items-center justify-between hover:border-[var(--accent-green)]/40 hover:bg-[var(--bg-card-hover)] transition-all group shadow-xl active-scale"
           >
             <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] group-hover:scale-110 transition-transform flex-shrink-0">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 flex items-center justify-center text-[var(--accent-green)] group-hover:scale-110 transition-transform flex-shrink-0">
                 <Camera className="w-6 h-6 md:w-7 md:h-7" />
               </div>
                <div>
-                 <div className="text-[#22c55e] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Asset Control</div>
-                 <div className="font-display text-lg md:text-2xl text-white font-black tracking-wide uppercase">Media Archive</div>
-                 <div className="text-gray-400 font-label mt-0.5 text-[9px] hidden xs:block">Manage Tactical Videos // Gallery</div>
+                 <div className="text-[var(--accent-green)] font-label font-bold mb-0.5 md:mb-1 text-[10px]">Asset Control</div>
+                 <div className="font-display text-lg md:text-2xl text-[var(--text-primary)] font-black tracking-wide uppercase">Media Archive</div>
+                 <div className="text-[var(--text-secondary)] font-label mt-0.5 text-[9px] hidden xs:block">Manage Tactical Videos // Gallery</div>
                </div>
             </div>
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:bg-[#22c55e] group-hover:text-black transition-all flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-primary)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-[var(--accent-green)] group-hover:text-[var(--text-on-green)] transition-all flex-shrink-0">
               <ArrowRight size={18} />
             </div>
           </Link>
         </div>
 
         {/* STAFF PROTOCOL LOGS */}
-        <div className="bg-[#111] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
-          <div className="text-[#22c55e] font-display text-sm flex items-center gap-3 mb-6 md:mb-8">
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-5 md:p-8 shadow-xl flex flex-col relative z-10">
+          <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3 mb-6 md:mb-8">
              <MessageSquare size={18} /> Notes / Activity Log
           </div>
 
@@ -485,7 +512,7 @@ export default function AdminDashboard() {
              <select
                value={noteType}
                onChange={(e) => setNoteType(e.target.value)}
-               className="bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-4 text-white text-xs font-mono focus:outline-none focus:border-[#00ff88] cursor-pointer"
+               className="bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 px-4 text-[var(--text-primary)] text-xs font-mono focus:outline-none focus:border-[var(--accent-green)] cursor-pointer"
              >
                <option value="GENERAL">GENERAL</option>
                <option value="ALERT">ALERT</option>
@@ -496,34 +523,34 @@ export default function AdminDashboard() {
                placeholder="ADD STAFF PROTOCOL NOTE..."
                value={newNote}
                onChange={(e) => setNewNote(e.target.value)}
-               className="flex-1 bg-black/40 border border-[#22c55e]/20 rounded-xl py-3 px-5 text-white text-xs font-sans placeholder:text-gray-600 focus:outline-none focus:border-[#00ff88]"
+               className="flex-1 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-xl py-3 px-5 text-[var(--text-primary)] text-xs font-sans placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-green)]"
              />
              <button 
                onClick={handleAddNote}
                disabled={isSavingNote}
-               className="bg-[#22c55e] text-black font-button text-xs px-6 py-3 rounded-xl hover:bg-white transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[120px] flex items-center justify-center gap-2 active-scale"
+               className="bg-[var(--accent-green)] text-[var(--text-on-green)] font-button text-xs px-6 py-3 rounded-xl hover:bg-[var(--accent-green-dim)] transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] disabled:opacity-50 disabled:cursor-wait min-w-[120px] flex items-center justify-center gap-2 active-scale"
              >
                {isSavingNote ? (
                  <Loader2 className="animate-spin" size={16} />
                ) : (
                  <>
                    <span>COMMIT</span>
-                   <Send size={12} className="text-black" />
+                   <Send size={12} className="text-[var(--text-on-green)]" />
                  </>
                )}
              </button>
           </div>
 
           {/* Note Filters */}
-          <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
+          <div className="flex items-center gap-2 mb-6 border-b border-[var(--border-primary)]/50 pb-4">
             {(['ALL', 'GENERAL', 'ALERT', 'INFO'] as const).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setNoteFilter(cat)}
                 className={`px-4 py-1.5 rounded-full border font-mono text-[9px] tracking-widest uppercase transition-all ${
                   noteFilter === cat
-                    ? "bg-[#00ff88] border-[#00ff88] text-black font-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
-                    : "bg-[#161616] border-white/5 text-gray-500 hover:text-white"
+                    ? "bg-[var(--accent-green)] border-[var(--accent-green)] text-[var(--text-on-green)] font-black shadow-[0_0_15px_var(--shadow-accent)]"
+                    : "bg-[var(--bg-primary)] border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {cat}
@@ -573,19 +600,19 @@ export default function AdminDashboard() {
                  const noteDate = note.created_at ? new Date(note.created_at).toLocaleDateString() : new Date().toLocaleDateString();
 
                  const getCategoryConfig = (type: string) => {
-                   switch (type) {
-                     case 'ALERT': return { borderClass: 'border-l-[#ef4444]', textClass: 'text-red-400' };
-                     case 'INFO': return { borderClass: 'border-l-[#3b82f6]', textClass: 'text-blue-400' };
-                     default: return { borderClass: 'border-l-[#00ff88]', textClass: 'text-[#00ff88]' };
-                   }
+                    switch (type) {
+                      case 'ALERT': return { borderClass: 'border-l-[#ef4444]', textClass: 'text-red-400' };
+                      case 'INFO': return { borderClass: 'border-l-[#3b82f6]', textClass: 'text-blue-400' };
+                      default: return { borderClass: 'border-l-[#00ff88]', textClass: 'text-[#00ff88]' };
+                    }
                  };
 
                  const config = getCategoryConfig(noteTypeLabel);
 
                  return (
-                   <div key={i} className={`p-4 bg-white/5 border-l-4 ${config.borderClass} rounded-xl relative group flex gap-4 items-start`}>
+                   <div key={i} className={`p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] border-l-4 ${config.borderClass} rounded-xl relative group flex gap-4 items-start`}>
                      {/* Small Author Initial Badge */}
-                     <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-[#00ff88] uppercase flex-shrink-0">
+                     <div className="w-8 h-8 rounded-full bg-[var(--bg-primary)] border border-[var(--border-primary)] flex items-center justify-center text-[10px] font-bold text-[var(--accent-green)] uppercase flex-shrink-0">
                        {((note.added_by?.first_name?.[0] || '') + (note.added_by?.last_name?.[0] || '')).toUpperCase() || 'U'}
                      </div>
 
@@ -594,17 +621,17 @@ export default function AdminDashboard() {
                          <div className={`font-mono text-[9px] tracking-widest uppercase font-black ${config.textClass}`}>
                            {noteTypeLabel}
                          </div>
-                         <span className="text-gray-500 font-mono text-[9px]">{noteDate}</span>
+                         <span className="text-[var(--text-muted)] font-mono text-[9px]">{noteDate}</span>
                        </div>
                        
-                       <p className="text-gray-100 text-xs leading-relaxed italic font-sans font-medium">"{noteContent}"</p>
+                       <p className="text-[var(--text-primary)] text-xs leading-relaxed italic font-sans font-medium">"{noteContent}"</p>
                        
                        <div className="flex justify-between items-center mt-3">
-                          <span className="text-[#00ff88] font-label font-bold text-[10px]">
+                          <span className="text-[var(--accent-green)] font-label font-bold text-[10px]">
                             BY: {note.added_by?.first_name} {note.added_by?.last_name}
                           </span>
                           {note.user_id && (
-                            <span className="text-gray-500 font-label text-[10px]">
+                            <span className="text-[var(--text-muted)] font-label text-[10px]">
                               Subj: {athletes.find(a => a.id === note.user_id)?.last_name || "Agent"}
                             </span>
                           )}
@@ -619,18 +646,18 @@ export default function AdminDashboard() {
 
         {/* FOOTER SECTION: WELLNESS */}
         <div className="pb-10 relative z-10 w-full lg:w-3/5">
-          <div className="bg-[#22c55e]/[0.02] border border-[#22c55e]/10 rounded-[24px] p-5 md:p-8 shadow-xl">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-5 md:p-8 shadow-xl">
              <div className="flex justify-between items-center mb-8">
-                 <div className="text-[#22c55e] font-display text-sm flex items-center gap-3">
+                 <div className="text-[var(--accent-green)] font-display text-sm flex items-center gap-3">
                     <Activity size={18} /> ATHLETE WELLNESS
                  </div>
-                 <div className="text-[#22c55e] font-stat text-xl">
+                 <div className="text-[var(--accent-green)] font-stat text-xl">
                    {logsExist ? `${wellnessStats.readyPercent}% OPS READY` : 'NO DATA RECEIVED'}
                  </div>
              </div>
              <ProgressBar value={wellnessStats.readyPercent} height={8} />
              {!logsExist && (
-               <div className="mt-6 p-4 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-2xl text-[#22c55e] text-xs font-sans tracking-wide">
+               <div className="mt-6 p-4 bg-[var(--accent-green)]/5 border border-[var(--accent-green)]/20 rounded-2xl text-[var(--accent-green)] text-xs font-sans tracking-wide">
                   Tip: Create a session to start tracking your athletes' performance.
                </div>
              )}
@@ -640,11 +667,11 @@ export default function AdminDashboard() {
                   { label: 'EXTREME SORENESS', count: wellnessStats.extremeSoreness, icon: '🩹', color: '#ef4444' },
                   { label: 'HYDRATION ISSUES', count: wellnessStats.hydrationFlags, icon: '💧', color: '#8b5cf6' },
                 ].map((issue, i) => (
-                   <div key={i} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 group">
-                     <div className="flex items-center gap-3 text-gray-400 font-label font-bold group-hover:text-white transition-colors">
+                   <div key={i} className="flex justify-between items-center bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-primary)] group">
+                     <div className="flex items-center gap-3 text-[var(--text-secondary)] font-label font-bold group-hover:text-[var(--text-primary)] transition-colors">
                        <span className="text-lg">{issue.icon}</span> {issue.label}
                      </div>
-                     <div className="px-3 py-1 bg-black/40 font-stat rounded-full" style={{ color: issue.color }}>
+                     <div className="px-3 py-1 bg-[var(--bg-primary)] font-stat rounded-full" style={{ color: issue.color }}>
                        {logsExist ? `${issue.count} SUBJECTS` : '---'}
                      </div>
                    </div>

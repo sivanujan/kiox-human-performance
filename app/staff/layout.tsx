@@ -154,7 +154,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-6">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center gap-6">
         <div className="relative">
           <div className="w-20 h-20 rounded-full border-2 border-[var(--accent-green)]/10 animate-ping absolute inset-0" />
           <div className="w-20 h-20 rounded-full border-t-2 border-[var(--accent-green)] animate-spin" />
@@ -187,21 +187,21 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           {/* Brand Logo */}
           <div className="flex items-center justify-between">
             <Link href="/staff" className="flex items-center gap-3 active-scale">
-              <div className="w-9 h-9 rounded-xl border border-white/20 bg-black/50 flex items-center justify-center overflow-hidden">
+              <div className="w-9 h-9 rounded-xl border border-[var(--border-primary)]/50 bg-[var(--bg-primary)]/50 flex items-center justify-center overflow-hidden">
                 <Image src="/logo.png" alt="KIO-X" width={28} height={28} className="object-contain" priority unoptimized={true} />
               </div>
-              <span className={`font-display text-lg font-black tracking-[3px] text-white`}>KIO-X</span>
+              <span className={`font-display text-lg font-black tracking-[3px] text-[var(--text-primary)]`}>KIO-X</span>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1 rounded bg-white/5 border border-white/10 text-gray-500 hover:text-white"
+              className="lg:hidden p-1 rounded bg-[var(--bg-primary)]/50 border border-[var(--border-primary)]/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               <CloseIcon size={16} />
             </button>
           </div>
 
           {/* Coach Quick Stats Info Box */}
-          <div className="p-4 bg-black/20 border border-white/5 rounded-2xl flex items-center gap-4">
+          <div className="p-4 bg-[var(--bg-primary)]/20 border border-[var(--border-primary)]/50 rounded-2xl flex items-center gap-4">
              <Avatar 
                 src={profile?.avatar_url}
                 name={userName}
@@ -209,8 +209,8 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                 size="md"
              />
              <div className="min-w-0">
-                <div className="text-sm font-extrabold text-white truncate tracking-wide">{userName}</div>
-                <div className="text-[10px] text-gray-500 font-medium truncate tracking-normal mt-0.5">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</div>
+                <div className="text-sm font-extrabold text-[var(--text-primary)] truncate tracking-wide">{userName}</div>
+                <div className="text-[10px] text-[var(--text-secondary)] font-medium truncate tracking-normal mt-0.5">{profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'medical' ? 'Medical Staff' : 'Performance Staff'}</div>
              </div>
           </div>
 
@@ -232,10 +232,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                   className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-xs font-bold transition-all relative group active-scale ${
                     active 
                       ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20 font-black' 
-                      : 'text-gray-400 hover:text-white border border-transparent'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent hover:bg-[var(--bg-card-hover)]'
                   }`}
                 >
-                  <span className={`${active ? 'text-[var(--accent-green)]' : 'text-gray-500 group-hover:text-white transition-colors'}`}>
+                  <span className={`${active ? 'text-[var(--accent-green)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors'}`}>
                     {item.icon}
                   </span>
                   <span className="tracking-wide">{item.label}</span>
@@ -246,10 +246,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Exit/Signout Option */}
-        <div className="pt-6 border-t border-white/5">
+        <div className="pt-6 border-t border-[var(--border-primary)]/50">
           <button 
             onClick={handleSignOut}
-            className="active-scale w-full py-4 border border-white/10 rounded-2xl text-[10px] text-gray-400 font-bold tracking-wider flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
+            className="active-scale w-full py-4 border border-[var(--border-primary)]/50 rounded-2xl text-[10px] text-[var(--text-secondary)] font-bold tracking-wider flex items-center justify-center gap-3 hover:border-red-500/30 hover:text-red-500 hover:bg-red-500/5 transition-all"
           >
             <LogOut size={14} /> Exit Matrix
           </button>
@@ -265,21 +265,21 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         }} />
 
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-[100] bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
+        <header className="sticky top-0 z-[100] bg-[var(--bg-header)]/90 backdrop-blur-xl border-b border-[var(--border-primary)]/50 px-4 md:px-10 h-[70px] md:h-[80px] flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-[#22c55e] active-scale transition-all"
+              className="lg:hidden p-2 rounded-lg bg-[var(--bg-primary)]/50 border border-[var(--border-primary)]/50 text-[var(--accent-green)] active-scale transition-all"
             >
               <Menu size={20} />
             </button>
-             <div className="w-1 h-6 bg-[#22c55e] rounded-full shadow-[0_0_10px_#22c55e] hidden xs:block" />
+             <div className="w-1 h-6 bg-[var(--accent-green)] rounded-full shadow-[0_0_10px_var(--accent-green)] hidden xs:block" />
              <div className="hidden xs:block space-y-0.5">
                 <div className="mb-0.5">
                   {getBreadcrumbs()}
                 </div>
-                <h1 className="font-sans text-sm md:text-base font-bold text-white tracking-wide truncate max-w-[150px] md:max-w-none">
-                  System Online • <span className="text-[#22c55e] font-semibold">{profile?.first_name || 'Staff'}</span>
+                <h1 className="font-sans text-sm md:text-base font-bold text-[var(--text-primary)] tracking-wide truncate max-w-[150px] md:max-w-none">
+                  System Online • <span className="text-[var(--accent-green)] font-semibold">{profile?.first_name || 'Staff'}</span>
                 </h1>
              </div>
           </div>
@@ -289,11 +289,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             <StaffNotificationDropdown />
             <button 
               onClick={() => setIsProfileOpen(true)}
-              className="flex items-center gap-3 group sm:px-4 sm:py-2 bg-transparent sm:bg-white/[0.02] border-none sm:border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-[#22c55e]/30 transition-all active-scale"
+              className="flex items-center gap-3 group sm:px-4 sm:py-2 bg-transparent sm:bg-[var(--bg-primary)]/20 border-none sm:border border-[var(--border-primary)]/50 rounded-2xl hover:bg-[var(--bg-card-hover)] hover:border-[var(--accent-green)]/30 transition-all active-scale"
             >
                <div className="text-right hidden sm:block leading-tight">
-                  <div className="text-sm font-extrabold text-white tracking-wide">{userName}</div>
-                  <div className="text-[10px] text-gray-500 font-medium tracking-normal mt-0.5">
+                  <div className="text-sm font-extrabold text-[var(--text-primary)] tracking-wide">{userName}</div>
+                  <div className="text-[10px] text-[var(--text-secondary)] font-medium tracking-normal mt-0.5">
                     {profile?.role === 'medical' ? 'Medical Staff' : 'Operational Staff'}
                   </div>
                </div>
@@ -301,7 +301,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                   src={profile?.avatar_url}
                   name={userName}
                   size="md"
-                  className="group-hover:border-[#22c55e] transition-all"
+                  className="group-hover:border-[var(--border-active)] transition-all"
                />
             </button>
           </div>

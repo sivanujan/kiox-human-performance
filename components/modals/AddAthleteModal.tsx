@@ -86,6 +86,9 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
       setSuccess(true);
       if (onSuccess) onSuccess();
       
+      // Explicit alert just in case the email fails in dev
+      alert(`Athlete Created Successfully!\n\nPlease save these credentials (in case the email fails):\nEmail: ${formData.email}\nUsername: ${formData.username}\nTemporary Password: ${formData.password}`);
+
       setTimeout(() => {
         onClose();
       }, 2000);

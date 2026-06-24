@@ -73,7 +73,7 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
           <div>
             <div className="text-red-500 font-display text-[10px] tracking-[0.3em] uppercase">System Alerts</div>
             <div className="flex items-center gap-3 mt-1">
-              <h2 className="text-white font-display text-xl tracking-wider uppercase">Alerts</h2>
+              <h2 className="text-text-primary font-display text-xl tracking-wider uppercase">Alerts</h2>
               <div className="px-3 py-1 bg-red-500 text-white text-[9px] font-black rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse shrink-0">
                 {alerts.length} ANOMALIES
               </div>
@@ -90,8 +90,8 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
               animate={{ opacity: 1 }}
               className="py-6 flex flex-col items-center justify-center gap-2 text-center"
             >
-              <ShieldAlert className="text-gray-600 animate-pulse" size={24} />
-              <div className="text-gray-500 text-xs font-mono tracking-wider">
+              <ShieldAlert className="text-text-muted animate-pulse" size={24} />
+              <div className="text-text-muted text-xs font-mono tracking-wider">
                 No alerts detected
               </div>
             </motion.div>
@@ -105,11 +105,11 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
-                  className={`flex items-center gap-5 bg-black/40 border p-5 rounded-3xl transition-all group/item ${
-                    isClearance ? 'border-[#22c55e]/30 hover:border-[#22c55e]' : 'border-white/5 hover:border-red-500/30'
+                  className={`flex items-center gap-5 bg-bg-card border p-5 rounded-3xl transition-all group/item ${
+                    isClearance ? 'border-[#22c55e]/30 hover:border-accent-green' : 'border-border-card hover:border-red-500/30'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl shrink-0 group-hover/item:bg-white/10 transition-colors`}>
+                  <div className={`w-12 h-12 rounded-2xl bg-bg-input border border-border-input flex items-center justify-center text-xl shrink-0 group-hover/item:bg-bg-card-hover transition-colors`}>
                     {getAlertIcon(alert.alert_type)}
                   </div>
                   
@@ -118,23 +118,23 @@ export default function AlertsFlagsWidget({ onReviewAll }: AlertsFlagsWidgetProp
                       <span className={`px-2 py-0.5 rounded-md text-[8px] font-black border uppercase tracking-widest ${getSeverityStyle(alert.severity)}`}>
                         {isClearance ? 'CLEARANCE REQ' : alert.severity}
                       </span>
-                      <span className="text-gray-500 text-[8px] font-bold uppercase tracking-widest flex items-center gap-1">
+                      <span className="text-text-muted text-[8px] font-bold uppercase tracking-widest flex items-center gap-1">
                         <Clock size={8} /> {formatDistanceToNow(new Date(alert.triggered_at))} ago
                       </span>
                     </div>
-                    <div className="text-white font-bold text-sm uppercase tracking-wide truncate">{alert.athlete?.first_name} {alert.athlete?.last_name}</div>
-                    <div className="text-white/40 text-[10px] leading-tight mt-1 line-clamp-1 italic">"{alert.message}"</div>
+                    <div className="text-text-primary font-bold text-sm uppercase tracking-wide truncate">{alert.athlete?.first_name} {alert.athlete?.last_name}</div>
+                    <div className="text-text-secondary text-[10px] leading-tight mt-1 line-clamp-1 italic">"{alert.message}"</div>
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <button 
                       onClick={() => handleResolve(alert)}
                       className={`p-3 rounded-xl transition-all group-hover/item:scale-105 shadow-lg ${
-                        isClearance ? 'bg-[#22c55e]/20 text-[#22c55e] hover:bg-[#22c55e] hover:text-black' : 'bg-white/5 text-gray-500 hover:bg-red-500 hover:text-white'
+                        isClearance ? 'bg-[#22c55e]/20 text-[#22c55e] hover:bg-accent-green hover:text-text-on-green' : 'bg-bg-input text-text-secondary hover:bg-red-500 hover:text-white'
                       }`}
                       title={isClearance ? "Approve Clearance" : "Resolve Flag"}
                     >
-                      {isClearance ? <CheckCircle2 size={18} /> : <CheckCircle2 size={18} />}
+                      <CheckCircle2 size={18} />
                     </button>
                   </div>
                 </motion.div>

@@ -545,16 +545,16 @@ export default function SharedCalendarPage() {
       </AnimatePresence>
 
       {/* Calendar Controls */}
-      <div className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex items-center bg-black/40 border border-white/5 p-1.5 rounded-2xl">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex items-center bg-[var(--bg-primary)]/40 border border-[var(--border-primary)]/50 p-1.5 rounded-2xl">
           <button 
             onClick={handlePrev}
-            className="p-2.5 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-all active-scale"
+            className="p-2.5 rounded-xl hover:bg-[var(--bg-card-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all active-scale"
           >
             <ChevronLeft size={16} />
           </button>
           
-          <h2 className="text-white font-display text-sm md:text-base font-black uppercase tracking-wider px-4 min-w-[160px] text-center">
+          <h2 className="text-[var(--text-primary)] font-display text-sm md:text-base font-black uppercase tracking-wider px-4 min-w-[160px] text-center">
             {viewMode === "month" 
               ? format(currentDate, "MMMM yyyy")
               : `Week of ${format(weekStart, "MMM d, yyyy")}`
@@ -563,7 +563,7 @@ export default function SharedCalendarPage() {
 
           <button 
             onClick={handleNext}
-            className="p-2.5 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-all active-scale"
+            className="p-2.5 rounded-xl hover:bg-[var(--bg-card-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all active-scale"
           >
             <ChevronRight size={16} />
           </button>
@@ -575,8 +575,8 @@ export default function SharedCalendarPage() {
               onClick={() => setViewMode("month")}
               className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 viewMode === "month"
-                  ? "bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
-                  : "bg-transparent border border-white/10 text-gray-400 hover:text-white hover:border-[#00ff88]/30"
+                  ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_15px_var(--shadow-accent-glow)]"
+                  : "bg-transparent border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]/30"
               }`}
             >
               Month
@@ -585,8 +585,8 @@ export default function SharedCalendarPage() {
               onClick={() => setViewMode("week")}
               className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 viewMode === "week"
-                  ? "bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.2)]"
-                  : "bg-transparent border border-white/10 text-gray-400 hover:text-white hover:border-[#00ff88]/30"
+                  ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_15px_var(--shadow-accent-glow)]"
+                  : "bg-transparent border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]/30"
               }`}
             >
               Week
@@ -596,16 +596,16 @@ export default function SharedCalendarPage() {
       </div>
 
       {/* Week at a Glance Strip */}
-      <div className="bg-[#111] border border-[#1a1a1a] rounded-3xl p-6 space-y-4 shadow-xl">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 space-y-4 shadow-xl">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <Activity className="text-[#00ff88] animate-pulse" size={16} />
-            <h3 className="text-white font-display text-xs font-black uppercase tracking-widest">
+            <Activity className="text-[var(--accent-green)] animate-pulse" size={16} />
+            <h3 className="text-[var(--text-primary)] font-display text-xs font-black uppercase tracking-widest">
               Tactical Week At A Glance
             </h3>
           </div>
-          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-black/40 border border-[#00ff88]/20 px-3 py-1.5 rounded-xl">
-            Today's Deployments: <span className="text-[#00ff88] font-mono ml-1">{todayEventsCount}</span>
+          <span className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-widest bg-[var(--bg-primary)]/40 border border-[var(--accent-green)]/20 px-3 py-1.5 rounded-xl">
+            Today's Deployments: <span className="text-[var(--accent-green)] font-mono ml-1">{todayEventsCount}</span>
           </span>
         </div>
 
@@ -616,26 +616,26 @@ export default function SharedCalendarPage() {
             const isWeekend = day.getDay() === 0 || day.getDay() === 6;
 
             const cardBg = isDayToday
-              ? "bg-[#00ff88]/10 border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.1)]"
+              ? "bg-[var(--accent-green)]/10 border-[var(--accent-green)] shadow-[0_0_15px_var(--shadow-accent)]"
               : isWeekend
-                ? "bg-[#0d0d0d] border-[#1a1a1a] hover:border-[#00ff88]/20"
-                : "bg-black/20 border-[#1a1a1a] hover:border-[#00ff88]/20";
+                ? "bg-[var(--bg-secondary)] border border-[var(--border-primary)] hover:border-[var(--accent-green)]/20"
+                : "bg-[var(--bg-primary)]/20 border border-[var(--border-primary)] hover:border-[var(--accent-green)]/20";
 
             return (
               <div 
                 key={idx} 
                 className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-1 ${cardBg}`}
               >
-                <span className={`text-[8px] font-black uppercase tracking-wider ${isDayToday ? "text-[#00ff88]" : "text-gray-500"}`}>
+                <span className={`text-[8px] font-black uppercase tracking-wider ${isDayToday ? "text-[var(--accent-green)]" : "text-[var(--text-secondary)]"}`}>
                   {format(day, "eee")}
                 </span>
-                <span className="text-xs font-mono font-black text-white">
+                <span className="text-xs font-mono font-black text-[var(--text-primary)]">
                   {format(day, "d")}
                 </span>
                 <span className={`text-[9px] font-mono font-black mt-1.5 px-2 py-0.5 rounded-md ${
                   dayEvents.length > 0
-                    ? isDayToday ? "bg-[#00ff88] text-black" : "bg-[#00ff88]/20 text-[#00ff88]"
-                    : "bg-white/5 text-gray-600"
+                    ? isDayToday ? "bg-[var(--accent-green)] text-[var(--text-on-green)]" : "bg-[var(--accent-green)]/20 text-[var(--accent-green)]"
+                    : "bg-[var(--bg-secondary)] text-[var(--text-muted)]"
                 }`}>
                   {dayEvents.length}
                 </span>
@@ -646,21 +646,21 @@ export default function SharedCalendarPage() {
       </div>
 
       {/* Grid container */}
-      <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-3xl overflow-hidden shadow-2xl">
+      <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-3xl overflow-hidden shadow-2xl">
         {viewMode === "month" ? (
           /* ====================================
              MONTH VIEW
              ==================================== */
           <div className="flex flex-col">
             {/* Weekdays Header */}
-            <div className="grid grid-cols-7 border-b border-[#00ff88] bg-[#0a0a0a]">
+            <div className="grid grid-cols-7 border-b border-[var(--accent-green)] bg-[var(--bg-primary)]">
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, index) => {
                 const isWeekend = d === "Sat" || d === "Sun";
                 return (
                   <div 
                     key={d} 
                     className={`p-4 text-center font-label text-[9px] font-black uppercase tracking-[2px] ${
-                      isWeekend ? "bg-[#0d0d0d] text-[#555]" : "bg-[#111] text-[#00ff88]"
+                      isWeekend ? "bg-[var(--bg-secondary)] text-[var(--text-muted)]" : "bg-[var(--bg-card)] text-[var(--accent-green)]"
                     }`}
                   >
                     {d}
@@ -670,7 +670,7 @@ export default function SharedCalendarPage() {
             </div>
 
             {/* Monthly Grid */}
-            <div className="grid grid-cols-7 grid-rows-6 md:min-h-[580px] border-b border-[#1a1a1a]">
+            <div className="grid grid-cols-7 grid-rows-6 md:min-h-[580px] border-b border-[var(--border-primary)]">
               {monthDays.map((day, idx) => {
                 const dayEvents = getDayEvents(day);
                 const isCurrentMonth = isSameMonth(day, currentDate);
@@ -679,24 +679,24 @@ export default function SharedCalendarPage() {
 
                 // Establish clean cell backgrounds and neon accents
                 const cellBgClass = isCurrentMonth 
-                  ? (isWeekend ? "bg-[#0d0d0d] hover:bg-white/[0.02] cursor-pointer" : "bg-[#111] hover:bg-white/[0.02] cursor-pointer") 
-                  : "bg-[#0a0a0a] cursor-default";
+                  ? (isWeekend ? "bg-[var(--bg-secondary)] hover:bg-[var(--bg-card-hover)] cursor-pointer" : "bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] cursor-pointer") 
+                  : "bg-[var(--bg-primary)] cursor-default";
 
                 const todayBorderGlow = (isSelectedToday && isCurrentMonth)
-                  ? "border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.15)] z-10"
-                  : "border-[#1a1a1a]";
+                  ? "border-[var(--accent-green)] shadow-[0_0_15px_var(--shadow-accent)] z-10"
+                  : "border-[var(--border-primary)]/50";
 
                 return (
                   <div
                     key={idx}
-                    className={`min-h-[90px] md:min-h-[110px] border-r border-b p-2 flex flex-col justify-between transition-all group relative ${cellBgClass} ${todayBorderGlow}`}
+                    className={`min-h-[90px] md:min-h-[110px] border-r border-b border-[var(--border-primary)]/50 p-2 flex flex-col justify-between transition-all group relative ${cellBgClass} ${todayBorderGlow}`}
                   >
                     {/* Day number & add icon */}
                     <div className="flex justify-between items-center mb-1.5 z-10">
                       <span className={`text-[10px] font-mono font-black rounded-md w-6 h-6 flex items-center justify-center ${
                         isSelectedToday && isCurrentMonth
-                          ? "bg-[#00ff88] text-black font-black"
-                          : isCurrentMonth ? "text-white" : "text-[#2a2a2a]"
+                          ? "bg-[var(--accent-green)] text-[var(--text-on-green)] font-black"
+                          : isCurrentMonth ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
                       }`}>
                         {format(day, "d")}
                       </span>
@@ -704,7 +704,7 @@ export default function SharedCalendarPage() {
                       {dayEvents.length > 0 && isCurrentMonth && (
                         <button
                           onClick={() => openCreateModal(day)}
-                          className="opacity-0 group-hover:opacity-100 p-1 rounded bg-[#00ff88]/10 text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-all"
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] hover:bg-[var(--accent-green)] hover:text-[var(--text-on-green)] transition-all"
                           title="Deploy session to this day"
                         >
                           <Plus size={10} />
@@ -719,7 +719,7 @@ export default function SharedCalendarPage() {
                         className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                         title="Deploy session to this day"
                       >
-                        <Plus size={18} className="text-[#00ff88]" />
+                        <Plus size={18} className="text-[var(--accent-green)]" />
                       </button>
                     )}
 
@@ -754,7 +754,7 @@ export default function SharedCalendarPage() {
           <div 
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
-            className="grid grid-cols-1 md:grid-cols-7 min-h-[500px] divide-y md:divide-y-0 md:divide-x divide-[#1a1a1a]"
+            className="grid grid-cols-1 md:grid-cols-7 min-h-[500px] divide-y md:divide-y-0 md:divide-x divide-[var(--border-primary)]/50"
           >
             {weekDays.map((day, idx) => {
               const dayEvents = getDayEvents(day);
@@ -762,11 +762,11 @@ export default function SharedCalendarPage() {
               const isWeekend = day.getDay() === 0 || day.getDay() === 6;
 
               const cellBgClass = isSelectedToday 
-                ? "bg-[#00ff88]/[0.02] shadow-[inset_0_0_15px_rgba(0,255,136,0.05)]" 
-                : (isWeekend ? "bg-[#0d0d0d]" : "bg-[#111]");
+                ? "bg-[var(--accent-green)]/[0.02] shadow-[inset_0_0_15px_var(--shadow-accent)]" 
+                : (isWeekend ? "bg-[var(--bg-secondary)]" : "bg-[var(--bg-card)]");
 
               const todayBorderGlow = isSelectedToday 
-                ? "border border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.15)] z-10 rounded-2xl" 
+                ? "border border-[var(--accent-green)] shadow-[0_0_15px_var(--shadow-accent-glow)] z-10 rounded-2xl" 
                 : "border-transparent";
 
               return (
@@ -775,19 +775,19 @@ export default function SharedCalendarPage() {
                   className={`p-4 flex flex-col min-h-[180px] md:min-h-0 transition-all ${cellBgClass} ${todayBorderGlow}`}
                 >
                   {/* Day Header */}
-                  <div className="flex justify-between items-baseline mb-6 border-b border-[#1a1a1a] pb-3">
+                  <div className="flex justify-between items-baseline mb-6 border-b border-[var(--border-primary)]/50 pb-3">
                     <div>
-                      <h4 className={`text-[10px] font-black uppercase tracking-[2px] ${isSelectedToday ? "text-[#00ff88]" : "text-gray-500"}`}>
+                      <h4 className={`text-[10px] font-black uppercase tracking-[2px] ${isSelectedToday ? "text-[var(--accent-green)]" : "text-[var(--text-secondary)]"}`}>
                         {format(day, "EEEE")}
                       </h4>
-                      <span className="text-xs font-mono font-black text-white/90">
+                      <span className="text-xs font-mono font-black text-[var(--text-primary)]">
                         {format(day, "MMM d")}
                       </span>
                     </div>
 
                     <button
                       onClick={() => openCreateModal(day)}
-                      className="p-1.5 bg-white/5 border border-white/10 rounded-lg hover:border-[#00ff88]/30 text-gray-400 hover:text-white transition-all active-scale"
+                      className="p-1.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)]/50 rounded-lg hover:border-[var(--accent-green)]/30 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all active-scale"
                     >
                       <Plus size={12} />
                     </button>
@@ -796,7 +796,7 @@ export default function SharedCalendarPage() {
                   {/* Day Events Stack */}
                   <div className="flex-1 space-y-3 overflow-y-auto max-h-[350px] md:max-h-none pr-1">
                     {dayEvents.length === 0 ? (
-                      <div className="py-8 text-center text-[9px] font-black text-gray-500 uppercase tracking-widest border border-dashed border-[#1a1a1a] rounded-2xl flex flex-col items-center justify-center gap-1">
+                      <div className="py-8 text-center text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest border border-dashed border-[var(--border-primary)]/50 rounded-2xl flex flex-col items-center justify-center gap-1">
                         Clear Grid
                       </div>
                     ) : (

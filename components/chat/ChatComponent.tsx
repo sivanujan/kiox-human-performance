@@ -1523,7 +1523,7 @@ export default function ChatComponent() {
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'parent'
                     ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_10px_var(--shadow-accent-glow)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.02]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                 }`}
               >
                 Parent Chat
@@ -1534,7 +1534,7 @@ export default function ChatComponent() {
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'coach'
                     ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_10px_var(--shadow-accent-glow)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.02]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                 }`}
               >
                 Coach Chat
@@ -1545,7 +1545,7 @@ export default function ChatComponent() {
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'medical'
                     ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_10px_var(--shadow-accent-glow)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.02]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                 }`}
               >
                 Medical Chat
@@ -1562,7 +1562,7 @@ export default function ChatComponent() {
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'coach'
                     ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_10px_var(--shadow-accent-glow)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.02]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                 }`}
               >
                 Coach Chat
@@ -1573,7 +1573,7 @@ export default function ChatComponent() {
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all min-w-max px-3 ${
                   activeTab === 'medical'
                     ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-[0_0_10px_var(--shadow-accent-glow)]"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.02]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
                 }`}
               >
                 Medical Chat
@@ -1583,11 +1583,11 @@ export default function ChatComponent() {
 
           {/* User Search Dropdown Overlay */}
           {searchQuery.trim() && (
-            <div className="absolute top-full left-6 right-6 bg-[#0a0a0a] border border-[#22c55e]/20 rounded-2xl p-4 shadow-2xl z-40 max-h-[300px] overflow-y-auto custom-scrollbar mt-2">
-              <div className="text-[8px] font-black text-[#22c55e] tracking-[2px] uppercase mb-3">Lookup Results</div>
+            <div className="absolute top-full left-6 right-6 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-4 shadow-2xl z-40 max-h-[300px] overflow-y-auto custom-scrollbar mt-2">
+              <div className="text-[8px] font-black text-[var(--accent-green)] tracking-[2px] uppercase mb-3">Lookup Results</div>
               {isSearching ? (
                 <div className="py-6 flex items-center justify-center gap-2 font-label text-[10px] text-gray-500">
-                  <Loader2 className="animate-spin text-[#22c55e]" size={14} /> Resolving signal...
+                  <Loader2 className="animate-spin text-[var(--accent-green)]" size={14} /> Resolving signal...
                 </div>
               ) : searchResults.length === 0 ? (
                 <div className="py-6 text-center font-label text-[10px] text-gray-600 uppercase tracking-widest">
@@ -1599,15 +1599,15 @@ export default function ChatComponent() {
                     <button
                       key={targetUser.id}
                       onClick={() => handleStartChat(targetUser)}
-                      className="w-full bg-white/[0.01] hover:bg-[#22c55e]/10 hover:border-[#22c55e]/20 border border-white/5 rounded-xl p-3 flex items-center gap-3 text-left transition-all"
+                      className="w-full bg-[var(--bg-secondary)] hover:bg-[var(--accent-green)]/10 hover:border-[var(--accent-green)]/20 border border-[var(--border-primary)] rounded-xl p-3 flex items-center gap-3 text-left transition-all"
                     >
                       <div className="relative">
                         <Avatar src={targetUser.avatar_url} name={targetUser.first_name || targetUser.username} size="sm" />
                         <span className="online-dot" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white uppercase">{targetUser.first_name} {targetUser.last_name}</p>
-                        <p className="text-[8px] font-black text-[#22c55e]/70 uppercase tracking-[1.5px] mt-0.5">{targetUser.role === 'superadmin' ? 'System Admin' : targetUser.role === 'staff' ? 'Coach' : targetUser.role === 'medical' ? 'Medical' : targetUser.role}</p>
+                        <p className="text-xs font-bold text-[var(--text-primary)] uppercase">{targetUser.first_name} {targetUser.last_name}</p>
+                        <p className="text-[8px] font-black text-[var(--accent-green)]/70 uppercase tracking-[1.5px] mt-0.5">{targetUser.role === 'superadmin' ? 'System Admin' : targetUser.role === 'staff' ? 'Coach' : targetUser.role === 'medical' ? 'Medical' : targetUser.role}</p>
                       </div>
                     </button>
                   ))}
@@ -2393,7 +2393,7 @@ export default function ChatComponent() {
                 <button 
                   type="submit"
                   disabled={!newMessage.trim()}
-                  className="bg-[var(--accent-green)] text-[var(--text-on-green)] px-6 rounded-xl hover:bg-white hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-[var(--accent-green)] disabled:hover:text-[var(--text-on-green)] transition-all flex items-center justify-center shadow-[0_0_20px_var(--shadow-accent)] active-scale shrink-0"
+                  className="bg-[var(--accent-green)] text-[var(--text-on-green)] px-6 rounded-xl hover:bg-[var(--accent-green-dim)] hover:scale-[1.02] disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-[var(--accent-green)] disabled:hover:text-[var(--text-on-green)] transition-all flex items-center justify-center shadow-[0_0_20px_var(--shadow-accent)] active-scale shrink-0"
                 >
                   <Send size={14} className="md:mr-2" />
                   <span className="text-[9px] font-black uppercase tracking-[2px] hidden md:inline">Send</span>
