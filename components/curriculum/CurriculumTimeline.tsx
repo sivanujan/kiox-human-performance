@@ -486,6 +486,15 @@ export default function CurriculumTimeline() {
       <CreateSessionModal 
         isOpen={isCreateModalOpen}
         onClose={() => { setIsCreateModalOpen(false); fetchDayData(); }}
+        onSuccess={(dates: string[]) => {
+          if (dates && dates.length > 0) {
+            const parts = dates[0].split("-");
+            const newDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+            setSelectedDate(newDate);
+          }
+          setIsCreateModalOpen(false);
+          fetchDayData();
+        }}
         athletes={athletes}
         coaches={coaches}
         defaultIsCurriculum={true}

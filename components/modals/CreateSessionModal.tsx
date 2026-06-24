@@ -13,6 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 interface CreateSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (dates: string[]) => void;
   athletes?: any[];
   coaches?: any[];
   defaultDate?: string;
@@ -45,7 +46,7 @@ interface ScheduleItem {
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
 }
 
-export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
+export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
   const { user, profile } = useAuth();
   const { userTimezone } = useTimezone();
   const { createSession, loading: sessionLoading } = useSessions();
@@ -288,7 +289,11 @@ export default function CreateSessionModal({ isOpen, onClose, coaches, defaultDa
             alert(msg);
           }
         }
-        onClose();
+        if (onSuccess) {
+          onSuccess(selectedDates);
+        } else {
+          onClose();
+        }
       } else {
         setError(failed.error || "Failed to initialize schedule.");
       }

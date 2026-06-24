@@ -710,7 +710,15 @@ export default function AdminDashboard() {
       })()} />
       <TrainingLoadExpandedModal isOpen={isLoadModalOpen} onClose={() => setIsLoadModalOpen(false)} athletes={athletes} />
       <ReviewAlertsModal isOpen={isAlertsModalOpen} onClose={() => setIsAlertsModalOpen(false)} />
-      <CreateSessionModal isOpen={isCreateSessionOpen} onClose={() => setIsCreateSessionOpen(false)} athletes={athletes} />
+      <CreateSessionModal 
+        isOpen={isCreateSessionOpen} 
+        onClose={() => setIsCreateSessionOpen(false)} 
+        onSuccess={() => {
+          setIsCreateSessionOpen(false);
+          fetchAdminData();
+        }}
+        athletes={athletes} 
+      />
       <SessionDetailsModal isOpen={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} session={activeSession} />
       <AdjustLoadModal isOpen={isAdjustLoadOpen} onClose={() => setIsAdjustLoadOpen(false)} sessions={[]} athletes={athletes} />
       <AthleteAssessmentModal

@@ -297,6 +297,10 @@ export default function AdminSchedules() {
       <CreateSessionModal 
         isOpen={isCreateModalOpen}
         onClose={() => { setIsCreateModalOpen(false); fetchData(); }}
+        onSuccess={() => {
+          setIsCreateModalOpen(false);
+          fetchData();
+        }}
         athletes={athletes}
         defaultDate={selectedDateForCreation}
         defaultIsCurriculum={false}

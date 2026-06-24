@@ -774,6 +774,10 @@ export default function StaffPortal() {
       <CreateSessionModal 
         isOpen={isCreateSessionOpen}
         onClose={() => setIsCreateSessionOpen(false)}
+        onSuccess={() => {
+          setIsCreateSessionOpen(false);
+          fetchAdminData();
+        }}
         athletes={athletes}
       />
       <SessionDetailsModal 
