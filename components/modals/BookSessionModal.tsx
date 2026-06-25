@@ -108,7 +108,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                      session.session_type === 'TACTICAL' ? <Target size={18} /> : 
                      <ShieldCheck size={18} />}
                  </div>
-                 <span className="text-[10px] font-black tracking-[3px] uppercase">DEPLOYMENT_INITIATION</span>
+                 <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">DEPLOYMENT_INITIATION</span>
               </div>
               <h2 className={`font-display text-3xl text-white uppercase tracking-wider`}>
                 {session.title}
@@ -155,12 +155,12 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                {isHighLoad ? (
                  <div className="flex gap-4 items-start p-4 bg-black/40 rounded-xl border border-amber-500/20">
                     <AlertTriangle className="text-amber-500 shrink-0" size={18} />
-                    <p className="text-[10px] text-white/60 leading-relaxed uppercase tracking-widest">
+                    <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                        <span className="text-amber-500 font-black">WARNING: HIGH LOAD WEEK.</span> INITIALIZATION WILL REQUIRE COACHING STAFF APPROVAL (STATUS: PENDING).
                     </p>
                  </div>
                ) : (
-                 <p className="text-[10px] text-gray-400 uppercase tracking-widest italic ml-8">
+                 <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     Operational load within safety margins. Auto-confirmation active.
                  </p>
                )}
@@ -168,12 +168,12 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
 
             {/* Note Field */}
             <div>
-              <label className="text-[9px] font-black text-gray-500 uppercase tracking-[3px] mb-3 block">Deployment Notes (Optional)</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Deployment Notes (Optional)</label>
               <textarea 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Brief directives or status updates for the coaching staff..."
-                className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-[#22c55e] transition-all outline-none min-h-[100px] resize-none"
+                className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
               />
             </div>
 
@@ -187,7 +187,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
                }`}>
                   {confirmed && <CheckCircle2 className="text-black" size={16} />}
                </div>
-               <span className="text-[10px] font-black text-white/40 uppercase tracking-widest select-none">
+               <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                  I confirm I am physically operational for this deployment.
                </span>
             </div>
@@ -196,7 +196,7 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
             {error && (
               <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
                 <AlertTriangle size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">{error}</span>
+                <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{error}</span>
               </div>
             )}
 
@@ -204,14 +204,14 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
             <div className="flex gap-4">
                <button 
                  onClick={onClose}
-                 className="flex-1 py-5 bg-white/5 text-white/40 text-[11px] font-black uppercase tracking-[2px] rounded-2xl hover:bg-white/10 transition-all"
+                 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                >
                  ABORT
                </button>
                <button 
                  disabled={!confirmed || loading}
                  onClick={handleBooking}
-                 className="flex-[2] py-5 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[2px] rounded-2xl hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
+                 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                >
                  {loading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
                  CONFIRM DEPLOYMENT

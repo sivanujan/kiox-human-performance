@@ -375,7 +375,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                    <Calendar size={32} />
                 </div>
                 <div>
-                   <div className="text-sky-400 text-[10px] font-black tracking-[5px] uppercase mb-1">Operational Scheduler</div>
+                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Operational Scheduler</div>
                    <h2 className="font-display text-4xl text-white tracking-wider uppercase">
                       Initialize Schedule
                    </h2>
@@ -389,7 +389,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-hide">
              {/* Target Dates Calendar Grid */}
              <div className="space-y-3">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1 flex items-center gap-2">
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                    <Calendar size={12} /> Target Dates ({selectedDates.length} Selected)
                 </label>
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
@@ -415,7 +415,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                       </div>
                       <div className="grid grid-cols-7 gap-2 text-center">
                          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-                            <div key={idx} className="text-[10px] font-black text-gray-500 py-1 uppercase flex items-center justify-center">{day}</div>
+                            <div key={idx} className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{day}</div>
                          ))}
                          {getDaysInMonth(currentMonth).map((day, idx) => {
                             if (!day) return <div key={idx} className="aspect-square" />;
@@ -450,7 +450,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
              {/* Multiple Schedule Items Section */}
              <div className="space-y-6">
                 <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-[3px] ml-1">Schedule Items</label>
+                   <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Schedule Items</label>
                    <button
                       type="button"
                       onClick={addItem}
@@ -468,7 +468,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                             <button
                                type="button"
                                onClick={() => removeItem(item.id)}
-                               className="absolute top-4 right-4 text-[10px] font-black text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors"
+                               className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                             >
                                Remove
                             </button>
@@ -479,21 +479,21 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                          {/* Title & Time */}
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Title</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Title</label>
                                <input 
                                  required
                                  value={item.title}
                                  onChange={e => updateItem(item.id, { title: e.target.value })}
                                  placeholder="EX: TRAINING SESSION"
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none uppercase placeholder:text-white/5"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                />
                              </div>
                              <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Type</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Type</label>
                                <select
                                  value={item.session_type}
                                  onChange={e => updateItem(item.id, { session_type: e.target.value as any })}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none appearance-none cursor-pointer"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                                >
                                   <option value="TACTICAL" className="bg-[#111]">TACTICAL</option>
                                   <option value="STRENGTH" className="bg-[#111]">STRENGTH</option>
@@ -505,13 +505,13 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                                </select>
                              </div>
                             <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Start Time</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Start Time</label>
                                <input 
                                  type="time"
                                  required
                                  value={item.start_time}
                                  onChange={e => updateItem(item.id, { start_time: e.target.value })}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                />
                             </div>
                          </div>
@@ -519,11 +519,11 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                          {/* Coach & Location */}
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Assign Coach</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assign Coach</label>
                                <select 
                                  value={item.coach_id}
                                  onChange={e => updateItem(item.id, { coach_id: e.target.value })}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none appearance-none cursor-pointer"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                                >
                                   <option value="" className="bg-[#111]">UNASSIGNED</option>
                                   {(localCoaches || []).map(coach => (
@@ -534,12 +534,12 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                                </select>
                             </div>
                             <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Location</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Location</label>
                                <input 
                                  value={item.location}
                                  onChange={e => updateItem(item.id, { location: e.target.value })}
                                  placeholder="EX: HQ FIELD / PHYSICAL ROOM"
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none placeholder:text-white/5"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                />
                             </div>
                          </div>
@@ -548,11 +548,11 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                           <div className="bg-black/35 p-6 rounded-3xl border border-white/5 grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Category Selector */}
                             <div className="space-y-2">
-                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Session Category</label>
+                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Session Category</label>
                                <select 
                                  value={item.session_category}
                                  onChange={e => updateItem(item.id, { session_category: e.target.value as any })}
-                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none appearance-none cursor-pointer"
+                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                                >
                                   {isSuperAdmin && <option value="CURRICULUM" className="bg-[#111]">CURRICULUM (SUPERADMIN ONLY)</option>}
                                   <option value="SCHEDULE" className="bg-[#111]">SCHEDULE (ONE-OFF SESSION)</option>
@@ -640,97 +640,97 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">First Name</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">First Name</label>
                                           <input 
                                             required
                                             type="text"
                                             value={client.first_name}
                                             onChange={e => updateClient({ first_name: e.target.value })}
                                             placeholder="EX: MARCUS"
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Last Name</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Last Name</label>
                                           <input 
                                             required
                                             type="text"
                                             value={client.last_name}
                                             onChange={e => updateClient({ last_name: e.target.value })}
                                             placeholder="EX: RASHFORD"
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none uppercase"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Phone Number</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Phone Number</label>
                                           <input 
                                             required
                                             type="text"
                                             value={client.phone}
                                             onChange={e => updateClient({ phone: e.target.value })}
                                             placeholder="EX: +44 7911 123456"
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Email</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Email</label>
                                           <input 
                                             required
                                             type="email"
                                             value={client.email}
                                             onChange={e => updateClient({ email: e.target.value })}
                                             placeholder="EX: MARCUS@MANUTD.COM"
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training Start Date</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Training Start Date</label>
                                           <input 
                                             required
                                             type="date"
                                             value={client.training_start_date}
                                             onChange={e => updateClient({ training_start_date: e.target.value })}
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Training End Date</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Training End Date</label>
                                           <input 
                                             required
                                             type="date"
                                             value={client.training_end_date}
                                             onChange={e => updateClient({ training_end_date: e.target.value })}
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-[#22c55e] uppercase tracking-widest ml-1">Payment Status</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Payment Status</label>
                                           <select 
                                             value={client.payment_status}
                                             onChange={e => updateClient({ payment_status: e.target.value as any })}
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none appearance-none cursor-pointer"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                                           >
                                             <option value="PENDING" className="bg-[#111]">PENDING</option>
                                             <option value="CONFIRMED" className="bg-[#111]">CONFIRMED</option>
                                           </select>
                                         </div>
                                         <div className="space-y-2">
-                                          <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Payment Notes (Optional)</label>
+                                          <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Payment Notes (Optional)</label>
                                           <input 
                                             type="text"
                                             value={client.payment_notes}
                                             onChange={e => updateClient({ payment_notes: e.target.value })}
                                             placeholder="EX: INVOICE SENT, PENDING STRIPE SYNC"
-                                            className="w-full bg-black/45 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-[#22c55e] outline-none"
+                                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                           />
                                         </div>
                                       </div>
@@ -743,12 +743,12 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
 
                          {/* Notes */}
                          <div className="space-y-2">
-                            <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Description / Notes</label>
+                            <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Description / Notes</label>
                             <textarea 
                               value={item.notes}
                               onChange={e => updateItem(item.id, { notes: e.target.value })}
                               placeholder="SPECIFY ADDITIONAL DETAILS..."
-                              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-xs font-bold focus:border-sky-500 outline-none min-h-[60px] resize-none placeholder:text-white/5"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                             />
                          </div>
                       </div>

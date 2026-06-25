@@ -14,15 +14,17 @@ interface ChangePasswordModalProps {
 }
 
 export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProps) {
-  const { supabase } = useAuth();
+  const { user, supabase } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
+  const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -45,15 +47,32 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
       return;
     }
 
+    if (!user?.email) {
+      setError("Active user session not found.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      // 1. Verify old password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: oldPassword
+      });
+
+      if (signInError) {
+        throw new Error("Old access code is incorrect.");
+      }
+
+      // 2. Update to new password
+      const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword
       });
 
-      if (error) throw error;
+      if (updateError) throw updateError;
       
       setSuccess(true);
+      setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
       
@@ -93,21 +112,21 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="relative z-10 w-full max-w-[450px] bg-[#080808] border border-[rgba(34,197,94,0.2)] rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+            className="relative z-10 w-full max-w-[450px] bg-bg-card border border-accent-green/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-8 border-b border-white/5 bg-[#0A0A0A] relative">
+            <div className="p-8 border-b border-border-primary/50 bg-bg-primary/50 relative">
               <div className="flex items-center gap-3 mb-2">
-                <div className="h-[1px] w-[20px] bg-gradient-to-r from-transparent to-[#22c55e]"></div>
-                <span className="text-[#22c55e] text-[10px] tracking-[0.4em] font-bold uppercase">Authentication</span>
+                <div className="h-[1px] w-[20px] bg-gradient-to-r from-transparent to-accent-green"></div>
+                <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Authentication</span>
               </div>
-              <h2 className={`font-sans text-white text-3xl font-bold uppercase tracking-wider`}>
-                Update <span className="text-[#22c55e]">Security</span>
+              <h2 className="font-sans text-text-primary text-3xl font-bold uppercase tracking-wider">
+                Update <span className="text-accent-green">Security</span>
               </h2>
               
               <button 
                 onClick={onClose}
-                className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors"
+                className="absolute top-8 right-8 text-text-muted hover:text-text-primary transition-colors"
               >
                 <X size={20} />
               </button>
@@ -118,7 +137,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <motion.div 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[11px] font-bold uppercase tracking-wider"
+                  className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                 >
                   <AlertCircle size={16} />
                   {error}
@@ -129,60 +148,85 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 <motion.div 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-3 p-4 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl text-[#22c55e] text-[11px] font-bold uppercase tracking-wider"
+                  className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                 >
                   <ShieldCheck size={16} />
                   Access Protocol Updated
                 </motion.div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Old Password */}
+                <div className="space-y-1.5">
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Current Access Code</label>
+                  <div className="relative flex items-center group">
+                    <div className="absolute left-4 flex items-center justify-center pointer-events-none text-text-muted group-focus-within:text-accent-green transition-colors">
+                      <Lock size={18} />
+                    </div>
+                    <input 
+                      type={showOldPassword ? "text" : "password"}
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      placeholder="Enter current code"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl pl-11 pr-12 py-3 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                      required
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      className="absolute right-4 text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
                 {/* New Password */}
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] ml-1">New Access Code</label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
-                      <Lock size={16} />
+                <div className="space-y-1.5">
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">New Access Code</label>
+                  <div className="relative flex items-center group">
+                    <div className="absolute left-4 flex items-center justify-center pointer-events-none text-text-muted group-focus-within:text-accent-green transition-colors">
+                      <Lock size={18} />
                     </div>
                     <input 
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Minimum 6 characters"
-                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-gray-700"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl pl-11 pr-12 py-3 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       required
                     />
                     <button 
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                      className="absolute right-4 text-text-muted hover:text-text-primary transition-colors"
                     >
-                      {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
 
                 {/* Confirm Password */}
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-white/40 uppercase tracking-[2px] ml-1">Verify Protocol</label>
-                  <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#22c55e] transition-colors">
-                      <ShieldCheck size={16} />
+                <div className="space-y-1.5">
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Verify Protocol</label>
+                  <div className="relative flex items-center group">
+                    <div className="absolute left-4 flex items-center justify-center pointer-events-none text-text-muted group-focus-within:text-accent-green transition-colors">
+                      <ShieldCheck size={18} />
                     </div>
                     <input 
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new code"
-                      className="w-full bg-black border border-white/10 rounded-xl pl-11 pr-12 py-4 text-sm text-white font-bold tracking-widest outline-none focus:border-[#22c55e]/50 transition-all placeholder:text-gray-700"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl pl-11 pr-12 py-3 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       required
                     />
                     <button 
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                      className="absolute right-4 text-text-muted hover:text-text-primary transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
@@ -191,7 +235,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
               <button 
                 type="submit"
                 disabled={loading || success}
-                className="w-full py-4 bg-[#22c55e] text-black text-[11px] font-black uppercase tracking-[3px] rounded-xl flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.2)] disabled:opacity-50 disabled:grayscale"
+                className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={18} />
@@ -202,7 +246,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
             </form>
 
             <div className="px-8 pb-8">
-              <p className="text-[9px] text-gray-500 uppercase font-bold text-center leading-relaxed tracking-wider">
+              <p className="text-[9px] text-text-muted uppercase font-bold text-center leading-relaxed tracking-wider">
                 Updating your security credentials will secure all active sessions and encrypt your profile with the new digital signature.
               </p>
             </div>

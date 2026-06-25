@@ -92,7 +92,7 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
           {/* Header */}
           <div className="p-10 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-[#22c55e]/5 to-transparent">
             <div>
-              <div className="text-[#22c55e] text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
+              <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                 <Activity size={12} /> TRAINING INTENSITY MATRIX
               </div>
               <h2 className={`font-display text-3xl text-white tracking-wider uppercase`}>Team Load Analytics</h2>
@@ -106,9 +106,9 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
               {/* Left: Chart Area */}
               <div className="lg:col-span-2 space-y-10">
-                <div className="h-[400px] w-full bg-black/40 border border-white/5 rounded-3xl p-8">
+                <div className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium">
                   <div className="flex justify-between items-center mb-8">
-                     <span className="text-gray-500 text-[10px] font-black uppercase tracking-[3px]">AGGREGATE WEEKLY AU BY SUBJECT</span>
+                     <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">AGGREGATE WEEKLY AU BY SUBJECT</span>
                      <div className="flex gap-4">
                         <div className="flex items-center gap-2">
                            <div className="w-2 h-2 rounded-full bg-amber-500" />
@@ -160,11 +160,11 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
 
                 <div className="grid grid-cols-2 gap-6">
                    <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
-                      <div className="text-gray-500 text-[10px] font-black uppercase tracking-[3px] mb-2">MATRIX TARGET</div>
+                      <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">MATRIX TARGET</div>
                       <div className="text-xl font-display text-[#22c55e]">500 - 650 AU</div>
                    </div>
                    <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
-                      <div className="text-gray-500 text-[10px] font-black uppercase tracking-[3px] mb-2">SYSTEM STATUS</div>
+                      <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">SYSTEM STATUS</div>
                       <div className="text-xl font-display text-white">ACTIVE OPS cycle</div>
                    </div>
                 </div>
@@ -178,7 +178,7 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
                       <div className="w-10 h-10 rounded-full bg-[#22c55e] flex items-center justify-center text-black">
                          <Activity size={20} />
                       </div>
-                      <div className="text-white text-[12px] font-black uppercase tracking-[3px]">System Automated</div>
+                      <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">System Automated</div>
                    </div>
                    <p className="text-white/60 text-[11px] leading-relaxed font-medium">
                      Training Loads (AU) are now synchronized globally in the background. The matrix automatically extracts duration and exertion metrics when Command Staff marks a session as <strong>COMPLETED</strong>. Manual entry is no longer required.
@@ -187,7 +187,7 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
 
                 <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden">
                    <div className="p-6 border-b border-white/5 bg-white/5">
-                      <span className="text-gray-500 text-[10px] font-black uppercase tracking-[3px]">SUBJECT BREAKDOWN</span>
+                      <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">SUBJECT BREAKDOWN</span>
                    </div>
                    <div className="divide-y divide-white/5 max-h-[300px] overflow-y-auto scrollbar-hide">
                       {data.map((subject, i) => (

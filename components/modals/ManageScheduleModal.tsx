@@ -165,7 +165,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
            <div>
               <div className="flex items-center gap-2 mb-1">
                  <Calendar className="text-[#22c55e]" size={14} />
-                 <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px]">Protocol Deployment</span>
+                 <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Protocol Deployment</span>
               </div>
               <h2 className="text-2xl font-display font-black text-white uppercase">{program?.title}</h2>
               <div className="flex gap-4 mt-4">
@@ -198,7 +198,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                       {!isAdding && profile?.role !== 'medical' && (
                         <button 
                           onClick={() => setIsAdding(true)}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                          className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                         >
                            <Plus size={14} /> Add Block
                         </button>
@@ -212,7 +212,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                    ) : schedule.length === 0 ? (
                      <div className="py-20 text-center border border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
                         <AlertCircle className="mx-auto text-gray-600 mb-4" size={32} />
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">No recurring sessions configured</p>
+                        <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">No recurring sessions configured</p>
                      </div>
                    ) : (
                      <div className="space-y-3">
@@ -224,7 +224,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                                 </div>
                                 <div>
                                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">{session.title}</h4>
-                                   <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase mt-1">
+                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                                       <span className="flex items-center gap-1"><Clock size={10} className="text-[#22c55e]" /> {session.start_time.slice(0, 5)}</span>
                                       <span>• {session.duration_minutes} MIN</span>
                                    </div>
@@ -252,18 +252,18 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                            <h3 className="text-xs font-black text-[#22c55e] uppercase tracking-widest mb-8">New Session Configuration</h3>
                            <form onSubmit={handleAdd} className="space-y-6">
                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Session Identity</label>
+                                 <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Session Identity</label>
                                  <input 
                                     required
                                     value={formData.title}
                                     onChange={e => setFormData({...formData, title: e.target.value})}
                                     placeholder="e.g. MORNING CONDITIONING"
-                                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none transition-all"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                  />
                               </div>
 
                               <div className="space-y-3">
-                                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Recurring Days</label>
+                                 <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Recurring Days</label>
                                  <div className="flex justify-between gap-2">
                                     {DAYS.map((d, i) => (
                                       <button
@@ -284,21 +284,21 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
 
                               <div className="grid grid-cols-2 gap-4">
                                  <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Commencement</label>
+                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Commencement</label>
                                     <input 
                                        type="time"
                                        value={formData.start_time}
                                        onChange={e => setFormData({...formData, start_time: e.target.value})}
-                                       className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
+                                       className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                     />
                                  </div>
                                  <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Duration (MIN)</label>
+                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (MIN)</label>
                                     <input 
                                        type="number"
                                        value={formData.duration_minutes}
                                        onChange={e => setFormData({...formData, duration_minutes: parseInt(e.target.value)})}
-                                       className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#22c55e] outline-none"
+                                       className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                     />
                                  </div>
                               </div>
@@ -307,14 +307,14 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                                  <button 
                                     type="button"
                                     onClick={() => setIsAdding(false)}
-                                    className="flex-1 py-4 border border-white/10 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-widest hover:bg-white/5 transition-all"
+                                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                                  >
                                     Abort
                                  </button>
                                  <button 
                                     type="submit"
                                     disabled={submitting}
-                                    className="flex-1 py-4 bg-[#22c55e] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2"
+                                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                                  >
                                     {submitting ? <Loader2 className="animate-spin" size={14} /> : <><Zap size={14} /> Commit</>}
                                  </button>
@@ -338,7 +338,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                   {profile?.role !== 'medical' && (
                     <button 
                       onClick={() => setSyllabus([...syllabus, { title: "", status: "locked" }])}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#22c55e] hover:text-black transition-all"
+                      className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                     >
                        <Plus size={14} /> Add Phase
                     </button>
@@ -382,7 +382,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                                 updated[idx].status = e.target.value;
                                 setSyllabus(updated);
                               }}
-                              className="bg-black border border-white/10 rounded-xl px-4 py-3 text-[10px] font-black text-white focus:border-[#22c55e] outline-none uppercase"
+                              className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                             >
                               <option value="completed">Completed</option>
                               <option value="active">Active</option>
@@ -404,7 +404,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                    ))}
                    {syllabus.length === 0 && (
                      <div className="py-20 text-center border border-dashed border-white/5 rounded-3xl bg-white/[0.02]">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">No syllabus phases defined</p>
+                        <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">No syllabus phases defined</p>
                      </div>
                    )}
                 </div>
@@ -413,7 +413,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                   <button 
                     disabled={submitting}
                     onClick={saveSyllabus}
-                    className="w-full py-5 bg-[#22c55e] text-black rounded-2xl text-[11px] font-black uppercase tracking-[3px] hover:bg-white transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3"
+                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                   >
                     {submitting ? <Loader2 className="animate-spin" size={18} /> : <><CheckCircle2 size={18} /> Deploy Syllabus Updates</>}
                   </button>

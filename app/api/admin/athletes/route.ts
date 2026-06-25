@@ -26,6 +26,7 @@ export async function GET() {
     .select(`
       id, first_name, last_name, username, status, role, position_played,
       top_speed, distance, sprints, hrv, recovery_index, injury_risk, training_status, weekly_load,
+      sleep_score, soreness,
       athlete_injury_logs(severity, status),
       athlete_alerts(id, severity, is_resolved),
       session_athlete_loads(
@@ -41,31 +42,6 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Fetch wellness logs for all returned athletes to compute recovery scores
-  const profileIds = (athletes || []).map((p: any) => p.id);
-  let wellnessLogs: any[] = [];
-  
-  if (profileIds.length > 0) {
-    const { data: logs, error: logsError } = await supabase
-      .from('wellness_logs')
-      .select('user_id, sleep_score, soreness_score, created_at')
-      .in('user_id', profileIds);
-      
-    if (!logsError && logs) {
-      wellnessLogs = logs;
-    } else if (logsError) {
-      console.error("API Athletes Wellness Fetch Error:", logsError.message);
-    }
-  }
-
-  // Combine profiles with wellness logs for simple processing
-  const enrichedAthletes = (athletes || []).map((athlete: any) => {
-    return {
-      ...athlete,
-      wellness_logs: wellnessLogs.filter((w: any) => w.user_id === athlete.id)
-    };
-  });
-
-  return NextResponse.json(enrichedAthletes);
+  return NextResponse.json(athletes);
 }
 

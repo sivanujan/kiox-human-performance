@@ -134,7 +134,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                       />
                   </div>
                   <div>
-                    <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
+                    <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                       Personal Identity Matrix
                     </div>
                     <h2 className={`font-display text-3xl text-white uppercase tracking-wider mb-1`}>
@@ -163,7 +163,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">First Name</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">First Name</label>
                       <div className="relative">
                         <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input 
@@ -171,14 +171,14 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                           required
                           value={formData.first_name}
                           onChange={e => setFormData(p => ({ ...p, first_name: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Last Name</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Last Name</label>
                       <div className="relative">
                         <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input 
@@ -186,7 +186,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                           required
                           value={formData.last_name}
                           onChange={e => setFormData(p => ({ ...p, last_name: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
@@ -194,7 +194,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
 
                   {/* Username */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Operational Tag (Username)</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Operational Tag (Username)</label>
                     <div className="relative">
                       <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                       <input 
@@ -202,7 +202,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                         required
                         value={formData.username}
                         onChange={e => setFormData(p => ({ ...p, username: e.target.value.toLowerCase().replace(/\s/g, '_') }))}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all lowercase placeholder:text-white/5 font-bold"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                   </div>
@@ -222,7 +222,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                           await signOut();
                         }
                       }}
-                      className="px-6 py-4 bg-red-950/20 border border-red-500/30 text-red-500 text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-[0_10px_30px_rgba(239,68,68,0.1)] flex items-center justify-center gap-3"
+                      className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                     >
                       <LogOut size={16} />
                       Log Out
@@ -230,7 +230,7 @@ export default function AdminProfileModal({ isOpen, onClose }: AdminProfileModal
                     <button 
                       type="submit"
                       disabled={loading}
-                      className="flex-1 py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                     >
                       {loading ? (
                         <>

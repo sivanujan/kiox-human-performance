@@ -260,10 +260,10 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
               displayedMockBookings.map((b) => (
                 <div 
                   key={b.id} 
-                  className="bg-bg-card border border-border-card p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-accent-green/20 transition-all group/item"
+                  className="bg-bg-card border border-border-card p-5 rounded-2xl flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center hover:border-accent-green/20 transition-all group/item"
                 >
-                  {/* Left Column (span 4): Avatar + Name + Location + load stats */}
-                  <div className="md:col-span-4 flex items-center gap-3 min-w-0">
+                  {/* Left Column: Avatar + Name + Location + load stats */}
+                  <div className="flex items-center gap-3 min-w-0 w-full md:w-1/3">
                     <Avatar src={b.athlete.avatar_url} name={`${b.athlete.first_name} ${b.athlete.last_name}`} size="md" role="athlete" />
                     <div className="min-w-0">
                       <h4 className="text-text-primary font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
@@ -290,8 +290,8 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                     </div>
                   </div>
 
-                  {/* Center Column (span 4): Date + Session Info */}
-                  <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-4">
+                  {/* Center Column: Date + Session Info */}
+                  <div className="flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-6 w-full md:w-auto md:flex-1">
                     <div className="text-text-muted text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
                        <Calendar size={10} className="text-accent-green" /> 
                        <span>{b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d, yyyy') : 'TBD'} • {b.session?.start_time?.slice(0, 5) || 'TBD'}</span>
@@ -306,8 +306,8 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                     )}
                   </div>
 
-                  {/* Right Column (span 4): Actions */}
-                  <div className="md:col-span-4 flex items-center justify-end gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0">
+                  {/* Right Column: Actions */}
+                  <div className="flex items-center justify-end gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 flex-shrink-0">
                      {b.status === 'PENDING' ? (
                        <div className="flex items-center gap-2 w-full md:w-auto">
                           <button 
@@ -344,12 +344,12 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
           filteredBookings.map((b) => (
             <div 
               key={b.id} 
-              className={`bg-bg-card border p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:border-accent-green/20 transition-all group/item ${
+              className={`bg-bg-card border p-5 rounded-2xl flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center hover:border-accent-green/20 transition-all group/item ${
                 b.is_external ? 'border-purple-500/10 hover:border-purple-500/30' : 'border-border-card'
               }`}
             >
-              {/* Left Column (span 4): Avatar + Name + Location + load stats */}
-              <div className="md:col-span-4 flex items-center gap-3 min-w-0">
+              {/* Left Column: Avatar + Name + Location + load stats */}
+              <div className="flex items-center gap-3 min-w-0 w-full md:w-[35%]">
                 <Avatar src={b.athlete.avatar_url} name={`${b.athlete.first_name} ${b.athlete.last_name}`} size="md" role="athlete" />
                 <div className="min-w-0">
                   <h4 className="text-text-primary font-semibold text-sm tracking-normal flex items-center gap-2 truncate">
@@ -384,8 +384,8 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                 </div>
               </div>
 
-              {/* Center Column (span 4): Date + Session Info */}
-              <div className="md:col-span-4 flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-4">
+              {/* Center Column: Date + Session Info */}
+              <div className="flex flex-col gap-0.5 min-w-0 border-t md:border-t-0 md:border-l border-border-card pt-3 md:pt-0 md:pl-6 w-full md:w-auto md:flex-1">
                 <div className="text-text-muted text-[10px] tracking-wide mb-1 flex items-center gap-1.5">
                    <Calendar size={10} className="text-accent-green" /> 
                    <span>{b.session?.scheduled_date ? format(new Date(b.session.scheduled_date), 'MMM d, yyyy') : 'TBD'} • {b.session?.start_time?.slice(0, 5) || 'TBD'}</span>
@@ -405,8 +405,8 @@ export default function AdminBookingsPanel({ hideTitle = false }: AdminBookingsP
                 )}
               </div>
 
-              {/* Right Column (span 4): Actions */}
-              <div className="md:col-span-4 flex items-center justify-end gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0">
+              {/* Right Column: Actions */}
+              <div className="flex items-center justify-end gap-2 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0 flex-shrink-0">
                  {b.status === 'PENDING' ? (
                    <div className="flex items-center gap-2 w-full md:w-auto">
                       <button 

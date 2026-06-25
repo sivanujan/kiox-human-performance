@@ -146,7 +146,7 @@ export default function AthleteProfileModal({
                   />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
+                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     Elite Identity Verified
                   </div>
                   <h2
@@ -192,27 +192,27 @@ export default function AthleteProfileModal({
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">First Name</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">First Name</label>
                         <input
                           type="text"
                           required
                           value={formData.first_name}
                           onChange={(e) => setFormData((p) => ({ ...p, first_name: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase font-bold"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Last Name</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Last Name</label>
                         <input
                           type="text"
                           value={formData.last_name}
                           onChange={(e) => setFormData((p) => ({ ...p, last_name: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase font-bold"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Personnel Tag (Username)</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Personnel Tag (Username)</label>
                       <div className="relative">
                         <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input
@@ -220,7 +220,7 @@ export default function AthleteProfileModal({
                           required
                           value={formData.username}
                           onChange={(e) => setFormData((p) => ({ ...p, username: e.target.value.toLowerCase().replace(/\s/g, "_") }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all lowercase font-bold"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
@@ -233,23 +233,23 @@ export default function AthleteProfileModal({
                        <h3 className={`font-sans text-white text-xs font-bold uppercase tracking-[2px]`}>Operations & Biometrics</h3>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Tactical Position / Field Role</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Tactical Position / Field Role</label>
                         <input
                           type="text"
                           placeholder="e.g. Midfielder / Unit Captain"
                           value={formData.position_played}
                           onChange={(e) => setFormData((p) => ({ ...p, position_played: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase font-bold placeholder:text-white/5"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Biometric Summary (Bio)</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Biometric Summary (Bio)</label>
                         <textarea
                           rows={4}
                           placeholder="Brief mission profile or background briefing..."
                           value={formData.bio}
                           onChange={(e) => setFormData((p) => ({ ...p, bio: e.target.value }))}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all font-medium placeholder:text-white/5 resize-none"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                     </div>
                   </div>
@@ -263,14 +263,14 @@ export default function AthleteProfileModal({
                      <button
                         type="button"
                         onClick={onChangePassword}
-                        className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between group hover:border-[#22c55e]/30 transition-all"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                      >
                         <div className="flex items-center gap-4">
                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 group-hover:text-[#22c55e] transition-colors">
                               <Fingerprint size={20} />
                            </div>
                            <div className="text-left">
-                              <p className="text-[11px] font-bold text-white uppercase tracking-wider">Update Access Credentials</p>
+                              <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Update Access Credentials</p>
                               <p className="text-[9px] text-gray-500 uppercase font-black tracking-widest">Modify your digital signature (Password)</p>
                            </div>
                         </div>
@@ -291,7 +291,7 @@ export default function AthleteProfileModal({
                         await signOut();
                       }
                     }}
-                    className="px-6 py-4 bg-red-950/20 border border-red-500/30 text-red-500 text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-[0_10px_30px_rgba(239,68,68,0.1)] flex items-center justify-center gap-3"
+                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                   >
                     <LogOut size={16} />
                     Log Out
@@ -300,7 +300,7 @@ export default function AthleteProfileModal({
                     type="submit"
                     form="profile-form"
                     disabled={loading}
-                    className="flex-1 py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                   >
                     {loading ? (
                       <>

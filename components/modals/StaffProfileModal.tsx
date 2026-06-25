@@ -138,7 +138,7 @@ export default function StaffProfileModal({
                   />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3 mb-1 text-[10px] font-black tracking-[4px] uppercase text-[#22c55e]">
+                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     Staff Identity Matrix
                   </div>
                   <h2
@@ -146,7 +146,7 @@ export default function StaffProfileModal({
                   >
                     Modify Staff Profile
                   </h2>
-                  <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[2px]">
+                  <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     {profile?.role === "superadmin"
                       ? "Super Admin"
                       : "Performance Staff"}
@@ -180,7 +180,7 @@ export default function StaffProfileModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* First Name */}
                     <div className="space-y-2">
-                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                         First Name
                       </label>
                       <div className="relative group">
@@ -197,14 +197,14 @@ export default function StaffProfileModal({
                               ...p,
                               first_name: e.target.value }))
                           }
-                          className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans uppercase font-medium"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-10 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
 
                     {/* Last Name */}
                     <div className="space-y-2">
-                      <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                         Last Name
                       </label>
                       <div className="relative group">
@@ -220,7 +220,7 @@ export default function StaffProfileModal({
                               ...p,
                               last_name: e.target.value }))
                           }
-                          className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans uppercase font-medium"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-10 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
@@ -228,7 +228,7 @@ export default function StaffProfileModal({
 
                   {/* Username */}
                   <div className="space-y-2">
-                    <label className="block text-[12px] font-medium text-gray-400 tracking-[0.03em]">
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                       Operational Tag (Username)
                     </label>
                     <div className="relative group">
@@ -247,7 +247,7 @@ export default function StaffProfileModal({
                               .toLowerCase()
                               .replace(/\s/g, "_") }))
                         }
-                        className="w-full bg-white/[0.04] border border-white/[0.12] rounded-xl pl-10 pr-4 py-3.5 text-[13px] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#16a34a]/70 focus:ring-1 focus:ring-[#16a34a]/30 focus:bg-white/[0.06] hover:border-white/[0.2] transition-all font-sans lowercase font-medium"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-10 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                   </div>

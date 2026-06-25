@@ -66,7 +66,7 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
                    <Target size={32} />
                 </div>
                 <div>
-                   <div className="text-blue-500 text-[10px] font-black tracking-[5px] uppercase mb-1">Operational Optimization</div>
+                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Operational Optimization</div>
                    <h2 className={`font-display text-4xl text-white tracking-wider uppercase`}>Intensity Calibration</h2>
                 </div>
              </div>
@@ -80,7 +80,7 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
                 {/* Left: Global Metrics */}
                 <div className="lg:col-span-1 space-y-6">
                    <div className="p-8 bg-black/40 border border-white/5 rounded-3xl">
-                      <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">SQUAD AVG LOAD</div>
+                      <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">SQUAD AVG LOAD</div>
                       <div className="text-5xl font-display text-white">542 <span className="text-xl text-gray-500">AU</span></div>
                       <div className="flex items-center gap-2 mt-4 text-[#22c55e] text-[9px] font-black uppercase tracking-widest">
                          <TrendingDown size={12} /> -12% vs last cycle
@@ -88,7 +88,7 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
                    </div>
 
                    <div className="p-8 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl">
-                      <div className="text-[#22c55e] text-[10px] font-black tracking-widest uppercase mb-4">OPTIMIZATION RANGE</div>
+                      <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">OPTIMIZATION RANGE</div>
                       <div className="text-2xl font-display text-white">500 - 650 <span className="text-sm text-[#22c55e]">AU</span></div>
                       <div className="h-2 w-full bg-white/5 rounded-full mt-4 relative overflow-hidden">
                          <div className="absolute top-0 left-1/4 right-3/4 h-full bg-[#22c55e]" />
@@ -98,14 +98,14 @@ export default function AdjustLoadModal({ isOpen, onClose, sessions, athletes }:
 
                 {/* Right: Session Adjustments */}
                 <div className="lg:col-span-2 space-y-6">
-                   <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase ml-1 flex items-center gap-2">
+                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                       <Activity size={12} /> ACTIVE SQUAD OPS CALIBRATION
                    </div>
 
                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                       {sessions.length === 0 ? (
                         <div className="py-20 text-center border border-white/5 rounded-3xl bg-white/[0.01]">
-                           <span className="text-gray-700 text-[10px] font-black tracking-[0.3em] uppercase">No sessions to calibrate</span>
+                           <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">No sessions to calibrate</span>
                         </div>
                       ) : sessions.map((s) => (
                         <div key={s.id} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl border-l-[6px] border-l-blue-500/40 group hover:bg-white/[0.05] transition-all">

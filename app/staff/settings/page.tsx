@@ -23,6 +23,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ImageUpload from "@/components/ui/ImageUpload";
 import ChangePasswordModal from "@/components/modals/ChangePasswordModal";
+import PurgeModal from "@/components/modals/PurgeModal";
+import { AlertCircle } from "lucide-react";
 
 
 export default function StaffSettingsPage() {
@@ -31,6 +33,7 @@ export default function StaffSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saverLoading, setSaverLoading] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [purgeModalOpen, setPurgeModalOpen] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [teams, setTeams] = useState<any[]>([]);
@@ -398,6 +401,24 @@ export default function StaffSettingsPage() {
                     All administrative actions are logged to your digital signature. Maintain strict operational security at all times. Use a high-entropy access code for maximum protection.
                  </p>
               </div>
+              
+              {profile?.role === 'superadmin' && (
+                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6 md:p-8 space-y-4">
+                   <div className="flex items-center gap-2.5 text-red-500 pb-2 border-b border-red-500/10">
+                      <AlertCircle size={18} />
+                      <h3 className="font-sans text-base font-bold tracking-wide">System Purge</h3>
+                   </div>
+                   <p className="text-xs text-red-400/80 leading-relaxed font-normal tracking-wide mb-4">
+                      Super Admin override. Initialize a full operational cache clear.
+                   </p>
+                   <button 
+                     onClick={() => setPurgeModalOpen(true)}
+                     className="w-full px-6 py-3 bg-red-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-white hover:text-red-500 transition-all shadow-[0_10px_30px_rgba(239,68,68,0.2)] whitespace-nowrap"
+                   >
+                     Initialize Platform Purge
+                   </button>
+                </div>
+              )}
            </div>
 
         </div>
@@ -406,6 +427,11 @@ export default function StaffSettingsPage() {
       <ChangePasswordModal 
         isOpen={passwordModalOpen} 
         onClose={() => setPasswordModalOpen(false)} 
+      />
+
+      <PurgeModal
+        isOpen={purgeModalOpen}
+        onClose={() => setPurgeModalOpen(false)}
       />
     </main>
   );

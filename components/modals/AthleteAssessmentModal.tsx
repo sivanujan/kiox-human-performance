@@ -282,7 +282,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           {/* Header */}
           <div className="p-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-gradient-to-br from-[#22c55e]/15 to-transparent">
             <div>
-              <div className="text-[#22c55e] text-[10px] font-black tracking-[4px] uppercase mb-1 flex items-center gap-2">
+              <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                 <BarChart3 size={14} fill="currentColor" /> SQUAD PERFORMANCE MATRIX
               </div>
               <h2 className={`font-display text-3xl text-white tracking-wider uppercase`}>
@@ -348,62 +348,62 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                 {/* ... existing physical form items ... */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Top Speed (km/h)</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Top Speed (km/h)</label>
                     <input
                       type="number" step="0.1"
                       placeholder="EX: 34.5"
                       value={physicalForm.top_speed}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, top_speed: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Distance (km)</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Distance (km)</label>
                     <input
                       type="number" step="0.1"
                       placeholder="EX: 12.4"
                       value={physicalForm.distance}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, distance: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Sprints</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Sprints</label>
                     <input
                       type="number"
                       placeholder="EX: 28"
                       value={physicalForm.sprints}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, sprints: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Power (Watts)</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Power (Watts)</label>
                     <input
                       type="number"
                       placeholder="EX: 850"
                       value={physicalForm.power}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, power: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">VO2 Max</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">VO2 Max</label>
                     <input
                       type="number" step="0.1"
                       placeholder="EX: 62.1"
                       value={physicalForm.vo2_max}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, vo2_max: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Assessment Date</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assessment Date</label>
                     <input
                       type="date"
                       value={physicalForm.date}
                       onChange={(e) => setPhysicalForm({ ...physicalForm, date: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-xs font-bold focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                 </div>
@@ -412,13 +412,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                 <div className="p-8 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <Zap size={16} className="text-[#22c55e]" />
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[4px]">Load Intelligence Mapping</span>
+                    <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Load Intelligence Mapping</span>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Session Intensity</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Session Intensity</label>
                         <span className="text-white font-display text-xl">{physicalForm.intensity}</span>
                       </div>
                       <input 
@@ -435,13 +435,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Duration (Mins)</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (Mins)</label>
                       <input
                         type="number"
                         placeholder="60"
                         value={physicalForm.duration}
                         onChange={(e) => setPhysicalForm({ ...physicalForm, duration: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                   </div>
@@ -449,12 +449,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
                 {/* COACH DIRECTIVES */}
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Coach's Protocol Directives</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Coach's Protocol Directives</label>
                   <textarea
                     placeholder="ENTER TACTICAL ADVICE OR RECOVERY INSTRUCTIONS..."
                     value={physicalForm.directives}
                     onChange={(e) => setPhysicalForm({ ...physicalForm, directives: e.target.value })}
-                    className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-3xl py-5 px-6 text-white text-xs font-bold focus:outline-none focus:border-[#22c55e] transition-all min-h-[120px] resize-none"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
 
@@ -471,43 +471,43 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <form onSubmit={handleMatchSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Opponent Unit</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Opponent Unit</label>
                     <input
                       placeholder="EX: LIVERPOOL ACADEMY"
                       value={matchForm.opponent}
                       onChange={(e) => setMatchForm({ ...matchForm, opponent: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display placeholder:text-white/5 focus:outline-none focus:border-[#22c55e] transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Goals</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Goals</label>
                       <input
                         type="number"
                         placeholder="0"
                         value={matchForm.goals}
                         onChange={(e) => setMatchForm({ ...matchForm, goals: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Assists</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assists</label>
                       <input
                         type="number"
                         placeholder="0"
                         value={matchForm.assists}
                         onChange={(e) => setMatchForm({ ...matchForm, assists: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">xG</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">xG</label>
                       <input
                         type="number" step="0.01"
                         placeholder="0.0"
                         value={matchForm.xg}
                         onChange={(e) => setMatchForm({ ...matchForm, xg: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white text-center text-2xl font-display focus:border-[#22c55e] outline-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                   </div>
@@ -519,7 +519,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       { label: 'DATE', value: matchForm.date, setter: (v: string) => setMatchForm({ ...matchForm, date: v }), type: 'date' },
                     ].map((f, i) => (
                       <div key={i} className="space-y-2">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">{f.label}</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{f.label}</label>
                         <input
                           type={f.type || 'number'}
                           value={f.value}
@@ -532,12 +532,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   
                   {/* COACH DIRECTIVES (MATCH) */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Match Feedback & Directives</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Match Feedback & Directives</label>
                     <textarea
                       placeholder="ENTER POST-MATCH ANALYSIS OR FOCUS AREAS..."
                       value={matchForm.directives}
                       onChange={(e) => setMatchForm({ ...matchForm, directives: e.target.value })}
-                      className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-3xl py-5 px-6 text-white text-xs font-bold focus:outline-none focus:border-[#22c55e] transition-all min-h-[120px] resize-none"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                     />
                   </div>
                 </div>
@@ -555,21 +555,21 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <form onSubmit={handleCognitiveSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Reaction Time (ms)</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Reaction Time (ms)</label>
                       <input
                         type="number" placeholder="EX: 240"
                         value={cognitiveForm.reaction_time}
                         onChange={(e) => setCognitiveForm({ ...cognitiveForm, reaction_time: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Assessment Date</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assessment Date</label>
                       <input
                         type="date"
                         value={cognitiveForm.date}
                         onChange={(e) => setCognitiveForm({ ...cognitiveForm, date: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white font-bold text-xs focus:border-[#22c55e] outline-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                  </div>
@@ -577,7 +577,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Decision Score (0-10)</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Decision Score (0-10)</label>
                         <span className="text-white font-display text-xl">{cognitiveForm.decision_score}</span>
                       </div>
                       <input 
@@ -589,7 +589,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     </div>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase">Focus Score (%)</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Focus Score (%)</label>
                         <span className="text-white font-display text-xl">{cognitiveForm.focus_score}%</span>
                       </div>
                       <input 
@@ -602,7 +602,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Psychological Stress Level</label>
+                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Psychological Stress Level</label>
                     <div className="flex gap-4">
                       {['Low', 'Moderate', 'High', 'Critical'].map((lvl) => (
                         <button
@@ -633,21 +633,21 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <form onSubmit={handleProgramSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
                  <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Active Program Title</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Active Program Title</label>
                       <input
                         placeholder="EX: ELITE STRIDE MECHANICS"
                         value={programForm.title}
                         onChange={(e) => setProgramForm({ ...programForm, title: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-2xl py-5 px-6 text-white text-lg font-display focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Training Phase</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Training Phase</label>
                         <select 
                           value={programForm.phase}
                           onChange={(e) => setProgramForm({ ...programForm, phase: e.target.value })}
-                          className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white font-bold text-xs focus:border-[#22c55e] outline-none uppercase"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         >
                           <option value="Tactical">Tactical</option>
                           <option value="Strength">Strength</option>
@@ -656,22 +656,22 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Effective Date</label>
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Effective Date</label>
                         <input
                           type="date"
                           value={programForm.date}
                           onChange={(e) => setProgramForm({ ...programForm, date: e.target.value })}
-                          className="w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 px-6 text-white font-bold text-xs focus:border-[#22c55e] outline-none"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#22c55e] tracking-widest uppercase ml-1">Strategic Program Notes</label>
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Strategic Program Notes</label>
                       <textarea
                         placeholder="ENTER DETAILED INSTRUCTIONS FOR THIS TRAINING PHASE..."
                         value={programForm.notes}
                         onChange={(e) => setProgramForm({ ...programForm, notes: e.target.value })}
-                        className="w-full bg-black/40 border-2 border-white/5 hover:border-[#22c55e]/30 rounded-3xl py-5 px-6 text-white text-xs font-bold focus:outline-none focus:border-[#22c55e] transition-all min-h-[150px] resize-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       />
                     </div>
                  </div>
@@ -691,7 +691,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-8 p-6 bg-red-500/10 border-2 border-red-500/30 rounded-3xl text-red-500 text-[11px] font-black uppercase tracking-[2px] text-center flex items-center justify-center gap-3"
+                className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
               >
                 <ShieldCheck size={18} /> CRITICAL ERROR: {error}
               </motion.div>
@@ -701,7 +701,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-8 p-6 bg-[#22c55e]/10 border-2 border-[#22c55e]/30 rounded-3xl text-[#22c55e] text-[11px] font-black uppercase tracking-[2px] text-center flex items-center justify-center gap-3"
+                className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
               >
                 <ClipboardCheck size={18} /> ASSESSMENT COMMITTED SUCCESSFULLY
               </motion.div>
@@ -711,7 +711,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center rounded-[40px]">
                   <div className="flex flex-col items-center gap-4">
                      <Loader2 className="animate-spin text-[#22c55e]" size={40} />
-                     <span className="text-[#22c55e] text-[10px] font-black uppercase tracking-[4px]">Syncing Current Matrix...</span>
+                     <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Syncing Current Matrix...</span>
                   </div>
                </div>
             )}

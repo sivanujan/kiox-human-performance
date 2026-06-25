@@ -179,7 +179,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[#22c55e] text-xs">⚡</span>
-                <span className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase">
+                <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   COMMAND PROTOCOL
                 </span>
               </div>
@@ -198,33 +198,33 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
           <div className="p-5 md:p-6 space-y-5">
             {/* Target Subject (read-only) */}
             <div>
-              <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2">
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                 TARGET SUBJECT
               </label>
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
+              <div className="w-full bg-bg-primary/50 border border-border-primary/50 rounded-xl px-4 py-3 text-sm text-text-primary font-medium">
                 {resolvedAthleteName}
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Feedback Title</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Feedback Title</label>
                 <input
                   required
                   placeholder="EX: MIDFIELD TRANSITION ANALYSIS"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Category</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Category</label>
                 <div className="relative">
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                   >
                     <option value="Technique">TECHNIQUE</option>
                     <option value="Tactical">TACTICAL</option>
@@ -236,7 +236,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Upload Source</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Upload Source</label>
                 <div className="flex rounded-xl overflow-hidden border border-gray-800">
                   <button
                     type="button"
@@ -269,7 +269,7 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                   className="border-2 border-dashed border-gray-700 hover:border-[#22c55e]/50 rounded-xl p-8 text-center cursor-pointer transition-all hover:bg-[#22c55e]/5 active:bg-[#22c55e]/10 group"
                 >
                   <div className="text-[#22c55e] text-2xl mb-2 flex justify-center group-hover:scale-110 transition-transform">↑</div>
-                  <div className="font-mono text-[10px] text-gray-500 tracking-widest uppercase">
+                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     {videoFile ? videoFile.name : "SELECT MP4 / MOV (MAX 500MB)"}
                   </div>
                   <input 
@@ -286,23 +286,23 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
                   placeholder="PASTE VIDEO URL..."
                   value={formData.externalUrl}
                   onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               )}
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Strategic Notes</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Strategic Notes</label>
                 <textarea
                   rows={3}
                   placeholder="DETAIL THE COACHING POINTS..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase resize-none transition-all min-h-[100px]"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
 
               {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
+                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   ERROR: {error}
                 </div>
               )}
@@ -327,12 +327,12 @@ export default function VideoFeedbackModal({ isOpen, onClose, athleteId, athlete
 
             {/* Recent Transmissions Section */}
             <div className="mt-5 pt-5 border-t border-gray-800">
-               <div className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase mb-3">
+               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                  RECENT TRANSMISSIONS
                </div>
                
                {history.length === 0 ? (
-                 <div className="py-8 text-center bg-[#1a1a1a] rounded-xl border border-gray-800 text-gray-600 font-mono text-[10px] uppercase tracking-widest italic">
+                 <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                     NO PREVIOUS DATA STREAMS FOUND
                  </div>
                ) : (

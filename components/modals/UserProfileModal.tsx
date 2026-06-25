@@ -54,7 +54,7 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
         <Icon size={18} />
       </div>
       <div className="min-w-0">
-        <p className="text-[9px] md:text-[10px] font-bold text-text-secondary uppercase tracking-[2px]">{label}</p>
+        <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{label}</p>
         <p className="text-xs md:text-sm font-bold text-text-primary uppercase tracking-wider truncate">{value || "NOT SPECIFIED"}</p>
       </div>
     </div>
@@ -108,7 +108,7 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
         <div className="space-y-4">
            <div className="flex items-center gap-3 border-b border-border-primary/50 pb-2">
               <Activity className="text-accent-green" size={16} />
-              <h3 className="text-text-primary text-[10px] font-black uppercase tracking-[2px]">Field Summary</h3>
+              <h3 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Field Summary</h3>
            </div>
             <div className="p-6 bg-bg-secondary border border-border-primary/50 rounded-2xl">
               <p className="text-xs md:text-sm text-text-secondary leading-relaxed font-medium italic">
@@ -121,15 +121,15 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
         <div className="space-y-4 pt-4 pb-8 md:pb-0">
            <div className="flex items-center gap-3 border-b border-border-primary/50 pb-2">
               <Calendar className="text-accent-green" size={16} />
-              <h3 className="text-text-primary text-[10px] font-black uppercase tracking-[2px]">Operations & Authority</h3>
+              <h3 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Operations & Authority</h3>
            </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-bg-secondary p-4 rounded-2xl border border-border-primary/50">
-                 <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px] mb-2">Command Staff</p>
+                 <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Command Staff</p>
                  <p className="text-xs font-bold text-text-primary uppercase tracking-widest truncate">{user_profile.assigned_staff || "Central Operations"}</p>
               </div>
               <div className="bg-bg-secondary p-4 rounded-2xl border border-border-primary/50">
-                 <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[2px] mb-2">Access Priority</p>
+                 <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Access Priority</p>
                  <p className="text-xs font-bold text-text-primary uppercase tracking-widest">Level {user_profile.role === 'superadmin' ? 'MAX' : user_profile.role === 'staff' ? 'HIGH' : 'STD'}</p>
               </div>
            </div>
@@ -142,7 +142,7 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
            </div>
            <button 
              onClick={onClose}
-             className="w-full sm:w-auto px-8 py-3 bg-bg-button-primary text-text-on-green text-[10px] font-black uppercase tracking-[2px] rounded-xl hover:bg-accent-green-dim transition-all active-scale"
+             className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
            >
              Acknowledge
            </button>

@@ -90,7 +90,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                 <Activity className="text-[#22c55e]" size={24} />
               </div>
               <div>
-                <div className="text-[#22c55e] text-[10px] font-display tracking-[0.3em] uppercase">SYSTEM_CHECK_01</div>
+                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">SYSTEM_CHECK_01</div>
                 <h3 className={`font-display text-2xl text-white tracking-wider uppercase`}>Daily Protocol Initialization</h3>
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                     {/* Sleep Score */}
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                           <Moon size={14} className="text-blue-500" /> Sleep Quality
                         </label>
                         <span className="text-[#22c55e] font-display text-lg">{formData.sleep_score}/10</span>
@@ -135,7 +135,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                     {/* Soreness Score */}
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                           <TrendingDown size={14} className="text-amber-500" /> Physical Soreness
                         </label>
                         <span className="text-amber-500 font-display text-lg">{formData.soreness_score}/10</span>
@@ -156,7 +156,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                   {/* Hydration & Mood */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                         <Droplets size={14} className="text-cyan-500" /> Hydration Baseline
                       </label>
                       <div className="grid grid-cols-3 gap-2">
@@ -178,13 +178,13 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                         <Smile size={14} className="text-purple-500" /> Psychological Baseline
                       </label>
                       <select 
                         value={formData.mood}
                         onChange={(e) => setFormData({...formData, mood: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white uppercase font-bold focus:border-purple-500/50 outline-none"
+                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                       >
                         <option value="Excellent">Optimal / Elite</option>
                         <option value="Good">Good / Stable</option>
@@ -198,7 +198,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="w-full flex items-center justify-center gap-3 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-[0.2em] transition-all group"
+                    className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                   >
                     Next Protocol Step <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -215,27 +215,27 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {/* HRV */}
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                           <Brain size={14} className="text-[#22c55e]" /> HRV (ms)
                         </label>
                         <input 
                           type="number"
                           value={formData.hrv_ms || ''}
                           onChange={(e) => setFormData({...formData, hrv_ms: e.target.value === '' ? 0 : parseInt(e.target.value)})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-display text-2xl text-[#22c55e] outline-none focus:border-[#22c55e]/50"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
 
                       {/* Resting HR */}
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                           <Heart size={14} className="text-red-500" /> Resting HR (BPM)
                         </label>
                         <input 
                           type="number"
                           value={formData.resting_hr_bpm || ''}
                           onChange={(e) => setFormData({...formData, resting_hr_bpm: e.target.value === '' ? 0 : parseInt(e.target.value)})}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 font-display text-2xl text-red-500 outline-none focus:border-red-500/50"
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                         />
                       </div>
                    </div>
@@ -253,7 +253,7 @@ export default function WellnessCheckinModal({ isOpen, onClose, athleteId, onSuc
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="flex-1 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[10px] font-black text-white/60 uppercase tracking-widest transition-all"
+                        className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                       >
                         Previous
                       </button>

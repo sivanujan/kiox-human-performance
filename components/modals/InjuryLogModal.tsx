@@ -111,7 +111,7 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-accent-green text-xs">⚡</span>
-                <span className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase">
+                <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   COMMAND PROTOCOL
                 </span>
               </div>
@@ -130,10 +130,10 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
           <div className="p-5 md:p-6 space-y-5">
             {/* Target Subject (read-only) */}
             <div>
-              <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2">
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                 TARGET SUBJECT
               </label>
-              <div className="bg-bg-secondary border border-border-primary rounded-xl px-4 py-3 font-display text-sm font-bold text-text-primary tracking-wider uppercase">
+              <div className="w-full bg-bg-primary/50 border border-border-primary/50 rounded-xl px-4 py-3 text-sm text-text-primary font-medium">
                 {resolvedAthleteName}
               </div>
             </div>
@@ -141,12 +141,12 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2 ml-1">Injury Type</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Injury Type</label>
                   <div className="relative">
                     <select
                       value={formData.injuryType}
                       onChange={(e) => setFormData({ ...formData, injuryType: e.target.value })}
-                      className="w-full bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-text-primary tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                     >
                       <option value="Muscle Strain">MUSCLE STRAIN</option>
                       <option value="Joint">JOINT</option>
@@ -158,12 +158,12 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2 ml-1">Severity</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Severity</label>
                   <div className="relative">
                     <select
                       value={formData.severity}
                       onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-                      className="w-full bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-text-primary tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                     >
                       <option value="Low">LOW RISK</option>
                       <option value="Medium">MEDIUM RISK</option>
@@ -176,22 +176,22 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2 ml-1">Body Part</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Body Part</label>
                   <input
                     required
                     placeholder="EX: LEFT HAMSTRING"
                     value={formData.bodyPart}
                     onChange={(e) => setFormData({ ...formData, bodyPart: e.target.value })}
-                    className="w-full bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-text-primary placeholder:text-text-muted/65 placeholder:tracking-wider placeholder:uppercase transition-all"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2 ml-1">Status</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Status</label>
                   <div className="relative">
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-text-primary tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                     >
                       <option value="Active Injury">ACTIVE INJURY</option>
                       <option value="In Recovery">IN RECOVERY</option>
@@ -203,18 +203,18 @@ export default function InjuryLogModal({ isOpen, onClose, athleteId, athleteName
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-text-secondary tracking-[0.3em] uppercase block mb-2 ml-1">Clinical Notes</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Clinical Notes</label>
                 <textarea
                   rows={4}
                   placeholder="DETAIL THE FINDINGS AND REHAB PROTOCOL..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-bg-input border border-border-input hover:border-border-active focus:border-accent-green focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-text-primary placeholder:text-text-muted/65 placeholder:tracking-wider placeholder:uppercase resize-none transition-all min-h-[120px]"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
 
               {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
+                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   ERROR: {error}
                 </div>
               )}

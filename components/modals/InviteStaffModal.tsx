@@ -129,7 +129,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
     >
       <div className="space-y-8">
         {error && (
-          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+          <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
              <X size={14} className="flex-shrink-0" /> {error}
           </div>
         )}
@@ -137,7 +137,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Given Name</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Given Name</label>
               <div className="relative">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
                 <input
@@ -145,13 +145,13 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                   value={formData.first_name}
                   onChange={e => setFormData({ ...formData, first_name: e.target.value })}
                   placeholder="AGENT_FIRST"
-                  className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-14 pr-6 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Surname</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Surname</label>
               <div className="relative">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
                 <input
@@ -159,14 +159,14 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                   value={formData.last_name}
                   onChange={e => setFormData({ ...formData, last_name: e.target.value })}
                   placeholder="AGENT_LAST"
-                  className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-14 pr-6 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px] ml-1">Tactical Communications</label>
+            <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Tactical Communications</label>
             <div className="relative">
               <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-accent-green/50" size={16} />
               <input
@@ -175,14 +175,14 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                 value={formData.email}
                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                 placeholder="AGENT_MAIL@KIOX.COM"
-                className="w-full bg-bg-input border border-border-input rounded-2xl py-4 pl-14 pr-6 text-text-primary font-sans font-bold uppercase tracking-widest hover:border-border-active focus:border-accent-green outline-none transition-all placeholder:text-text-muted/65 text-sm"
+                className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-14 pr-6 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-text-secondary text-[9px] font-black uppercase tracking-[3px]">Unit Registry</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Unit Registry</label>
               <button 
                 type="button"
                 onClick={() => setIsManageMode(!isManageMode)}
@@ -203,7 +203,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                   <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2 no-scrollbar">
                     {teams.map(team => (
                       <div key={team.id} className="flex justify-between items-center p-3 bg-bg-card rounded-xl border border-border-primary/40 group/unit">
-                        <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest">{team.name}</span>
+                        <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{team.name}</span>
                         <button 
                           type="button"
                           onClick={() => handleDeleteTeam(team.id)}
@@ -260,7 +260,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
                         setFormData({ ...formData, team_id: e.target.value });
                       }
                     }}
-                    className="w-full bg-bg-input border border-border-input hover:border-border-active rounded-2xl py-4 pr-14 pl-6 text-text-primary font-sans font-bold uppercase tracking-widest focus:border-accent-green outline-none transition-all appearance-none cursor-pointer text-sm no-custom-bg"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-6 pr-14 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                   >
                     <option value="" disabled>SELECT UNIT...</option>
                     {teams.map(team => (
@@ -277,7 +277,7 @@ export default function InviteStaffModal({ isOpen, onClose, onSuccess }: InviteS
           <button
             type="submit"
             disabled={loading || isManageMode || isAddingNewTeam}
-            className="w-full py-5 bg-bg-button-primary text-text-on-green text-[10px] md:text-xs font-black uppercase tracking-[4px] md:tracking-[5px] rounded-2xl hover:bg-accent-green-dim transition-all flex items-center justify-center gap-4 group disabled:opacity-50 active-scale shadow-lg"
+            className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
           >
             {loading ? (
               <Loader2 className="animate-spin" size={20} />

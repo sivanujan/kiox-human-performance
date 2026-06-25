@@ -181,7 +181,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    }`}>
                       {session.status}
                    </span>
-                   <span className="text-gray-500 text-[10px] font-black tracking-[4px] uppercase">{session.session_type} // {session.id.slice(0, 8)}</span>
+                   <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{session.session_type} // {session.id.slice(0, 8)}</span>
                 </div>
                 <h2 className={`font-display text-5xl text-white tracking-wider uppercase mb-2`}>{session.title}</h2>
                 <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-widest">
@@ -232,21 +232,21 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       {isFacilityWide ? (
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PROTOCOL CREATOR</div>
+                               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PROTOCOL CREATOR</div>
                                <div className="text-xl font-display text-[#22c55e] uppercase truncate">
                                   {creatorName || "SYSTEM CENTRAL"}
                                </div>
                                <div className="text-gray-500 text-[8px] font-black uppercase mt-2">INITIALIZED BY COMMAND PROFILE</div>
                             </div>
                             <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">ASSIGNED COACH</div>
+                               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">ASSIGNED COACH</div>
                                <div className="text-xl font-display text-sky-400 uppercase truncate">
                                   {assignedCoachName || "UNASSIGNED"}
                                </div>
                                <div className="text-gray-500 text-[8px] font-black uppercase mt-2">LEAD COACH FOR PROTOCOL</div>
                             </div>
                             <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">INITIALIZED TIMESTAMP</div>
+                               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">INITIALIZED TIMESTAMP</div>
                                <div className="text-sm font-mono text-white mt-1">
                                   {session.created_at ? format(new Date(session.created_at), "yyyy-MM-dd HH:mm") : "N/A"}
                                 </div>
@@ -257,21 +257,21 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">EXTERNAL CLIENT</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">EXTERNAL CLIENT</div>
                                   <div className="text-xl font-display text-[#22c55e] uppercase truncate">
                                      {session.external_player_name}
                                   </div>
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-2">REGISTERED NAME</div>
                                </div>
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PHONE NUMBER</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PHONE NUMBER</div>
                                   <div className="text-base font-mono text-white truncate">
                                      {session.external_person_phone || 'N/A'}
                                   </div>
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT DIRECT LINE</div>
                                </div>
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">EMAIL ADDRESS</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">EMAIL ADDRESS</div>
                                   <div className="text-base font-mono text-white truncate">
                                      {session.external_person_email || 'N/A'}
                                   </div>
@@ -281,14 +281,14 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TRAINING PERIOD</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">TRAINING PERIOD</div>
                                   <div className="text-xs font-bold text-white uppercase mt-1">
                                      {session.training_start_date || 'N/A'} TO {session.training_end_date || 'N/A'}
                                   </div>
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-4">CONTRACTED TIMELINE</div>
                                </div>
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PAYMENT STATUS</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PAYMENT STATUS</div>
                                   <div className="flex items-center gap-2 mt-1">
                                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
                                        session.payment_status === 'CONFIRMED' 
@@ -301,7 +301,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-4">FINANCIAL CLEARANCE</div>
                                </div>
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                  <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">PAYMENT NOTES</div>
+                                  <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PAYMENT NOTES</div>
                                   <div className="text-xs text-white/70 italic truncate mt-1">
                                      {session.payment_notes || 'No notes specified.'}
                                   </div>
@@ -322,12 +322,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       ) : (
                          <div className="grid grid-cols-2 gap-12">
                             <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">TARGET INTENSITY MATRIX</div>
+                               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">TARGET INTENSITY MATRIX</div>
                                <div className="text-4xl font-display text-[#22c55e]">{session.target_load_au} AU</div>
                                <div className="text-gray-500 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
                             </div>
                             <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                               <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase mb-4">UNIT ASSIGNMENT</div>
+                               <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">UNIT ASSIGNMENT</div>
                                <div className="text-4xl font-display text-white">{(session.assigned_athletes || []).length} SUBJECTS</div>
                                <div className="text-gray-500 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
                             </div>
@@ -335,7 +335,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       )}
 
                       <div className="space-y-4">
-                         <div className="text-gray-500 text-[10px] font-black tracking-widest uppercase">MISSION NOTES</div>
+                         <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">MISSION NOTES</div>
                          <p className="text-white/60 text-sm leading-relaxed italic">"{session.notes || 'No operational modifications recorded for this session.'}"</p>
                       </div>
 
@@ -363,7 +363,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 ) : (
                    <div className="space-y-8">
                       <div className="flex justify-between items-center bg-amber-500/10 border border-amber-500/20 p-6 rounded-3xl">
-                         <div className="text-amber-500 text-[10px] font-black tracking-[3px] uppercase">OPERATIONAL AUDIT: DATA RETENTION REQUIRED FOR COMPLETION</div>
+                         <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">OPERATIONAL AUDIT: DATA RETENTION REQUIRED FOR COMPLETION</div>
                          <button 
                            onClick={handleComplete}
                            disabled={loading}
@@ -399,23 +399,23 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
                               <div className="flex-1 grid grid-cols-2 gap-6">
                                  <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">ACTUAL LOAD (AU)</label>
+                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">ACTUAL LOAD (AU)</label>
                                     <input 
                                       type="number"
                                       value={log.actual_load_au}
                                       onChange={e => handleUpdateLog(log.athlete_id, { actual_load_au: parseInt(e.target.value) })}
-                                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white font-bold focus:border-[#22c55e] outline-none"
+                                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                     />
                                  </div>
                                  <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 flex justify-between">RPE <span>{log.rpe}/10</span></label>
+                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">RPE <span>{log.rpe}/10</span></label>
                                     <input 
                                       type="range"
                                       min="1"
                                       max="10"
                                       value={log.rpe}
                                       onChange={e => handleUpdateLog(log.athlete_id, { rpe: parseInt(e.target.value) })}
-                                      className="w-full h-1.5 bg-black/40 rounded-full appearance-none cursor-pointer accent-[#22c55e]"
+                                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                                     />
                                  </div>
                               </div>

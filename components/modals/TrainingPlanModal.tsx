@@ -107,7 +107,7 @@ export default function TrainingPlanModal({ isOpen, onClose, athleteId, athleteN
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[#22c55e] text-xs">⚡</span>
-                <span className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase">
+                <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   COMMAND PROTOCOL
                 </span>
               </div>
@@ -126,34 +126,34 @@ export default function TrainingPlanModal({ isOpen, onClose, athleteId, athleteN
           <div className="p-5 md:p-6 space-y-5">
             {/* Target Subject (read-only) */}
             <div>
-              <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2">
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                 TARGET SUBJECT
               </label>
-              <div className="bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase">
+              <div className="w-full bg-bg-primary/50 border border-border-primary/50 rounded-xl px-4 py-3 text-sm text-text-primary font-medium">
                 {resolvedAthleteName}
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Plan Title</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Plan Title</label>
                 <input
                   required
                   placeholder="EX: POWER & SPEED MATRIX"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none focus:ring-0 rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase transition-all"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Phase</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Phase</label>
                   <div className="relative">
                     <select
                       value={formData.phase}
                       onChange={(e) => setFormData({ ...formData, phase: e.target.value })}
-                      className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-display text-sm font-bold text-white tracking-wider uppercase appearance-none cursor-pointer transition-all"
+                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
                     >
                       <option value="Strength">STRENGTH</option>
                       <option value="Tactical">TACTICAL</option>
@@ -164,30 +164,30 @@ export default function TrainingPlanModal({ isOpen, onClose, athleteId, athleteN
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Effective Date</label>
+                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Effective Date</label>
                   <input
                     type="date"
                     required
                     value={formData.effectiveDate}
                     onChange={(e) => setFormData({ ...formData, effectiveDate: e.target.value })}
-                    className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-white [color-scheme:dark] transition-all"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] text-gray-500 tracking-[0.3em] uppercase block mb-2 ml-1">Protocol Instructions</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Protocol Instructions</label>
                 <textarea
                   rows={4}
                   placeholder="DETAIL THE SESSIONS..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-gray-800 hover:border-gray-700 focus:border-[#22c55e] focus:outline-none rounded-xl px-4 py-3 font-mono text-sm text-white placeholder:text-gray-600 placeholder:tracking-wider placeholder:uppercase resize-none transition-all min-h-[120px]"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
 
               {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center">
+                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                   ERROR: {error}
                 </div>
               )}

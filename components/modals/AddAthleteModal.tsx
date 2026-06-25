@@ -118,7 +118,7 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
               />
            </div>
            <div className="min-w-0">
-              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Upload Identification</p>
+              <p className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Upload Identification</p>
               <p className="text-xs text-white/40 leading-relaxed">Agent avatar will be visible across the tactical dashboard.</p>
            </div>
         </div>
@@ -139,7 +139,7 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">First Name</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">First Name</label>
                 <div className="relative">
                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                   <input 
@@ -148,13 +148,13 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                     value={formData.first_name}
                     onChange={e => setFormData(p => ({ ...p, first_name: e.target.value }))}
                     placeholder="EX: JOHN"
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Last Name</label>
+                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Last Name</label>
                 <div className="relative">
                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                   <input 
@@ -163,14 +163,14 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                     value={formData.last_name}
                     onChange={e => setFormData(p => ({ ...p, last_name: e.target.value }))}
                     placeholder="EX: DOE"
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Username (Operational Tag)</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Username (Operational Tag)</label>
               <div className="relative">
                 <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                 <input 
@@ -179,13 +179,13 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                   value={formData.username}
                   onChange={e => setFormData(p => ({ ...p, username: e.target.value.toLowerCase().replace(/\s/g, '_') }))}
                   placeholder="EX: JOHNDOE_24"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all lowercase placeholder:text-white/5 font-bold"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Email Address</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                 <input 
@@ -194,13 +194,13 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                   value={formData.email}
                   onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
                   placeholder="EX: ATHLETE@KIOX.COM"
-                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all uppercase placeholder:text-white/5 font-bold"
+                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-[2px] ml-1">Temporary Password</label>
+              <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Temporary Password</label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
@@ -209,7 +209,7 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
                     required
                     value={formData.password}
                     onChange={e => setFormData(p => ({ ...p, password: e.target.value }))}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-sm text-white focus:border-[#22c55e] outline-none transition-all font-mono font-bold"
+                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                   />
                 </div>
                 <button 
@@ -232,7 +232,7 @@ export default function AddAthleteModal({ isOpen, onClose, onSuccess }: AddAthle
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-[#22c55e] text-black text-[12px] font-black uppercase tracking-[3px] rounded-xl hover:bg-white transition-all shadow-[0_10px_30px_rgba(34,197,94,0.2)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed active-scale"
+              className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
             >
               {loading ? (
                 <>

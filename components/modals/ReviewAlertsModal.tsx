@@ -114,7 +114,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                 <ShieldAlert size={32} />
               </div>
               <div>
-                <div className="text-red-500 text-[10px] font-black tracking-[5px] uppercase mb-1">CENTRAL RISK MANAGEMENT</div>
+                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">CENTRAL RISK MANAGEMENT</div>
                 <h2 className="font-display text-4xl text-white tracking-widest uppercase">System Anomalies</h2>
               </div>
             </div>
@@ -159,13 +159,13 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                      placeholder="FILTER SUBJECT..."
                      value={search}
                      onChange={(e) => setSearch(e.target.value)}
-                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-xs font-bold text-white focus:border-red-500 transition-all outline-none"
+                     className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 pl-12 pr-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                    />
                 </div>
                 <select 
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value)}
-                  className="bg-white/5 border border-white/10 rounded-xl py-3 px-6 text-[10px] font-black text-white/60 uppercase tracking-widest focus:border-red-500 outline-none appearance-none cursor-pointer"
+                  className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
                 >
                   <option value="ALL">ALL TYPES</option>
                   <option value="FATIGUE">FATIGUE</option>
@@ -196,7 +196,7 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                           <span className={`px-3 py-1 rounded-lg text-[9px] font-display tracking-widest border ${getSeverityColor(alert.severity)}`}>
                              {alert.severity}
                           </span>
-                          <span className="flex items-center gap-1.5 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                          <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                              <Clock size={12} /> {format(new Date(alert.triggered_at), "MMM d, HH:mm")}
                           </span>
                        </div>
@@ -210,9 +210,9 @@ export default function ReviewAlertsModal({ isOpen, onClose }: ReviewAlertsModal
                       <div className="text-right shrink-0">
                         <div className="text-[#22c55e] flex items-center gap-2 justify-end mb-1">
                           <CheckCircle2 size={16} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">RESOLVED</span>
+                          <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">RESOLVED</span>
                         </div>
-                        <div className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
                           BY {alert.resolver?.first_name} // {format(new Date(alert.resolved_at), "HH:mm")}
                         </div>
                       </div>
