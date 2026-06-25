@@ -44,6 +44,7 @@ interface ScheduleItem {
   is_external: boolean;
   external_clients: ExternalClientEntry[];
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
+  session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM' | 'MEAL' | 'CURFEW' | 'LOGISTICS';
 }
 
 export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
@@ -80,7 +81,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
           training_end_date: defaultDate || format(new Date(), "yyyy-MM-dd")
         }
       ],
-      session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE')
+      session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE'),
+      session_type: 'TACTICAL'
     }
   ]);
 
@@ -122,7 +124,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
               training_end_date: initialDate
             }
           ],
-          session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
+          session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE',
+          session_type: 'TACTICAL'
         }
       ]);
     }
@@ -217,7 +220,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
           } else {
             const sessionRes = await createSession({
               title: item.title,
-              session_type: "LOGISTICS",
+              session_type: item.session_type,
               scheduled_date: dateStr,
               start_time: `${item.start_time}:00`,
               duration_minutes: item.duration_minutes,
@@ -331,7 +334,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
             training_end_date: defaultDateStr
           }
         ],
-        session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE'
+        session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE',
+        session_type: 'TACTICAL'
       }
     ]);
   };
@@ -473,7 +477,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                          <div className="text-[9px] font-black text-sky-400 uppercase tracking-[2px]">Item #{index + 1}</div>
 
                          {/* Title & Time */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-2">
                                <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Title</label>
                                <input 
@@ -483,7 +487,23 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                                  placeholder="EX: TRAINING SESSION"
                                  className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none uppercase placeholder:text-white/5"
                                />
-                            </div>
+                             </div>
+                             <div className="space-y-2">
+                               <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Type</label>
+                               <select
+                                 value={item.session_type}
+                                 onChange={e => updateItem(item.id, { session_type: e.target.value as any })}
+                                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white text-xs font-bold focus:border-sky-500 outline-none appearance-none cursor-pointer"
+                               >
+                                  <option value="TACTICAL" className="bg-[#111]">TACTICAL</option>
+                                  <option value="STRENGTH" className="bg-[#111]">STRENGTH</option>
+                                  <option value="CONDITIONING" className="bg-[#111]">CONDITIONING</option>
+                                  <option value="RECOVERY" className="bg-[#111]">RECOVERY</option>
+                                  <option value="LOGISTICS" className="bg-[#111]">LOGISTICS</option>
+                                  <option value="MEAL" className="bg-[#111]">MEAL</option>
+                                  <option value="CURFEW" className="bg-[#111]">CURFEW</option>
+                               </select>
+                             </div>
                             <div className="space-y-2">
                                <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest ml-1">Start Time</label>
                                <input 

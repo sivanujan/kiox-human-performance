@@ -109,14 +109,14 @@ export default function AdminSchedules() {
       return "bg-blue-500/10 border-blue-500/20 text-blue-400 hover:border-blue-500/40";
     }
     switch (session.session_type?.toUpperCase()) {
-      case 'STRENGTH': return "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:border-amber-500/40";
-      case 'TACTICAL': return "bg-blue-500/10 border-blue-500/20 text-blue-400 hover:border-blue-500/40";
-      case 'CONDITIONING': return "bg-[#22c55e]/10 border-[#22c55e]/20 text-[#22c55e] hover:border-[#22c55e]/40";
-      case 'RECOVERY': return "bg-purple-500/10 border-purple-500/20 text-purple-400 hover:border-purple-500/40";
-      case 'MEAL': return "bg-green-400/10 border-green-400/20 text-green-400 hover:border-green-400/40";
-      case 'CURFEW': return "bg-zinc-600/10 border-zinc-600/20 text-zinc-400 hover:border-zinc-600/40";
-      case 'LOGISTICS': return "bg-sky-400/10 border-sky-400/20 text-sky-400 hover:border-sky-400/40";
-      default: return "bg-white/5 border-white/10 text-white/60 hover:border-white/20";
+      case 'STRENGTH': return "bg-amber-500/10 border-amber-500/20 text-amber-500 hover:border-amber-500/40";
+      case 'TACTICAL': return "bg-blue-500/10 border-blue-500/20 text-blue-500 hover:border-blue-500/40";
+      case 'CONDITIONING': return "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:border-emerald-500/40";
+      case 'RECOVERY': return "bg-purple-500/10 border-purple-500/20 text-purple-500 hover:border-purple-500/40";
+      case 'MEAL': return "bg-green-500/10 border-green-500/20 text-green-500 hover:border-green-500/40";
+      case 'CURFEW': return "bg-zinc-500/10 border-zinc-500/20 text-zinc-500 hover:border-zinc-500/40";
+      case 'LOGISTICS': return "bg-sky-500/10 border-sky-500/20 text-sky-500 hover:border-sky-500/40";
+      default: return "bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-primary)] hover:border-[var(--border-active)]/40";
     }
   };
 
@@ -126,12 +126,12 @@ export default function AdminSchedules() {
     switch (session.session_type?.toUpperCase()) {
       case 'STRENGTH': return "bg-amber-500";
       case 'TACTICAL': return "bg-blue-500";
-      case 'CONDITIONING': return "bg-[#22c55e]";
+      case 'CONDITIONING': return "bg-emerald-500";
       case 'RECOVERY': return "bg-purple-500";
-      case 'MEAL': return "bg-green-400";
-      case 'CURFEW': return "bg-zinc-600";
-      case 'LOGISTICS': return "bg-sky-400";
-      default: return "bg-white/40";
+      case 'MEAL': return "bg-green-500";
+      case 'CURFEW': return "bg-zinc-500";
+      case 'LOGISTICS': return "bg-sky-500";
+      default: return "bg-[var(--border-primary)]";
     }
   };
 
@@ -143,25 +143,25 @@ export default function AdminSchedules() {
   return (
     <div className="space-y-4 pb-12">
       {/* Header & Month Control */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-white/5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[var(--border-primary)]">
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <CalendarIcon className="text-[#22c55e]" size={12} />
-            <span className="text-[8px] font-black text-[#22c55e] uppercase tracking-[2px]">Operational Scheduler</span>
+            <CalendarIcon className="text-[var(--accent-green)]" size={12} />
+            <span className="text-[8px] font-black text-[var(--accent-green)] uppercase tracking-[2px]">Operational Scheduler</span>
           </div>
-          <h1 className="font-display text-xl text-white uppercase tracking-wider">Schedules Matrix</h1>
+          <h1 className="font-display text-xl text-[var(--text-primary)] uppercase tracking-wider">Schedules Matrix</h1>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#111] border border-white/5 p-1 rounded-xl">
-          <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-white/5 transition-all text-white/40 hover:text-white">
+        <div className="flex items-center gap-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] p-1 rounded-xl">
+          <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <ChevronLeft size={14} />
           </button>
-          <div className="px-3 border-x border-white/5">
-            <div className="text-white font-display text-xs tracking-[0.1em] uppercase min-w-[120px] text-center">
+          <div className="px-3 border-x border-[var(--border-primary)]">
+            <div className="text-[var(--text-primary)] font-display text-xs tracking-[0.1em] uppercase min-w-[120px] text-center">
               {format(currentMonth, "MMMM yyyy")}
             </div>
           </div>
-          <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-white/5 transition-all text-white/40 hover:text-white">
+          <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-[var(--bg-card-hover)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
             <ChevronRight size={14} />
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function AdminSchedules() {
             setSelectedDateForCreation(undefined);
             setIsCreateModalOpen(true);
           }}
-          className="bg-[#22c55e] text-black px-4 py-2.5 rounded-lg font-display text-[10px] tracking-[0.1em] hover:bg-white transition-all uppercase flex items-center justify-center gap-1.5"
+          className="bg-[var(--accent-green)] text-[var(--text-on-green)] px-4 py-2.5 rounded-lg font-display text-[10px] tracking-[0.1em] hover:opacity-80 transition-all uppercase flex items-center justify-center gap-1.5"
         >
           <Plus size={12} /> INITIALIZE SESSION
         </button>
@@ -185,12 +185,12 @@ export default function AdminSchedules() {
       )}
 
       {/* Calendar Grid */}
-      <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-[48px] overflow-hidden shadow-2xl relative">
+      <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-[48px] overflow-hidden shadow-2xl relative">
 
         {/* Days Header */}
-        <div className="grid grid-cols-7 border-b border-white/5">
+        <div className="grid grid-cols-7 border-b border-[var(--border-primary)]">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => (
-            <div key={day} className="py-6 text-center text-[10px] font-black text-gray-500 tracking-[4px] border-r last:border-r-0 border-white/5 bg-white/[0.02]">
+            <div key={day} className="py-6 text-center text-[10px] font-black text-[var(--text-muted)] tracking-[4px] border-r last:border-r-0 border-[var(--border-primary)] bg-[var(--bg-card)]">
                {day}
             </div>
           ))}
@@ -201,7 +201,7 @@ export default function AdminSchedules() {
           {loading ? (
             // Skeleton grid — shows the calendar structure without blocking
             Array.from({ length: 35 }).map((_, idx) => (
-              <div key={idx} className="min-h-[160px] p-4 border-r border-b border-white/5">
+              <div key={idx} className="min-h-[160px] p-4 border-r border-b border-[var(--border-primary)] bg-[var(--bg-card)]">
                 <Skeleton className="h-6 w-8 mb-4" />
                 <div className="space-y-2">
                   <Skeleton className="h-10 w-full rounded-xl" />
@@ -219,12 +219,12 @@ export default function AdminSchedules() {
                 <div 
                   key={idx}
                   onClick={() => openCreateModalForDate(day)}
-                  className={`min-h-[160px] p-4 border-r border-b border-white/5 transition-all ${
-                    !isCurrentMonth ? 'opacity-20' : ''
-                  } ${isToday ? 'bg-[#22c55e]/[0.02]' : ''} hover:bg-white/[0.03] last:border-r-0 cursor-pointer`}
+                  className={`min-h-[160px] p-4 border-r border-b border-[var(--border-primary)] transition-all ${
+                    !isCurrentMonth ? 'opacity-40 bg-[var(--bg-primary)]' : 'bg-[var(--bg-card)]'
+                  } ${isToday ? 'bg-[var(--accent-green)]/5' : ''} hover:bg-[var(--bg-card-hover)] last:border-r-0 cursor-pointer`}
                 >
                   <div className="flex justify-between items-start mb-4">
-                     <span className={`font-display text-xl tracking-widest ${isToday ? 'text-[#22c55e]' : 'text-white/40'}`}>
+                     <span className={`font-display text-xl tracking-widest ${isToday ? 'text-[var(--accent-green)]' : 'text-[var(--text-secondary)]'}`}>
                         {format(day, "dd")}
                      </span>
                   </div>
@@ -242,25 +242,25 @@ export default function AdminSchedules() {
                           <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${getSessionIndicatorColor(session)}`} />
                           
                           <div className="flex justify-between items-start gap-2 mb-1">
-                            <div className="text-white font-bold text-xs uppercase truncate tracking-wide flex-1">{session.title}</div>
-                            <div className="text-[8px] font-black text-white/40 uppercase tracking-widest shrink-0 mt-0.5">
+                            <div className="text-[var(--text-primary)] font-bold text-xs uppercase truncate tracking-wide flex-1">{session.title}</div>
+                            <div className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest shrink-0 mt-0.5">
                               {session.start_time.slice(0, 5)}
                             </div>
                           </div>
 
                           <div className="flex flex-col gap-1">
                             {session.coach ? (
-                              <div className="text-[8px] text-white/50 font-bold uppercase tracking-wider">
+                              <div className="text-[8px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">
                                 Coach: {session.coach.first_name} {session.coach.last_name || ""}
                               </div>
                             ) : (
-                              <div className="text-[8px] text-white/30 font-bold uppercase tracking-wider">
+                              <div className="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
                                 Coach: Unassigned
                               </div>
                             )}
 
                             {session.is_external && session.external_player_name && (
-                              <div className="text-[8px] text-gray-500 font-mono truncate">
+                              <div className="text-[8px] text-[var(--text-secondary)] font-mono truncate">
                                 Client: {session.external_player_name}
                               </div>
                             )}

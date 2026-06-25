@@ -273,6 +273,25 @@ export default function SharedCalendarPage() {
   const getTypeStyle = (event: any) => {
     if (!event) return { bg: "", dot: "", border: "", text: "", bgSolid: "", label: "" };
     
+    let isPast = false;
+    if (event.event_date && event.event_time) {
+      const eventDateTime = new Date(`${event.event_date}T${event.event_time}`);
+      if (eventDateTime < new Date()) {
+        isPast = true;
+      }
+    }
+
+    if (isPast) {
+      return {
+        bg: "bg-gray-500/10 border-gray-500/20 text-gray-500 hover:border-gray-500/40",
+        dot: "bg-gray-500 shadow-none",
+        border: "border-l-gray-500",
+        text: "text-gray-500 font-bold",
+        bgSolid: "bg-gray-500/20 hover:bg-gray-500/40 text-gray-400",
+        label: "PAST"
+      };
+    }
+
     // Determine category based on session_category or boolean fallbacks
     const category = event.is_training_session 
       ? (event.session_category || (event.is_emergency ? 'EMERGENCY' : (event.is_curriculum ? 'CURRICULUM' : 'SCHEDULE')))

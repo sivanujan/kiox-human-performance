@@ -196,10 +196,10 @@ export default function CurriculumTimeline() {
         };
       default: 
         return {
-          border: "border-white/10",
-          bg: "bg-white/5",
-          accent: "bg-gray-500",
-          text: "text-gray-400"
+          border: "border-[var(--border-primary)]",
+          bg: "bg-[var(--bg-secondary)]",
+          accent: "bg-[var(--border-primary)]",
+          text: "text-[var(--text-secondary)]"
         };
     }
   };
@@ -210,30 +210,30 @@ export default function CurriculumTimeline() {
       <div className="lg:col-span-3 space-y-6">
         
         {/* Navigation & Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-[#0c0c0c] border border-white/5 p-6 rounded-[28px] shadow-2xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-[var(--bg-card)] border border-[var(--border-primary)] p-6 rounded-[28px] shadow-2xl">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <CalendarIcon className="text-[#22c55e]" size={14} />
-              <span className="text-[10px] font-black text-[#22c55e] uppercase tracking-[4px]">Operational Calendar Timeline</span>
+              <CalendarIcon className="text-[var(--accent-green)]" size={14} />
+              <span className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[4px]">Operational Calendar Timeline</span>
             </div>
-            <h1 className="text-3xl font-display font-black text-white uppercase tracking-wider">Daily Program</h1>
+            <h1 className="text-3xl font-display font-black text-[var(--text-primary)] uppercase tracking-wider">Daily Program</h1>
           </div>
 
-          <div className="flex items-center gap-3 bg-[#111] border border-white/5 p-1.5 rounded-2xl w-full sm:w-auto justify-between">
-            <button onClick={prevDay} className="p-2.5 rounded-xl hover:bg-white/5 transition-all text-white/40 hover:text-white">
+          <div className="flex items-center gap-3 bg-[var(--bg-secondary)] border border-[var(--border-primary)] p-1.5 rounded-2xl w-full sm:w-auto justify-between">
+            <button onClick={prevDay} className="p-2.5 rounded-xl hover:bg-[var(--bg-card-hover)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
               <ChevronLeft size={18} />
             </button>
             
             <div className="flex flex-col items-center min-w-[140px] px-4">
-              <span className="text-white font-bold text-xs uppercase tracking-widest">{format(selectedDate, "eeee")}</span>
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{format(selectedDate, "MMM dd, yyyy")}</span>
+              <span className="text-[var(--text-primary)] font-bold text-xs uppercase tracking-widest">{format(selectedDate, "eeee")}</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-0.5">{format(selectedDate, "MMM dd, yyyy")}</span>
             </div>
 
-            <button onClick={nextDay} className="p-2.5 rounded-xl hover:bg-white/5 transition-all text-white/40 hover:text-white">
+            <button onClick={nextDay} className="p-2.5 rounded-xl hover:bg-[var(--bg-card-hover)] transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
               <ChevronRight size={18} />
             </button>
 
-            <button onClick={setToday} className="px-3 py-1.5 border border-white/10 rounded-lg text-[9px] font-black uppercase text-gray-400 hover:text-white hover:border-white/20 transition-all">
+            <button onClick={setToday} className="px-3 py-1.5 border border-[var(--border-primary)] rounded-lg text-[9px] font-black uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-active)]/40 transition-all">
               Today
             </button>
           </div>
@@ -241,7 +241,7 @@ export default function CurriculumTimeline() {
           {isWritable && (
             <button 
               onClick={() => setIsCreateModalOpen(true)}
-              className="w-full sm:w-auto px-6 py-4 bg-[#22c55e] text-black text-[10px] font-black uppercase tracking-[2px] rounded-xl flex items-center justify-center gap-2 hover:bg-white transition-all shadow-md"
+              className="w-full sm:w-auto px-6 py-4 bg-[var(--accent-green)] text-[var(--text-on-green)] text-[10px] font-black uppercase tracking-[2px] rounded-xl flex items-center justify-center gap-2 hover:opacity-80 transition-all shadow-md"
             >
               <Plus size={14} /> Initialize Session
             </button>
@@ -256,40 +256,40 @@ export default function CurriculumTimeline() {
         )}
 
         {/* Timeline Sequence */}
-        <div className="bg-[#0a0a0a] border border-white/5 rounded-[36px] p-8 min-h-[400px] relative">
+        <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-[36px] p-8 min-h-[400px] relative">
 
           {loading ? (
             // Skeleton rows — show timeline structure while loading
-            <div className="relative border-l-2 border-white/5 ml-4 sm:ml-24 pl-8 py-4 space-y-8">
-              <div className="absolute top-0 right-0 p-2 text-[10px] text-green-500 font-mono bg-black/40 rounded border border-green-500/20">
+            <div className="relative border-l-2 border-[var(--border-primary)] ml-4 sm:ml-24 pl-8 py-4 space-y-8">
+              <div className="absolute top-0 right-0 p-2 text-[10px] text-[var(--accent-green)] font-mono bg-[var(--bg-card)] rounded border border-[var(--accent-green)]/20">
                 STATUS: {loadStatus}
               </div>
               {[1, 2, 3].map(i => (
                 <div key={i} className="relative">
                   {/* Dot */}
-                  <div className="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-white/[0.06] animate-pulse" />
+                  <div className="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-[var(--border-primary)] animate-pulse" />
                   {/* Time label */}
                   <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end gap-1">
-                    <div className="h-4 w-14 bg-white/[0.06] rounded animate-pulse" />
-                    <div className="h-2 w-10 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-14 bg-[var(--border-primary)] rounded animate-pulse" />
+                    <div className="h-2 w-10 bg-[var(--border-primary)] rounded animate-pulse" />
                   </div>
                   {/* Card */}
-                  <div className="w-full bg-[#111] border border-white/5 p-6 rounded-2xl space-y-3">
-                    <div className="h-4 w-1/3 bg-white/[0.06] rounded animate-pulse" />
-                    <div className="h-3 w-2/3 bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-2 w-1/4 bg-white/[0.03] rounded animate-pulse" />
+                  <div className="w-full bg-[var(--bg-card)] border border-[var(--border-primary)] p-6 rounded-2xl space-y-3">
+                    <div className="h-4 w-1/3 bg-[var(--border-primary)] rounded animate-pulse" />
+                    <div className="h-3 w-2/3 bg-[var(--border-primary)] rounded animate-pulse" />
+                    <div className="h-2 w-1/4 bg-[var(--border-primary)] rounded animate-pulse" />
                   </div>
                 </div>
               ))}
             </div>
           ) : sessions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
-              <Info size={40} className="text-gray-600 mb-4" />
-              <h4 className="text-xs font-black text-gray-500 uppercase tracking-[4px]">Matrix Core Idle</h4>
-              <p className="text-[9px] text-gray-600 uppercase mt-2 max-w-[280px]">No sessions or curriculum items scheduled for this date.</p>
+              <Info size={40} className="text-[var(--text-muted)] mb-4" />
+              <h4 className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-[4px]">Matrix Core Idle</h4>
+              <p className="text-[9px] text-[var(--text-muted)] uppercase mt-2 max-w-[280px]">No sessions or curriculum items scheduled for this date.</p>
             </div>
           ) : (
-            <div className="relative border-l-2 border-white/5 ml-4 sm:ml-24 pl-8 py-4 space-y-12">
+            <div className="relative border-l-2 border-[var(--border-primary)] ml-4 sm:ml-24 pl-8 py-4 space-y-12">
               {sessions.map((session) => {
                 const styles = getCategoryStyles(session.session_type);
                 const assignedCoach = coaches.find(c => c.id === session.coach_id);
@@ -299,7 +299,7 @@ export default function CurriculumTimeline() {
                     
                     {/* Time Label (Left) */}
                     <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end min-w-[70px]">
-                      <span className="text-sm font-black text-white font-mono">
+                      <span className="text-sm font-black text-[var(--text-primary)] font-mono">
                         {(() => {
                           const parts = session.start_time.split(":");
                           let hours = parseInt(parts[0], 10);
@@ -310,16 +310,16 @@ export default function CurriculumTimeline() {
                           return `${hours}:${minutes} ${ampm}`;
                         })()}
                       </span>
-                      <span className="text-[8px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">{session.duration_minutes} MIN</span>
+                      <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider mt-0.5">{session.duration_minutes} MIN</span>
                     </div>
 
                     {/* Timeline Node Dot */}
-                    <div className={`absolute -left-[41px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-[#0a0a0a] ${styles.accent} shadow-lg transition-transform group-hover:scale-125 z-10`} />
+                    <div className={`absolute -left-[41px] top-1.5 w-4.5 h-4.5 rounded-full border-4 border-[var(--bg-primary)] ${styles.accent} shadow-lg transition-transform group-hover:scale-125 z-10`} />
 
                     {/* Timeline Main Card */}
                     <div 
                       onClick={() => setSelectedSession(session)}
-                      className={`w-full bg-[#111] border ${styles.border} p-6 rounded-2xl hover:border-white/20 transition-all cursor-pointer relative overflow-hidden`}
+                      className={`w-full bg-[var(--bg-card)] border ${styles.border} p-6 rounded-2xl hover:border-[var(--border-active)]/40 transition-all cursor-pointer relative overflow-hidden`}
                     >
                       {/* Left Colored Accent Strip */}
                       <div className={`absolute left-0 top-0 bottom-0 w-1 ${styles.accent}`} />
@@ -327,7 +327,7 @@ export default function CurriculumTimeline() {
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div className="space-y-2">
                           {/* Mobile Time Label */}
-                          <div className="sm:hidden flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase">
+                          <div className="sm:hidden flex items-center gap-2 text-[9px] font-black text-[var(--text-muted)] uppercase">
                             <Clock size={10} /> 
                             {(() => {
                               const parts = session.start_time.split(":");
@@ -342,26 +342,26 @@ export default function CurriculumTimeline() {
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <h3 className="text-md font-bold text-white uppercase tracking-wider">{session.title}</h3>
+                            <h3 className="text-md font-bold text-[var(--text-primary)] uppercase tracking-wider">{session.title}</h3>
                             <span className={`px-2 py-0.5 border text-[7px] font-black uppercase tracking-widest rounded ${styles.text} ${styles.bg}`}>
                               {session.session_type === 'LOGISTICS' ? 'LOGISTICS/GENERAL' : session.session_type}
                             </span>
                           </div>
 
                           {session.notes && (
-                            <p className="text-[11px] text-white/50 leading-relaxed font-sans line-clamp-2 max-w-2xl">{session.notes}</p>
+                            <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed font-sans line-clamp-2 max-w-2xl">{session.notes}</p>
                           )}
 
                           {/* Location & Coach Details */}
-                          <div className="flex flex-wrap gap-4 text-[9px] text-gray-500 font-black uppercase tracking-wider pt-2">
+                          <div className="flex flex-wrap gap-4 text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider pt-2">
                             {session.location && (
                               <span className="flex items-center gap-1">
-                                <MapPin size={10} className="text-[#22c55e]" /> {session.location}
+                                <MapPin size={10} className="text-[var(--accent-green)]" /> {session.location}
                               </span>
                             )}
                             {assignedCoach && (
                               <span className="flex items-center gap-1">
-                                <UserCheck size={10} className="text-[#22c55e]" /> Coach: {assignedCoach.first_name} {assignedCoach.last_name || ''}
+                                <UserCheck size={10} className="text-[var(--accent-green)]" /> Coach: {assignedCoach.first_name} {assignedCoach.last_name || ''}
                               </span>
                             )}
                             {!session.is_program && session.assigned_athletes && (
@@ -374,7 +374,7 @@ export default function CurriculumTimeline() {
 
                         {/* Booking Count Indicator */}
                         {session.max_capacity && (
-                          <div className="px-3 py-1.5 bg-black/40 border border-white/5 rounded-xl text-[9px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                          <div className="px-3 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">
                             Slots: {session.confirmed_count || 0} / {session.max_capacity}
                           </div>
                         )}
@@ -390,18 +390,18 @@ export default function CurriculumTimeline() {
 
       {/* Staff Contact Info Sidebar Block */}
       <div className="lg:col-span-1 space-y-6">
-        <div className="bg-[#111] border border-white/5 rounded-3xl p-6 relative overflow-hidden group shadow-xl">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.02] pointer-events-none text-white">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 relative overflow-hidden group shadow-xl">
+          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-[var(--text-primary)]">
             <Phone size={80} />
           </div>
 
           <div className="relative z-10 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-white/5">
-              <h4 className="text-[10px] font-black text-[#22c55e] uppercase tracking-[3px]">Command Contact</h4>
+            <div className="flex justify-between items-center pb-4 border-b border-[var(--border-primary)]">
+              <h4 className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[3px]">Command Contact</h4>
               {isWritable && !isEditingContact && (
                 <button 
                   onClick={() => setIsEditingContact(true)}
-                  className="p-1 text-gray-500 hover:text-white transition-colors"
+                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <Edit2 size={12} />
                 </button>
@@ -411,27 +411,27 @@ export default function CurriculumTimeline() {
             {isEditingContact ? (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Director Name</label>
+                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Director Name</label>
                   <input 
                     value={editContactData.name}
                     onChange={e => setEditContactData({...editContactData, name: e.target.value})}
-                    className="w-full bg-black border border-white/10 rounded-lg p-2 text-xs text-white focus:border-[#22c55e] outline-none"
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Role / Title</label>
+                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Role / Title</label>
                   <input 
                     value={editContactData.role}
                     onChange={e => setEditContactData({...editContactData, role: e.target.value})}
-                    className="w-full bg-black border border-white/10 rounded-lg p-2 text-xs text-white focus:border-[#22c55e] outline-none"
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[8px] font-black text-gray-500 uppercase tracking-widest block">Phone Number</label>
+                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Phone Number</label>
                   <input 
                     value={editContactData.phone}
                     onChange={e => setEditContactData({...editContactData, phone: e.target.value})}
-                    className="w-full bg-black border border-white/10 rounded-lg p-2 text-xs text-white focus:border-[#22c55e] outline-none"
+                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
                   />
                 </div>
 
@@ -442,14 +442,14 @@ export default function CurriculumTimeline() {
                       setIsEditingContact(false);
                       setEditContactData({ ...contactInfo });
                     }}
-                    className="flex-1 py-2 border border-white/10 hover:bg-white/5 rounded-lg text-[9px] font-black uppercase text-gray-500"
+                    className="flex-1 py-2 border border-[var(--border-primary)] hover:bg-[var(--bg-secondary)] rounded-lg text-[9px] font-black uppercase text-[var(--text-muted)]"
                   >
                     Cancel
                   </button>
                   <button 
                     disabled={savingContact}
                     onClick={saveContactInfo}
-                    className="flex-1 py-2 bg-[#22c55e] text-black rounded-lg text-[9px] font-black uppercase hover:bg-white transition-all flex items-center justify-center gap-1"
+                    className="flex-1 py-2 bg-[var(--accent-green)] text-[var(--text-on-green)] rounded-lg text-[9px] font-black uppercase hover:opacity-80 transition-all flex items-center justify-center gap-1"
                   >
                     {savingContact ? <Loader2 size={10} className="animate-spin" /> : <Check size={10} />} Save
                   </button>
@@ -458,19 +458,19 @@ export default function CurriculumTimeline() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <p className="text-white font-bold text-sm uppercase tracking-wide">{contactInfo.name}</p>
-                  <p className="text-gray-500 text-[9px] font-bold uppercase tracking-wider mt-0.5">{contactInfo.role}</p>
+                  <p className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wide">{contactInfo.name}</p>
+                  <p className="text-[var(--text-secondary)] text-[9px] font-bold uppercase tracking-wider mt-0.5">{contactInfo.role}</p>
                 </div>
 
-                <div className="bg-black/40 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/20 flex items-center justify-center text-[#22c55e]">
+                <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] p-4 rounded-2xl flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 flex items-center justify-center text-[var(--accent-green)]">
                     <Phone size={14} />
                   </div>
                   <div>
-                    <p className="text-[8px] text-gray-600 font-black uppercase tracking-wider leading-none">Operational Phone</p>
+                    <p className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider leading-none">Operational Phone</p>
                     <a 
                       href={`tel:${contactInfo.phone}`}
-                      className="text-white font-mono text-xs font-bold hover:text-[#22c55e] transition-colors mt-1 block"
+                      className="text-[var(--text-primary)] font-mono text-xs font-bold hover:text-[var(--accent-green)] transition-colors mt-1 block"
                     >
                       {contactInfo.phone}
                     </a>
