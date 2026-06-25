@@ -16,7 +16,7 @@ export async function GET() {
     .eq('id', authUser.id)
     .single();
 
-  if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
+  if (profile?.role !== 'superadmin' && profile?.role !== 'staff' && profile?.role !== 'medical') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

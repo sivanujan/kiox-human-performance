@@ -258,15 +258,15 @@ export default function AthleteRoster({
                       <div className="flex-shrink-0 w-[110px] px-2 flex flex-col gap-1 border-x border-border-card">
                         <div className="font-mono text-[9px] text-text-muted tracking-widest uppercase mb-0.5">RECOVERY</div>
                         <div className="flex items-end gap-1.5 leading-none h-5">
-                          <span className="font-display text-base font-black text-text-primary">{(athlete as any).recovery_score || 75}%</span>
-                          <div className={`w-1.5 h-1.5 rounded-full mb-1 ${((athlete as any).recovery_score || 75) > 80 ? 'bg-green-400' : ((athlete as any).recovery_score || 75) > 50 ? 'bg-orange-400' : 'bg-red-400'}`} />
+                          <span className="font-display text-base font-black text-text-primary">{((athlete as any).recovery_score ?? 50)}%</span>
+                          <div className={`w-1.5 h-1.5 rounded-full mb-1 ${((athlete as any).recovery_score ?? 50) > 80 ? 'bg-green-400' : ((athlete as any).recovery_score ?? 50) > 50 ? 'bg-orange-400' : 'bg-red-400'}`} />
                         </div>
                         <div className="h-1 bg-bg-input rounded-full w-full overflow-hidden mt-0.5">
                           <div 
                             className="h-full transition-all duration-1000" 
                             style={{ 
-                              width: `${(athlete as any).recovery_score || 75}%`, 
-                              backgroundColor: ((athlete as any).recovery_score || 75) > 80 ? '#22c55e' : ((athlete as any).recovery_score || 75) > 50 ? '#f59e0b' : '#ef4444' 
+                              width: `${((athlete as any).recovery_score ?? 50)}%`, 
+                              backgroundColor: ((athlete as any).recovery_score ?? 50) > 80 ? '#22c55e' : ((athlete as any).recovery_score ?? 50) > 50 ? '#f59e0b' : '#ef4444' 
                             }} 
                           />
                         </div>

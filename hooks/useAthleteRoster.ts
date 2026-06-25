@@ -96,12 +96,13 @@ export function useAthleteRoster() {
           load_trend: mockTrend,
           alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,
           recovery_score: (() => {
+            if (isInjured) return 0;
             const athleteWellness = p.wellness_logs || [];
             const sortedWellness = [...athleteWellness].sort((a: any, b: any) => 
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
             const latest = sortedWellness[0];
-            if (!latest) return 0;
+            if (!latest) return 50;
             const sleep = latest.sleep_score || 0;
             const soreness = latest.soreness_score || 0;
             return Math.round(((sleep + (10 - soreness)) / 20) * 100);

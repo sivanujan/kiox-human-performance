@@ -1,6 +1,4 @@
 import Gallery from '@/components/Gallery';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'Gallery | KIO-X',
@@ -9,10 +7,8 @@ export const metadata = {
 
 export default function GalleryPage() {
   return (
-    <main className="min-h-screen bg-[#080808]">
-      <Navbar />
+    <main className="min-h-screen bg-bg-primary">
       <Gallery />
-      <Footer />
     </main>
   );
 }

@@ -161,7 +161,7 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
           style={{
             position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)', borderRadius: '16px', overflow: 'hidden', border: '2px solid #22c55e',
-            background: '#0a0a0a', boxShadow: '0 0 30px rgba(34,197,94,0.3)',
+            background: 'var(--bg-card)', boxShadow: '0 0 30px rgba(34,197,94,0.3)',
             display: 'flex', flexDirection: 'column',
             zIndex: isFlipped ? 20 : 1
           }}
@@ -183,12 +183,12 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
           )}
 
           <div style={{
-            flex: 1, padding: '20px', background: 'rgba(0,0,0,1)',
+            flex: 1, padding: '20px', background: 'var(--bg-secondary)',
             display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px'
           }}>
             <div style={{ width: '40px', height: '1px', background: '#22c55e', marginBottom: '8px' }} />
             
-            <div className="font-display text-white text-[16px] uppercase tracking-wide font-black leading-tight">
+            <div className="font-display text-text-primary text-[16px] uppercase tracking-wide font-black leading-tight">
               {item.title}
             </div>
 
@@ -441,7 +441,7 @@ export default function Gallery() {
         document.body
       )}
 
-      <div style={{ background: '#080808', minHeight: '100vh', paddingBottom: '100px' }}>
+      <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: '100px' }}>
         {/* HERO BANNER */}
         <div style={{
           background: 'linear-gradient(180deg, rgba(34,197,94,0.08) 0%, transparent 100%)',
@@ -463,7 +463,7 @@ export default function Gallery() {
               <div style={{ width: '50px', height: '1px', background: 'linear-gradient(90deg, #22c55e, transparent)' }} />
             </div>
 
-            <h1 className="font-display" style={{ color: '#ffffff', fontSize: 'clamp(48px, 8vw, 100px)', margin: '0 0 16px', textTransform: 'uppercase', lineHeight: 1, fontWeight: '900', fontStyle: 'italic', letterSpacing: '-0.02em' }}>
+            <h1 className="font-display" style={{ color: 'var(--text-primary)', fontSize: 'clamp(48px, 8vw, 100px)', margin: '0 0 16px', textTransform: 'uppercase', lineHeight: 1, fontWeight: '900', fontStyle: 'italic', letterSpacing: '-0.02em' }}>
               GALLERY
             </h1>
 
@@ -502,7 +502,7 @@ export default function Gallery() {
             className="font-display"
             style={{
               background: activeFilter === 'ALL' ? '#22c55e' : 'transparent',
-              color: activeFilter === 'ALL' ? '#000000' : '#666666',
+              color: activeFilter === 'ALL' ? '#000000' : 'var(--text-secondary)',
               border: activeFilter === 'ALL' ? '1px solid #22c55e' : '1px solid rgba(34,197,94,0.2)',
               padding: '12px 28px', borderRadius: '50px', fontSize: '11px', letterSpacing: '0.2em',
               fontWeight: '900', cursor: 'pointer', transition: 'all 0.3s ease',
@@ -523,7 +523,7 @@ export default function Gallery() {
               className="font-display"
               style={{
                 background: activeFilter === cat.name ? '#22c55e' : 'transparent',
-                color: activeFilter === cat.name ? '#000000' : '#666666',
+                color: activeFilter === cat.name ? '#000000' : 'var(--text-secondary)',
                 border: activeFilter === cat.name ? '1px solid #22c55e' : '1px solid rgba(34,197,94,0.2)',
                 padding: '12px 28px', borderRadius: '50px', fontSize: '11px', letterSpacing: '0.2em',
                 fontWeight: '900', cursor: 'pointer', transition: 'all 0.3s ease',
@@ -592,14 +592,14 @@ export default function Gallery() {
              />
              <motion.div 
                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-               className="relative w-full max-w-xl bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 overflow-hidden"
+               className="relative w-full max-w-xl bg-bg-card border border-border-card rounded-[40px] p-10 overflow-hidden"
              >
                 <div className="flex justify-between items-center mb-10">
                    <div>
                       <span className="text-[#22c55e] text-[10px] font-black uppercase tracking-[4px]">Media Ingestion</span>
-                      <h2 className="text-3xl font-display font-black text-white italic uppercase">Upload New Asset</h2>
+                      <h2 className="text-3xl font-display font-black text-text-primary italic uppercase">Upload New Asset</h2>
                    </div>
-                   <button onClick={() => setIsUploadOpen(false)} className="p-3 text-gray-500 hover:text-white transition-colors">
+                   <button onClick={() => setIsUploadOpen(false)} className="p-3 text-text-muted hover:text-text-primary transition-colors">
                       <X size={24} />
                    </button>
                 </div>
@@ -608,44 +608,44 @@ export default function Gallery() {
                    <div 
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-[32px] p-12 flex flex-col items-center gap-4 transition-all cursor-pointer ${
-                      uploadFile ? 'border-[#22c55e] bg-[#22c55e]/5' : 'border-white/10 hover:border-white/30'
+                      uploadFile ? 'border-[#22c55e] bg-[#22c55e]/5' : 'border-border-card hover:border-[#22c55e]/50'
                     }`}
                   >
-                    <Upload size={32} className={uploadFile ? 'text-[#22c55e]' : 'text-gray-700'} />
+                    <Upload size={32} className={uploadFile ? 'text-[#22c55e]' : 'text-text-muted'} />
                     <div className="text-center font-display">
-                      <div className="text-white text-xs font-black uppercase tracking-widest shrink-0 truncate max-w-[300px]">
+                      <div className="text-text-primary text-xs font-black uppercase tracking-widest shrink-0 truncate max-w-[300px]">
                         {uploadFile ? uploadFile.name : "Select Media Record"}
                       </div>
-                      <div className="text-gray-600 text-[10px] mt-1 tracking-widest uppercase">MP4 / MOV / JPG / PNG</div>
+                      <div className="text-text-muted text-[10px] mt-1 tracking-widest uppercase">MP4 / MOV / JPG / PNG</div>
                     </div>
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-gray-500 tracking-[2px] uppercase ml-1">Title</label>
+                      <label className="text-[10px] font-black text-text-muted tracking-[2px] uppercase ml-1">Title</label>
                       <input 
                         required placeholder="EX: ELITE DRILL 01"
                         value={uploadTitle} onChange={(e) => setUploadTitle(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 font-display font-bold text-white focus:outline-none focus:border-[#22c55e] transition-all"
+                        className="w-full bg-bg-input border border-border-input rounded-2xl py-4 px-6 font-display font-bold text-text-primary focus:outline-none focus:border-[#22c55e] transition-all"
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-gray-500 tracking-[2px] uppercase ml-1">Classification</label>
+                      <label className="text-[10px] font-black text-text-muted tracking-[2px] uppercase ml-1">Classification</label>
                       <select 
                         value={uploadCategory} 
                         onChange={(e) => setUploadCategory(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 font-display font-bold text-white focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none"
+                        className="w-full bg-bg-input border border-border-input rounded-2xl py-4 px-6 font-display font-bold text-text-primary focus:outline-none focus:border-[#22c55e] transition-all cursor-pointer appearance-none"
                       >
-                         {categories.map(c => <option key={c.id} value={c.name} className="bg-black">{c.name}</option>)}
-                         <option value="TRAINING" className="bg-black text-gray-500 italic">No Groups Available</option>
+                         {categories.map(c => <option key={c.id} value={c.name} className="bg-bg-input text-text-primary">{c.name}</option>)}
+                         <option value="TRAINING" className="bg-bg-input text-text-muted italic">No Groups Available</option>
                       </select>
                     </div>
                   </div>
 
                   <button 
                     disabled={!uploadFile || uploadLoading}
-                    className="w-full py-5 rounded-3xl bg-white text-black font-display font-black uppercase tracking-[8px] hover:bg-[#22c55e] transition-all disabled:opacity-20 flex items-center justify-center gap-3 shadow-xl"
+                    className="w-full py-5 rounded-3xl bg-text-primary text-bg-primary font-display font-black uppercase tracking-[8px] hover:bg-[#22c55e] transition-all disabled:opacity-20 flex items-center justify-center gap-3 shadow-xl"
                   >
                     {uploadLoading ? <Loader2 className="animate-spin" size={20} /> : "COMMIT TO ARCHIVE"}
                   </button>
@@ -665,14 +665,14 @@ export default function Gallery() {
              />
              <motion.div 
                initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
-               className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10"
+               className="relative w-full max-w-lg bg-bg-card border border-border-card rounded-[40px] p-10"
              >
                 <div className="flex justify-between items-center mb-8">
                    <div>
                       <span className="text-[#22c55e] text-[10px] font-black uppercase tracking-[4px]">System Registry</span>
-                      <h2 className="text-3xl font-display font-black text-white italic uppercase">Manage Channels</h2>
+                      <h2 className="text-3xl font-display font-black text-text-primary italic uppercase">Manage Channels</h2>
                    </div>
-                   <button onClick={() => setIsCategoryManageOpen(false)} className="p-3 text-gray-500 hover:text-white transition-colors">
+                   <button onClick={() => setIsCategoryManageOpen(false)} className="p-3 text-text-muted hover:text-text-primary transition-colors">
                       <X size={24} />
                    </button>
                 </div>
@@ -681,11 +681,11 @@ export default function Gallery() {
                    <input 
                     required placeholder="NEW CATEGORY NAME..."
                     value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)}
-                    className="flex-1 bg-black border border-white/10 rounded-2xl py-4 px-6 font-display font-bold text-white focus:border-[#22c55e] transition-all"
+                    className="flex-1 bg-bg-input border border-border-input rounded-2xl py-4 px-6 font-display font-bold text-text-primary focus:border-[#22c55e] transition-all"
                    />
                    <button 
                     disabled={categoryActionLoading || !newCategoryName}
-                    className="px-6 bg-[#22c55e] text-black rounded-2xl font-black transition-all hover:bg-white disabled:opacity-30"
+                    className="px-6 bg-[#22c55e] text-black rounded-2xl font-black transition-all hover:bg-text-primary disabled:opacity-30"
                    >
                      {categoryActionLoading ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
                    </button>
@@ -693,10 +693,10 @@ export default function Gallery() {
 
                 <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
                    {categories.map(cat => (
-                     <div key={cat.id} className="flex items-center justify-between p-5 bg-white/[0.03] border border-white/5 rounded-2xl group/cat">
+                     <div key={cat.id} className="flex items-center justify-between p-5 bg-bg-secondary border border-border-card rounded-2xl group/cat">
                         <div className="flex items-center gap-4">
                            <FolderOpen size={18} className="text-[#22c55e]" />
-                           <span className="text-white font-display font-bold tracking-widest text-sm">{cat.name}</span>
+                           <span className="text-text-primary font-display font-bold tracking-widest text-sm">{cat.name}</span>
                         </div>
                         <button 
                           onClick={() => handleDeleteCategory(cat.id)}
