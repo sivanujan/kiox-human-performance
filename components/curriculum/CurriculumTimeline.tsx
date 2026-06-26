@@ -63,17 +63,17 @@ export default function CurriculumTimeline() {
     // Re-fetch when navigating back to this page
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchDayData();
+        fetchDayData(true); // background fetch
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [selectedDate]);
 
-  const fetchDayData = async () => {
-    setLoading(true);
+  const fetchDayData = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     setError(null);
-    setLoadStatus("Fetching sessions...");
+    if (!isBackground) setLoadStatus("Fetching sessions...");
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
 
@@ -87,12 +87,12 @@ export default function CurriculumTimeline() {
 
       if (sessionRes.error) {
         console.error("Session fetch error:", sessionRes.error);
-        setError("Failed to load timeline items.");
+        if (!isBackground) setError("Failed to load timeline items.");
       } else {
         setSessions(sessionRes.data || []);
       }
 
-      setLoadStatus("Fetching profiles & settings...");
+      if (!isBackground) setLoadStatus("Fetching profiles & settings...");
       // 2. Fetch profiles
       const [athletesRes, coachesRes, contactRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("role", "athlete"),
@@ -106,13 +106,15 @@ export default function CurriculumTimeline() {
         setContactInfo(contactRes.data.value);
         setEditContactData(contactRes.data.value);
       }
-      setLoadStatus("Data processing complete.");
+      if (!isBackground) setLoadStatus("Data processing complete.");
     } catch (err: any) {
       console.error("Timeline data synchronization error:", err);
-      setError(err?.message || "Error syncing day timeline.");
-      setLoadStatus("Error occurred.");
+      if (!isBackground) {
+        setError(err?.message || "Error syncing day timeline.");
+        setLoadStatus("Error occurred.");
+      }
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 

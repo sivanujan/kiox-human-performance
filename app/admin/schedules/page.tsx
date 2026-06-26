@@ -44,15 +44,15 @@ export default function AdminSchedules() {
     // Re-fetch when navigating back to this page (tab focus / Next.js navigation)
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchData();
+        fetchData(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [currentMonth]);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     setError(null);
     try {
       const start = format(startOfWeek(startOfMonth(currentMonth)), "yyyy-MM-dd");
@@ -74,22 +74,22 @@ export default function AdminSchedules() {
 
       if (sessionRes.error) {
         console.error("Session fetch error:", sessionRes.error.message, sessionRes.error.details, sessionRes.error.hint);
-        setError(`Failed to load schedule sessions: ${sessionRes.error.message}`);
+        if (!isBackground) setError(`Failed to load schedule sessions: ${sessionRes.error.message}`);
       } else {
         setSessions(sessionRes.data || []);
       }
 
       if (athleteRes.error) {
         console.error("Athlete fetch error:", athleteRes.error.message, athleteRes.error.details, athleteRes.error.hint);
-        setError(`Failed to load athlete profiles: ${athleteRes.error.message}`);
+        if (!isBackground) setError(`Failed to load athlete profiles: ${athleteRes.error.message}`);
       } else {
         setAthletes(athleteRes.data || []);
       }
     } catch (err: any) {
       console.error("Critical scheduling data synchronization error:", err);
-      setError(err?.message || "A network or connection error occurred while syncing schedules.");
+      if (!isBackground) setError(err?.message || "A network or connection error occurred while syncing schedules.");
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 
