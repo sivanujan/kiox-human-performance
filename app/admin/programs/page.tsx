@@ -43,7 +43,6 @@ export default function ArchitectureMatrix() {
     weekly_commitment: 4,
     recovery_blocks: 3,
     session_time: "",
-    session_time: "",
     syllabus: [] as { title: string; status: string; duration?: string }[],
     assigned_athletes: [] as string[]
   });
