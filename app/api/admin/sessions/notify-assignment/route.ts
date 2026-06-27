@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     
     // Map to collect sessions per recipient ID
     // Map<string, { email, name, role, sessions }>
-    const recipientsMap = new Map<string, { email: string; name: string; role: string; sessions: any[] }>();
+    const recipientsMap = new Map<string, { email: string; name: string; role: string; sessions: { title: string; time: string }[] }>();
 
     const getRecipient = async (id: string, defaultRole: string) => {
       if (recipientsMap.has(id)) return recipientsMap.get(id);
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           email: userData.user.email,
           name: profileData?.first_name || defaultRole,
           role: profileData?.role === 'staff' || profileData?.role === 'superadmin' ? 'Staff' : (profileData?.role === 'athlete' ? 'Athlete' : 'Coach'),
-          sessions: []
+          sessions: [] as { title: string; time: string }[]
         };
         recipientsMap.set(id, rec);
         return rec;
