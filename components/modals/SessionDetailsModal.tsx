@@ -25,6 +25,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const [creatorName, setCreatorName] = useState<string | null>(null);
   const [assignedCoachName, setAssignedCoachName] = useState<string | null>(null);
   const [updatingPayment, setUpdatingPayment] = useState(false);
+  const [athleteProfiles, setAthleteProfiles] = useState<Record<string, any>>({});
 
   const supabase = createClient();
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
@@ -91,6 +92,23 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
         notes: ''
       };
     });
+    
+    // Fetch athlete profiles to display names
+    if (session.assigned_athletes && session.assigned_athletes.length > 0) {
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, avatar_url")
+        .in("id", session.assigned_athletes);
+
+      if (profilesData) {
+        const profileMap = profilesData.reduce((acc: any, p: any) => {
+          acc[p.id] = p;
+          return acc;
+        }, {});
+        setAthleteProfiles(profileMap);
+      }
+    }
+
     setAthleteLogs(logs);
   };
 
@@ -377,10 +395,18 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          {athleteLogs.map((log, i) => (
                            <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[32px] flex flex-wrap lg:flex-nowrap items-center gap-8 group">
                               <div className="flex items-center gap-4 shrink-0 min-w-[200px]">
-                                 <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase">
-                                    {log.athlete_id.slice(0, 2)}
+                                 <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
+                                    {athleteProfiles[log.athlete_id]?.avatar_url ? (
+                                       <img src={athleteProfiles[log.athlete_id].avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                       athleteProfiles[log.athlete_id]?.first_name?.slice(0, 2) || log.athlete_id.slice(0, 2)
+                                    )}
                                  </div>
-                                 <div className="text-white font-bold text-xs uppercase tracking-wider truncate">SUBJECT {log.athlete_id.slice(0, 8)}</div>
+                                 <div className="text-white font-bold text-xs uppercase tracking-wider truncate">
+                                    {athleteProfiles[log.athlete_id] 
+                                       ? `${athleteProfiles[log.athlete_id].first_name} ${athleteProfiles[log.athlete_id].last_name || ''}`
+                                       : `SUBJECT ${log.athlete_id.slice(0, 8)}`}
+                                 </div>
                               </div>
 
                               <div className="flex gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/5 shrink-0">
