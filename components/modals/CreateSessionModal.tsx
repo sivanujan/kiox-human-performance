@@ -45,9 +45,10 @@ interface ScheduleItem {
   external_clients: ExternalClientEntry[];
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
   session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM' | 'MEAL' | 'CURFEW' | 'LOGISTICS';
+  assigned_athletes: string[];
 }
 
-export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
+export default function CreateSessionModal({ isOpen, onClose, onSuccess, athletes, coaches, defaultDate, defaultIsCurriculum }: CreateSessionModalProps) {
   const { user, profile } = useAuth();
   const { userTimezone } = useTimezone();
   const { createSession, loading: sessionLoading } = useSessions();
@@ -56,6 +57,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
   const [localCoaches, setLocalCoaches] = useState<any[]>(coaches || []);
+  const [localAthletes, setLocalAthletes] = useState<any[]>(athletes || []);
   
   const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([
     { 
@@ -82,7 +84,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
         }
       ],
       session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE'),
-      session_type: 'TACTICAL'
+      session_type: 'TACTICAL',
+      assigned_athletes: []
     }
   ]);
 
@@ -125,7 +128,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
             }
           ],
           session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE',
-          session_type: 'TACTICAL'
+          session_type: 'TACTICAL',
+          assigned_athletes: []
         }
       ]);
     }
@@ -147,6 +151,23 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
       fetchCoaches();
     }
   }, [coaches]);
+
+  useEffect(() => {
+    if (athletes) {
+      setLocalAthletes(athletes);
+    } else {
+      const fetchAthletes = async () => {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("role", "athlete");
+        if (data) {
+          setLocalAthletes(data);
+        }
+      };
+      fetchAthletes();
+    }
+  }, [athletes]);
 
   if (!mounted || !isOpen) return null;
 
@@ -226,7 +247,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
               duration_minutes: item.duration_minutes,
               location: item.location || "HQ FIELD",
               target_load_au: undefined,
-              assigned_athletes: [],
+              assigned_athletes: item.assigned_athletes || [],
               notes: item.notes,
               assigned_by: user?.id,
               coach_timezone: userTimezone,
@@ -266,6 +287,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                   message: `You have been assigned to ${label} "${item.title}" on ${dateStr} at ${item.start_time}.`,
                   type: "UPDATE"
                 });
+
               }
             }
 
@@ -292,6 +314,30 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
             alert(msg);
           }
         }
+
+        // Send batch email notifications per date for curriculum sessions
+        for (const dateStr of selectedDates) {
+          const curriculumSessionsForDate = scheduleItems.filter(i => i.session_category === 'CURRICULUM');
+          if (curriculumSessionsForDate.length > 0) {
+            const payloadSessions = curriculumSessionsForDate.map(i => ({
+              title: i.title,
+              time: i.start_time,
+              coachId: i.coach_id,
+              athleteIds: i.assigned_athletes || []
+            }));
+
+            await fetch('/api/admin/sessions/notify-assignment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                dateStr: dateStr,
+                notifyStaff: true,
+                sessions: payloadSessions
+              })
+            }).catch(e => console.error("Failed to trigger bulk assignment emails:", e));
+          }
+        }
+
         if (onSuccess) {
           onSuccess(selectedDates);
         } else {
@@ -335,7 +381,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
           }
         ],
         session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE',
-        session_type: 'TACTICAL'
+        session_type: 'TACTICAL',
+        assigned_athletes: []
       }
     ]);
   };
@@ -737,6 +784,45 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, coaches
                                     </div>
                                   );
                                 })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Assign Internal Athletes */}
+                          {!item.is_external && (
+                            <div className="space-y-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="text-[9px] font-black text-sky-400 uppercase tracking-[2px]">Assign Athletes (Optional)</div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const allIds = localAthletes.map(a => a.id);
+                                    const allSelected = item.assigned_athletes?.length === allIds.length;
+                                    updateItem(item.id, { assigned_athletes: allSelected ? [] : allIds });
+                                  }}
+                                  className="text-[9px] font-black text-white/50 hover:text-white uppercase tracking-wider transition-colors"
+                                >
+                                  {item.assigned_athletes?.length === localAthletes.length && localAthletes.length > 0 ? "Deselect All" : "Select All"}
+                                </button>
+                              </div>
+                              <div className="bg-black/40 border border-white/10 rounded-xl p-4 max-h-40 overflow-y-auto space-y-3">
+                                {localAthletes.map(athlete => (
+                                  <label key={athlete.id} className="flex items-center gap-3 cursor-pointer group" onClick={(e) => {
+                                    e.preventDefault();
+                                    const isSelected = item.assigned_athletes?.includes(athlete.id);
+                                    const updated = isSelected 
+                                      ? item.assigned_athletes?.filter(id => id !== athlete.id) || []
+                                      : [...(item.assigned_athletes || []), athlete.id];
+                                    updateItem(item.id, { assigned_athletes: updated });
+                                  }}>
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${item.assigned_athletes?.includes(athlete.id) ? 'bg-sky-500 border-sky-500' : 'border-white/20 group-hover:border-sky-500/50'}`}>
+                                      {item.assigned_athletes?.includes(athlete.id) && <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-black"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                    </div>
+                                    <span className="text-sm text-white/80 uppercase group-hover:text-white transition-colors">{athlete.first_name} {athlete.last_name}</span>
+                                  </label>
+                                ))}
+                                {localAthletes.length === 0 && <span className="text-xs text-white/40 uppercase">No internal athletes found</span>}
                               </div>
                             </div>
                           )}

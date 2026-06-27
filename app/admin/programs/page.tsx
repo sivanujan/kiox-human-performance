@@ -43,9 +43,12 @@ export default function ArchitectureMatrix() {
     weekly_commitment: 4,
     recovery_blocks: 3,
     session_time: "",
-    syllabus: [] as { title: string; status: string; duration?: string }[]
+    session_time: "",
+    syllabus: [] as { title: string; status: string; duration?: string }[],
+    assigned_athletes: [] as string[]
   });
   const [staff, setStaff] = useState<any[]>([]);
+  const [athletes, setAthletes] = useState<any[]>([]);
   const [btnLoading, setBtnLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,7 +101,7 @@ export default function ArchitectureMatrix() {
     if (!authLoading) {
       if (user && (profile?.role === 'superadmin' || profile?.role === 'staff' || profile?.role === 'medical')) {
         fetchPrograms();
-        fetchStaff();
+        fetchUsers();
       } else if (!user || profile) {
         // If auth is settled but user isn't superadmin or doesn't exist, stop loading
         setLoading(false);
@@ -106,15 +109,16 @@ export default function ArchitectureMatrix() {
     }
   }, [user, profile, authLoading, router]);
 
-  const fetchStaff = async () => {
+  const fetchUsers = async () => {
     try {
       const res = await fetch("/api/admin/users");
       const data = await res.json();
       if (!data.error) {
-        setStaff(data.filter((u: any) => u.role === 'staff' || u.role === 'superadmin'));
+        setStaff(data.filter((u: any) => u.role === 'staff' || u.role === 'superadmin' || u.role === 'medical'));
+        setAthletes(data.filter((u: any) => u.role === 'athlete'));
       }
     } catch (error) {
-      console.error("Staff Fetch Error:", error);
+      console.error("Users Fetch Error:", error);
     }
   };
 
@@ -163,7 +167,7 @@ export default function ArchitectureMatrix() {
       setEditingId(null);
       setIsCustomCategory(false);
       setCustomCategory("");
-      setNewProgram({ title: "", description: "", startDate: "", endDate: "", level: "Intermediate", category: "Speed & Agility", price: "", max_athletes: "", coach_id: "", weekly_commitment: 4, recovery_blocks: 3, session_time: "", syllabus: [] });
+      setNewProgram({ title: "", description: "", startDate: "", endDate: "", level: "Intermediate", category: "Speed & Agility", price: "", max_athletes: "", coach_id: "", weekly_commitment: 4, recovery_blocks: 3, session_time: "", syllabus: [], assigned_athletes: [] });
       fetchPrograms();
     }
     setBtnLoading(false);
@@ -207,7 +211,10 @@ export default function ArchitectureMatrix() {
       weekly_commitment: program.weekly_commitment || 4,
       recovery_blocks: program.recovery_blocks || 3,
       session_time: program.session_time || "",
-      syllabus: program.syllabus || []
+      syllabus: program.syllabus || [],
+      assigned_athletes: program.user_programs 
+        ? program.user_programs.filter((up: any) => up.status === 'active').map((up: any) => up.user_id) 
+        : []
     });
     setIsAdding(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -508,6 +515,41 @@ export default function ArchitectureMatrix() {
                       ))}
                     </select>
                   </div>
+                  <div className="col-span-full">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-[10px] font-black text-white/40 uppercase tracking-[2px] block">Assign Athletes (Optional)</label>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const allIds = athletes.map(a => a.id);
+                          const allSelected = newProgram.assigned_athletes.length === allIds.length;
+                          setNewProgram({...newProgram, assigned_athletes: allSelected ? [] : allIds});
+                        }}
+                        className="text-[9px] font-black text-white/50 hover:text-white uppercase tracking-wider transition-colors"
+                      >
+                        {newProgram.assigned_athletes.length === athletes.length && athletes.length > 0 ? "Deselect All" : "Select All"}
+                      </button>
+                    </div>
+                    <div className="bg-black/40 border border-white/10 rounded-xl p-4 max-h-40 overflow-y-auto space-y-3">
+                      {athletes.map(athlete => (
+                        <label key={athlete.id} className="flex items-center gap-3 cursor-pointer group" onClick={(e) => {
+                          e.preventDefault();
+                          const isSelected = newProgram.assigned_athletes.includes(athlete.id);
+                          const updated = isSelected 
+                            ? newProgram.assigned_athletes.filter(id => id !== athlete.id)
+                            : [...newProgram.assigned_athletes, athlete.id];
+                          setNewProgram({...newProgram, assigned_athletes: updated});
+                        }}>
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${newProgram.assigned_athletes.includes(athlete.id) ? 'bg-[#22c55e] border-[#22c55e]' : 'border-white/20 group-hover:border-[#22c55e]/50'}`}>
+                            {newProgram.assigned_athletes.includes(athlete.id) && <CheckCircle2 size={10} className="text-black" />}
+                          </div>
+                          <span className="text-sm text-white/80 uppercase group-hover:text-white transition-colors">{athlete.first_name} {athlete.last_name} <span className="text-white/40">(@{athlete.username || 'not_set'})</span></span>
+                        </label>
+                      ))}
+                      {athletes.length === 0 && <span className="text-xs text-white/40 uppercase">No athletes found</span>}
+                    </div>
+                  </div>
 
                   <div className="col-span-full border-t border-white/5 pt-6 mt-2">
                     <div className="flex justify-between items-center mb-4">
@@ -612,7 +654,6 @@ export default function ArchitectureMatrix() {
                       >
                         <Edit2 size={18} />
                       </button>
-                      {profile?.role === 'superadmin' && (
                         <button 
                           onClick={() => handleDelete(program.id)}
                           className="text-gray-500 hover:text-red-500 transition-colors"
@@ -620,7 +661,6 @@ export default function ArchitectureMatrix() {
                         >
                           <Trash2 size={18} />
                         </button>
-                      )}
                     </div>
                   )}
                 </div>

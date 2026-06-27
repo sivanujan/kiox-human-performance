@@ -64,6 +64,7 @@ interface CalendarEvent {
   external_player_name?: string;
   payment_status?: string;
   session_category?: string;
+  assigned_athletes?: string[];
 }
 
 export default function SharedCalendarPage() {
@@ -111,6 +112,7 @@ export default function SharedCalendarPage() {
   // Data State
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
+  const [athletes, setAthletes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -142,6 +144,7 @@ export default function SharedCalendarPage() {
       initializedRef.current = true;
       fetchEvents();
       fetchCoaches();
+      fetchAthletes();
       
       // Subscribe to Realtime Postgres Changes
       const channel = supabase
@@ -213,7 +216,8 @@ export default function SharedCalendarPage() {
         is_external: s.is_external,
         external_player_name: s.external_player_name,
         payment_status: s.payment_status,
-        session_category: s.session_category
+        session_category: s.session_category,
+        assigned_athletes: s.assigned_athletes || []
       }));
 
       const combined = [...(eventsRes.data || []), ...mappedSessions].sort((a, b) => {
@@ -243,6 +247,20 @@ export default function SharedCalendarPage() {
       setCoaches(data || []);
     } catch (err) {
       console.error("Error fetching coaches:", err);
+    }
+  };
+
+  const fetchAthletes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, avatar_url, username")
+        .eq("role", "athlete");
+      
+      if (error) throw error;
+      setAthletes(data || []);
+    } catch (err) {
+      console.error("Error fetching athletes:", err);
     }
   };
 
@@ -462,12 +480,21 @@ export default function SharedCalendarPage() {
     setError(null);
 
     try {
-      const { error: deleteErr } = await supabase
-        .from("coach_calendar_events")
-        .delete()
-        .eq("id", selectedEvent.id);
+      if (selectedEvent.is_training_session) {
+        const { error: deleteErr } = await supabase
+          .from("training_sessions")
+          .delete()
+          .eq("id", selectedEvent.id);
 
-      if (deleteErr) throw deleteErr;
+        if (deleteErr) throw deleteErr;
+      } else {
+        const { error: deleteErr } = await supabase
+          .from("coach_calendar_events")
+          .delete()
+          .eq("id", selectedEvent.id);
+
+        if (deleteErr) throw deleteErr;
+      }
 
       setSuccessMessage("Session deleted from tactical matrix.");
       setIsDetailOpen(false);
@@ -757,6 +784,15 @@ export default function SharedCalendarPage() {
                           >
                             <span className="font-bold truncate w-full">{event.is_emergency ? "🚨 " : ""}{event.title} — {formatTime(event.event_time)}</span>
                             <span className="text-[8px] opacity-75 font-normal truncate w-full">Coach: {coachName}</span>
+                            {event.assigned_athletes && event.assigned_athletes.length > 0 && (
+                               <span className="text-[7px] opacity-70 font-normal truncate w-full flex items-center gap-1 mt-0.5">
+                                 <User size={8} /> 
+                                 {event.assigned_athletes.map(id => {
+                                   const ath = athletes.find(a => a.id === id);
+                                   return ath ? `${ath.first_name}` : 'Unknown';
+                                 }).join(', ')}
+                               </span>
+                            )}
                           </button>
                         );
                       })}
@@ -843,6 +879,18 @@ export default function SharedCalendarPage() {
                             <div className="text-[8px] opacity-75 font-normal pt-1">
                               <span>Coach: {coachName}</span>
                             </div>
+                            
+                            {event.assigned_athletes && event.assigned_athletes.length > 0 && (
+                               <div className="text-[7px] opacity-70 font-normal pt-0.5 flex items-center gap-1">
+                                 <User size={8} /> 
+                                 <span className="truncate">
+                                   {event.assigned_athletes.map(id => {
+                                     const ath = athletes.find(a => a.id === id);
+                                     return ath ? `${ath.first_name}` : 'Unknown';
+                                   }).join(', ')}
+                                 </span>
+                               </div>
+                            )}
                           </div>
                         );
                       })
@@ -1132,7 +1180,7 @@ export default function SharedCalendarPage() {
                 {/* Permissions check for actions */}
                 {(() => {
                   const isOwner = selectedEvent.coach_id === user?.id;
-                  const canEdit = (isAdmin || isOwner) && !selectedEvent.is_training_session;
+                  const canEdit = isAdmin || isOwner;
 
                   return canEdit ? (
                     <div className="pt-4 flex gap-3 border-t border-white/5">
@@ -1145,19 +1193,15 @@ export default function SharedCalendarPage() {
                         Delete Session
                       </button>
 
-                      <button
-                        onClick={handleEditClick}
-                        className="flex-1 py-3 bg-[#00ff88]/10 border border-[#00ff88]/20 text-[#00ff88] rounded-xl text-[9px] font-black uppercase tracking-[2px] hover:bg-[#00ff88] hover:text-black transition-all flex items-center justify-center gap-2 active-scale"
-                      >
-                        <Edit2 size={12} />
-                        Edit Details
-                      </button>
-                    </div>
-                  ) : selectedEvent.is_training_session ? (
-                    <div className="pt-4 text-center border-t border-white/5">
-                      <p className="text-amber-500 text-[9px] font-black uppercase tracking-[3px]">
-                        Curriculum Training Session // Manage via Global Schedules or Curriculum
-                      </p>
+                      {!selectedEvent.is_training_session && (
+                        <button
+                          onClick={handleEditClick}
+                          className="flex-1 py-3 bg-[#00ff88]/10 border border-[#00ff88]/20 text-[#00ff88] rounded-xl text-[9px] font-black uppercase tracking-[2px] hover:bg-[#00ff88] hover:text-black transition-all flex items-center justify-center gap-2 active-scale"
+                        >
+                          <Edit2 size={12} />
+                          Edit Details
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="pt-4 text-center border-t border-white/5">

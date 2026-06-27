@@ -573,7 +573,7 @@ export default function UserInventory() {
                     size="md"
                   />
                   <div>
-                    <p className="text-sm font-bold text-text-primary uppercase">{user_profile.first_name} {user_profile.last_name}</p>
+                    <p className="font-display text-xs font-bold text-text-primary uppercase tracking-wider">{user_profile.first_name} {user_profile.last_name}</p>
                     <p className="font-label text-text-secondary text-[10px] font-bold">@{user_profile.username || 'not_set'}</p>
                   </div>
                 </div>
@@ -589,7 +589,7 @@ export default function UserInventory() {
 
              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                   <p className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Core Governance</p>
+                   <p className="font-display text-[8px] font-bold text-text-secondary uppercase tracking-widest">Core Governance</p>
                    <select 
                       value={user_profile.role}
                       onChange={(e) => handleUpdate(user_profile.id, { role: e.target.value })}
@@ -599,7 +599,7 @@ export default function UserInventory() {
                    </select>
                 </div>
                 <div className="space-y-1">
-                   <p className="text-[8px] font-black text-text-secondary uppercase tracking-widest">System Status</p>
+                   <p className="font-display text-[8px] font-bold text-text-secondary uppercase tracking-widest">System Status</p>
                    <select 
                       value={user_profile.status}
                       onChange={(e) => handleUpdate(user_profile.id, { status: e.target.value })}

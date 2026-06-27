@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.programs (
   level TEXT CHECK (level IN ('Beginner', 'Intermediate', 'Advanced', 'Elite')),
   category TEXT CHECK (category IN ('Speed & Agility', 'Strength', 'Goalkeeper', 'Technique', 'Nutrition', 'Psychology', 'Full Program')),
   price NUMERIC,
-  max_athletes INTEGER,
+  max_athletes INTEGER, 
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   created_by UUID REFERENCES auth.users(id)
