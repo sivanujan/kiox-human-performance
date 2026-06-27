@@ -394,7 +394,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       <div className="space-y-4">
                          {athleteLogs.map((log, i) => (
                            <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[32px] flex flex-wrap lg:flex-nowrap items-center gap-8 group">
-                              <div className="flex items-center gap-4 shrink-0 min-w-[200px]">
+                              <div className="flex items-center gap-4 shrink-0 w-[250px]">
                                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
                                     {athleteProfiles[log.athlete_id]?.avatar_url ? (
                                        <img src={athleteProfiles[log.athlete_id].avatar_url} alt="Avatar" className="w-full h-full object-cover" />
