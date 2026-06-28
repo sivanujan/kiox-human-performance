@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,6 +40,23 @@ export default function CurriculumTimeline() {
 
   const supabase = createClient();
   const isWritable = profile?.role === 'superadmin' || profile?.role === 'staff';
+
+  useEffect(() => {
+    // Fetch profiles once on mount
+    const fetchProfiles = async () => {
+      try {
+        const [athletesRes, coachesRes] = await Promise.all([
+          supabase.from("profiles").select("*").eq("role", "athlete"),
+          supabase.from("profiles").select("*").in("role", ["staff", "superadmin"])
+        ]);
+        if (!athletesRes.error && athletesRes.data) setAthletes(athletesRes.data);
+        if (!coachesRes.error && coachesRes.data) setCoaches(coachesRes.data);
+      } catch (err) {
+        console.error("Error fetching profiles:", err);
+      }
+    };
+    fetchProfiles();
+  }, []);
 
   useEffect(() => {
     fetchDayData();
@@ -87,7 +104,6 @@ export default function CurriculumTimeline() {
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
 
-      // 1. Fetch sessions for the selected day
       const sessionRes = await supabase
         .from("training_sessions")
         .select("*")
@@ -101,17 +117,6 @@ export default function CurriculumTimeline() {
       } else {
         setSessions(sessionRes.data || []);
       }
-
-      if (!isBackground) setLoadStatus("Fetching profiles...");
-      // 2. Fetch profiles
-      const [athletesRes, coachesRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("role", "athlete"),
-        supabase.from("profiles").select("*").in("role", ["staff", "superadmin"])
-      ]);
-
-      if (!athletesRes.error) setAthletes(athletesRes.data || []);
-      if (!coachesRes.error) setCoaches(coachesRes.data || []);
-      
       if (!isBackground) setLoadStatus("Data processing complete.");
     } catch (err: any) {
       console.error("Timeline data synchronization error:", err);

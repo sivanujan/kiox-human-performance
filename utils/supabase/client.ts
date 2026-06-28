@@ -14,27 +14,17 @@ export const createClient = () => {
     }
   }
 
-  const clientOptions = {
-    global: {
-      fetch: (url: RequestInfo | URL, options?: RequestInit) => {
-        return fetch(url, { ...options, cache: 'no-store' });
-      }
-    }
-  };
-
   if (typeof window === "undefined") {
     return createBrowserClient(
       supabaseUrl || "",
-      supabaseAnonKey || "",
-      clientOptions
+      supabaseAnonKey || ""
     );
   }
 
   if (!supabaseInstance) {
     supabaseInstance = createBrowserClient(
       supabaseUrl || "",
-      supabaseAnonKey || "",
-      clientOptions
+      supabaseAnonKey || ""
     );
   }
 
