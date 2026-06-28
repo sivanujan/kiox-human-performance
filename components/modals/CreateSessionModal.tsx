@@ -315,7 +315,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
           }
         }
 
-        // Send batch email notifications per date for curriculum sessions
+        // Send batch email notifications per date for curriculum sessions (background fire-and-forget)
         for (const dateStr of selectedDates) {
           const curriculumSessionsForDate = scheduleItems.filter(i => i.session_category === 'CURRICULUM');
           if (curriculumSessionsForDate.length > 0) {
@@ -326,7 +326,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
               athleteIds: i.assigned_athletes || []
             }));
 
-            await fetch('/api/admin/sessions/notify-assignment', {
+            fetch('/api/admin/sessions/notify-assignment', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -347,6 +347,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
         setError(failed.error || "Failed to initialize schedule.");
       }
     } catch (err: any) {
+      console.error("Schedule initialization error:", err);
       setError(err.message || "A mission-critical error occurred.");
     } finally {
       setLoading(false);
