@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2 } from "lucide-react";
+import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2, Edit2 } from "lucide-react";
+import EditSessionModal from "@/components/modals/EditSessionModal";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { createPortal } from "react-dom";
@@ -25,6 +26,9 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const [creatorName, setCreatorName] = useState<string | null>(null);
   const [assignedCoachName, setAssignedCoachName] = useState<string | null>(null);
   const [updatingPayment, setUpdatingPayment] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [localCoaches, setLocalCoaches] = useState<any[]>([]);
+  const [localAthletes, setLocalAthletes] = useState<any[]>([]);
   const [athleteProfiles, setAthleteProfiles] = useState<Record<string, any>>({});
 
   const supabase = createClient();
@@ -39,6 +43,19 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   useEffect(() => {
     if (isOpen && session) {
       loadSessionData();
+      // Fetch coaches for edit modal
+      supabase
+        .from("profiles")
+        .select("id, first_name, last_name")
+        .in("role", ["staff", "superadmin"])
+        .then(({ data }: { data: any[] | null }) => { if (data) setLocalCoaches(data); });
+      // Fetch athletes for edit modal
+      supabase
+        .from("profiles")
+        .select("id, first_name, last_name, avatar_url")
+        .eq("role", "athlete")
+        .order("first_name")
+        .then(({ data }: { data: any[] | null }) => { if (data) setLocalAthletes(data); });
     }
   }, [isOpen, session]);
 
@@ -209,6 +226,15 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 </div>
              </div>
               <div className="flex items-center gap-4">
+                {isStaff && (
+                   <button 
+                     onClick={() => setIsEditModalOpen(true)}
+                     title="Edit session"
+                     className="p-5 rounded-full bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all"
+                   >
+                     <Edit2 size={22} />
+                   </button>
+                )}
                 {canDelete && (
                    <button 
                      onClick={handleDeleteSession}
@@ -457,5 +483,17 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
     </AnimatePresence>
   );
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      <EditSessionModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={() => { setIsEditModalOpen(false); onClose(); }}
+        session={session}
+        coaches={localCoaches}
+        athletes={localAthletes}
+      />
+    </>
+  );
 }

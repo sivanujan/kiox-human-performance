@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar as CalendarIcon, 
@@ -10,30 +10,24 @@ import {
   Clock, 
   MapPin, 
   Users, 
-  Loader2,
   AlertCircle,
-  Phone,
   UserCheck,
-  Edit2,
-  Check,
-  X,
-  PlusCircle,
-  ShieldCheck,
-  Zap,
   Info
 } from "lucide-react";
-import { format, addDays, subDays } from "date-fns";
+import { format, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { useTimezone } from "@/hooks/useTimezone";
 
 export default function CurriculumTimeline() {
-  const { user, profile } = useAuth();
-  const { formatTimeOnly } = useTimezone();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { profile } = useAuth();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState<Date>(new Date());
+  
   const [sessions, setSessions] = useState<any[]>([]);
+  const [monthCurriculumDates, setMonthCurriculumDates] = useState<Set<string>>(new Set());
+  
   const [athletes, setAthletes] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,32 +37,48 @@ export default function CurriculumTimeline() {
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
-  
-  // Contact Info Settings State
-  const [contactInfo, setContactInfo] = useState({
-    name: "Coach Alexander",
-    role: "Program Director",
-    phone: "+1 (555) 901-2026"
-  });
-  const [isEditingContact, setIsEditingContact] = useState(false);
-  const [editContactData, setEditContactData] = useState({ ...contactInfo });
-  const [savingContact, setSavingContact] = useState(false);
 
   const supabase = createClient();
   const isWritable = profile?.role === 'superadmin' || profile?.role === 'staff';
 
   useEffect(() => {
     fetchDayData();
+    fetchMonthCurriculumDates();
 
-    // Re-fetch when navigating back to this page
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchDayData(true); // background fetch
+        fetchDayData(true);
+        fetchMonthCurriculumDates();
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [selectedDate]);
+
+  useEffect(() => {
+    fetchMonthCurriculumDates();
+  }, [currentCalendarMonth]);
+
+  const fetchMonthCurriculumDates = async () => {
+    try {
+      const start = format(startOfMonth(currentCalendarMonth), "yyyy-MM-dd");
+      const end = format(endOfMonth(currentCalendarMonth), "yyyy-MM-dd");
+
+      const { data, error: err } = await supabase
+        .from("training_sessions")
+        .select("scheduled_date")
+        .eq("is_curriculum", true)
+        .gte("scheduled_date", start)
+        .lte("scheduled_date", end);
+
+      if (!err && data) {
+        const datesSet = new Set<string>(data.map((d: any) => d.scheduled_date as string));
+        setMonthCurriculumDates(datesSet);
+      }
+    } catch (e) {
+      console.error("Error fetching month dates:", e);
+    }
+  };
 
   const fetchDayData = async (isBackground = false) => {
     if (!isBackground) setLoading(true);
@@ -92,20 +102,16 @@ export default function CurriculumTimeline() {
         setSessions(sessionRes.data || []);
       }
 
-      if (!isBackground) setLoadStatus("Fetching profiles & settings...");
+      if (!isBackground) setLoadStatus("Fetching profiles...");
       // 2. Fetch profiles
-      const [athletesRes, coachesRes, contactRes] = await Promise.all([
+      const [athletesRes, coachesRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("role", "athlete"),
-        supabase.from("profiles").select("*").in("role", ["staff", "superadmin"]),
-        supabase.from("system_settings").select("*").eq("key", "staff_contact_info").maybeSingle()
+        supabase.from("profiles").select("*").in("role", ["staff", "superadmin"])
       ]);
 
       if (!athletesRes.error) setAthletes(athletesRes.data || []);
       if (!coachesRes.error) setCoaches(coachesRes.data || []);
-      if (!contactRes.error && contactRes.data) {
-        setContactInfo(contactRes.data.value);
-        setEditContactData(contactRes.data.value);
-      }
+      
       if (!isBackground) setLoadStatus("Data processing complete.");
     } catch (err: any) {
       console.error("Timeline data synchronization error:", err);
@@ -118,91 +124,45 @@ export default function CurriculumTimeline() {
     }
   };
 
-  const saveContactInfo = async () => {
-    setSavingContact(true);
-    try {
-      const { error: saveError } = await supabase
-        .from("system_settings")
-        .upsert({
-          key: "staff_contact_info",
-          value: editContactData
-        });
-
-      if (saveError) {
-        alert("Failed to save changes: " + saveError.message);
-      } else {
-        setContactInfo(editContactData);
-        setIsEditingContact(false);
-      }
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setSavingContact(false);
-    }
-  };
-
   const nextDay = () => setSelectedDate(prev => addDays(prev, 1));
   const prevDay = () => setSelectedDate(prev => subDays(prev, 1));
-  const setToday = () => setSelectedDate(new Date());
+  const setToday = () => {
+    const now = new Date();
+    setSelectedDate(now);
+    setCurrentCalendarMonth(now);
+  };
+
+  // Small Calendar calculations
+  const calendarDays = useMemo<(Date | null)[]>(() => {
+    const start = startOfMonth(currentCalendarMonth);
+    const end = endOfMonth(currentCalendarMonth);
+    const days = eachDayOfInterval({ start, end });
+    
+    // Day of week offset for padding
+    const startDayOfWeek = start.getDay(); // 0 is Sun
+    const paddingDays: null[] = Array.from({ length: startDayOfWeek }).fill(null) as null[];
+
+    return [...paddingDays, ...days];
+  }, [currentCalendarMonth]);
 
   const getCategoryStyles = (category: string) => {
     switch (category) {
       case 'STRENGTH': 
-        return {
-          border: "border-amber-500/30",
-          bg: "bg-amber-500/10",
-          accent: "bg-amber-500",
-          text: "text-amber-400"
-        };
+        return { border: "border-amber-500/30", bg: "bg-amber-500/10", accent: "bg-amber-500", text: "text-amber-400" };
       case 'TACTICAL': 
-        return {
-          border: "border-blue-500/30",
-          bg: "bg-blue-500/10",
-          accent: "bg-blue-500",
-          text: "text-blue-400"
-        };
+        return { border: "border-blue-500/30", bg: "bg-blue-500/10", accent: "bg-blue-500", text: "text-blue-400" };
       case 'CONDITIONING': 
-        return {
-          border: "border-[#22c55e]/30",
-          bg: "bg-[#22c55e]/10",
-          accent: "bg-[#22c55e]",
-          text: "text-[#22c55e]"
-        };
+        return { border: "border-[#22c55e]/30", bg: "bg-[#22c55e]/10", accent: "bg-[#22c55e]", text: "text-[#22c55e]" };
       case 'RECOVERY': 
-        return {
-          border: "border-purple-500/30",
-          bg: "bg-purple-500/10",
-          accent: "bg-purple-500",
-          text: "text-purple-400"
-        };
+        return { border: "border-purple-500/30", bg: "bg-purple-500/10", accent: "bg-purple-500", text: "text-purple-400" };
       case 'MEAL': 
-        return {
-          border: "border-green-400/30",
-          bg: "bg-green-400/10",
-          accent: "bg-green-400",
-          text: "text-green-400"
-        };
+        return { border: "border-green-400/30", bg: "bg-green-400/10", accent: "bg-green-400", text: "text-green-400" };
       case 'CURFEW': 
-        return {
-          border: "border-zinc-500/30",
-          bg: "bg-zinc-700/20",
-          accent: "bg-zinc-600",
-          text: "text-zinc-400"
-        };
+        return { border: "border-zinc-500/30", bg: "bg-zinc-700/20", accent: "bg-zinc-600", text: "text-zinc-400" };
       case 'LOGISTICS': 
-        return {
-          border: "border-sky-400/30",
-          bg: "bg-sky-400/10",
-          accent: "bg-sky-400",
-          text: "text-sky-400"
-        };
+        return { border: "border-sky-400/30", bg: "bg-sky-400/10", accent: "bg-sky-400", text: "text-sky-400" };
       default: 
-        return {
-          border: "border-[var(--border-primary)]",
-          bg: "bg-[var(--bg-secondary)]",
-          accent: "bg-[var(--border-primary)]",
-          text: "text-[var(--text-secondary)]"
-        };
+        return { border: "border-[var(--border-primary)]", bg: "bg-[var(--bg-secondary)]", accent: "bg-[var(--border-primary)]", text: "text-[var(--text-secondary)]" };
     }
   };
 
@@ -260,22 +220,24 @@ export default function CurriculumTimeline() {
         {/* Timeline Sequence */}
         <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-[36px] p-8 min-h-[400px] relative">
 
+          {/* Loading status badge — always visible in top-right of outer card */}
+          {loading && (
+            <div className="absolute top-5 right-5 z-10 flex items-center gap-2 px-3 py-1.5 text-[10px] text-[var(--accent-green)] font-mono bg-[var(--bg-card)] rounded-lg border border-[var(--accent-green)]/25 shadow-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] animate-pulse shrink-0" />
+              STATUS: {loadStatus}
+            </div>
+          )}
+
           {loading ? (
-            // Skeleton rows — show timeline structure while loading
+            // Skeleton rows
             <div className="relative border-l-2 border-[var(--border-primary)] ml-4 sm:ml-24 pl-8 py-4 space-y-8">
-              <div className="absolute top-0 right-0 p-2 text-[10px] text-[var(--accent-green)] font-mono bg-[var(--bg-card)] rounded border border-[var(--accent-green)]/20">
-                STATUS: {loadStatus}
-              </div>
               {[1, 2, 3].map(i => (
                 <div key={i} className="relative">
-                  {/* Dot */}
                   <div className="absolute -left-[41px] top-1.5 w-4 h-4 rounded-full bg-[var(--border-primary)] animate-pulse" />
-                  {/* Time label */}
                   <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end gap-1">
                     <div className="h-4 w-14 bg-[var(--border-primary)] rounded animate-pulse" />
                     <div className="h-2 w-10 bg-[var(--border-primary)] rounded animate-pulse" />
                   </div>
-                  {/* Card */}
                   <div className="w-full bg-[var(--bg-card)] border border-[var(--border-primary)] p-6 rounded-2xl space-y-3">
                     <div className="h-4 w-1/3 bg-[var(--border-primary)] rounded animate-pulse" />
                     <div className="h-3 w-2/3 bg-[var(--border-primary)] rounded animate-pulse" />
@@ -323,12 +285,10 @@ export default function CurriculumTimeline() {
                       onClick={() => setSelectedSession(session)}
                       className={`w-full bg-[var(--bg-card)] border ${styles.border} p-6 rounded-2xl hover:border-[var(--border-active)]/40 transition-all cursor-pointer relative overflow-hidden`}
                     >
-                      {/* Left Colored Accent Strip */}
                       <div className={`absolute left-0 top-0 bottom-0 w-1 ${styles.accent}`} />
                       
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div className="space-y-2">
-                          {/* Mobile Time Label */}
                           <div className="sm:hidden flex items-center gap-2 text-[9px] font-black text-[var(--text-muted)] uppercase">
                             <Clock size={10} /> 
                             {(() => {
@@ -354,7 +314,6 @@ export default function CurriculumTimeline() {
                             <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed font-sans line-clamp-2 max-w-2xl">{session.notes}</p>
                           )}
 
-                          {/* Location & Coach Details */}
                           <div className="flex flex-wrap gap-4 text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider pt-2">
                             {session.location && (
                               <span className="flex items-center gap-1">
@@ -374,7 +333,6 @@ export default function CurriculumTimeline() {
                           </div>
                         </div>
 
-                        {/* Booking Count Indicator */}
                         {session.max_capacity && (
                           <div className="px-3 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">
                             Slots: {session.confirmed_count || 0} / {session.max_capacity}
@@ -390,96 +348,87 @@ export default function CurriculumTimeline() {
         </div>
       </div>
 
-      {/* Staff Contact Info Sidebar Block */}
+      {/* Small Calendar Sidebar Block */}
       <div className="lg:col-span-1 space-y-6">
-        <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 relative overflow-hidden group shadow-xl">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-[var(--text-primary)]">
-            <Phone size={80} />
+        <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 relative overflow-hidden shadow-xl">
+          <div className="flex justify-between items-center pb-4 border-b border-[var(--border-primary)] mb-4">
+            <h4 className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[3px] flex items-center gap-2">
+              <CalendarIcon size={12} /> Curriculum Calendar
+            </h4>
           </div>
 
-          <div className="relative z-10 space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--border-primary)]">
-              <h4 className="text-[10px] font-black text-[var(--accent-green)] uppercase tracking-[3px]">Command Contact</h4>
-              {isWritable && !isEditingContact && (
-                <button 
-                  onClick={() => setIsEditingContact(true)}
-                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  <Edit2 size={12} />
-                </button>
-              )}
+          {/* Month Navigation */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+              {format(currentCalendarMonth, "MMMM yyyy")}
+            </span>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setCurrentCalendarMonth(prev => subMonths(prev, 1))}
+                className="p-1.5 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <button 
+                onClick={() => setCurrentCalendarMonth(prev => addMonths(prev, 1))}
+                className="p-1.5 rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all"
+              >
+                <ChevronRight size={14} />
+              </button>
             </div>
+          </div>
 
-            {isEditingContact ? (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Director Name</label>
-                  <input 
-                    value={editContactData.name}
-                    onChange={e => setEditContactData({...editContactData, name: e.target.value})}
-                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Role / Title</label>
-                  <input 
-                    value={editContactData.role}
-                    onChange={e => setEditContactData({...editContactData, role: e.target.value})}
-                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest block">Phone Number</label>
-                  <input 
-                    value={editContactData.phone}
-                    onChange={e => setEditContactData({...editContactData, phone: e.target.value})}
-                    className="w-full bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-green)] outline-none"
-                  />
-                </div>
+          {/* Day Headers */}
+          <div className="grid grid-cols-7 gap-1 text-center mb-2">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+              <span key={idx} className="text-[9px] font-black text-[var(--text-muted)] uppercase">
+                {day}
+              </span>
+            ))}
+          </div>
 
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    disabled={savingContact}
-                    onClick={() => {
-                      setIsEditingContact(false);
-                      setEditContactData({ ...contactInfo });
-                    }}
-                    className="flex-1 py-2 border border-[var(--border-primary)] hover:bg-[var(--bg-secondary)] rounded-lg text-[9px] font-black uppercase text-[var(--text-muted)]"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    disabled={savingContact}
-                    onClick={saveContactInfo}
-                    className="flex-1 py-2 bg-[var(--accent-green)] text-[var(--text-on-green)] rounded-lg text-[9px] font-black uppercase hover:opacity-80 transition-all flex items-center justify-center gap-1"
-                  >
-                    {savingContact ? <Loader2 size={10} className="animate-spin" /> : <Check size={10} />} Save
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[var(--text-primary)] font-bold text-sm uppercase tracking-wide">{contactInfo.name}</p>
-                  <p className="text-[var(--text-secondary)] text-[9px] font-bold uppercase tracking-wider mt-0.5">{contactInfo.role}</p>
-                </div>
+          {/* Days Grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {calendarDays.map((dayItem, idx) => {
+              if (!dayItem) {
+                return <div key={`pad-${idx}`} className="h-8" />;
+              }
 
-                <div className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] p-4 rounded-2xl flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 flex items-center justify-center text-[var(--accent-green)]">
-                    <Phone size={14} />
-                  </div>
-                  <div>
-                    <p className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider leading-none">Operational Phone</p>
-                    <a 
-                      href={`tel:${contactInfo.phone}`}
-                      className="text-[var(--text-primary)] font-mono text-xs font-bold hover:text-[var(--accent-green)] transition-colors mt-1 block"
-                    >
-                      {contactInfo.phone}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
+              const dateKey = format(dayItem, "yyyy-MM-dd");
+              const hasCurriculum = monthCurriculumDates.has(dateKey);
+              const isSelected = isSameDay(dayItem, selectedDate);
+              const isCurrentDay = isToday(dayItem);
+
+              return (
+                <button
+                  key={dateKey}
+                  onClick={() => setSelectedDate(dayItem)}
+                  className={`h-8 rounded-xl flex flex-col items-center justify-center relative text-xs font-bold transition-all ${
+                    isSelected 
+                      ? "bg-[var(--accent-green)] text-[var(--text-on-green)] shadow-md" 
+                      : isCurrentDay 
+                        ? "border border-[var(--accent-green)] text-[var(--accent-green)] bg-[var(--accent-green)]/10" 
+                        : "hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  }`}
+                >
+                  <span>{format(dayItem, "d")}</span>
+                  {hasCurriculum && (
+                    <span 
+                      className={`w-1.5 h-1.5 rounded-full absolute bottom-1 ${
+                        isSelected ? "bg-black" : "bg-[var(--accent-green)]"
+                      }`} 
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-[var(--border-primary)] flex items-center justify-between text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent-green)]" /> Scheduled Date
+            </span>
+            <span>Click date to view</span>
           </div>
         </div>
       </div>
@@ -487,15 +436,17 @@ export default function CurriculumTimeline() {
       {/* Modals */}
       <CreateSessionModal 
         isOpen={isCreateModalOpen}
-        onClose={() => { setIsCreateModalOpen(false); fetchDayData(); }}
+        onClose={() => { setIsCreateModalOpen(false); fetchDayData(); fetchMonthCurriculumDates(); }}
         onSuccess={(dates: string[]) => {
           if (dates && dates.length > 0) {
             const parts = dates[0].split("-");
             const newDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
             setSelectedDate(newDate);
+            setCurrentCalendarMonth(newDate);
           }
           setIsCreateModalOpen(false);
           fetchDayData();
+          fetchMonthCurriculumDates();
         }}
         athletes={athletes}
         coaches={coaches}
@@ -504,7 +455,7 @@ export default function CurriculumTimeline() {
 
       <SessionDetailsModal 
         isOpen={!!selectedSession}
-        onClose={() => { setSelectedSession(null); fetchDayData(); }}
+        onClose={() => { setSelectedSession(null); fetchDayData(); fetchMonthCurriculumDates(); }}
         session={selectedSession}
       />
     </div>
