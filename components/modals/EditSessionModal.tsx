@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -127,22 +127,84 @@ export default function EditSessionModal({
     setSaving(true);
     setError(null);
     try {
+      const newTitle = title.trim();
+      const newStartTime = startTime;
+      const newDuration = Number(durationMinutes);
+      const newCoachId = coachId || null;
+      const newAssignedAthletes = isFacilityWide ? [] : selectedAthletes;
+
+      // 1. Detect changes for notification email
+      const changes: string[] = [];
+      if (session.title !== newTitle) {
+        changes.push(`Title changed from "${session.title}" to "${newTitle}"`);
+      }
+      if (session.session_type !== sessionType) {
+        changes.push(`Session type changed to ${sessionType}`);
+      }
+      if (session.start_time?.slice(0, 5) !== newStartTime || session.duration_minutes !== newDuration) {
+        changes.push(`Schedule adjusted to ${newStartTime} (${newDuration} min)`);
+      }
+      if (session.coach_id !== newCoachId) {
+        const oldCoach = localCoaches.find(c => c.id === session.coach_id);
+        const newCoach = localCoaches.find(c => c.id === newCoachId);
+        const oldName = oldCoach ? `${oldCoach.first_name} ${oldCoach.last_name || ''}`.trim() : "Unassigned";
+        const newName = newCoach ? `${newCoach.first_name} ${newCoach.last_name || ''}`.trim() : "Unassigned";
+        changes.push(`Assigned coach updated from "${oldName}" to "${newName}"`);
+      }
+      if (session.location !== location.trim()) {
+        changes.push(`Location updated to ${location.trim() || 'HQ FIELD'}`);
+      }
+
+      const prevAthletes = new Set(session.assigned_athletes || []);
+      const currentAthletes = new Set(newAssignedAthletes);
+      const addedAthletes = newAssignedAthletes.filter(id => !prevAthletes.has(id));
+      const removedAthletes = (session.assigned_athletes || []).filter((id: string) => !currentAthletes.has(id));
+
+      if (addedAthletes.length > 0 || removedAthletes.length > 0) {
+        changes.push(`Player roster modified (${newAssignedAthletes.length} assigned)`);
+      }
+
+      // 2. Update session in Supabase
       const { error: updateError } = await supabase
         .from("training_sessions")
         .update({
-          title: title.trim(),
+          title: newTitle,
           session_type: sessionType,
-          start_time: startTime,
-          duration_minutes: Number(durationMinutes),
+          start_time: newStartTime,
+          duration_minutes: newDuration,
           location: location.trim(),
-          coach_id: coachId || null,
+          coach_id: newCoachId,
           notes: notes.trim(),
           target_load_au: Number(targetLoadAu),
           max_capacity: maxCapacity !== "" ? Number(maxCapacity) : null,
-          assigned_athletes: isFacilityWide ? [] : selectedAthletes,
+          assigned_athletes: newAssignedAthletes,
         })
         .eq("id", session.id);
+
       if (updateError) throw updateError;
+
+      // 3. Collect recipients (all affected athletes + coaches)
+      const recipientIds = Array.from(new Set([
+        ...(session.assigned_athletes || []),
+        ...newAssignedAthletes,
+        ...(session.coach_id ? [session.coach_id] : []),
+        ...(newCoachId ? [newCoachId] : [])
+      ]));
+
+      // 4. Send background email notification if any changes occurred
+      if (changes.length > 0 && recipientIds.length > 0) {
+        fetch('/api/admin/sessions/notify-update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionTitle: newTitle,
+            dateStr: session.scheduled_date,
+            changes,
+            recipientIds
+          })
+        }).catch(e => console.error("Failed to send update notifications:", e));
+      }
+
       onSuccess?.();
       onClose();
     } catch (err: any) {

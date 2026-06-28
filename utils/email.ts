@@ -1471,3 +1471,62 @@ export function getBulkSessionAssignmentTemplate(
     </html>
   `;
 }
+
+export function getSessionUpdateEmailTemplate(
+  name: string,
+  sessionTitle: string,
+  date: string,
+  role: string,
+  changes: string[]
+) {
+  const changesHtml = changes.map(c => `
+    <div class="session-card" style="border-left: 3px solid #22c55e;">
+      <div class="value" style="font-size: 14px; color: #ffffff;">${c}</div>
+    </div>
+  `).join('');
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>KIO-X Session Update</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;700;900&display=swap');
+        body { margin: 0; padding: 0; background-color: #080808; font-family: 'Inter', sans-serif; color: #ffffff; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #0a0a0a; border: 1px solid #22c55e33; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .header { padding: 60px 40px; background: linear-gradient(135deg, #22c55e11 0%, #000000 100%); border-bottom: 1px solid #22c55e11; text-align: center; }
+        .logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; letter-spacing: 0.3em; color: #ffffff; margin-bottom: 10px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 4px 12px; background-color: #22c55e1a; border: 1px solid #22c55e; color: #22c55e; font-size: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: 2px; border-radius: 100px; text-transform: uppercase; }
+        .content { padding: 60px 40px; text-align: center; }
+        h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 900; text-transform: uppercase; margin-bottom: 24px; line-height: 1.1; }
+        p { font-size: 16px; line-height: 1.6; color: #888888; margin-bottom: 32px; }
+        .session-card { background-color: #111111; border: 1px solid #ffffff0d; border-radius: 16px; padding: 24px; margin-bottom: 16px; text-align: left; }
+        .value { font-size: 18px; font-weight: 700; color: #22c55e; text-transform: uppercase; }
+        .btn { display: inline-block; padding: 20px 40px; background-color: #22c55e; color: #000000 !important; text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 14px; letter-spacing: 2px; border-radius: 16px; text-transform: uppercase; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2); }
+        .footer { padding: 40px; background-color: #050505; text-align: center; border-top: 1px solid #ffffff08; font-size: 12px; color: #333333; text-transform: uppercase; letter-spacing: 1px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">KIO-X</div>
+          <div class="badge">Session Schedule Modified</div>
+        </div>
+        <div class="content">
+          <h1>Update Notification</h1>
+          <p>Hello <strong>${name}</strong>, changes were made to your session <strong>"${sessionTitle}"</strong> scheduled for <strong>${date}</strong>.</p>
+          <div style="margin-bottom: 32px;">
+            ${changesHtml}
+          </div>
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL || ''}/signin" class="btn">View in Dashboard</a>
+        </div>
+        <div class="footer">
+          <div class="footer-text">KIO-X HUMAN PERFORMANCE // ELITE DIVISION</div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
