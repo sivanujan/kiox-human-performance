@@ -23,7 +23,8 @@ import {
   Menu,
   X,
   Camera,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from "lucide-react";
 import Image from "next/image";
 import Avatar from "@/components/ui/Avatar";
@@ -39,6 +40,7 @@ const athleteNavItems = [
   { icon: <Target size={18} />, label: 'BOOK SESSION', href: '/dashboard/booking/coach', badge: 'NEW' },
   { icon: <Settings size={18} />, label: 'SETTINGS', href: '/dashboard/settings' },
   { icon: <Clipboard size={18} />, label: 'CURRICULUM', href: '/dashboard/curriculum' },
+  { icon: <FileText size={18} />, label: 'DOCUMENTS', href: '/dashboard/forms-protocols' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -271,6 +273,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="text-[var(--accent-green)] font-semibold">Curriculum</span>
           </span>
         );
+      case '/dashboard/forms-protocols':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/dashboard" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Forms & Protocols</span>
+          </span>
+        );
       default:
         return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
     }
@@ -354,6 +364,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 { icon: athleteNavItems[5].icon, label: 'Chat Terminal', href: '/dashboard/chat' },
                 { icon: athleteNavItems[6].icon, label: 'Book Session', href: '/dashboard/booking/coach', badge: 'NEW' },
                 { icon: athleteNavItems[8].icon, label: 'Curriculum', href: '/dashboard/curriculum' },
+                { icon: athleteNavItems[9].icon, label: 'Forms & Protocols', href: '/dashboard/forms-protocols' },
                 { icon: athleteNavItems[7].icon, label: 'Settings', href: '/dashboard/settings' },
               ];
 

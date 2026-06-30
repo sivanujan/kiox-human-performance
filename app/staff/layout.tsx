@@ -23,7 +23,8 @@ import {
   Layers,
   Clipboard,
   X as CloseIcon,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from "lucide-react";
 import Image from "next/image";
 import StaffNotificationDropdown from "@/components/StaffNotificationDropdown";
@@ -34,6 +35,7 @@ const staffNavItems = [
   { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/staff' },
   { icon: <CalendarDays size={18} />, label: 'Calendar', href: '/staff/calendar' },
   { icon: <Layers size={18} />, label: 'Programs Matrix', href: '/staff/programs' },
+  { icon: <FileText size={18} />, label: 'Forms & Protocols', href: '/staff/forms-protocols' },
   { icon: <Clipboard size={18} />, label: 'Curriculum', href: '/staff/curriculum' },
   { icon: <Zap size={18} />, label: 'Special Ops', href: '/staff/special-sessions' },
   { icon: <Calendar size={18} />, label: 'Session Requests', href: '/staff/bookings' },
@@ -59,7 +61,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         router.push("/signin");
       } else if (profile?.role !== 'staff' && profile?.role !== 'superadmin' && profile?.role !== 'medical') {
         router.push("/dashboard");
-      } else if (profile?.role === 'medical' && pathname !== '/staff/chat' && pathname !== '/staff/settings' && pathname !== '/staff/programs' && pathname !== '/staff/curriculum') {
+      } else if (profile?.role === 'medical' && pathname !== '/staff/chat' && pathname !== '/staff/settings' && pathname !== '/staff/programs' && pathname !== '/staff/curriculum' && pathname !== '/staff/forms-protocols') {
         router.push("/staff/chat");
       } else {
         fetchTeams();
@@ -147,6 +149,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             <span className="text-[var(--accent-green)] font-semibold">Personnel Hub</span>
           </span>
         );
+      case '/staff/forms-protocols':
+        return (
+          <span className="text-gray-400 font-sans text-xs flex items-center gap-1">
+            <Link href="/staff" className="hover:text-[var(--accent-green)] transition-colors">Dashboard</Link>
+            <ChevronRight size={12} className="text-gray-600" />
+            <span className="text-[var(--accent-green)] font-semibold">Forms & Protocols</span>
+          </span>
+        );
       default:
         return <span className="text-gray-400 font-sans text-xs">Dashboard</span>;
     }
@@ -221,7 +231,12 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                 if (item.label === 'Curriculum' && profile?.role !== 'superadmin') {
                   return false;
                 }
-                return profile?.role !== 'medical' || item.href === '/staff/chat' || item.href === '/staff/settings' || item.href === '/staff/programs' || item.href === '/staff/curriculum';
+                return profile?.role !== 'medical' || 
+                  item.href === '/staff/chat' || 
+                  item.href === '/staff/settings' || 
+                  item.href === '/staff/programs' || 
+                  item.href === '/staff/curriculum' ||
+                  item.href === '/staff/forms-protocols';
               })
               .map((item) => {
               const active = pathname === item.href;

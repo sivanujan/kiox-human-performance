@@ -11,12 +11,12 @@ export default function StaffCurriculumPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && profile && profile.role !== "superadmin") {
+    if (!loading && profile && profile.role !== "superadmin" && profile.role !== "staff" && profile.role !== "medical") {
       router.push("/staff");
     }
   }, [profile, loading, router]);
 
-  if (loading || !profile || profile.role !== "superadmin") {
+  if (loading || !profile || (profile.role !== "superadmin" && profile.role !== "staff" && profile.role !== "medical")) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <Loader2 className="animate-spin text-[#22c55e]" size={32} />
@@ -26,3 +26,4 @@ export default function StaffCurriculumPage() {
 
   return <CurriculumTimeline />;
 }
+

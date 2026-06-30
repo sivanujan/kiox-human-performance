@@ -28,7 +28,8 @@ import {
   Camera,
   Menu,
   X as CloseIcon,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from "lucide-react";
 import AddAthleteModal from "@/components/modals/AddAthleteModal";
 import AdminProfileModal from "@/components/modals/AdminProfileModal";
@@ -47,6 +48,11 @@ const adminNavItems = [
     label: 'CURRICULUM',
     href: '/admin/curriculum',
     section: 'MAIN' },
+  { 
+    icon: <FileText size={18} />, 
+    label: 'FORMS & PROTOCOLS',
+    href: '/admin/forms-protocols',
+    section: 'MANAGEMENT' },
   { 
     icon: <Users size={18} />, 
     label: 'MY ATHLETES',
