@@ -707,11 +707,11 @@ export default function FunctionalCheckupForm({
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px;">
                   <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0;">Marker Details</h4>
                   
-                  {/* Mini Severity Legend */}
+                  <!-- Mini Severity Legend -->
                   <div style="display: flex; gap: 8px; font-size: 7px; font-weight: 800; text-transform: uppercase; color: #64748b;">
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #eab308;"></span>Mild</span>
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #f97316;"></span>Mod</span>
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #ef4444;"></span>Sev</span>
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #eab308;"></span>Mild</span>
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #f97316;"></span>Mod</span>
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ef4444;"></span>Sev</span>
                   </div>
                 </div>
                 
