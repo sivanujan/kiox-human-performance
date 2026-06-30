@@ -208,20 +208,38 @@ export default function FunctionalCheckupForm({
         updated_at: new Date().toISOString()
       };
 
+      let response;
       if (checkupId) {
-        const { error } = await supabase
-          .from("functional_checkups")
-          .update(payload)
-          .eq("id", checkupId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("functional_checkups")
-          .insert({
+        response = await fetch("/api/admin/checkup", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: checkupId,
             ...payload,
-            created_by: user?.id
-          });
-        if (error) throw error;
+          }),
+        });
+      } else {
+        // Retrieve active session dynamically if user context isn't fully loaded
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserId = user?.id || session?.user?.id;
+
+        response = await fetch("/api/admin/checkup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...payload,
+            created_by: currentUserId || null,
+          }),
+        });
+      }
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.error || "Failed to save assessment form.");
       }
 
       alert(submitStatus === "SUBMITTED" ? "Assessment submitted successfully!" : "Assessment saved as draft.");
