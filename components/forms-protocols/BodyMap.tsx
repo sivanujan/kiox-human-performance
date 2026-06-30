@@ -9,6 +9,7 @@ export interface BodyMarker {
   y: number;
   side: "front" | "back";
   note: string;
+  severity: "mild" | "moderate" | "severe";
 }
 
 interface BodyMapProps {
@@ -21,6 +22,7 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
   const [activeSide, setActiveSide] = useState<"front" | "back">("front");
   const [editingMarkerId, setEditingMarkerId] = useState<string | null>(null);
   const [tempNote, setTempNote] = useState("");
+  const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("moderate");
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [clickCoords, setClickCoords] = useState<{ x: number; y: number; side: "front" | "back" } | null>(null);
 
@@ -36,6 +38,7 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
 
     setClickCoords({ x, y, side });
     setTempNote("");
+    setSeverity("moderate");
     setShowNoteInput(true);
     setEditingMarkerId(null);
   };
@@ -49,6 +52,7 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
       y: clickCoords.y,
       side: clickCoords.side,
       note: tempNote.trim(),
+      severity: severity,
     };
 
     const updated = [...markers, newMarker];
@@ -57,16 +61,20 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
     setShowNoteInput(false);
     setClickCoords(null);
     setTempNote("");
+    setSeverity("moderate");
   };
 
   const handleUpdateMarkerNote = (id: string) => {
     if (!tempNote.trim()) return;
 
-    const updated = markers.map((m) => (m.id === id ? { ...m, note: tempNote.trim() } : m));
+    const updated = markers.map((m) =>
+      m.id === id ? { ...m, note: tempNote.trim(), severity: severity } : m
+    );
     if (onChange) onChange(updated);
 
     setEditingMarkerId(null);
     setTempNote("");
+    setSeverity("moderate");
   };
 
   const handleDeleteMarker = (id: string) => {
@@ -79,6 +87,7 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
     if (readOnly) return;
     setEditingMarkerId(marker.id);
     setTempNote(marker.note);
+    setSeverity(marker.severity || "moderate");
     setShowNoteInput(false);
   };
 
@@ -150,22 +159,46 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
               className="transition-all duration-300 group-hover:stroke-[var(--accent-green)]/80"
             />
 
+            {/* Premium anatomical scanning lines */}
+            <path d="M 36 72 Q 50 78 64 72" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.3" />
+            <path d="M 40 100 H 60" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.25" />
+            <circle cx="28" cy="80" r="2" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.3" />
+            <circle cx="72" cy="80" r="2" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.3" />
+            <circle cx="44" cy="200" r="3" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.3" />
+            <circle cx="56" cy="200" r="3" fill="none" stroke="var(--border-primary)" strokeWidth="0.8" opacity="0.3" />
+
             {/* Glowing pins */}
-            {sideMarkers.map((marker, index) => {
+            {sideMarkers.map((marker) => {
               const markerIndex = markers.findIndex((m) => m.id === marker.id) + 1;
+              const severityColor = 
+                marker.severity === "severe" 
+                  ? "#ef4444" 
+                  : marker.severity === "mild"
+                  ? "#eab308" 
+                  : "#f97316";
+
+              const pulseClass = 
+                marker.severity === "severe" 
+                  ? "fill-red-500/30" 
+                  : marker.severity === "mild"
+                  ? "fill-yellow-500/30" 
+                  : "fill-orange-500/30";
+
               return (
                 <g key={marker.id} className="cursor-pointer group/pin">
                   <circle
                     cx={marker.x}
                     cy={marker.y}
                     r="6"
-                    className="fill-red-500 stroke-white stroke-1"
+                    fill={severityColor}
+                    className="stroke-white stroke-1"
                   />
                   <circle
                     cx={marker.x}
                     cy={marker.y}
                     r="12"
-                    className="fill-red-500/30 animate-ping opacity-75"
+                    fill={severityColor}
+                    className={`opacity-75 animate-ping ${pulseClass}`}
                   />
                   <text
                     x={marker.x}
@@ -205,16 +238,43 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
 
           <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
             {!readOnly 
-              ? "Click on any area of the body silhouettes (front/back) to add a marker. Then enter a short note."
+              ? "Click on any area of the body silhouettes (front/back) to add a marker. Choose a severity level and enter a short note."
               : "Body map of problem zones (pain points / movement restrictions)."}
           </p>
 
           {/* Prompt to Add Pin */}
           {showNoteInput && clickCoords && (
-            <div className="p-3 bg-[var(--bg-primary)] border border-red-500/20 rounded-xl space-y-3 animate-fadeIn">
-              <div className="text-[10px] font-bold text-red-400 uppercase tracking-wider">
+            <div className="p-3 bg-[var(--bg-primary)]/80 border border-[var(--border-primary)] rounded-xl space-y-3 animate-fadeIn">
+              <div className="text-[10px] font-bold text-[var(--accent-green)] uppercase tracking-wider">
                 NEW MARKER ({clickCoords.side === "front" ? "FRONT VIEW" : "BACK VIEW"})
               </div>
+
+              {/* Severity Selection */}
+              <div className="space-y-1.5">
+                <div className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Severity:</div>
+                <div className="flex gap-1.5">
+                  {(["mild", "moderate", "severe"] as const).map((sev) => {
+                    const active = severity === sev;
+                    const color = sev === "severe" ? "bg-red-500" : sev === "moderate" ? "bg-orange-500" : "bg-yellow-500";
+                    return (
+                      <button
+                        type="button"
+                        key={sev}
+                        onClick={() => setSeverity(sev)}
+                        className={`flex-1 py-1 px-2 border rounded-lg text-[9px] font-extrabold uppercase flex items-center justify-center gap-1 transition-all active-scale ${
+                          active 
+                            ? `${color} text-white border-transparent`
+                            : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)]`
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-white" : color}`} />
+                        {sev}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <textarea
                 value={tempNote}
                 onChange={(e) => setTempNote(e.target.value)}
@@ -237,7 +297,7 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
                   type="button"
                   onClick={handleSaveMarker}
                   disabled={!tempNote.trim()}
-                  className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md font-bold disabled:opacity-50"
+                  className="px-3 py-1.5 bg-[var(--accent-green)] text-black font-extrabold rounded-md disabled:opacity-50"
                 >
                   Add
                 </button>
@@ -262,7 +322,17 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
                     key={marker.id}
                     className="p-2.5 bg-[var(--bg-primary)]/40 border border-[var(--border-primary)] rounded-xl flex items-start gap-3 group/item hover:border-[var(--border-active)]/30 transition-all"
                   >
-                    <span className="w-5 h-5 flex items-center justify-center bg-red-500/20 text-red-400 font-sans text-[10px] font-black rounded-lg shrink-0 mt-0.5">
+                    <span 
+                      className="w-5 h-5 flex items-center justify-center font-sans text-[10px] font-black rounded-lg shrink-0 mt-0.5 text-white"
+                      style={{
+                        backgroundColor: 
+                          marker.severity === "severe" 
+                            ? "#ef4444" 
+                            : marker.severity === "mild" 
+                            ? "#eab308" 
+                            : "#f97316"
+                      }}
+                    >
                       {index + 1}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -270,13 +340,51 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
                         <span className="text-[9px] font-black text-[var(--text-secondary)] tracking-wider uppercase">
                           {marker.side === "front" ? "Front" : "Back"}
                         </span>
-                        <span className="text-[8px] text-[var(--text-muted)]">
-                          ({marker.x}%, {marker.y}%)
+                        <span 
+                          className="text-[8px] font-black uppercase tracking-widest px-1 rounded-sm border"
+                          style={{
+                            borderColor: 
+                              marker.severity === "severe" 
+                                ? "#fecaca" 
+                                : marker.severity === "mild" 
+                                ? "#fef08a" 
+                                : "#fed7aa",
+                            color: 
+                              marker.severity === "severe" 
+                                ? "#ef4444" 
+                                : marker.severity === "mild" 
+                                ? "#eab308" 
+                                : "#f97316"
+                          }}
+                        >
+                          {marker.severity || "moderate"}
                         </span>
                       </div>
                       
                       {editingMarkerId === marker.id ? (
                         <div className="mt-1.5 space-y-2">
+                          {/* Severity Selection for Edit */}
+                          <div className="flex gap-1.5">
+                            {(["mild", "moderate", "severe"] as const).map((sev) => {
+                              const active = severity === sev;
+                              const color = sev === "severe" ? "bg-red-500" : sev === "moderate" ? "bg-orange-500" : "bg-yellow-500";
+                              return (
+                                <button
+                                  type="button"
+                                  key={sev}
+                                  onClick={() => setSeverity(sev)}
+                                  className={`flex-1 py-0.5 px-1.5 border rounded-md text-[8px] font-black uppercase flex items-center justify-center gap-1 transition-all ${
+                                    active 
+                                      ? `${color} text-white border-transparent`
+                                      : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)]`
+                                  }`}
+                                >
+                                  {sev}
+                                </button>
+                              );
+                            })}
+                          </div>
+
                           <textarea
                             value={tempNote}
                             onChange={(e) => setTempNote(e.target.value)}
@@ -332,6 +440,23 @@ export default function BodyMap({ markers = [], onChange, readOnly = false }: Bo
             )}
           </div>
         </div>
+      </div>
+
+      {/* Severity Legend */}
+      <div className="flex justify-center items-center gap-6 p-3 bg-[var(--bg-card)]/40 border border-[var(--border-primary)]/40 rounded-2xl max-w-[460px] mx-auto text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+        <span className="text-[9px] text-[var(--text-muted)]">Severity Legend:</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 border border-white/20 shadow-sm" />
+          Mild
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500 border border-white/20 shadow-sm" />
+          Moderate
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-white/20 shadow-sm" />
+          Severe
+        </span>
       </div>
     </div>
   );

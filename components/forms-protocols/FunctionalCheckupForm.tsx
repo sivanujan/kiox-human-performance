@@ -262,25 +262,37 @@ export default function FunctionalCheckupForm({
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    // Build vector SVG string
     const renderSvgString = (side: "front" | "back") => {
       const sideMarkers = bodyMapMarkers.filter((m) => m.side === side);
       const pinsHtml = sideMarkers
         .map((m) => {
           const globalIdx = bodyMapMarkers.findIndex((gm) => gm.id === m.id) + 1;
+          const severityColor = 
+            m.severity === "severe" 
+              ? "#ef4444" 
+              : m.severity === "mild" 
+              ? "#eab308" 
+              : "#f97316";
+
           return `
             <g>
-              <circle cx="${m.x}" cy="${m.y}" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
-              <text x="${m.x}" y="${m.y + 2}" text-anchor="middle" font-size="7" font-weight="bold" fill="#ffffff" font-family="sans-serif">${globalIdx}</text>
+              <circle cx="${m.x}" cy="${m.y}" r="6" fill="${severityColor}" stroke="#ffffff" stroke-width="1.2" />
+              <text x="${m.x}" y="${m.y + 2.2}" text-anchor="middle" font-size="7" font-weight="900" fill="#ffffff" font-family="sans-serif">${globalIdx}</text>
             </g>
           `;
         })
         .join("");
 
       return `
-        <svg viewBox="0 0 100 220" style="width: 140px; height: auto; border: 1px solid #e4e4e7; border-radius: 8px; padding: 10px; background: #fafafa;">
+        <svg viewBox="0 0 100 220" style="width: 110px; height: auto; padding: 4px; background: #ffffff;">
           <path d="M 50 15 C 42 15, 38 21, 38 28 C 38 35, 42 41, 50 41 C 58 41, 62 35, 62 28 C 62 21, 58 15, 50 15 Z M 45 41 L 55 41 L 55 48 L 45 48 Z M 45 48 C 33 49, 30 55, 27 63 L 14 105 C 12 110, 16 114, 20 110 L 28 80 L 28 125 C 28 127, 29 129, 31 129 C 33 129, 34 127, 34 125 L 34 70 L 37 70 L 37 135 L 63 135 L 63 70 L 66 70 L 66 125 C 66 127, 67 129, 69 129 C 71 129, 72 127, 72 125 L 72 80 L 80 110 C 84 114, 88 110, 86 105 L 73 63 C 70 55, 67 49, 55 48 Z M 37 135 L 63 135 L 60 155 L 40 155 Z M 40 155 L 35 200 L 38 245 C 38 249, 43 249, 44 245 L 49 200 L 49 155 Z M 60 155 L 65 200 L 62 245 C 62 249, 57 249, 56 245 L 51 200 L 51 155 Z" 
-                fill="#e4e4e7" stroke="#27272a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                fill="#f1f5f9" stroke="#18181b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M 36 72 Q 50 78 64 72" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />
+          <path d="M 40 100 H 60" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.4" />
+          <circle cx="28" cy="80" r="2.2" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />
+          <circle cx="72" cy="80" r="2.2" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />
+          <circle cx="44" cy="200" r="3" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />
+          <circle cx="56" cy="200" r="3" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />
           ${pinsHtml}
         </svg>
       `;
@@ -289,37 +301,78 @@ export default function FunctionalCheckupForm({
     const frontSvg = renderSvgString("front");
     const backSvg = renderSvgString("back");
 
-    // Build the test results HTML
+    const getRegionIconSvg = (region: string) => {
+      if (region.includes("Cervical") || region.includes("Neck") || region.includes("Halswirbel")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H7M18 9H6M17 13H7M18 17H6"/></svg>`;
+      }
+      if (region.includes("Lumbar") || region.includes("Back") || region.includes("Lendenwirbel")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M19 6H5M17 11H7M18 16H6M19 21H5"/></svg>`;
+      }
+      if (region.includes("Pelvis") || region.includes("Hip") || region.includes("Becken")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="5"/><path d="M6 12c0 2 3 3 6 3s6-1 6-3"/></svg>`;
+      }
+      if (region.includes("Knee") || region.includes("Ankle") || region.includes("Knie")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18h14M8 6h7M8 12h7"/></svg>`;
+      }
+      if (region.includes("Jaw") || region.includes("Thorax") || region.includes("Kiefer")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 2v20M2 12h20"/></svg>`;
+      }
+      if (region.includes("Visceral")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`;
+      }
+      if (region.includes("Strength") || region.includes("Kraft")) {
+        return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 4H6v16h12V4ZM3 8h3v8H3v-8ZM18 8h3v8h-3v-8Z"/></svg>`;
+      }
+      return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+    };
+
     let testResultsHtml = "";
     Object.keys(testResults).forEach((region) => {
       const tests = testResults[region] || [];
       if (tests.length === 0) return;
 
+      const regionIcon = getRegionIconSvg(region);
+
       testResultsHtml += `
-        <div class="avoid-break" style="margin-top: 20px;">
-          <h3 style="font-size: 13px; font-weight: bold; border-bottom: 2px solid #22c55e; padding-bottom: 4px; margin-bottom: 8px; color: #111;">
-            ${region}
+        <div class="avoid-break" style="margin-top: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+          <h3 style="font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #0f172a; margin-bottom: 12px;">
+            <span style="color: #22c55e; display: flex; align-items: center;">${regionIcon}</span>
+            <span>${region}</span>
           </h3>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
             <thead>
-              <tr style="background-color: #f4f4f5; text-align: left;">
-                <th style="padding: 6px; border: 1px solid #e4e4e7; width: 30%;">Test</th>
-                <th style="padding: 6px; border: 1px solid #e4e4e7; width: 30%;">Procedure</th>
-                <th style="padding: 6px; border: 1px solid #e4e4e7; width: 15%;">Result</th>
-                <th style="padding: 6px; border: 1px solid #e4e4e7; width: 25%;">Notes</th>
+              <tr style="background-color: #0f172a; color: #ffffff; text-align: left; border-bottom: 2px solid #22c55e;">
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-left-radius: 8px; border-bottom-left-radius: 8px; width: 30%;">Test</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 30%;">Procedure</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 15%;">Result</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-right-radius: 8px; border-bottom-right-radius: 8px; width: 25%;">Notes</th>
               </tr>
             </thead>
             <tbody>
               ${tests
-                .map((t) => {
+                .map((t, index) => {
                   const finalBefund = t.result === "Custom" ? t.resultCustom : t.result;
-                  const rowStyle = finalBefund === "Restricted" || finalBefund === "Eingeschränkt" ? 'style="background-color: #fff1f2; color: #9f1239;"' : "";
+                  const isRestricted = finalBefund === "Restricted" || finalBefund === "Eingeschränkt";
+                  
+                  let badgeHtml = "";
+                  if (finalBefund === "OK") {
+                    badgeHtml = `<span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">OK</span>`;
+                  } else if (isRestricted) {
+                    badgeHtml = `<span style="background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">Restricted</span>`;
+                  } else {
+                    badgeHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">${finalBefund || 'Custom'}</span>`;
+                  }
+
+                  const rowBg = index % 2 === 0 ? "#ffffff" : "#f8fafc";
+                  const rowBorder = isRestricted ? "border-left: 3px solid #f97316;" : "";
+                  const rowStyle = isRestricted ? 'style="background-color: #fffaf8;"' : `style="background-color: ${rowBg};"`;
+
                   return `
                   <tr ${rowStyle}>
-                    <td style="padding: 6px; border: 1px solid #e4e4e7; font-weight: bold;">${t.test || "Custom Test"}</td>
-                    <td style="padding: 6px; border: 1px solid #e4e4e7; color: #555;">${t.procedure || "-"}</td>
-                    <td style="padding: 6px; border: 1px solid #e4e4e7; font-weight: bold;">${finalBefund || "OK"}</td>
-                    <td style="padding: 6px; border: 1px solid #e4e4e7;">${t.notes || "-"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: 700; ${rowBorder}">${t.test || "Custom Test"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569;">${t.procedure || "-"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">${badgeHtml}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; font-weight: 500;">${t.notes || "-"}</td>
                   </tr>
                 `;
                 })
@@ -330,168 +383,393 @@ export default function FunctionalCheckupForm({
       `;
     });
 
-    // Build the body map markers list
     const markersListHtml = bodyMapMarkers
-      .map((m, idx) => `
-        <li style="margin-bottom: 6px; font-size: 11px;">
-          <strong>#${idx + 1} [${m.side === "front" ? "Front" : "Back"}]:</strong> ${m.note}
-        </li>
-      `)
+      .map((m, idx) => {
+        const severityColor = 
+          m.severity === "severe" 
+            ? "#ef4444" 
+            : m.severity === "mild" 
+            ? "#eab308" 
+            : "#f97316";
+        
+        const severityBg = 
+          m.severity === "severe" 
+            ? "#fee2e2" 
+            : m.severity === "mild" 
+            ? "#fef08a" 
+            : "#ffedd5";
+
+        const severityText = 
+          m.severity === "severe" 
+            ? "#991b1b" 
+            : m.severity === "mild" 
+            ? "#854d0e" 
+            : "#9a3412";
+
+        return `
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px;">
+            <span style="background-color: ${severityColor}; color: white; width: 18px; height: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; font-family: 'Outfit', sans-serif; shrink-0; margin-top: 1px;">
+              ${idx + 1}
+            </span>
+            <div style="flex-grow: 1;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 8px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">${m.side === "front" ? "Front" : "Back"}</span>
+                <span style="background-color: ${severityBg}; color: ${severityText}; font-size: 8px; font-weight: 800; text-transform: uppercase; padding: 0.5px 5px; border-radius: 4px;">${m.severity || 'moderate'}</span>
+              </div>
+              <p style="margin: 0; font-size: 10px; color: #334155; line-height: 1.4; font-weight: 500;">${m.note}</p>
+            </div>
+          </div>
+        `;
+      })
       .join("");
 
-    // Output raw HTML to the print window
     printWindow.document.write(`
       <html>
         <head>
           <title>KIO-X Functional Assessment - ${athleteName}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
           <style>
             @media print {
               body {
                 background: white;
-                color: black;
-                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                color: #0f172a;
                 margin: 0;
-                padding: 20px;
-                font-size: 12px;
+                padding: 15px;
+                font-size: 11px;
               }
               .no-print { display: none; }
               .avoid-break { page-break-inside: avoid; }
+              .page-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 25px;
+                border-top: 1px solid #e2e8f0;
+                font-size: 8px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 8px;
+              }
+              body {
+                padding-bottom: 40px;
+              }
             }
             body {
-              font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+              font-family: 'Inter', sans-serif;
               padding: 40px;
               max-width: 800px;
               margin: 0 auto;
-              color: #333;
+              color: #334155;
+              background-color: #ffffff;
             }
-            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-            .header-table td { padding: 5px 0; }
+            .header-layout {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              border-bottom: 2px solid #0f172a;
+              padding-bottom: 12px;
+              margin-bottom: 20px;
+            }
             .section-title {
-              font-size: 14px;
-              font-weight: 800;
+              font-family: 'Outfit', sans-serif;
+              font-size: 13px;
+              font-weight: 900;
               text-transform: uppercase;
               letter-spacing: 1px;
-              border-bottom: 2px solid #000;
-              padding-bottom: 6px;
-              margin-top: 30px;
+              color: #0f172a;
+              border-bottom: 2px solid #0f172a;
+              padding-bottom: 4px;
+              margin-top: 25px;
               margin-bottom: 12px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
             }
             .grid-col-2 { display: flex; gap: 20px; }
             .grid-col-2 > div { flex: 1; }
+            .card-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 12px;
+              margin-bottom: 20px;
+            }
+            .info-card {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 10px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            .info-icon {
+              width: 26px;
+              height: 26px;
+              background: #f0fdf4;
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #22c55e;
+              shrink-0;
+            }
+            .info-label {
+              font-size: 8px;
+              text-transform: uppercase;
+              font-weight: 800;
+              color: #64748b;
+              letter-spacing: 0.5px;
+            }
+            .info-value {
+              font-size: 10px;
+              font-weight: bold;
+              color: #0f172a;
+              margin-top: 1px;
+            }
+            .anamnese-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 12px;
+              margin-bottom: 20px;
+            }
+            .anamnese-card {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 12px;
+              min-height: 60px;
+            }
+            .anamnese-header {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              margin-bottom: 6px;
+            }
+            .anamnese-label {
+              font-family: 'Outfit', sans-serif;
+              font-size: 9px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              color: #334155;
+            }
+            .anamnese-text {
+              font-size: 10px;
+              color: #475569;
+              line-height: 1.4;
+              font-weight: 500;
+            }
           </style>
         </head>
         <body>
           <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-            <button onclick="window.print()" style="padding: 8px 16px; background-color: #22c55e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            <button onclick="window.print()" style="padding: 8px 16px; background-color: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 12px; transition: all 0.2s;">
               Print / Save PDF
             </button>
           </div>
 
           <!-- KIO-X Header -->
-          <table class="header-table">
-            <tr>
-              <td style="width: 50%;">
-                <h1 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 1px; color: #111;">KIO-X</h1>
-                <span style="font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase;">Sports Performance Platform</span>
-              </td>
-              <td style="width: 50%; text-align: right; vertical-align: top;">
-                <h2 style="margin: 0; font-size: 14px; font-weight: bold; text-transform: uppercase; color: #22c55e;">Functional Check-Up & Assessment Form</h2>
-                <span style="font-size: 11px; color: #666;">Status: ${status === "SUBMITTED" ? "Submitted" : "Draft"}</span>
-              </td>
-            </tr>
-          </table>
+          <div class="header-layout">
+            <div>
+              <svg viewBox="0 0 160 40" width="120" height="30" style="vertical-align: middle;">
+                <rect width="160" height="40" rx="8" fill="#18181b" />
+                <rect x="12" y="10" width="5" height="20" rx="2" fill="#22c55e" />
+                <text x="26" y="26" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#ffffff" letter-spacing="1">KIO-X</text>
+                <text x="86" y="24" font-family="'Outfit', sans-serif" font-weight="600" font-size="8" fill="#a1a1aa" letter-spacing="1.5">CLINICAL</text>
+              </svg>
+              <div style="font-size: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-weight: 800;">SPORTS PERFORMANCE PLATFORM</div>
+            </div>
+            <div style="text-align: right;">
+              <h2 style="margin: 0; font-size: 12px; font-weight: 900; text-transform: uppercase; color: #0f172a; tracking-wide: 1px;">Functional Assessment</h2>
+              <div style="margin-top: 4px;">
+                <span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 3px 8px; border-radius: 9999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">
+                  ${status === "SUBMITTED" ? "Submitted" : "Draft"}
+                </span>
+              </div>
+            </div>
+          </div>
 
-          <!-- General Details -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px; border: 1px solid #e4e4e7; background: #fafafa;">
-            <tr>
-              <td style="padding: 10px; border: 1px solid #e4e4e7; width: 25%;"><strong>Athlete/Patient:</strong></td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7; width: 25%;">${athleteName}</td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7; width: 25%;"><strong>Therapist:</strong></td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7; width: 25%;">${therapistName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; border: 1px solid #e4e4e7;"><strong>Date:</strong></td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7;">${checkupDate}</td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7;"><strong>Created on:</strong></td>
-              <td style="padding: 10px; border: 1px solid #e4e4e7;">${new Date().toLocaleDateString("en-US")}</td>
-            </tr>
-          </table>
+          <!-- Athlete Card Info Grid -->
+          <div class="card-grid">
+            <div class="info-card">
+              <div class="info-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Athlete / Patient</div>
+                <div class="info-value">${athleteName}</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4.8 20h14.4M12 4v12M8 8l4-4 4 4"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Therapist</div>
+                <div class="info-value">${therapistName}</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Assessment Date</div>
+                <div class="info-value">${checkupDate}</div>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <div class="info-label">Report Generated</div>
+                <div class="info-value">${new Date().toLocaleDateString("en-US")}</div>
+              </div>
+            </div>
+          </div>
 
-          <!-- Anamnese -->
-          <div class="section-title">Anamnesis & Complaints</div>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 11px;">
-            <tr>
-              <td style="padding: 8px 0; vertical-align: top; width: 30%;"><strong>Current Pain:</strong></td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f4f4f5;">${currentPain.replace(/\n/g, "<br/>") || "No details provided"}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; vertical-align: top;"><strong>Movement Restrictions:</strong></td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f4f4f5;">${movementRestrictions.replace(/\n/g, "<br/>") || "No details provided"}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; vertical-align: top;"><strong>Previous Injuries:</strong></td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f4f4f5;">${previousInjuries.replace(/\n/g, "<br/>") || "No details provided"}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; vertical-align: top;"><strong>Allergies & Intolerances:</strong></td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #f4f4f5;">${foodAllergies.replace(/\n/g, "<br/>") || "No details provided"}</td>
-            </tr>
-          </table>
+          <!-- Anamnese Grid Cards -->
+          <div class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Anamnesis & Complaints</span>
+          </div>
+          
+          <div class="anamnese-grid">
+            <!-- Pain -->
+            <div class="anamnese-card" style="${currentPain ? 'background: #fffaf8; border-color: #ffdcd3;' : ''}">
+              <div class="anamnese-header">
+                <span style="color: ${currentPain ? '#ef4444' : '#64748b'}; display: flex; align-items: center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span class="anamnese-label" style="${currentPain ? 'color: #991b1b;' : ''}">Current Pain</span>
+              </div>
+              <div class="anamnese-text" style="${currentPain ? 'color: #7f1d1d;' : ''}">${currentPain.replace(/\n/g, "<br/>") || "No pain reported"}</div>
+            </div>
+
+            <!-- Restrictions -->
+            <div class="anamnese-card" style="${movementRestrictions ? 'background: #fffaf8; border-color: #ffdcd3;' : ''}">
+              <div class="anamnese-header">
+                <span style="color: ${movementRestrictions ? '#f97316' : '#64748b'}; display: flex; align-items: center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5M8 21H3v-5M12 12L21 3M12 12l-9 9"/></svg>
+                </span>
+                <span class="anamnese-label" style="${movementRestrictions ? 'color: #c2410c;' : ''}">Movement Restrictions</span>
+              </div>
+              <div class="anamnese-text" style="${movementRestrictions ? 'color: #9a3412;' : ''}">${movementRestrictions.replace(/\n/g, "<br/>") || "No restrictions noted"}</div>
+            </div>
+
+            <!-- Injuries -->
+            <div class="anamnese-card">
+              <div class="anamnese-header">
+                <span style="color: #64748b; display: flex; align-items: center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </span>
+                <span class="anamnese-label">Previous Injuries & Operations</span>
+              </div>
+              <div class="anamnese-text">${previousInjuries.replace(/\n/g, "<br/>") || "No previous injuries declared"}</div>
+            </div>
+
+            <!-- Allergies -->
+            <div class="anamnese-card">
+              <div class="anamnese-header">
+                <span style="color: #64748b; display: flex; align-items: center;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 22h20L12 2z"/></svg>
+                </span>
+                <span class="anamnese-label">Allergies & Intolerances</span>
+              </div>
+              <div class="anamnese-text">${foodAllergies.replace(/\n/g, "<br/>") || "No allergies declared"}</div>
+            </div>
+          </div>
 
           <!-- Body Map & Markers -->
-          <div class="avoid-break">
-            <div class="section-title">Problem Zones Body Map</div>
-            <div class="grid-col-2">
-              <div style="display: flex; gap: 15px; justify-content: center; align-items: center;">
+          <div class="avoid-break" style="margin-bottom: 25px;">
+            <div class="section-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Problem Zones Body Map</span>
+            </div>
+            <div class="grid-col-2" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+              <div style="display: flex; gap: 20px; justify-content: center; align-items: center; border-right: 1px solid #f1f5f9; padding-right: 20px;">
                 <div style="text-align: center;">
-                  <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase;">Front</div>
+                  <div style="font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; color: #64748b;">Front</div>
                   ${frontSvg}
                 </div>
                 <div style="text-align: center;">
-                  <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase;">Back</div>
+                  <div style="font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; color: #64748b;">Back</div>
                   ${backSvg}
                 </div>
               </div>
-              <div>
-                <h4 style="font-size: 11px; margin-top: 0; font-weight: bold; border-bottom: 1px solid #e4e4e7; padding-bottom: 6px;">Body Map Notes:</h4>
-                ${
-                  bodyMapMarkers.length === 0
-                    ? '<p style="font-size: 11px; color: #777; font-style: italic;">No pain points marked</p>'
-                    : `<ol style="padding-left: 15px; margin: 0;">${markersListHtml}</ol>`
-                }
+              <div style="padding-left: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px;">
+                  <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0;">Marker Details</h4>
+                  
+                  {/* Mini Severity Legend */}
+                  <div style="display: flex; gap: 8px; font-size: 7px; font-weight: 800; text-transform: uppercase; color: #64748b;">
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #eab308;"></span>Mild</span>
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #f97316;"></span>Mod</span>
+                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; rounded-full; background: #ef4444;"></span>Sev</span>
+                  </div>
+                </div>
+                
+                <div style="max-height: 250px; overflow-y: auto;">
+                  ${
+                    bodyMapMarkers.length === 0
+                      ? '<p style="font-size: 10px; color: #94a3b8; font-style: italic; text-align: center; margin-top: 20px;">No pain points marked</p>'
+                      : markersListHtml
+                  }
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Test Results -->
-          <div class="section-title">Clinical Findings & Tests</div>
+          <div class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Clinical Findings & Tests</span>
+          </div>
           ${testResultsHtml}
 
           <!-- Summary & Recommendations -->
-          <div class="avoid-break" style="margin-top: 30px;">
-            <div class="section-title">Summary & Recommendations</div>
-            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-              <tr>
-                <td style="width: 50%; vertical-align: top; padding-right: 15px;">
-                  <strong style="font-size: 12px; display: block; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Therapeutic Summary:</strong>
-                  <div style="color: #444; line-height: 1.5;">${summary.replace(/\n/g, "<br/>") || "No summary entered"}</div>
-                </td>
-                <td style="width: 50%; vertical-align: top; padding-left: 15px; border-left: 1px solid #e4e4e7;">
-                  <strong style="font-size: 12px; display: block; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Training Recommendations:</strong>
-                  <div style="color: #444; line-height: 1.5;">${recommendations.replace(/\n/g, "<br/>") || "No recommendations entered"}</div>
-                </td>
-              </tr>
-            </table>
+          <div class="avoid-break" style="margin-top: 30px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+            <div class="section-title" style="margin-top: 0; border-bottom: 2px solid #0f172a; padding-bottom: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Summary & Recommendations</span>
+            </div>
+            
+            <div style="display: flex; gap: 20px;">
+              <div style="flex: 1; min-width: 0;">
+                <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px;">Therapeutic Summary</h4>
+                <div style="color: #475569; font-size: 10px; line-height: 1.5; font-weight: 500;">
+                  ${summary.replace(/\n/g, "<br/>") || "No summary entered"}
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 0; border-left: 1px dashed #cbd5e1; padding-left: 20px;">
+                <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px;">Training Recommendations</h4>
+                <div style="color: #475569; font-size: 10px; line-height: 1.5; font-weight: 500;">
+                  ${recommendations.replace(/\n/g, "<br/>") || "No recommendations entered"}
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Signatures -->
-          <div class="avoid-break" style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 11px;">
-            <div style="width: 200px; border-top: 1px solid #000; text-align: center; padding-top: 6px;">
+          <div class="avoid-break" style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 10px;">
+            <div style="width: 220px; border-top: 2px solid #0f172a; text-align: center; padding-top: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px;">
               Therapist Signature
             </div>
-            <div style="width: 200px; border-top: 1px solid #000; text-align: center; padding-top: 6px;">
+            <div style="width: 220px; border-top: 2px solid #0f172a; text-align: center; padding-top: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px;">
               Athlete/Patient Initials
             </div>
+          </div>
+
+          <!-- Document Footer -->
+          <div class="page-footer">
+            <span>KIO-X Performance Center | Confidential Report</span>
+            <span>Generated on ${new Date().toLocaleDateString("en-US")}</span>
           </div>
         </body>
       </html>
