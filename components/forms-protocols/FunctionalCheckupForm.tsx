@@ -262,30 +262,6 @@ export default function FunctionalCheckupForm({
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    const checkupUuid = checkupId || "new-assessment";
-    const generateBarcodeSvg = (code: string) => {
-      const cleanCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-      let lines = "";
-      let x = 8;
-      for (let i = 0; i < Math.min(cleanCode.length, 16); i++) {
-        const charCode = cleanCode.charCodeAt(i);
-        const pattern = (charCode % 8).toString(2).padStart(3, "0");
-        for (const bit of pattern) {
-          const width = bit === "1" ? 2.5 : 1;
-          lines += `<rect x="${x}" y="3" width="${width}" height="18" fill="#0f172a" />`;
-          x += width + 1.2;
-        }
-      }
-      return `
-        <svg viewBox="0 0 ${x + 8} 30" width="130" height="26" style="vertical-align: middle;">
-          <rect width="100%" height="100%" fill="transparent" />
-          ${lines}
-          <text x="50%" y="28" text-anchor="middle" font-family="'Outfit', sans-serif" font-size="6" font-weight="900" fill="#64748b" letter-spacing="1">ASSESSMENT-${cleanCode.substring(0, 8)}</text>
-        </svg>
-      `;
-    };
-    const barcodeSvg = generateBarcodeSvg(checkupUuid);
-
     const renderSvgString = (side: "front" | "back") => {
       const sideMarkers = bodyMapMarkers.filter((m) => m.side === side);
       const pinsHtml = sideMarkers
@@ -801,13 +777,8 @@ export default function FunctionalCheckupForm({
 
           <!-- Document Footer -->
           <div class="page-footer">
-            <div style="text-align: left; line-height: 1.4;">
-              <span style="font-size: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; display: block;">KIO-X Performance Center | Confidential Report</span>
-              <span style="font-size: 7px; color: #94a3b8; font-weight: 600; display: block; margin-top: 2px;">Generated on ${new Date().toLocaleDateString("en-US")}</span>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: flex-end;">
-              ${barcodeSvg}
-            </div>
+            <span style="font-size: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">KIO-X Performance Center | Confidential Report</span>
+            <span style="font-size: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Generated on ${new Date().toLocaleDateString("en-US")}</span>
           </div>
         </body>
       </html>
