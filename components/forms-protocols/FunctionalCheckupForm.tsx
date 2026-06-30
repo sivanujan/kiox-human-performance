@@ -428,6 +428,29 @@ export default function FunctionalCheckupForm({
         <head>
           <title>KIO-X Functional Assessment - ${athleteName}</title>
           <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+          <script>
+            function downloadPDF() {
+              const element = document.body;
+              const controls = document.querySelector('.no-print');
+              if (controls) controls.style.display = 'none';
+              
+              const opt = {
+                margin:       [12, 12, 12, 12],
+                filename:     'KIO-X_Assessment_${athleteName.replace(/\s+/g, '_')}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              };
+              
+              html2pdf().set(opt).from(element).save().then(() => {
+                if (controls) controls.style.display = 'flex';
+              }).catch(function(err) {
+                console.error(err);
+                if (controls) controls.style.display = 'flex';
+              });
+            }
+          </script>
           <style>
             @media print {
               body {
@@ -576,9 +599,13 @@ export default function FunctionalCheckupForm({
           </style>
         </head>
         <body>
-          <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-            <button onclick="window.print()" style="padding: 8px 16px; background-color: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 12px; transition: all 0.2s;">
-              Print / Save PDF
+          <div class="no-print" style="margin-bottom: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button onclick="window.print()" style="padding: 8px 16px; background-color: #18181b; color: white; border: 1px solid #3f3f46; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 11px; transition: all 0.2s;">
+              Open Print Dialog
+            </button>
+            <button onclick="downloadPDF()" style="padding: 8px 16px; background-color: #22c55e; color: black; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 11px; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Direct Download PDF
             </button>
           </div>
 
