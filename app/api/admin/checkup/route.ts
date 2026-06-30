@@ -18,6 +18,41 @@ function logToFile(message: string) {
   }
 }
 
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  logToFile(`GET request received for checkup ID: ${id}`);
+
+  if (!id) {
+    logToFile("GET request failed: Missing ID parameter");
+    return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  try {
+    const { data, error } = await supabase
+      .from("functional_checkups")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      logToFile(`Supabase GET database error: ${error.code} - ${error.message}`);
+      throw error;
+    }
+
+    logToFile(`Supabase GET success for checkup ID: ${id}`);
+    return NextResponse.json(data);
+  } catch (err: any) {
+    logToFile(`GET catch block error: ${err.message || err}`);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   logToFile("POST request received at /api/admin/checkup");
   const supabase = createClient(

@@ -124,13 +124,15 @@ export default function FunctionalCheckupForm({
   const loadCheckupData = async (id: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("functional_checkups")
-        .select("*")
-        .eq("id", id)
-        .single();
+      console.log("CheckupForm: Fetching details via GET from /api/admin/checkup?id=", id);
+      const res = await fetch(`/api/admin/checkup?id=${id}`);
+      const data = await res.json();
 
-      if (error) throw error;
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch checkup details.");
+      }
+
+      console.log("CheckupForm: Successfully loaded checkup details", data);
 
       if (data) {
         setAthleteId(data.athlete_id);
@@ -146,9 +148,9 @@ export default function FunctionalCheckupForm({
         setRecommendations(data.recommendations || "");
         setStatus(data.status);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error loading checkup:", err);
-      alert("Error loading functional assessment form.");
+      alert(`Error loading functional assessment form: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
