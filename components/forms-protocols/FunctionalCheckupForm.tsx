@@ -210,6 +210,7 @@ export default function FunctionalCheckupForm({
 
       let response;
       if (checkupId) {
+        console.log("CheckupForm: Submitting PUT request to /api/admin/checkup", { checkupId, payload });
         response = await fetch("/api/admin/checkup", {
           method: "PUT",
           headers: {
@@ -221,10 +222,7 @@ export default function FunctionalCheckupForm({
           }),
         });
       } else {
-        // Retrieve active session dynamically if user context isn't fully loaded
-        const { data: { session } } = await supabase.auth.getSession();
-        const currentUserId = user?.id || session?.user?.id;
-
+        console.log("CheckupForm: Submitting POST request to /api/admin/checkup", { athleteId, payload });
         response = await fetch("/api/admin/checkup", {
           method: "POST",
           headers: {
@@ -232,12 +230,15 @@ export default function FunctionalCheckupForm({
           },
           body: JSON.stringify({
             ...payload,
-            created_by: currentUserId || null,
+            created_by: user?.id || null,
           }),
         });
       }
 
+      console.log("CheckupForm: Received response status", response.status);
       const responseData = await response.json();
+      console.log("CheckupForm: Received response data", responseData);
+
       if (!response.ok) {
         throw new Error(responseData.error || "Failed to save assessment form.");
       }
