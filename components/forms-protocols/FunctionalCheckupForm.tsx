@@ -13,6 +13,28 @@ interface FunctionalCheckupFormProps {
   readOnly?: boolean;
 }
 
+const REGIONS_EN = [
+  "1. Cervical Spine (Neck)",
+  "2. Lumbar Spine (Lower Back)",
+  "3. Pelvis & Hip",
+  "4. Knee & Ankle",
+  "5. Jaw, Breathing Mechanics & Thorax",
+  "6. Visceral Check",
+  "7. Isolated Strength Tests",
+  "8. Gait Analysis & Drop Jump"
+];
+
+const REGIONS_DE = [
+  "1. Halswirbelsäule (Nacken)",
+  "2. Lendenwirbelsäule (Unterer Rücken)",
+  "3. Becken & Hüfte",
+  "4. Knie & Sprunggelenk",
+  "5. Kiefer, Atemmechanik & Thorax",
+  "6. Viszeraler Check",
+  "7. Isolierte Krafttests",
+  "8. Ganganalyse & Drop Jump"
+];
+
 const DEFAULT_REGIONS: Record<string, { test: string; procedure: string }[]> = {
   "1. Cervical Spine (Neck)": [
     { test: "Rotation 80/0/80", procedure: "Active movement in sitting position" },
@@ -56,6 +78,112 @@ const DEFAULT_REGIONS: Record<string, { test: string; procedure: string }[]> = {
   ]
 };
 
+// Translating regions when rendering
+const getDisplayRegionName = (engRegion: string, lang: "EN" | "DE") => {
+  if (lang === "EN") return engRegion;
+  const idx = REGIONS_EN.indexOf(engRegion);
+  return idx !== -1 ? REGIONS_DE[idx] : engRegion;
+};
+
+const t = {
+  EN: {
+    titleView: "Functional Check-Up (View)",
+    titleEdit: "Functional Check-Up (Edit)",
+    titleCreate: "Create New Assessment Form",
+    subtitleCreate: "Digital Form • KIO-X Clinical",
+    syncText: "Assessment form is syncing...",
+    exportPdf: "PDF Export",
+    saveDraft: "Save Draft",
+    submitFinalize: "Submit & Finalize",
+    demographicsTitle: "Demographics & Anamnesis",
+    athleteLabel: "Athlete / Patient",
+    selectAthlete: "-- Select Athlete --",
+    loadingAthlete: "Loading athlete...",
+    therapistLabel: "Therapist / Osteopath",
+    therapistPlaceholder: "Therapist Name",
+    dateLabel: "Date",
+    painLabel: "Current Pain (Location, When, Since when)",
+    painPlaceholder: "e.g., Pulling pain in the lower back during rotation, for about 2 weeks...",
+    restrictionLabel: "Current Movement Restrictions",
+    restrictionPlaceholder: "e.g., Reduced bilateral hip joint flexion...",
+    injuriesLabel: "Previous Injuries / Operations",
+    injuriesPlaceholder: "e.g., Ankle ligament tear left (2024)...",
+    allergiesLabel: "Food Allergies / Intolerances",
+    allergiesPlaceholder: "e.g., Gluten intolerance, pollen allergy...",
+    testsTitle: "Clinical Tests & Findings by Region",
+    findingsSuffix: "finding(s)",
+    tableTest: "Test",
+    tableProcedure: "Procedure",
+    tableResult: "Result",
+    tableNotes: "Notes",
+    tableAction: "Action",
+    placeholderTest: "Test name...",
+    placeholderProcedure: "Procedure...",
+    placeholderNotes: "No findings / OK",
+    customResultPlaceholder: "Custom Result...",
+    addRowBtn: "Add Row",
+    summaryTitle: "Summary & Therapy Planning",
+    summaryLabel: "Summary",
+    summaryPlaceholder: "• Cervical block cleared\n• M. iliopsoas trigger point release performed...",
+    recommendationsLabel: "Training Recommendations",
+    recommendationsPlaceholder: "• Daily stretching of hip flexors\n• Eccentric calf training bilaterally...",
+    bodyMapTitle: "Body Map (Problem Zones)",
+    selectAthleteAlert: "Please select an athlete.",
+    successSubmit: "Assessment submitted successfully!",
+    successDraft: "Assessment saved as draft.",
+    errorSave: "Error saving: ",
+    errorLoad: "Error loading functional assessment form: "
+  },
+  DE: {
+    titleView: "Funktioneller Check-Up (Ansehen)",
+    titleEdit: "Funktioneller Check-Up (Bearbeiten)",
+    titleCreate: "Neue Bewertung erstellen",
+    subtitleCreate: "Digitales Formular • KIO-X Klinik",
+    syncText: "Formular wird synchronisiert...",
+    exportPdf: "PDF Export",
+    saveDraft: "Entwurf speichern",
+    submitFinalize: "Finalisieren & Senden",
+    demographicsTitle: "Demographie & Anamnese",
+    athleteLabel: "Athlet / Patient",
+    selectAthlete: "-- Athlet auswählen --",
+    loadingAthlete: "Athlet wird geladen...",
+    therapistLabel: "Therapeut / Osteopath",
+    therapistPlaceholder: "Name des Therapeuten",
+    dateLabel: "Datum",
+    painLabel: "Aktuelle Schmerzen (Ort, Wann, Seit wann)",
+    painPlaceholder: "z.B. Ziehender Schmerz im unteren Rücken bei Rotation, seit ca. 2 Wochen...",
+    restrictionLabel: "Aktuelle Bewegungseinschränkungen",
+    restrictionPlaceholder: "z.B. Eingeschränkte Beugung beider Hüftgelenke...",
+    injuriesLabel: "Vorherige Verletzungen / Operationen",
+    injuriesPlaceholder: "z.B. Bänderriss Sprunggelenk links (2024)...",
+    allergiesLabel: "Nahrungsmittelallergien / Unverträglichkeiten",
+    allergiesPlaceholder: "z.B. Glutenunverträglichkeit, Pollenallergie...",
+    testsTitle: "Klinische Tests & Befunde nach Region",
+    findingsSuffix: "Befund(e)",
+    tableTest: "Test",
+    tableProcedure: "Verfahren",
+    tableResult: "Ergebnis",
+    tableNotes: "Notizen",
+    tableAction: "Aktion",
+    placeholderTest: "Testname...",
+    placeholderProcedure: "Verfahren...",
+    placeholderNotes: "Keine Befunde / OK",
+    customResultPlaceholder: "Anderes Ergebnis...",
+    addRowBtn: "Zeile hinzufügen",
+    summaryTitle: "Zusammenfassung & Therapieplanung",
+    summaryLabel: "Zusammenfassung",
+    summaryPlaceholder: "• Zervikale Blockade gelöst\n• M. iliopsoas Triggerpunkt-Release durchgeführt...",
+    recommendationsLabel: "Trainingsempfehlungen",
+    recommendationsPlaceholder: "• Tägliches Dehnen der Hüftbeuger\n• Beidseitiges exzentrisches Wadenkrafttraining...",
+    bodyMapTitle: "Körperkarte (Problemzonen)",
+    selectAthleteAlert: "Bitte wählen Sie einen Athleten aus.",
+    successSubmit: "Bewertung erfolgreich übermittelt!",
+    successDraft: "Bewertung als Entwurf gespeichert.",
+    errorSave: "Fehler beim Speichern: ",
+    errorLoad: "Fehler beim Laden des Formulars: "
+  }
+};
+
 export default function FunctionalCheckupForm({
   checkupId = null,
   onBack,
@@ -68,6 +196,7 @@ export default function FunctionalCheckupForm({
   const [loading, setLoading] = useState(false);
   const [athletes, setAthletes] = useState<any[]>([]);
   const [activeSection, setActiveSection] = useState<string | null>("1. Cervical Spine (Neck)");
+  const [lang, setLang] = useState<"EN" | "DE">("EN");
 
   // Form Fields
   const [athleteId, setAthleteId] = useState("");
@@ -106,7 +235,6 @@ export default function FunctionalCheckupForm({
     if (checkupId) {
       loadCheckupData(checkupId);
     } else {
-      // Initialize default test results structure
       const initialResults: Record<string, any[]> = {};
       Object.keys(DEFAULT_REGIONS).forEach((region) => {
         initialResults[region] = DEFAULT_REGIONS[region].map((t) => ({
@@ -124,15 +252,12 @@ export default function FunctionalCheckupForm({
   const loadCheckupData = async (id: string) => {
     setLoading(true);
     try {
-      console.log("CheckupForm: Fetching details via GET from /api/admin/checkup?id=", id);
       const res = await fetch(`/api/admin/checkup?id=${id}`);
       const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || "Failed to fetch checkup details.");
       }
-
-      console.log("CheckupForm: Successfully loaded checkup details", data);
 
       if (data) {
         setAthleteId(data.athlete_id);
@@ -150,15 +275,10 @@ export default function FunctionalCheckupForm({
       }
     } catch (err: any) {
       console.error("Error loading checkup:", err);
-      alert(`Error loading functional assessment form: ${err.message}`);
+      alert(`${t[lang].errorLoad}${err.message}`);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  // State utility to override the missing setter
-  const setIsLoading = (val: boolean) => {
-    setLoading(val);
   };
 
   const handleTestChange = (region: string, index: number, field: string, value: any) => {
@@ -188,7 +308,7 @@ export default function FunctionalCheckupForm({
 
   const handleSave = async (submitStatus: "DRAFT" | "SUBMITTED") => {
     if (!athleteId) {
-      alert("Please select an athlete.");
+      alert(t[lang].selectAthleteAlert);
       return;
     }
 
@@ -212,7 +332,6 @@ export default function FunctionalCheckupForm({
 
       let response;
       if (checkupId) {
-        console.log("CheckupForm: Submitting PUT request to /api/admin/checkup", { checkupId, payload });
         response = await fetch("/api/admin/checkup", {
           method: "PUT",
           headers: {
@@ -224,7 +343,6 @@ export default function FunctionalCheckupForm({
           }),
         });
       } else {
-        console.log("CheckupForm: Submitting POST request to /api/admin/checkup", { athleteId, payload });
         response = await fetch("/api/admin/checkup", {
           method: "POST",
           headers: {
@@ -237,19 +355,16 @@ export default function FunctionalCheckupForm({
         });
       }
 
-      console.log("CheckupForm: Received response status", response.status);
       const responseData = await response.json();
-      console.log("CheckupForm: Received response data", responseData);
-
       if (!response.ok) {
         throw new Error(responseData.error || "Failed to save assessment form.");
       }
 
-      alert(submitStatus === "SUBMITTED" ? "Assessment submitted successfully!" : "Assessment saved as draft.");
+      alert(submitStatus === "SUBMITTED" ? t[lang].successSubmit : t[lang].successDraft);
       onSaved();
     } catch (err: any) {
       console.error("Save checkup error:", err);
-      alert(`Error saving: ${err.message}`);
+      alert(`${t[lang].errorSave}${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -332,26 +447,27 @@ export default function FunctionalCheckupForm({
       if (tests.length === 0) return;
 
       const regionIcon = getRegionIconSvg(region);
+      const displayRegion = getDisplayRegionName(region, lang);
 
       testResultsHtml += `
         <div class="avoid-break" style="margin-top: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
           <h3 style="font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #0f172a; margin-bottom: 12px;">
             <span style="color: #22c55e; display: flex; align-items: center;">${regionIcon}</span>
-            <span>${region}</span>
+            <span>${displayRegion}</span>
           </h3>
           <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
             <thead>
               <tr style="background-color: #0f172a; color: #ffffff; text-align: left; border-bottom: 2px solid #22c55e;">
-                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-left-radius: 8px; border-bottom-left-radius: 8px; width: 30%;">Test</th>
-                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 30%;">Procedure</th>
-                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 15%;">Result</th>
-                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-right-radius: 8px; border-bottom-right-radius: 8px; width: 25%;">Notes</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-left-radius: 8px; border-bottom-left-radius: 8px; width: 30%;">${t[lang].tableTest}</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 30%;">${t[lang].tableProcedure}</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; width: 15%;">${t[lang].tableResult}</th>
+                <th style="padding: 10px 12px; font-family: 'Outfit', sans-serif; font-weight: 800; border-top-right-radius: 8px; border-bottom-right-radius: 8px; width: 25%;">${t[lang].tableNotes}</th>
               </tr>
             </thead>
             <tbody>
               ${tests
-                .map((t, index) => {
-                  const finalResult = t.result === "Custom" ? t.resultCustom : t.result;
+                .map((tItem, index) => {
+                  const finalResult = tItem.result === "Custom" ? tItem.resultCustom : tItem.result;
                   const isRestricted = finalResult === "Restricted" || finalResult === "Eingeschränkt";
                   
                   let badgeHtml = "";
@@ -369,10 +485,10 @@ export default function FunctionalCheckupForm({
 
                   return `
                   <tr ${rowStyle}>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: 700; ${rowBorder}">${t.test || "Custom Test"}</td>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569;">${t.procedure || "-"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-weight: 700; ${rowBorder}">${tItem.test || "Custom Test"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569;">${tItem.procedure || "-"}</td>
                     <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9;">${badgeHtml}</td>
-                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; font-weight: 500;">${t.notes || "-"}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; font-weight: 500;">${tItem.notes || "-"}</td>
                   </tr>
                 `;
                 })
@@ -452,351 +568,106 @@ export default function FunctionalCheckupForm({
             }
           </script>
           <style>
-            @media print {
-              body {
-                background: white;
-                color: #0f172a;
-                margin: 0;
-                padding: 15px;
-                font-size: 11px;
-              }
-              .no-print { display: none; }
-              .avoid-break { page-break-inside: avoid; }
-              .page-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 35px;
-                background: white;
-                border-top: 1px solid #e2e8f0;
-                font-size: 8px;
-                color: #64748b;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-top: 8px;
-              }
-              body {
-                padding-bottom: 50px;
-              }
-            }
-            .page-footer {
-              border-top: 1px solid #e2e8f0;
-              margin-top: 50px;
-              padding-top: 15px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-            body {
-              font-family: 'Inter', sans-serif;
-              padding: 40px;
-              max-width: 800px;
-              margin: 0 auto;
-              color: #334155;
-              background-color: #ffffff;
-            }
-            .header-layout {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              border-bottom: 2px solid #0f172a;
-              padding-bottom: 12px;
-              margin-bottom: 20px;
-            }
-            .section-title {
-              font-family: 'Outfit', sans-serif;
-              font-size: 13px;
-              font-weight: 900;
-              text-transform: uppercase;
-              letter-spacing: 1px;
-              color: #0f172a;
-              border-bottom: 2px solid #0f172a;
-              padding-bottom: 4px;
-              margin-top: 25px;
-              margin-bottom: 12px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-            }
-            .grid-col-2 { display: flex; gap: 20px; }
-            .grid-col-2 > div { flex: 1; }
-            .card-grid {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              gap: 12px;
-              margin-bottom: 20px;
-            }
-            .info-card {
-              background: #f8fafc;
-              border: 1px solid #e2e8f0;
-              border-radius: 10px;
-              padding: 10px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-            }
-            .info-icon {
-              width: 26px;
-              height: 26px;
-              background: #f0fdf4;
-              border-radius: 6px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: #22c55e;
-              shrink-0;
-            }
-            .info-label {
-              font-size: 8px;
-              text-transform: uppercase;
-              font-weight: 800;
-              color: #64748b;
-              letter-spacing: 0.5px;
-            }
-            .info-value {
-              font-size: 10px;
-              font-weight: bold;
-              color: #0f172a;
-              margin-top: 1px;
-            }
-            .anamnese-grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 12px;
-              margin-bottom: 20px;
-            }
-            .anamnese-card {
-              background: #f8fafc;
-              border: 1px solid #e2e8f0;
-              border-radius: 10px;
-              padding: 12px;
-              min-height: 60px;
-            }
-            .anamnese-header {
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              margin-bottom: 6px;
-            }
-            .anamnese-label {
-              font-family: 'Outfit', sans-serif;
-              font-size: 9px;
-              font-weight: 800;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: #334155;
-            }
-            .anamnese-text {
-              font-size: 10px;
-              color: #475569;
-              line-height: 1.4;
-              font-weight: 500;
-            }
+            body { font-family: 'Inter', sans-serif; color: #1e293b; background: #f8fafc; padding: 20px; }
+            h1, h2, h3, th { font-family: 'Outfit', sans-serif; }
+            .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+            .page-footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; display: flex; justify-content: space-between; }
           </style>
         </head>
         <body>
-          <div class="no-print" style="margin-bottom: 25px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button onclick="window.print()" style="padding: 8px 16px; background-color: #18181b; color: white; border: 1px solid #3f3f46; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 11px; transition: all 0.2s;">
-              Open Print Dialog
-            </button>
-            <button onclick="downloadPDF()" style="padding: 8px 16px; background-color: #22c55e; color: black; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 11px; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-              Direct Download PDF
+          <div class="no-print" style="display: flex; justify-content: space-between; margin-bottom: 20px; background: #0f172a; padding: 12px 20px; border-radius: 12px; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <span style="color: #ffffff; font-size: 11px; font-weight: 800; font-family: 'Outfit', sans-serif; letter-spacing: 1px; text-transform: uppercase;">Assessment Report Ready</span>
+            <button onclick="downloadPDF()" style="background-color: #22c55e; color: #000000; border: none; padding: 8px 16px; border-radius: 8px; font-size: 11px; font-weight: 900; font-family: 'Outfit', sans-serif; text-transform: uppercase; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s;">
+              Download PDF Report
             </button>
           </div>
 
-          <!-- KIO-X Header -->
-          <div class="header-layout">
+          <!-- Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #22c55e; padding-bottom: 12px; margin-bottom: 24px;">
             <div>
-              <svg viewBox="0 0 160 40" width="120" height="30" style="vertical-align: middle;">
-                <rect width="160" height="40" rx="8" fill="#18181b" />
-                <rect x="12" y="10" width="5" height="20" rx="2" fill="#22c55e" />
-                <text x="26" y="26" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#ffffff" letter-spacing="1">KIO-X</text>
-                <text x="86" y="24" font-family="'Outfit', sans-serif" font-weight="600" font-size="8" fill="#a1a1aa" letter-spacing="1.5">CLINICAL</text>
-              </svg>
-              <div style="font-size: 8px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-weight: 800;">SPORTS PERFORMANCE PLATFORM</div>
+              <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 2px; color: #0f172a;">KIO-<span style="color: #22c55e;">X</span> PERFORMANCE</div>
+              <div style="font-size: 9px; font-weight: 800; color: #22c55e; text-transform: uppercase; letter-spacing: 3px; margin-top: 4px;">Clinical & Osteopathic Assessment</div>
             </div>
             <div style="text-align: right;">
-              <h2 style="margin: 0; font-size: 12px; font-weight: 900; text-transform: uppercase; color: #0f172a; tracking-wide: 1px;">Functional Assessment</h2>
-              <div style="margin-top: 4px;">
-                <span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 3px 8px; border-radius: 9999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;">
-                  ${status === "SUBMITTED" ? "Submitted" : "Draft"}
-                </span>
-              </div>
+              <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Therapy Protocol</div>
+              <div style="font-size: 22px; font-weight: 900; font-family: 'Outfit', sans-serif; color: #0f172a; line-height: 1; margin-top: 2px;">REPORT</div>
             </div>
           </div>
 
-          <!-- Athlete Card Info Grid -->
-          <div class="card-grid">
-            <div class="info-card">
-              <div class="info-icon">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div>
-                <div class="info-label">Athlete / Patient</div>
-                <div class="info-value">${athleteName}</div>
-              </div>
+          <!-- Demographics Block -->
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Athlete/Patient</span>
+              <p style="margin: 4px 0 0 0; font-size: 12px; font-weight: 800; color: #0f172a;">${athleteName}</p>
             </div>
-            <div class="info-card">
-              <div class="info-icon">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4.8 20h14.4M12 4v12M8 8l4-4 4 4"/></svg>
-              </div>
-              <div>
-                <div class="info-label">Therapist</div>
-                <div class="info-value">${therapistName}</div>
-              </div>
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Therapist</span>
+              <p style="margin: 4px 0 0 0; font-size: 12px; font-weight: 700; color: #0f172a;">${therapistName}</p>
             </div>
-            <div class="info-card">
-              <div class="info-icon">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </div>
-              <div>
-                <div class="info-label">Assessment Date</div>
-                <div class="info-value">${checkupDate}</div>
-              </div>
-            </div>
-            <div class="info-card">
-              <div class="info-icon">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div>
-                <div class="info-label">Report Generated</div>
-                <div class="info-value">${new Date().toLocaleDateString("en-US")}</div>
-              </div>
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Date</span>
+              <p style="margin: 4px 0 0 0; font-size: 12px; font-weight: 700; color: #0f172a;">${checkupDate}</p>
             </div>
           </div>
 
-          <!-- Anamnese Grid Cards -->
-          <div class="section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>Anamnesis & Complaints</span>
-          </div>
-          
-          <div class="anamnese-grid">
-            <!-- Pain -->
-            <div class="anamnese-card" style="${currentPain ? 'background: #fffaf8; border-color: #ffdcd3;' : ''}">
-              <div class="anamnese-header">
-                <span style="color: ${currentPain ? '#ef4444' : '#64748b'}; display: flex; align-items: center;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                </span>
-                <span class="anamnese-label" style="${currentPain ? 'color: #991b1b;' : ''}">Current Pain</span>
-              </div>
-              <div class="anamnese-text" style="${currentPain ? 'color: #7f1d1d;' : ''}">${currentPain.replace(/\n/g, "<br/>") || "No pain reported"}</div>
+          <!-- Anamnesis / History -->
+          <div style="margin-top: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Current Pain & Complaints</span>
+              <p style="margin: 6px 0 0 0; font-size: 11px; color: #334155; line-height: 1.5; font-weight: 500;">${currentPain || "None reported."}</p>
             </div>
-
-            <!-- Restrictions -->
-            <div class="anamnese-card" style="${movementRestrictions ? 'background: #fffaf8; border-color: #ffdcd3;' : ''}">
-              <div class="anamnese-header">
-                <span style="color: ${movementRestrictions ? '#f97316' : '#64748b'}; display: flex; align-items: center;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 3h5v5M8 21H3v-5M12 12L21 3M12 12l-9 9"/></svg>
-                </span>
-                <span class="anamnese-label" style="${movementRestrictions ? 'color: #c2410c;' : ''}">Movement Restrictions</span>
-              </div>
-              <div class="anamnese-text" style="${movementRestrictions ? 'color: #9a3412;' : ''}">${movementRestrictions.replace(/\n/g, "<br/>") || "No restrictions noted"}</div>
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Movement Restrictions</span>
+              <p style="margin: 6px 0 0 0; font-size: 11px; color: #334155; line-height: 1.5; font-weight: 500;">${movementRestrictions || "None reported."}</p>
             </div>
-
-            <!-- Injuries -->
-            <div class="anamnese-card">
-              <div class="anamnese-header">
-                <span style="color: #64748b; display: flex; align-items: center;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                </span>
-                <span class="anamnese-label">Previous Injuries & Operations</span>
-              </div>
-              <div class="anamnese-text">${previousInjuries.replace(/\n/g, "<br/>") || "No previous injuries declared"}</div>
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px;">
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Previous Injuries & Ops</span>
+              <p style="margin: 6px 0 0 0; font-size: 11px; color: #334155; line-height: 1.5; font-weight: 500;">${previousInjuries || "None reported."}</p>
             </div>
-
-            <!-- Allergies -->
-            <div class="anamnese-card">
-              <div class="anamnese-header">
-                <span style="color: #64748b; display: flex; align-items: center;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 22h20L12 2z"/></svg>
-                </span>
-                <span class="anamnese-label">Allergies & Intolerances</span>
-              </div>
-              <div class="anamnese-text">${foodAllergies.replace(/\n/g, "<br/>") || "No allergies declared"}</div>
+            <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px;">
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Allergies & Intolerances</span>
+              <p style="margin: 6px 0 0 0; font-size: 11px; color: #334155; line-height: 1.5; font-weight: 500;">${foodAllergies || "None reported."}</p>
             </div>
           </div>
 
           <!-- Body Map & Markers -->
-          <div class="avoid-break" style="margin-bottom: 25px;">
-            <div class="section-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Problem Zones Body Map</span>
-            </div>
-            <div class="grid-col-2" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
-              <div style="display: flex; gap: 20px; justify-content: center; align-items: center; border-right: 1px solid #f1f5f9; padding-right: 20px;">
-                <div style="text-align: center;">
-                  <div style="font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; color: #64748b;">Front</div>
-                  ${frontSvg}
-                </div>
-                <div style="text-align: center;">
-                  <div style="font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; color: #64748b;">Back</div>
-                  ${backSvg}
-                </div>
+          <div class="avoid-break" style="margin-top: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <h3 style="font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #0f172a; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+              <span>Pain & Injury Mapping</span>
+            </h3>
+            <div style="display: flex; gap: 30px; justify-content: center; align-items: flex-start; flex-wrap: wrap;">
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: 9px; font-weight: 800; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Anterior View</span>
+                ${frontSvg}
               </div>
-              <div style="padding-left: 10px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 10px;">
-                  <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; margin: 0;">Marker Details</h4>
-                  
-                  <!-- Mini Severity Legend -->
-                  <div style="display: flex; gap: 8px; font-size: 7px; font-weight: 800; text-transform: uppercase; color: #64748b;">
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #eab308;"></span>Mild</span>
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #f97316;"></span>Mod</span>
-                    <span style="display: flex; align-items: center; gap: 2px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ef4444;"></span>Sev</span>
-                  </div>
-                </div>
-                
-                <div style="max-height: 250px; overflow-y: auto;">
-                  ${
-                    bodyMapMarkers.length === 0
-                      ? '<p style="font-size: 10px; color: #94a3b8; font-style: italic; text-align: center; margin-top: 20px;">No pain points marked</p>'
-                      : markersListHtml
-                  }
-                </div>
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: 9px; font-weight: 800; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Posterior View</span>
+                ${backSvg}
+              </div>
+              <div style="flex-grow: 1; min-width: 250px; max-width: 400px; padding-top: 15px;">
+                <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px;">Identified Zones Checklist</span>
+                ${markersListHtml || `<div style="font-size: 11px; color: #64748b; font-style: italic; text-align: center; padding: 20px;">No markers plotted on body map.</div>`}
               </div>
             </div>
           </div>
 
-          <!-- Test Results -->
-          <div class="section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>Clinical Findings & Tests</span>
-          </div>
+          <!-- Regional Findings list -->
           ${testResultsHtml}
 
-          <!-- Summary & Recommendations -->
-          <div class="avoid-break" style="margin-top: 30px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
-            <div class="section-title" style="margin-top: 0; border-bottom: 2px solid #0f172a; padding-bottom: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #22c55e;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              <span>Summary & Recommendations</span>
+          <!-- Summary & Planning -->
+          <div class="avoid-break" style="margin-top: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Clinical Summary</span>
+              <pre style="margin: 6px 0 0 0; font-size: 10px; color: #334155; line-height: 1.6; font-family: monospace; font-weight: 600; white-space: pre-wrap;">${summary || "No notes documented."}</pre>
             </div>
-            
-            <div style="display: flex; gap: 20px;">
-              <div style="flex: 1; min-width: 0;">
-                <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px;">Therapeutic Summary</h4>
-                <div style="color: #475569; font-size: 10px; line-height: 1.5; font-weight: 500;">
-                  ${summary.replace(/\n/g, "<br/>") || "No summary entered"}
-                </div>
-              </div>
-              <div style="flex: 1; min-width: 0; border-left: 1px dashed #cbd5e1; padding-left: 20px;">
-                <h4 style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px;">Training Recommendations</h4>
-                <div style="color: #475569; font-size: 10px; line-height: 1.5; font-weight: 500;">
-                  ${recommendations.replace(/\n/g, "<br/>") || "No recommendations entered"}
-                </div>
-              </div>
+            <div>
+              <span style="font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Therapy & Training Recommendations</span>
+              <pre style="margin: 6px 0 0 0; font-size: 10px; color: #334155; line-height: 1.6; font-family: monospace; font-weight: 600; white-space: pre-wrap;">${recommendations || "No notes documented."}</pre>
             </div>
           </div>
 
-          <!-- Signatures -->
-          <div class="avoid-break" style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 10px;">
-            <div style="width: 220px; border-top: 2px solid #0f172a; text-align: center; padding-top: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px;">
-              Therapist Signature
-            </div>
+          <!-- Signature box -->
+          <div class="avoid-break" style="margin-top: 40px; display: flex; justify-content: flex-end;">
             <div style="width: 220px; border-top: 2px solid #0f172a; text-align: center; padding-top: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px;">
               Athlete/Patient Initials
             </div>
@@ -826,22 +697,55 @@ export default function FunctionalCheckupForm({
           </button>
           <div>
             <h2 className="text-base font-extrabold text-[var(--text-primary)] uppercase tracking-wider">
-              {checkupId ? (readOnly ? "Functional Check-Up (View)" : "Functional Check-Up (Edit)") : "Create New Assessment Form"}
+              {checkupId 
+                ? (readOnly ? t[lang].titleView : t[lang].titleEdit) 
+                : t[lang].titleCreate}
             </h2>
             <p className="text-[10px] text-[var(--text-secondary)] mt-0.5 uppercase tracking-widest">
-              {checkupId ? `Check-Up ID: ${checkupId.substring(0, 8)}...` : "Digital Form • KIO-X Clinical"}
+              {checkupId ? `Check-Up ID: ${checkupId.substring(0, 8)}...` : t[lang].subtitleCreate}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Language Switcher */}
+          <div className="flex items-center gap-2 bg-black/40 border-2 border-accent-green/30 px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+            <span className="text-[9px] font-black text-accent-green uppercase tracking-wider select-none">
+              {lang === "EN" ? "Language:" : "Sprache:"}
+            </span>
+            <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/10">
+              <button
+                type="button"
+                onClick={() => setLang("EN")}
+                className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
+                  lang === "EN" 
+                    ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("DE")}
+                className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
+                  lang === "DE" 
+                    ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                DE
+              </button>
+            </div>
+          </div>
+
           {checkupId && (
             <button
               onClick={handleExportPDF}
               className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-green)]/30 hover:bg-[var(--accent-green)]/5 text-xs text-[var(--text-primary)] rounded-xl font-bold flex items-center gap-2 transition-all active-scale"
             >
               <FileText size={14} className="text-[var(--accent-green)]" />
-              PDF Export
+              {t[lang].exportPdf}
             </button>
           )}
 
@@ -854,7 +758,7 @@ export default function FunctionalCheckupForm({
                   className="px-4 py-2 border border-[var(--border-primary)] hover:bg-[var(--bg-card-hover)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl font-bold flex items-center gap-2 transition-all active-scale"
                 >
                   {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                  Save Draft
+                  {t[lang].saveDraft}
                 </button>
               )}
               <button
@@ -863,7 +767,7 @@ export default function FunctionalCheckupForm({
                 className="px-4 py-2 bg-[var(--accent-green)] text-black text-xs font-black uppercase tracking-wider rounded-xl hover:bg-[var(--accent-green)]/80 transition-all flex items-center gap-2 active-scale shadow-[0_0_15px_rgba(34,197,94,0.15)]"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                Submit & Finalize
+                {t[lang].submitFinalize}
               </button>
             </>
           )}
@@ -874,7 +778,7 @@ export default function FunctionalCheckupForm({
         <div className="min-h-[300px] flex flex-col items-center justify-center gap-3">
           <Loader2 className="animate-spin text-[var(--accent-green)]" size={32} />
           <span className="text-xs text-[var(--text-secondary)] uppercase tracking-widest animate-pulse">
-            Assessment form is syncing...
+            {t[lang].syncText}
           </span>
         </div>
       ) : (
@@ -884,13 +788,13 @@ export default function FunctionalCheckupForm({
             {/* Header Details Card */}
             <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-5 md:p-6 space-y-4">
               <div className="text-xs font-bold text-[var(--text-primary)] tracking-wider uppercase border-b border-[var(--border-primary)] pb-2.5">
-                Demographics & Anamnesis
+                {t[lang].demographicsTitle}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Athlete / Patient
+                    {t[lang].athleteLabel}
                   </label>
                   {readOnly ? (
                     <div className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl font-bold text-[var(--text-primary)]">
@@ -898,7 +802,7 @@ export default function FunctionalCheckupForm({
                         ? `${athletes.find((a) => a.id === athleteId).first_name} ${
                             athletes.find((a) => a.id === athleteId).last_name
                           }`
-                        : "Loading athlete..."}
+                        : t[lang].loadingAthlete}
                     </div>
                   ) : (
                     <select
@@ -906,7 +810,7 @@ export default function FunctionalCheckupForm({
                       onChange={(e) => setAthleteId(e.target.value)}
                       className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] font-bold cursor-pointer"
                     >
-                      <option value="">-- Select Athlete --</option>
+                      <option value="">{t[lang].selectAthlete}</option>
                       {athletes.map((ath) => (
                         <option key={ath.id} value={ath.id}>
                           {ath.first_name} {ath.last_name} ({ath.username})
@@ -918,21 +822,21 @@ export default function FunctionalCheckupForm({
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Therapist / Osteopath
+                    {t[lang].therapistLabel}
                   </label>
                   <input
                     type="text"
                     value={therapistName}
                     onChange={(e) => setTherapistName(e.target.value)}
                     disabled={readOnly}
-                    placeholder="Therapist Name"
+                    placeholder={t[lang].therapistPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] font-semibold disabled:opacity-75"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Date
+                    {t[lang].dateLabel}
                   </label>
                   <input
                     type="date"
@@ -948,52 +852,52 @@ export default function FunctionalCheckupForm({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Current Pain (Location, When, Since when)
+                    {t[lang].painLabel}
                   </label>
                   <textarea
                     value={currentPain}
                     onChange={(e) => setCurrentPain(e.target.value)}
                     disabled={readOnly}
-                    placeholder="e.g., Pulling pain in the lower back during rotation, for about 2 weeks..."
+                    placeholder={t[lang].painPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-20 resize-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Current Movement Restrictions
+                    {t[lang].restrictionLabel}
                   </label>
                   <textarea
                     value={movementRestrictions}
                     onChange={(e) => setMovementRestrictions(e.target.value)}
                     disabled={readOnly}
-                    placeholder="e.g., Reduced bilateral hip joint flexion..."
+                    placeholder={t[lang].restrictionPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-20 resize-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Previous Injuries / Operations
+                    {t[lang].injuriesLabel}
                   </label>
                   <textarea
                     value={previousInjuries}
                     onChange={(e) => setPreviousInjuries(e.target.value)}
                     disabled={readOnly}
-                    placeholder="e.g., Ankle ligament tear left (2024)..."
+                    placeholder={t[lang].injuriesPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-20 resize-none"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Food Allergies / Intolerances
+                    {t[lang].allergiesLabel}
                   </label>
                   <textarea
                     value={foodAllergies}
                     onChange={(e) => setFoodAllergies(e.target.value)}
                     disabled={readOnly}
-                    placeholder="e.g., Gluten intolerance, pollen allergy..."
+                    placeholder={t[lang].allergiesPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-20 resize-none"
                   />
                 </div>
@@ -1003,7 +907,7 @@ export default function FunctionalCheckupForm({
             {/* Test Tables Region Card (Accordion) */}
             <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-5 md:p-6 space-y-4">
               <div className="text-xs font-bold text-[var(--text-primary)] tracking-wider uppercase border-b border-[var(--border-primary)] pb-2.5">
-                Clinical Tests & Findings by Region
+                {t[lang].testsTitle}
               </div>
 
               <div className="space-y-3">
@@ -1011,8 +915,9 @@ export default function FunctionalCheckupForm({
                   const isExpanded = activeSection === region;
                   const tests = testResults[region] || [];
                   const restrictedCount = tests.filter(
-                    (t) => t.result === "Restricted" || t.result === "Eingeschränkt" || (t.result === "Custom" && t.resultCustom)
+                    (tItem) => tItem.result === "Restricted" || tItem.result === "Eingeschränkt" || (tItem.result === "Custom" && tItem.resultCustom)
                   ).length;
+                  const displayRegionName = getDisplayRegionName(region, lang);
 
                   return (
                     <div
@@ -1029,11 +934,11 @@ export default function FunctionalCheckupForm({
                       >
                         <div className="flex items-center gap-2.5">
                           <span className={isExpanded ? "text-[var(--accent-green)]" : "text-[var(--text-primary)]"}>
-                            {region}
+                            {displayRegionName}
                           </span>
                           {restrictedCount > 0 && (
                             <span className="px-2 py-0.5 text-[9px] bg-red-500/10 border border-red-500/20 text-red-400 font-bold rounded-full">
-                              {restrictedCount} finding(s)
+                              {restrictedCount} {t[lang].findingsSuffix}
                             </span>
                           )}
                         </div>
@@ -1046,11 +951,11 @@ export default function FunctionalCheckupForm({
                           <table className="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                               <tr className="border-b border-[var(--border-primary)] text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                                <th className="pb-2.5 width-[25%]">Test</th>
-                                <th className="pb-2.5 width-[30%]">Procedure</th>
-                                <th className="pb-2.5 width-[20%]">Result</th>
-                                <th className="pb-2.5 width-[20%]">Notes</th>
-                                {!readOnly && <th className="pb-2.5 w-[5%] text-right">Action</th>}
+                                <th className="pb-2.5 width-[25%]">{t[lang].tableTest}</th>
+                                <th className="pb-2.5 width-[30%]">{t[lang].tableProcedure}</th>
+                                <th className="pb-2.5 width-[20%]">{t[lang].tableResult}</th>
+                                <th className="pb-2.5 width-[20%]">{t[lang].tableNotes}</th>
+                                {!readOnly && <th className="pb-2.5 w-[5%] text-right">{t[lang].tableAction}</th>}
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border-primary)]/50">
@@ -1064,7 +969,7 @@ export default function FunctionalCheckupForm({
                                           type="text"
                                           value={testItem.test}
                                           onChange={(e) => handleTestChange(region, idx, "test", e.target.value)}
-                                          placeholder="Test name..."
+                                          placeholder={t[lang].placeholderTest}
                                           className="p-2 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-lg text-xs w-full focus:outline-none focus:border-[var(--accent-green)] text-[var(--text-primary)] font-semibold"
                                         />
                                       ) : (
@@ -1079,7 +984,7 @@ export default function FunctionalCheckupForm({
                                           type="text"
                                           value={testItem.procedure}
                                           onChange={(e) => handleTestChange(region, idx, "procedure", e.target.value)}
-                                          placeholder="Procedure..."
+                                          placeholder={t[lang].placeholderProcedure}
                                           className="p-2 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-lg text-xs w-full focus:outline-none focus:border-[var(--accent-green)] text-[var(--text-primary)]"
                                         />
                                       ) : (
@@ -1099,7 +1004,7 @@ export default function FunctionalCheckupForm({
                                               : "text-[var(--text-primary)]"
                                           }`}
                                         >
-                                          {testItem.result === "Custom" ? testItem.resultCustom || "Custom" : testItem.result === "Eingeschränkt" ? "Restricted" : testItem.result}
+                                          {testItem.result === "Custom" ? testItem.resultCustom || "Custom" : (testItem.result === "Eingeschränkt" && lang === "EN" ? "Restricted" : testItem.result)}
                                         </div>
                                       ) : (
                                         <div className="flex flex-col gap-1.5">
@@ -1109,7 +1014,7 @@ export default function FunctionalCheckupForm({
                                             className="p-2 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-lg text-xs focus:outline-none focus:border-[var(--accent-green)] text-[var(--text-primary)]"
                                           >
                                             <option value="OK">OK</option>
-                                            <option value="Restricted">Restricted</option>
+                                            <option value="Restricted">{lang === "EN" ? "Restricted" : "Eingeschränkt"}</option>
                                             <option value="Custom">Custom...</option>
                                           </select>
                                           {testItem.result === "Custom" && (
@@ -1119,7 +1024,7 @@ export default function FunctionalCheckupForm({
                                               onChange={(e) =>
                                                 handleTestChange(region, idx, "resultCustom", e.target.value)
                                               }
-                                              placeholder="Custom Result..."
+                                              placeholder={t[lang].customResultPlaceholder}
                                               className="p-2 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-lg text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-green)]"
                                             />
                                           )}
@@ -1136,7 +1041,7 @@ export default function FunctionalCheckupForm({
                                           type="text"
                                           value={testItem.notes || ""}
                                           onChange={(e) => handleTestChange(region, idx, "notes", e.target.value)}
-                                          placeholder="No findings / OK"
+                                          placeholder={t[lang].placeholderNotes}
                                           className="p-2 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-lg text-xs w-full focus:outline-none focus:border-[var(--accent-green)] text-[var(--text-primary)]"
                                         />
                                       )}
@@ -1172,7 +1077,7 @@ export default function FunctionalCheckupForm({
                               className="mt-3 px-3 py-1.5 border border-[var(--border-primary)] hover:border-[var(--accent-green)]/30 hover:bg-[var(--accent-green)]/5 text-[10px] font-bold rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 transition-all active-scale"
                             >
                               <Plus size={12} />
-                              Add Row
+                              {t[lang].addRowBtn}
                             </button>
                           )}
                         </div>
@@ -1186,32 +1091,32 @@ export default function FunctionalCheckupForm({
             {/* Summary & Recommendations Card */}
             <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-5 md:p-6 space-y-4">
               <div className="text-xs font-bold text-[var(--text-primary)] tracking-wider uppercase border-b border-[var(--border-primary)] pb-2.5">
-                Summary & Therapy Planning
+                {t[lang].summaryTitle}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Summary
+                    {t[lang].summaryLabel}
                   </label>
                   <textarea
                     value={summary}
                     onChange={(e) => setSummary(e.target.value)}
                     disabled={readOnly}
-                    placeholder="• Cervical block cleared&#10;• M. iliopsoas trigger point release performed..."
+                    placeholder={t[lang].summaryPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-28 resize-none font-mono"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                    Training Recommendations
+                    {t[lang].recommendationsLabel}
                   </label>
                   <textarea
                     value={recommendations}
                     onChange={(e) => setRecommendations(e.target.value)}
                     disabled={readOnly}
-                    placeholder="• Daily stretching of hip flexors&#10;• Eccentric calf training bilaterally..."
+                    placeholder={t[lang].recommendationsPlaceholder}
                     className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-input)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] h-28 resize-none font-mono"
                   />
                 </div>
@@ -1223,7 +1128,7 @@ export default function FunctionalCheckupForm({
           <div className="space-y-6">
             <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl p-5 md:p-6 space-y-4 sticky top-[100px]">
               <div className="text-xs font-bold text-[var(--text-primary)] tracking-wider uppercase border-b border-[var(--border-primary)] pb-2.5">
-                Body Map (Problem Zones)
+                {t[lang].bodyMapTitle}
               </div>
               <BodyMap markers={bodyMapMarkers} onChange={setBodyMapMarkers} readOnly={readOnly} />
             </div>
