@@ -622,6 +622,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
         
         <style>
+          *, *::before, *::after { box-sizing: border-box; }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -629,15 +630,16 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
             color: #fff;
             font-family: 'Inter', sans-serif;
             -webkit-print-color-adjust: exact;
-            width: 210mm !important;
-            overflow-x: hidden !important;
+            print-color-adjust: exact;
+            width: 794px !important;
+            overflow: hidden !important;
           }
 
           .pdf-page {
-            width: 210mm;
-            height: 297mm;
+            width: 794px;
+            height: 1123px;
             box-sizing: border-box;
-            padding: 20mm;
+            padding: 52px 60px;
             position: relative;
             background: #08080a;
             color: #ffffff;
@@ -912,7 +914,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         </style>
       </head>
       <body>
-        <div id="pdf-content-wrapper" style="width: 210mm; background: #08080a; margin: 0 auto; padding: 0; box-sizing: border-box; overflow: hidden; display: block; position: relative;">
+        <div id="pdf-content-wrapper" style="width: 794px; background: #08080a; margin: 0; padding: 0; box-sizing: border-box; overflow: hidden; display: block; position: relative;">
 
         <!-- ================= PAGE 1 ================= -->
         <div class="pdf-page" id="page-1">
@@ -1415,9 +1417,10 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
                 logging: false,
                 scrollX: 0,
                 scrollY: 0,
+                width: 794,
                 windowWidth: 794
               },
-              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              jsPDF:        { unit: 'px', hotfixes: ['px_scaling'], format: [794, 1123], orientation: 'portrait' },
               pagebreak:    { mode: ['css', 'legacy'] }
             };
             
