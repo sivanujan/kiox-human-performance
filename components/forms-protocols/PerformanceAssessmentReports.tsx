@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -177,38 +177,42 @@ export default function PerformanceAssessmentReports() {
     const athleteName = athlete ? `${athlete.first_name || ""} ${athlete.last_name || ""}`.trim() || "Athlete" : "Athlete";
     const avatarUrl = athlete?.avatar_url || "";
 
-    // Load dynamic HTML & triggers html2pdf
     try {
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) throw new Error("Popup blocked. Please allow popups to generate PDF.");
+      const printWindow = window.open("", "_blank", "width=900,height=700");
+      if (!printWindow) throw new Error("Popup blocked. Please allow popups.");
 
-      // Construct dynamic html payload
       const htmlContent = buildReportHtml(athleteName, avatarUrl, selectedAssessment);
-      
       printWindow.document.write(htmlContent);
       printWindow.document.close();
 
-      // Give iframe time to load styling & html2pdf script
-      setTimeout(() => {
-        if ((printWindow as any).downloadPDF) {
-          (printWindow as any).downloadPDF();
-          // Close after download completes
-          setTimeout(() => {
-            printWindow.close();
-            setGeneratingPdf(false);
-            setPdfSuccess(true);
-            setTimeout(() => setPdfSuccess(false), 3000);
-          }, 3500);
-        } else {
+      // Wait for fonts/images to load then trigger print
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.focus();
+          printWindow.print();
           setGeneratingPdf(false);
+          setPdfSuccess(true);
+          setTimeout(() => setPdfSuccess(false), 4000);
+        }, 800);
+      };
+
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        if (generatingPdf) {
+          printWindow.focus();
+          printWindow.print();
+          setGeneratingPdf(false);
+          setPdfSuccess(true);
+          setTimeout(() => setPdfSuccess(false), 4000);
         }
-      }, 1200);
+      }, 2500);
 
     } catch (err) {
       console.error(err);
       setGeneratingPdf(false);
     }
   };
+
 
   return (
     <div className="bg-bg-card border border-border-primary/50 rounded-2xl p-5 md:p-6 shadow-xl space-y-6 relative overflow-hidden">
@@ -365,1069 +369,363 @@ export default function PerformanceAssessmentReports() {
 
 // ==========================================
 // DYNAMIC REPORT HTML GENERATION BUILDER
+// Uses native window.print() â€” no html2canvas
 // ==========================================
 export function buildReportHtml(athleteName: string, avatarUrl: string, record: AssessmentRecord): string {
   const getScoreColor = (score: number, inverse = false) => {
     if (inverse) {
-      if (score <= 35) return "#22c55e"; // Low risk is green
-      if (score <= 65) return "#f59e0b"; // Medium risk is orange
-      return "#ef4444"; // High risk is red
+      if (score <= 35) return "#22c55e";
+      if (score <= 65) return "#f59e0b";
+      return "#ef4444";
     }
     if (score >= 80) return "#22c55e";
-    if (score >= 60) return "#f59e0b";
+    if (score >= 55) return "#f59e0b";
     return "#ef4444";
   };
 
   const getSeverityColor = (sev: string) => {
-    if (sev === "RED" || sev === "severe") return "#ef4444";
-    if (sev === "ORANGE" || sev === "moderate") return "#f59e0b";
-    return "#eab308"; // YELLOW/mild
+    if (sev === "HIGH") return "#ef4444";
+    if (sev === "MEDIUM") return "#f59e0b";
+    return "#22c55e";
   };
 
-  // 1. Build Body Map dots html (Page 2 silhouette overlay)
-  const bodyMapHtml = (record.body_map_zones || [])
-    .map((zone: any) => {
-      const hs = HOTSPOTS.find(h => h.zone.toLowerCase() === zone.zone_name.toLowerCase());
-      if (!hs) return "";
-      
-      const color = getSeverityColor(zone.severity);
-      // Scaled coordinates mapping to fit page 2 container SVG aspect ratio
-      const pctX = hs.side === "FRONT" ? (hs.x / 200) * 100 : ((hs.x - 200) / 200) * 100;
-      const pctY = (hs.y / 420) * 100;
+  const perf  = record.performance_score || 0;
+  const mob   = record.mobility_score    || 0;
+  const sym   = record.symmetry_score    || 0;
+  const risk  = record.risk_score        || 0;
 
-      return `
-        <div style="position: absolute; left: ${pctX}%; top: ${pctY}%; width: 8px; height: 8px; border-radius: 50%; background-color: ${color}; border: 1.5px solid #ffffff; transform: translate(-50%, -50%); box-shadow: 0 0 6px ${color};"></div>
-      `;
-    })
-    .join("");
+  const findings: string[] = Array.isArray(record.key_findings) ? record.key_findings : [];
+  const riskFactors: any[] = Array.isArray(record.risk_factors)  ? record.risk_factors  : [];
 
-  // 2. Build VALD muscles comparison html
-  const valdMusclesHtml = [
-    { key: "hamstrings", label: "Hamstrings" },
-    { key: "adductors", label: "Adductors" },
-    { key: "hip_extension", label: "Hip Extension" },
-    { key: "hip_abduction", label: "Hip Abduction" },
-    { key: "hip_flexion", label: "Hip Flexion" }
-  ].map(group => {
-    const leftKg = parseFloat(record[`${group.key}_left`] || 0);
-    const rightKg = parseFloat(record[`${group.key}_right`] || 0);
-    const maxVal = Math.max(leftKg, rightKg) || 100;
-    const leftPct = (leftKg / maxVal) * 100;
-    const rightPct = (rightKg / maxVal) * 100;
-
-    const asym = record[`${group.key}_asymmetry`] || 0;
-    const status = record[`${group.key}_status`] || "OK";
-    const statusColor = getSeverityColor(status === 'OK' ? 'YELLOW' : status === 'MONITOR' ? 'ORANGE' : 'RED');
-
+  const scoreCard = (label: string, val: number, inverse = false) => {
+    const color = getScoreColor(val, inverse);
     return `
-      <div class="vald-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #ffffff; letter-spacing: 1px;">${group.label}</span>
-          <span style="font-size: 8px; font-weight: 900; color: ${statusColor}; background: ${statusColor}10; border: 1px solid ${statusColor}20; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">${asym}% ${status}</span>
-        </div>
-        <div style="display: flex; gap: 15px;">
-          <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">
-              <span>L FORCE</span>
-              <span>${leftKg} kg</span>
-            </div>
-            <div style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-              <div style="height: 100%; width: ${leftPct}%; background: #3b82f6; border-radius: 10px;"></div>
-            </div>
-          </div>
-          <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #94a3b8; font-weight: bold; margin-bottom: 4px;">
-              <span>R FORCE</span>
-              <span>${rightKg} kg</span>
-            </div>
-            <div style="height: 5px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-              <div style="height: 100%; width: ${rightPct}%; background: #22c55e; border-radius: 10px;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join("");
+      <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;
+                  padding:16px 10px;text-align:center;position:relative;overflow:hidden;">
+        <div style="font-size:9px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">${label}</div>
+        <div style="font-size:30px;font-weight:900;font-family:'Outfit',sans-serif;color:${color};line-height:1;">${val}<span style="font-size:14px;">%</span></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:${color};"></div>
+      </div>`;
+  };
 
-  // 3. VALD Asymmetry ranking red bars
-  const valdAsymmetryRankingsHtml = [
-    { key: "hamstrings", label: "Hamstrings" },
-    { key: "adductors", label: "Adductors" },
-    { key: "hip_extension", label: "Hip Extension" },
-    { key: "hip_abduction", label: "Hip Abduction" },
-    { key: "hip_flexion", label: "Hip Flexion" }
-  ].map(group => ({
-    label: group.label,
-    asymmetry: parseFloat(record[`${group.key}_asymmetry`] || 0)
-  }))
-  .sort((a, b) => b.asymmetry - a.asymmetry)
-  .map(m => `
-    <div style="margin-bottom: 12px;">
-      <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; letter-spacing: 0.5px;">
-        <span>${m.label}</span>
-        <span style="color: #ef4444;">${m.asymmetry}%</span>
+  const bar = (label: string, val: number, max = 100, color?: string) => {
+    const c = color || getScoreColor(val);
+    const pct = Math.min(100, Math.round((val / max) * 100));
+    return `
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">
+          <span>${label}</span><span style="color:${c};">${val}${max===100?"%":"kg"}</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${c};border-radius:4px;"></div>
+        </div>
+      </div>`;
+  };
+
+  const valdRow = (label: string, lKey: string, rKey: string) => {
+    const l = record[lKey] || 0;
+    const r = record[rKey] || 0;
+    const max = Math.max(l, r, 1);
+    const asym = max > 0 ? Math.abs(((l - r) / max) * 100).toFixed(1) : "0.0";
+    const asymColor = parseFloat(asym) < 10 ? "#22c55e" : parseFloat(asym) < 15 ? "#f59e0b" : "#ef4444";
+    return `
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:9px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">${label}</span>
+          <span style="font-size:8px;font-weight:900;color:${asymColor};background:${asymColor}15;border:1px solid ${asymColor}30;padding:2px 8px;border-radius:6px;">ASYM ${asym}%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:7px;font-weight:800;color:#64748b;margin-bottom:3px;">LEFT</div>
+            ${bar("", l, Math.max(l,r,50)*1.2, "#3b82f6")}
+            <div style="font-size:12px;font-weight:900;color:#3b82f6;">${l} kg</div>
+          </div>
+          <div>
+            <div style="font-size:7px;font-weight:800;color:#64748b;margin-bottom:3px;">RIGHT</div>
+            ${bar("", r, Math.max(l,r,50)*1.2, "#22c55e")}
+            <div style="font-size:12px;font-weight:900;color:#22c55e;">${r} kg</div>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  const header = (page: string, title: string, sub: string) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:10px;margin-bottom:18px;">
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:900;letter-spacing:2px;color:#fff;">KIO-<span style="color:#22c55e;">X</span> PERFORMANCE</div>
+        <div style="font-size:8px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:3px;margin-top:2px;">${sub}</div>
       </div>
-      <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-        <div style="height: 100%; width: ${m.asymmetry}%; background: #ef4444;"></div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;font-weight:900;color:#64748b;">${title}</div>
+        <div style="font-size:22px;font-weight:900;font-family:'Outfit',sans-serif;color:#1e293b;line-height:1;">${page}</div>
+      </div>
+    </div>`;
+
+  const footer = `
+    <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;display:flex;justify-content:space-between;
+                font-size:7px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:1.5px;">
+      <span>KIO-X Performance Center Â· ${record.assessment_date}</span>
+      <span>Athlete: ${athleteName} Â· CONFIDENTIAL</span>
+    </div>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KIO-X Performance Report â€“ ${athleteName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      html, body { width: 210mm; height: 297mm; }
+      .page { page-break-after: always; break-after: page; }
+      .page:last-child { page-break-after: avoid; break-after: avoid; }
+    }
+
+    html, body {
+      background: #08080a;
+      font-family: 'Inter', sans-serif;
+      color: #ffffff;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      overflow: hidden;
+      background: #08080a;
+      padding: 14mm 16mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1: HERO COVER -->
+<div class="page" style="padding:0;position:relative;">
+  ${avatarUrl
+    ? `<div style="position:absolute;inset:0;background-image:url('${avatarUrl}');background-size:cover;background-position:center;filter:blur(3px);transform:scale(1.05);"></div>`
+    : `<div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 40%, rgba(34,197,94,0.08) 0%,#08080a 70%);"></div>`
+  }
+  <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,5,6,0.93)0%,rgba(8,8,10,0.97)100%);"></div>
+  
+  <div style="position:relative;z-index:10;padding:14mm 16mm;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:10px;margin-bottom:28px;">
+      <div style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:900;letter-spacing:2px;color:#fff;">KIO-<span style="color:#22c55e;">X</span> PERFORMANCE</div>
+      <div style="font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:2px;">${record.assessment_date}</div>
+    </div>
+
+    <!-- Athlete name -->
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:5px;text-transform:uppercase;margin-bottom:10px;">Elite Athlete Dossier</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:44px;font-weight:900;line-height:1;text-transform:uppercase;letter-spacing:3px;color:#ffffff;margin-bottom:8px;">${athleteName}</div>
+      <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;">${(record.assessment_type||"Full Assessment").replace(/_/g," ")} Â· Season ${record.season||"2026/27"}</div>
+    </div>
+
+    <!-- Score cards row -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      ${scoreCard("Performance", perf)}
+      ${scoreCard("Mobility", mob)}
+      ${scoreCard("Symmetry", sym)}
+      ${scoreCard("Injury Risk", risk, true)}
+    </div>
+
+    <!-- Key findings preview -->
+    ${findings.length > 0 ? `
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:12px;padding:14px;margin-bottom:16px;">
+      <div style="font-size:8px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Key Findings</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        ${findings.slice(0,3).map((f: string,i: number) => `
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <span style="background:#22c55e;color:#000;width:16px;height:16px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
+            <span style="font-size:9px;color:#cbd5e1;font-weight:500;">${f}</span>
+          </div>`).join("")}
+      </div>
+    </div>` : ""}
+
+    ${footer}
+  </div>
+</div>
+
+<!-- PAGE 2: FUNCTIONAL TESTS & MOBILITY -->
+<div class="page">
+  ${header("02","FUNCTIONAL ASSESSMENT","Movement Screen & Mobility")}
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Functional Tests</div>
+      ${bar("Deep Squat",           record.deep_squat           || 0)}
+      ${bar("Inline Lunge",         record.inline_lunge         || 0)}
+      ${bar("Hurdle Step",          record.hurdle_step          || 0)}
+      ${bar("ASLR",                 record.aslr                 || 0)}
+      ${bar("Shoulder Mobility",    record.shoulder_mobility    || 0)}
+      ${bar("Rotary Stability",     record.rotary_stability     || 0)}
+      ${bar("Trunk Stability",      record.trunk_stability_pushup || 0)}
+      ${bar("Single Leg Stand",     record.single_leg_stand     || 0)}
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Mobility Ranges</div>
+      ${bar("Ankle DF",       record.ankle_df        || 0)}
+      ${bar("Hip IR Left",    record.hip_ir_left     || 0)}
+      ${bar("Hip IR Right",   record.hip_ir_right    || 0)}
+      ${bar("Hip ER Left",    record.hip_er_left     || 0)}
+      ${bar("Hip ER Right",   record.hip_er_right    || 0)}
+      ${bar("Cspine Rotation",record.cspine_rotation || 0)}
+      ${bar("Forward Bend",   record.forward_bend    || 0)}
+      ${bar("Hip Flexion",    record.hip_flexion     || 0)}
+    </div>
+  </div>
+  <!-- Mobility score summary -->
+  <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.12);border-radius:10px;padding:12px;margin-top:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:8px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Overall Mobility Index</div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:500;">Hip rotation and ankle dorsiflexion are primary limiters.</div>
+      </div>
+      <div style="font-size:36px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(mob)};">${mob}<span style="font-size:16px;">%</span></div>
+    </div>
+  </div>
+  ${footer}
+</div>
+
+<!-- PAGE 3: VALD FORCE PROFILE -->
+<div class="page">
+  ${header("03","VALD FORCE PROFILE","Bilateral Strength & Symmetry")}
+  <div style="flex:1;overflow:hidden;">
+    ${valdRow("Knee Extension", "knee_ext_left",  "knee_ext_right")}
+    ${valdRow("Knee Flexion",   "knee_flex_left", "knee_flex_right")}
+    ${valdRow("Hip Adduction",  "hip_add_left",   "hip_add_right")}
+    ${valdRow("Hip Abduction",  "hip_abd_left",   "hip_abd_right")}
+    ${valdRow("Hamstring",      "hamstring_left",  "hamstring_right")}
+  </div>
+  <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:12px;margin-top:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:8px;font-weight:900;color:#3b82f6;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Symmetry Index</div>
+        <div style="font-size:11px;color:#94a3b8;">Average force symmetry across all VALD measurements.</div>
+      </div>
+      <div style="font-size:36px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(sym)};">${sym}<span style="font-size:16px;">%</span></div>
+    </div>
+  </div>
+  ${footer}
+</div>
+
+<!-- PAGE 4: PERFORMANCE IMPACT & RISK -->
+<div class="page">
+  ${header("04","PERFORMANCE IMPACT","Athletic Capacity & Injury Risk")}
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;overflow:hidden;">
+    <div>
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Performance Capacities</div>
+      ${bar("Acceleration",         record.acceleration_impact    || 0)}
+      ${bar("Sprint",               record.sprint_impact          || 0)}
+      ${bar("Change of Direction",  record.change_of_direction_impact || 0)}
+      ${bar("Kicking Mechanics",    record.kicking_impact         || 0)}
+      ${bar("Landing Mechanics",    record.landing_impact         || 0)}
+      ${bar("Single-Leg Stability", record.single_leg_stability   || 0)}
+    </div>
+    <div>
+      <div style="font-size:9px;font-weight:900;color:#ef4444;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Risk Profile</div>
+      <div style="text-align:center;margin-bottom:14px;">
+        <div style="font-size:52px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(risk,true)};line-height:1;">${risk}<span style="font-size:20px;">%</span></div>
+        <div style="font-size:8px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">Injury Risk Score</div>
+      </div>
+      <div>
+        <div style="font-size:8px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Active Risk Factors</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${riskFactors.length > 0
+            ? riskFactors.map((r: any) => {
+                const c = getSeverityColor(r.severity);
+                return `<span style="padding:3px 9px;border-radius:6px;border:1px solid ${c}30;background:${c}10;font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;">${r.name}</span>`;
+              }).join("")
+            : `<span style="font-size:9px;color:#64748b;font-style:italic;">No specific risk factors flagged.</span>`
+          }
+        </div>
       </div>
     </div>
-  `).join("");
+  </div>
+  ${footer}
+</div>
 
-  // 4. Functional tests progress bars (2 columns)
-  const functionalList = [
-    { key: "cspine_rotation", label: "C-Spine Rotation" },
-    { key: "forward_bend", label: "Forward Bend" },
-    { key: "hip_ir_left", label: "Hip IR Left" },
-    { key: "hip_er_both", label: "Hip ER Both" },
-    { key: "deep_squat", label: "Deep Squat" },
-    { key: "ankle_df", label: "Ankle DF" },
-    { key: "great_toe_ext", label: "Great Toe Ext." },
-    { key: "single_leg_stand", label: "Single Leg Stand" }
-  ];
-  
-  const midPoint = Math.ceil(functionalList.length / 2);
-  const leftColFunctionalHtml = functionalList.slice(0, midPoint).map(t => {
-    const val = record[t.key] || 0;
-    const color = val >= 70 ? "#22c55e" : val >= 50 ? "#f59e0b" : "#ef4444";
-    return `
-      <div style="margin-bottom: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">
-          <span>${t.label}</span>
-          <span style="color: ${color};">${val}%</span>
-        </div>
-        <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-          <div style="height: 100%; width: ${val}%; background-color: ${color};"></div>
-        </div>
+<!-- PAGE 5: PRIORITIES & ROADMAP -->
+<div class="page">
+  ${header("05","ACTION PLAN","Priorities & Return-to-Performance Roadmap")}
+  <div style="flex:1;overflow:hidden;">
+    <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Top Priorities</div>
+    ${findings.length > 0
+      ? findings.slice(0,5).map((f: string, i: number) => `
+          <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px;margin-bottom:7px;">
+            <span style="background:${i===0?"#22c55e":i===1?"#f59e0b":"#3b82f6"};color:#000;width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
+            <span style="font-size:10px;color:#e2e8f0;font-weight:500;">${f}</span>
+          </div>`).join("")
+      : `<div style="padding:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;font-size:10px;color:#64748b;font-style:italic;">No specific priority actions documented.</div>`
+    }
+
+    <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-top:18px;margin-bottom:10px;">8-Week Return-to-Performance Roadmap</div>
+    <div style="position:relative;padding:16px 0;">
+      <div style="position:absolute;left:0;right:0;top:50%;height:2px;background:rgba(255,255,255,0.06);transform:translateY(-50%);"></div>
+      <div style="display:flex;justify-content:space-between;position:relative;z-index:1;">
+        ${[
+          {week:"W0-1",label:"Baseline",color:"#22c55e"},
+          {week:"W2-3",label:"Mobility",color:"#3b82f6"},
+          {week:"W3-4",label:"Strength",color:"#8b5cf6"},
+          {week:"W5-6",label:"Power",color:"#f59e0b"},
+          {week:"W7",label:"Sport",color:"#f97316"},
+          {week:"W8",label:"Return",color:"#22c55e"},
+        ].map(n => `
+          <div style="display:flex;flex-direction:column;align-items:center;width:60px;text-align:center;">
+            <div style="width:28px;height:28px;border-radius:50%;background:${n.color};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#000;box-shadow:0 0 12px ${n.color}50;border:2px solid #08080a;">${n.week.slice(0,2)}</div>
+            <div style="font-size:7px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5px;margin-top:7px;">${n.label}</div>
+            <div style="font-size:6px;font-weight:700;color:#64748b;margin-top:2px;">${n.week}</div>
+          </div>`).join("")}
       </div>
-    `;
-  }).join("");
-
-  const rightColFunctionalHtml = functionalList.slice(midPoint).map(t => {
-    const val = record[t.key] || 0;
-    const color = val >= 70 ? "#22c55e" : val >= 50 ? "#f59e0b" : "#ef4444";
-    return `
-      <div style="margin-bottom: 12px;">
-        <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">
-          <span>${t.label}</span>
-          <span style="color: ${color};">${val}%</span>
-        </div>
-        <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-          <div style="height: 100%; width: ${val}%; background-color: ${color};"></div>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  // 5. Performance impact scores (Page 4)
-  const impactHtml = [
-    { key: "acceleration_impact", label: "Acceleration" },
-    { key: "sprint_impact", label: "Sprint" },
-    { key: "change_of_direction_impact", label: "Change of Direction" },
-    { key: "kicking_impact", label: "Kicking Mechanics" },
-    { key: "landing_impact", label: "Landing Mechanics" },
-    { key: "single_leg_stability", label: "Single-Leg Stability" }
-  ].map(i => {
-    const val = record[i.key] || 0;
-    const color = val >= 85 ? "#22c55e" : val >= 65 ? "#f59e0b" : "#ef4444";
-    return `
-      <div style="margin-bottom: 15px;">
-        <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; text-transform: uppercase; color: #ffffff; margin-bottom: 5px;">
-          <span>${i.label}</span>
-          <span style="color: ${color};">${val}%</span>
-        </div>
-        <div style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-          <div style="height: 100%; width: ${val}%; background-color: ${color};"></div>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  // 6. Key findings bullet points
-  const keyFindingsHtml = (record.key_findings || [])
-    .map((f: any) => {
-      const color = getSeverityColor(f.severity);
-      return `
-        <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
-          <span style="width: 6px; height: 6px; border-radius: 50%; background-color: ${color}; margin-top: 5px; flex-shrink: 0; box-shadow: 0 0 4px ${color}"></span>
-          <div>
-            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #ffffff; letter-spacing: 0.5px;">${f.title}: </span>
-            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">${f.description}</span>
-          </div>
-        </div>
-      `;
-    }).join("") || `<div style="font-size: 10px; color: #64748b; font-style: italic;">No critical biomechanical findings flagged.</div>`;
-
-  // 7. Priorities list (Page 5)
-  const prioritiesHtml = (record.key_findings || []).slice(0, 5)
-    .map((f: any, idx: number) => `
-      <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 12px; border-radius: 12px; margin-bottom: 8px;">
-        <span style="background: rgba(34,197,94,0.1); color: #22c55e; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; font-family: 'Outfit'; flex-shrink: 0;">0${idx + 1}</span>
-        <div>
-          <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #ffffff; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">${f.title}</span>
-          <span style="font-size: 9px; color: #94a3b8; font-weight: 500; line-height: 1.3;">${f.description}</span>
-        </div>
-      </div>
-    `).join("") || `
-      <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 12px; border-radius: 12px; margin-bottom: 8px;">
-        <span style="background: rgba(34,197,94,0.1); color: #22c55e; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; font-family: 'Outfit'; flex-shrink: 0;">01</span>
-        <div>
-          <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #ffffff; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Symmetry Balance</span>
-          <span style="font-size: 9px; color: #94a3b8; font-weight: 500;">Reduce general lateral force imbalances across VALD testing profile.</span>
-        </div>
-      </div>
-    `;
-
-  // 8. Risk Factors Pill Badges (Page 4)
-  const riskFactorsHtml = (record.risk_factors || [])
-    .map((r: any) => {
-      const color = getSeverityColor(r.severity);
-      return `
-        <div style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; border: 1px solid ${color}20; background: ${color}08; font-size: 8px; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 4px 8px 0;">
-          <span style="width: 5px; height: 5px; border-radius: 50%; background-color: ${color}"></span>
-          ${r.name}
-        </div>
-      `;
-    }).join("") || `<div style="font-size: 8px; color: #64748b; font-style: italic;">No special risk factors flagged.</div>`;
-
-  // 9. Radar chart coordinates calculation
-  // Radar uses 6 axis (Squat, Rotation, Post.Chain, Balance, Ankle, Hip)
-  const radarAxes = [
-    { label: "Squat", val: record.deep_squat || 70 },
-    { label: "Rotation", val: record.cspine_rotation || 70 },
-    { label: "Post. Chain", val: record.forward_bend || 70 },
-    { label: "Balance", val: record.single_leg_stand || 70 },
-    { label: "Ankle", val: record.ankle_df || 70 },
-    { label: "Hip", val: record.hip_ir_left || 70 }
-  ];
-
-  const radarPoints = radarAxes.map((axis, i) => {
-    const angle = (i * 2 * Math.PI) / 6 - Math.PI / 2;
-    const r = (axis.val / 100) * 72;
-    const x = 100 + r * Math.cos(angle);
-    const y = 100 + r * Math.sin(angle);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-
-  // 10. Circular Gauge Donut calculation for Risk (Page 4)
-  const riskCircleVal = record.risk_score || 50;
-  const riskCircumference = 2 * Math.PI * 45; // radius = 45, cx=60, cy=60
-  const riskDashoffset = riskCircumference - (riskCircleVal / 100) * riskCircumference;
-
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>KIO-X Lab Report - ${athleteName}</title>
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-        
-        <style>
-          *, *::before, *::after { box-sizing: border-box; }
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #08080a !important;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            width: 794px !important;
-            overflow: hidden !important;
-          }
-
-          .pdf-page {
-            width: 794px;
-            height: 1123px;
-            box-sizing: border-box;
-            padding: 52px 60px;
-            position: relative;
-            background: #08080a;
-            color: #ffffff;
-            page-break-after: always;
-            break-after: page;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-
-          .pdf-page:last-child {
-            page-break-after: avoid;
-            break-after: avoid;
-          }
-
-          /* Watermark background options */
-          .watermark-grid {
-            position: absolute;
-            inset: 0;
-            opacity: 0.02;
-            background-image: radial-gradient(#22c55e 1px, transparent 1px);
-            background-size: 20px 20px;
-            pointer-events: none;
-          }
-
-          /* Header */
-          .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #22c55e;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 10;
-          }
-
-          .logo-text {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 14px;
-            letter-spacing: 2px;
-            color: #ffffff;
-          }
-          
-          .logo-green {
-            color: #22c55e;
-          }
-
-          .page-num {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 14px;
-            color: #64748b;
-          }
-
-          .report-title {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 22px;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0 0 3px 0;
-          }
-
-          .report-subtitle {
-            font-size: 9px;
-            font-weight: 800;
-            color: #22c55e;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin: 0;
-          }
-
-          /* Row of 4 Score Cards */
-          .score-grid {
-            display: grid;
-            grid-template-cols: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-          }
-
-          .score-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 16px;
-            padding: 15px 12px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 95px;
-          }
-
-          .score-card-label {
-            font-size: 8px;
-            font-weight: 900;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 5px;
-          }
-
-          .score-card-value {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 24px;
-          }
-
-          .score-card-desc {
-            font-size: 7px;
-            color: #64748b;
-            font-weight: 600;
-            line-height: 1.2;
-            margin-top: 5px;
-            text-transform: uppercase;
-          }
-
-          .score-bar-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-          }
-
-          /* Content cards */
-          .content-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 20px;
-            padding: 20px;
-            position: relative;
-          }
-
-          .content-card-title {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 11px;
-            color: #22c55e;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-          }
-
-          /* Footer */
-          .report-footer {
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 7px;
-            font-weight: 800;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            position: relative;
-            z-index: 10;
-          }
-
-          /* Page 1 Specific Styling */
-          .page1-hero {
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 0;
-            filter: blur(2px);
-          }
-
-          .page1-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(5,5,6,0.92) 0%, rgba(8,8,10,0.96) 100%);
-            z-index: 1;
-          }
-
-          .hero-content {
-            position: relative;
-            z-index: 10;
-            margin-bottom: 30px;
-            margin-top: 30px;
-          }
-
-          .athlete-hero-name {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 40px;
-            line-height: 1;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #ffffff;
-            margin-bottom: 6px;
-          }
-
-          /* VALD Force Profile style */
-          .vald-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 12px;
-          }
-
-          /* Checklist milestone roadmap */
-          .roadmap-timeline {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            padding: 20px 10px;
-          }
-          
-          .roadmap-line {
-            position: absolute;
-            left: 5%;
-            right: 5%;
-            top: 50%;
-            height: 2px;
-            background: rgba(255,255,255,0.05);
-            z-index: 1;
-          }
-
-          .roadmap-node {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: 70px;
-          }
-
-          .roadmap-dot {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 900;
-            font-family: 'Outfit';
-            border: 2px solid #08080a;
-            box-shadow: 0 0 10px rgba(34,197,94,0.1);
-          }
-
-          .roadmap-label {
-            font-size: 7px;
-            font-weight: 900;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 8px;
-          }
-
-          .roadmap-week {
-            font-size: 6px;
-            font-weight: bold;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-top: 2px;
-          }
-
-        </style>
-      </head>
-      <body>
-        <div id="pdf-content-wrapper" style="width: 794px; background: #08080a; margin: 0; padding: 0; box-sizing: border-box; overflow: hidden; display: block; position: relative;">
-
-        <!-- ================= PAGE 1 ================= -->
-        <div class="pdf-page" id="page-1">
-          <div class="watermark-grid"></div>
-          ${avatarUrl ? `<div class="page1-hero" style="background-image: url('${avatarUrl}');"></div>` : `<div class="page1-hero" style="background: radial-gradient(circle, rgba(16,185,129,0.05) 0%, rgba(8,8,10,1) 80%);"></div>`}
-          <div class="page1-overlay"></div>
-
-          <!-- Header -->
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">01</span>
-          </div>
-
-          <!-- Hero Name -->
-          <div class="hero-content">
-            <p class="report-subtitle" style="margin-bottom: 5px;">Elite Athlete Dossier</p>
-            <h1 class="athlete-hero-name">${athleteName}</h1>
-            <p style="font-size: 10px; font-weight: 900; color: #94a3b8; margin: 0; text-transform: uppercase; letter-spacing: 2px;">
-              ${record.assessment_type.replace(/_/g, " ")} // DATE: ${record.assessment_date} // SEASON: ${record.season || "2026/2027"}
-            </p>
-          </div>
-
-          <!-- Row of 4 scores -->
-          <div style="position: relative; z-index: 10;">
-            <div class="score-grid">
-              <div class="score-card">
-                <span class="score-card-label">Performance</span>
-                <span class="score-card-value" style="color: ${getScoreColor(record.performance_score || 0)};">${record.performance_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.performance_score || 0)};"></span>
-                <span class="score-card-desc">Global Readiness</span>
-              </div>
-              <div class="score-card">
-                <span class="score-card-label">Mobility</span>
-                <span class="score-card-value" style="color: ${getScoreColor(record.mobility_score || 0)};">${record.mobility_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.mobility_score || 0)};"></span>
-                <span class="score-card-desc">Joint Ranges</span>
-              </div>
-              <div class="score-card">
-                <span class="score-card-label">Symmetry</span>
-                <span class="score-card-value" style="color: ${getScoreColor(record.symmetry_score || 0)};">${record.symmetry_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.symmetry_score || 0)};"></span>
-                <span class="score-card-desc">Force Balance</span>
-              </div>
-              <div class="score-card">
-                <span class="score-card-label">Injury Risk</span>
-                <span class="score-card-value" style="color: ${getScoreColor(record.risk_score || 0, true)};">${record.risk_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.risk_score || 0, true)};"></span>
-                <span class="score-card-desc">Risk Index</span>
-              </div>
-            </div>
-            
-            <div style="display: grid; grid-template-cols: 1fr; gap: 20px;">
-              <!-- Key Findings -->
-              <div class="content-card">
-                <h3 class="content-card-title">Key Biomechanical Findings</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                  ${keyFindingsHtml}
-                </div>
-              </div>
-              
-              <!-- Coach Summary -->
-              <div class="content-card">
-                <h3 class="content-card-title">Tactical Directives & Action Plan</h3>
-                <p style="font-size: 10px; color: #94a3b8; font-style: italic; line-height: 1.5; margin: 0;">
-                  "${record.coach_summary || 'No direct summary evaluation notes assigned.'}"
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-
-        <!-- ================= PAGE 2 ================= -->
-        <div class="pdf-page" id="page-2">
-          <div class="watermark-grid"></div>
-          
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">02</span>
-          </div>
-
-          <div>
-            <h2 class="report-title">Movement & Mobility Dashboard</h2>
-            <p class="report-subtitle" style="margin-bottom: 25px;">Biomechanical range scanning metrics</p>
-          </div>
-
-          <!-- Radar Chart & Body Map Side by Side -->
-          <div style="display: grid; grid-template-cols: 1.1fr 0.9fr; gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Left: Radar Chart -->
-            <div class="content-card" style="text-align: center;">
-              <h3 class="content-card-title" style="text-align: left;">Mobility Profile</h3>
-              <div style="position: relative; width: 100%; height: 210px; display: flex; justify-content: center; align-items: center;">
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <!-- Concentric Background rings -->
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
-                  <circle cx="100" cy="100" r="60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
-                  <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
-                  <circle cx="100" cy="100" r="20" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
-
-                  <!-- Pentagon lines -->
-                  ${[0, 1, 2, 3, 4, 5].map(i => {
-                    const angle = (i * 2 * Math.PI) / 6 - Math.PI / 2;
-                    const x = 100 + 80 * Math.cos(angle);
-                    const y = 100 + 80 * Math.sin(angle);
-                    
-                    const labelX = 100 + 92 * Math.cos(angle);
-                    const labelY = 100 + 92 * Math.sin(angle);
-                    
-                    return `
-                      <line x1="100" y1="100" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
-                      <text x="${labelX}" y="${labelY + 3}" fill="#64748b" font-size="7" font-weight="bold" font-family="Outfit" text-anchor="middle">${radarAxes[i].label.toUpperCase()}</text>
-                    `;
-                  }).join("")}
-
-                  <!-- Filled area representing athlete metrics -->
-                  <polygon points="${radarPoints}" fill="rgba(34,197,94,0.15)" stroke="#22c55e" stroke-width="1.5" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Right: Body Map Zone -->
-            <div class="content-card" style="position: relative;">
-              <h3 class="content-card-title">Body Map Focus Zones</h3>
-              
-              <!-- Silhouette outline rendering inside PDF -->
-              <div style="position: relative; width: 160px; height: 210px; margin: 0 auto;">
-                <svg viewBox="0 0 100 220" style="width: 100%; height: 100%;">
-                  <path
-                    d="M 50 15 
-                       C 42 15, 38 21, 38 28
-                       C 38 35, 42 41, 50 41
-                       C 58 41, 62 35, 62 28
-                       C 62 21, 58 15, 50 15 Z
-                       
-                       M 45 41 L 55 41 L 55 48 L 45 48 Z
-                       
-                       M 45 48 
-                       C 33 49, 30 55, 27 63
-                       L 14 105
-                       C 12 110, 16 114, 20 110
-                       L 28 80 L 28 125
-                       C 28 127, 29 129, 31 129
-                       C 33 129, 34 127, 34 125
-                       L 34 70 L 37 70 L 37 135
-                       L 63 135 L 63 70 L 66 70
-                       L 66 125
-                       C 66 127, 67 129, 69 129
-                       C 71 129, 72 127, 72 125
-                       L 72 80 L 80 110
-                       C 84 114, 88 110, 86 105
-                       L 73 63
-                       C 70 55, 67 49, 55 48 Z
-                       
-                       M 37 135 L 63 135 L 60 155 L 40 155 Z
-                       
-                       M 40 155
-                       L 35 200
-                       L 38 245
-                       C 38 249, 43 249, 44 245
-                       L 49 200 L 49 155 Z
-                       
-                       M 60 155
-                       L 65 200
-                       L 62 245
-                       C 62 249, 57 249, 56 245
-                       L 51 200 L 51 155 Z"
-                    fill="rgba(255,255,255,0.01)"
-                    stroke="rgba(255,255,255,0.1)"
-                    stroke-width="1.5"
-                  />
-                </svg>
-                <!-- Render overlay dots -->
-                ${bodyMapHtml}
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Bottom: Functional tests split columns -->
-          <div class="content-card" style="margin-bottom: 20px;">
-            <h3 class="content-card-title">Functional Mobility Status</h3>
-            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 30px;">
-              <div>
-                ${leftColFunctionalHtml}
-              </div>
-              <div>
-                ${rightColFunctionalHtml}
-              </div>
-            </div>
-          </div>
-
-          <!-- Interpretation textbox -->
-          <div class="content-card" style="background: rgba(34,197,94,0.01); border: 1px dashed rgba(34,197,94,0.15)">
-            <span style="font-size: 8px; font-weight: 900; color: #22c55e; text-transform: uppercase; letter-spacing: 2.5px; display: block; margin-bottom: 4px;">Biomechanical Assessment Guideline</span>
-            <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.4;">
-              Assessment values above represent percentage capabilities compared to optimal structural baseline values. Strength and range imbalances above 15% indicate focal loading risks and warrant targeted intervention protocols.
-            </p>
-          </div>
-
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-
-        <!-- ================= PAGE 3 ================= -->
-        <div class="pdf-page" id="page-3">
-          <div class="watermark-grid"></div>
-          
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">03</span>
-          </div>
-
-          <div>
-            <h2 class="report-title">VALD Force Profile</h2>
-            <p class="report-subtitle" style="margin-bottom: 25px;">Maximum Voluntary Isometric Contraction telemetry</p>
-          </div>
-
-          <!-- Muscle cards grid -->
-          <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-            ${valdMusclesHtml}
-          </div>
-
-          <!-- Asymmetry ranking card -->
-          <div class="content-card">
-            <h3 class="content-card-title">Asymmetry Severity Rankings</h3>
-            <div style="display: grid; grid-template-cols: 1.2fr 0.8fr; gap: 30px; align-items: center;">
-              <div>
-                ${valdAsymmetryRankingsHtml}
-              </div>
-              <div style="background: rgba(239,68,68,0.03); border: 1px solid rgba(239,68,68,0.08); border-radius: 12px; padding: 15px; text-align: center;">
-                <span style="font-size: 9px; font-weight: 900; color: #ef4444; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Max Imbalance Warning</span>
-                <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.4;">
-                  Any unilateral asymmetries exceeding 10% indicate compensatory patterns, which significantly raises muscle strain risks.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-
-        <!-- ================= PAGE 4 ================= -->
-        <div class="pdf-page" id="page-4">
-          <div class="watermark-grid"></div>
-          
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">04</span>
-          </div>
-
-          <div>
-            <h2 class="report-title">Performance Impact & Risk Profile</h2>
-            <p class="report-subtitle" style="margin-bottom: 25px;">Translational capacity and structural safety thresholds</p>
-          </div>
-
-          <div style="display: grid; grid-template-cols: 1.1fr 0.9fr; gap: 20px; margin-bottom: 25px;">
-            
-            <!-- Left: Performance Impact -->
-            <div class="content-card">
-              <h3 class="content-card-title">Athletic Performance Impact</h3>
-              <div style="padding-top: 10px;">
-                ${impactHtml}
-              </div>
-            </div>
-
-            <!-- Right: Injury Risk Circular Donut Gauge -->
-            <div class="content-card" style="text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
-              <h3 class="content-card-title" style="text-align: left;">Skeletal Load Risk Index</h3>
-              
-              <!-- Donut Chart -->
-              <div style="position: relative; width: 120px; height: 120px; margin: 15px auto;">
-                <svg width="120" height="120" viewBox="0 0 120 120" style="transform: rotate(-90deg);">
-                  <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="8" />
-                  <circle 
-                    cx="60" 
-                    cy="60" 
-                    r="45" 
-                    fill="none" 
-                    stroke="${getScoreColor(riskCircleVal, true)}" 
-                    stroke-width="8" 
-                    stroke-dasharray="${riskCircumference}"
-                    stroke-dashoffset="${riskDashoffset}"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                  <span style="font-family: 'Outfit'; font-weight: 900; font-size: 26px; color: ${getScoreColor(riskCircleVal, true)}; line-height: 1;">${riskCircleVal}%</span>
-                  <span style="font-size: 7px; font-weight: 900; color: #64748b; letter-spacing: 0.5px; margin-top: 2px;">RISK RATE</span>
-                </div>
-              </div>
-
-              <!-- Risk Factors badges -->
-              <div style="text-align: center; padding-top: 10px;">
-                <span style="font-size: 7px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">ACTIVE RISK BADGES</span>
-                <div style="max-height: 55px; overflow: hidden;">
-                  ${riskFactorsHtml}
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Bottom: Performance translation cards grid -->
-          <div class="content-card">
-            <h3 class="content-card-title">Biomechanical Sport translation</h3>
-            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 15px;">
-              <div style="padding: 10px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px;">
-                <span style="font-size: 9px; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Sprint & Acceleration</span>
-                <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.3;">Driven by ankle plantarflexion range and posterior extension chain forces.</p>
-              </div>
-              <div style="padding: 10px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px;">
-                <span style="font-size: 9px; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Change of Direction</span>
-                <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.3;">Depends heavily on lateral hip abductor/adductor stabilizers and groin health.</p>
-              </div>
-              <div style="padding: 10px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px;">
-                <span style="font-size: 9px; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Kicking Mechanics</span>
-                <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.3;">Facilitated by hip flexor elasticity and pelvic rotation range limits.</p>
-              </div>
-              <div style="padding: 10px; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px;">
-                <span style="font-size: 9px; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Single-Leg Balance Control</span>
-                <p style="font-size: 8px; color: #94a3b8; font-weight: 500; margin: 0; line-height: 1.3;">Governed by ankle dorsiflexion mobility and knee alignment symmetry.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-
-        <!-- ================= PAGE 5 ================= -->
-        <div class="pdf-page" id="page-5">
-          <div class="watermark-grid"></div>
-          
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">05</span>
-          </div>
-
-          <div>
-            <h2 class="report-title">Roadmap & Focus Milestones</h2>
-            <p class="report-subtitle" style="margin-bottom: 25px;">Strategic integration timeline and priorities</p>
-          </div>
-
-          <!-- Priorities -->
-          <div class="content-card" style="margin-bottom: 20px;">
-            <h3 class="content-card-title">Top Priority Matrices</h3>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              ${prioritiesHtml}
-            </div>
-          </div>
-
-          <!-- Timeline roadmap -->
-          <div class="content-card" style="margin-bottom: 20px;">
-            <h3 class="content-card-title">Return To Performance Roadmap</h3>
-            <div class="roadmap-timeline">
-              <div class="roadmap-line"></div>
-              
-              <div class="roadmap-node">
-                <div class="roadmap-dot" style="background: rgba(34,197,94,0.1); color: #22c55e; border-color: #22c55e;">W0</div>
-                <div class="roadmap-label">Check-up</div>
-                <div class="roadmap-week">Baseline</div>
-              </div>
-              <div class="roadmap-node">
-                <div class="roadmap-dot" style="background: rgba(255,255,255,0.03); color: #94a3b8; border-color: rgba(255,255,255,0.1);">W2</div>
-                <div class="roadmap-label">Mobility</div>
-                <div class="roadmap-week">Ranges</div>
-              </div>
-              <div class="roadmap-node">
-                <div class="roadmap-dot" style="background: rgba(255,255,255,0.03); color: #94a3b8; border-color: rgba(255,255,255,0.1);">W4</div>
-                <div class="roadmap-label">Strength</div>
-                <div class="roadmap-week">VALD Force</div>
-              </div>
-              <div class="roadmap-node">
-                <div class="roadmap-dot" style="background: rgba(255,255,255,0.03); color: #94a3b8; border-color: rgba(255,255,255,0.1);">W6</div>
-                <div class="roadmap-label">Integration</div>
-                <div class="roadmap-week">Dynamic</div>
-              </div>
-              <div class="roadmap-node">
-                <div class="roadmap-dot" style="background: rgba(34,197,94,0.1); color: #22c55e; border-color: #22c55e;">W8</div>
-                <div class="roadmap-label">Re-Test</div>
-                <div class="roadmap-week">Verification</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Main Targets list -->
-          <div class="content-card">
-            <h3 class="content-card-title">Main Goals before Re-Testing</h3>
-            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 15px; font-size: 9px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #22c55e; margin-right: 4px;">✔</span> Complete 8-Week range protocols</div>
-                <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #22c55e; margin-right: 4px;">✔</span> Restore hip IR to above 70%</div>
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #22c55e; margin-right: 4px;">✔</span> Mitigate VALD force asymmetry to &lt;10%</div>
-                <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #22c55e; margin-right: 4px;">✔</span> Resolve active flagged pain indicators</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-
-        <!-- ================= PAGE 6 ================= -->
-        <div class="pdf-page" id="page-6">
-          <div class="watermark-grid"></div>
-          
-          <div class="report-header">
-            <span class="logo-text">KIO-<span class="logo-green">X</span> PERFORMANCE</span>
-            <span class="page-num">06</span>
-          </div>
-
-          <div>
-            <h2 class="report-title">Executive Summary</h2>
-            <p class="report-subtitle" style="margin-bottom: 25px;">Bilingual summary diagnostics</p>
-          </div>
-
-          <!-- Deutsch vs English -->
-          <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 20px; margin-bottom: 35px; flex-grow: 1;">
-            
-            <!-- Left: Deutsch -->
-            <div class="content-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-              <h3 class="content-card-title">DEUTSCH // BERICHT</h3>
-              <p style="font-size: 10px; color: #94a3b8; line-height: 1.6; font-style: italic; margin: 0; flex-grow: 1;">
-                "${record.coach_summary || 'Keine spezifische Zusammenfassung eingetragen.'}"
-              </p>
-              <div style="font-size: 8px; font-weight: 800; color: #64748b; margin-top: 10px; text-transform: uppercase;">Deutsche Übersetzung (Vorlage)</div>
-            </div>
-
-            <!-- Right: English -->
-            <div class="content-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-              <h3 class="content-card-title">ENGLISH // REPORT</h3>
-              <p style="font-size: 10px; color: #94a3b8; line-height: 1.6; font-style: italic; margin: 0; flex-grow: 1;">
-                "${record.coach_summary || 'No direct summary evaluation notes assigned.'}"
-              </p>
-              <div style="font-size: 8px; font-weight: 800; color: #64748b; margin-top: 10px; text-transform: uppercase;">English Translation</div>
-            </div>
-
-          </div>
-
-          <!-- Bottom repeated overall scores -->
-          <div class="content-card" style="margin-bottom: 20px;">
-            <h3 class="content-card-title">Core Performance Readiness Matrix</h3>
-            <div class="score-grid" style="margin-bottom: 0;">
-              <div class="score-card" style="height: 75px; padding: 10px 8px;">
-                <span class="score-card-label" style="font-size: 7px;">Performance</span>
-                <span class="score-card-value" style="font-size: 18px; color: ${getScoreColor(record.performance_score || 0)};">${record.performance_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.performance_score || 0)};"></span>
-              </div>
-              <div class="score-card" style="height: 75px; padding: 10px 8px;">
-                <span class="score-card-label" style="font-size: 7px;">Mobility</span>
-                <span class="score-card-value" style="font-size: 18px; color: ${getScoreColor(record.mobility_score || 0)};">${record.mobility_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.mobility_score || 0)};"></span>
-              </div>
-              <div class="score-card" style="height: 75px; padding: 10px 8px;">
-                <span class="score-card-label" style="font-size: 7px;">Symmetry</span>
-                <span class="score-card-value" style="font-size: 18px; color: ${getScoreColor(record.symmetry_score || 0)};">${record.symmetry_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.symmetry_score || 0)};"></span>
-              </div>
-              <div class="score-card" style="height: 75px; padding: 10px 8px;">
-                <span class="score-card-label" style="font-size: 7px;">Injury Risk</span>
-                <span class="score-card-value" style="font-size: 18px; color: ${getScoreColor(record.risk_score || 0, true)};">${record.risk_score || 0}%</span>
-                <span class="score-bar-bottom" style="background: ${getScoreColor(record.risk_score || 0, true)};"></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="report-footer">
-            <span>KIO-X Performance Center | confidential</span>
-            <span>Functional Check-up + VALD data</span>
-          </div>
-        </div>
-      </div>
-
-        <script>
-          function downloadPDF() {
-            const opt = {
-              margin:       0,
-              filename:     'KIO-X_Performance_Report_${athleteName.replace(/\s+/g, '_')}_${record.assessment_date}.pdf',
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                logging: false,
-                scrollX: 0,
-                scrollY: 0,
-                width: 794,
-                windowWidth: 794
-              },
-              jsPDF:        { unit: 'px', hotfixes: ['px_scaling'], format: [794, 1123], orientation: 'portrait' },
-              pagebreak:    { mode: ['css', 'legacy'] }
-            };
-            
-            html2pdf().set(opt).from(document.getElementById('pdf-content-wrapper')).save();
-          }
-        </script>
-      </body>
-    </html>
-  `;
+    </div>
+  </div>
+  ${footer}
+</div>
+
+<!-- PAGE 6: EXECUTIVE SUMMARY -->
+<div class="page">
+  ${header("06","EXECUTIVE SUMMARY","Season Assessment Overview")}
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;">
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">English Â· Report</div>
+      <p style="font-size:10px;color:#94a3b8;line-height:1.7;font-style:italic;">${record.coach_summary || "No summary evaluation notes assigned."}</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;">
+      <div style="font-size:9px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Deutsch Â· Bericht</div>
+      <p style="font-size:10px;color:#94a3b8;line-height:1.7;font-style:italic;">${record.coach_summary || "Keine Zusammenfassung eingetragen."}</p>
+    </div>
+  </div>
+  <!-- Score matrix repeat -->
+  <div style="display:flex;gap:10px;margin-top:16px;">
+    ${scoreCard("Performance", perf)}
+    ${scoreCard("Mobility",    mob)}
+    ${scoreCard("Symmetry",    sym)}
+    ${scoreCard("Injury Risk", risk, true)}
+  </div>
+  <div style="margin-top:14px;text-align:center;font-size:8px;font-weight:800;color:#334155;text-transform:uppercase;letter-spacing:2px;">
+    KIO-X HUMAN PERFORMANCE Â· ${record.assessment_date} Â· Confidential
+  </div>
+  ${footer}
+</div>
+
+<script>
+  // Auto-trigger print dialog when page loads
+  window.onload = function() {
+    setTimeout(function() { window.print(); }, 500);
+  };
+</script>
+</body>
+</html>`;
 }
