@@ -174,7 +174,7 @@ export default function PerformanceAssessmentReports() {
     setPdfSuccess(false);
 
     const athlete = athletes.find(a => a.id === selectedAthleteId);
-    const athleteName = athlete ? `${athlete.first_name} ${athlete.last_name}` : "Athlete";
+    const athleteName = athlete ? `${athlete.first_name || ""} ${athlete.last_name || ""}`.trim() || "Athlete" : "Athlete";
     const avatarUrl = athlete?.avatar_url || "";
 
     // Load dynamic HTML & triggers html2pdf
@@ -249,7 +249,7 @@ export default function PerformanceAssessmentReports() {
                 <option value="">-- CHOOSE ATHLETE --</option>
                 {athletes.map(a => (
                   <option key={a.id} value={a.id}>
-                    {a.first_name.toUpperCase()} {a.last_name.toUpperCase()}
+                    {(a.first_name || "").toUpperCase()} {(a.last_name || "").toUpperCase()}
                   </option>
                 ))}
               </select>
