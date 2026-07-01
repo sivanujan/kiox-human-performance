@@ -487,13 +487,18 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     }
 
     @media print {
-      html, body { width: 210mm; height: 297mm; }
-      .page { page-break-after: always; break-after: page; }
+      html, body { width: 210mm; }
+      .page { page-break-after: always; break-after: page; height: 297mm; }
       .page:last-child { page-break-after: avoid; break-after: avoid; }
     }
 
+    /* Screen view: dark bg fills around the A4 page blocks */
+    @media screen {
+      html, body { background: #111115 !important; }
+    }
+
     html, body {
-      background: #08080a;
+      background: #06060a;
       font-family: 'Inter', sans-serif;
       color: #ffffff;
       -webkit-print-color-adjust: exact !important;
@@ -505,21 +510,21 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
       min-height: 297mm;
       max-height: 297mm;
       overflow: hidden;
-      background: #08080a url('http://localhost:3000/sports_bg.png') center center / cover no-repeat;
+      background-color: #06060a;
+      /* Layered: subtle hex grid + green radial glow + dark vignette */
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 14 L56 42 L28 56 L0 42 L0 14 Z' fill='none' stroke='rgba(34,197,94,0.045)' stroke-width='1'/%3E%3Cpath d='M28 56 L56 70 L56 98 L28 112 L0 98 L0 70 Z' fill='none' stroke='rgba(34,197,94,0.045)' stroke-width='1'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 70% 50% at 20% 30%, rgba(34,197,94,0.055) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 70%, rgba(59,130,246,0.04) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,0,0,0.9) 0%, transparent 50%),
+        linear-gradient(160deg, #0a0f0a 0%, #06060a 40%, #050509 100%);
+      background-size: 56px 100px, cover, cover, cover, cover;
       padding: 14mm 16mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-    }
-    /* Dark overlay so text stays readable over background */
-    .page::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(5,5,7,0.82);
-      z-index: 0;
-      pointer-events: none;
+      box-sizing: border-box;
     }
     .page > * { position: relative; z-index: 1; }
   </style>
