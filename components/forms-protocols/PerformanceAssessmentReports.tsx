@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -394,8 +394,12 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
   const sym   = record.symmetry_score    || 0;
   const risk  = record.risk_score        || 0;
 
-  const findings: string[] = Array.isArray(record.key_findings) ? record.key_findings : [];
-  const riskFactors: any[] = Array.isArray(record.risk_factors)  ? record.risk_factors  : [];
+  // key_findings can be strings OR {title, description, severity} objects
+  const rawFindings: any[] = Array.isArray(record.key_findings) ? record.key_findings : [];
+  const findings: string[] = rawFindings.map((f: any) =>
+    typeof f === "string" ? f : (f?.title || f?.description || JSON.stringify(f))
+  ).filter(Boolean);
+  const riskFactors: any[] = Array.isArray(record.risk_factors) ? record.risk_factors : [];
 
   const scoreCard = (label: string, val: number, inverse = false) => {
     const color = getScoreColor(val, inverse);
@@ -457,15 +461,15 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
       </div>
       <div style="text-align:right;">
         <div style="font-size:10px;font-weight:900;color:#64748b;">${title}</div>
-        <div style="font-size:22px;font-weight:900;font-family:'Outfit',sans-serif;color:#1e293b;line-height:1;">${page}</div>
+        <div style="font-size:22px;font-weight:900;font-family:'Outfit',sans-serif;color:#475569;line-height:1;">${page}</div>
       </div>
     </div>`;
 
   const footer = `
-    <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;display:flex;justify-content:space-between;
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;display:flex;justify-content:space-between;
                 font-size:7px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:1.5px;">
-      <span>KIO-X Performance Center Â· ${record.assessment_date}</span>
-      <span>Athlete: ${athleteName} Â· CONFIDENTIAL</span>
+      <span>KIO-X Performance Center &middot; ${record.assessment_date}</span>
+      <span>Athlete: ${athleteName} &middot; CONFIDENTIAL</span>
     </div>`;
 
   return `<!DOCTYPE html>
@@ -501,13 +505,23 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
       min-height: 297mm;
       max-height: 297mm;
       overflow: hidden;
-      background: #08080a;
+      background: #08080a url('http://localhost:3000/sports_bg.png') center center / cover no-repeat;
       padding: 14mm 16mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
     }
+    /* Dark overlay so text stays readable over background */
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(5,5,7,0.82);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .page > * { position: relative; z-index: 1; }
   </style>
 </head>
 <body>
