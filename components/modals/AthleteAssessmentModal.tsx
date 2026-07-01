@@ -264,7 +264,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
       const statusKey = `${muscle}_status`;
 
       // Update value
-      (updated as any)[leftKey] = value;
       if (field === "left") (updated as any)[leftKey] = value;
       if (field === "right") (updated as any)[rightKey] = value;
 
