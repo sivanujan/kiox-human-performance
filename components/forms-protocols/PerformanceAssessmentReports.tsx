@@ -622,13 +622,15 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
         
         <style>
-          body {
-            margin: 0;
-            padding: 0;
-            background: #000;
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #08080a !important;
             color: #fff;
             font-family: 'Inter', sans-serif;
             -webkit-print-color-adjust: exact;
+            width: 210mm !important;
+            overflow-x: hidden !important;
           }
 
           .pdf-page {
@@ -1402,11 +1404,19 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         <script>
           function downloadPDF() {
             const opt = {
-              margin:       [0, 0, 0, 0],
+              margin:       0,
               filename:     'KIO-X_Performance_Report_${athleteName.replace(/\s+/g, '_')}_${record.assessment_date}.pdf',
               image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true, logging: false },
-              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: 794
+              },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak:    { mode: ['css', 'legacy'] }
             };
             
             html2pdf().set(opt).from(document.body).save();
