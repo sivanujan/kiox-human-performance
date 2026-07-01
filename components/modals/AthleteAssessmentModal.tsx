@@ -159,6 +159,93 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     }
   }, [isOpen, athleteId]);
 
+  // Dynamic Overall Scores Auto-Calculation
+  const recalculateOverallScores = (data: typeof formData) => {
+    // 1. Mobility Score = average of all 8 functional tests
+    const functionalKeys = [
+      "cspine_rotation", "forward_bend", "hip_ir_left", "hip_er_both", 
+      "deep_squat", "ankle_df", "great_toe_ext", "single_leg_stand"
+    ];
+    const mobilitySum = functionalKeys.reduce((sum, key) => sum + (Number(data[key as keyof typeof data]) || 0), 0);
+    const calculatedMobility = Math.round(mobilitySum / functionalKeys.length);
+
+    // 2. Symmetry Score = 100 - average of all active VALD asymmetry values
+    const valdMuscles = ["hamstrings", "adductors", "hip_extension", "hip_abduction", "hip_flexion"];
+    let valdCount = 0;
+    let valdAsymSum = 0;
+    
+    valdMuscles.forEach(m => {
+      const left = parseFloat(String(data[`${m}_left` as keyof typeof data]));
+      const right = parseFloat(String(data[`${m}_right` as keyof typeof data]));
+      if (!isNaN(left) && !isNaN(right) && (left > 0 || right > 0)) {
+        const asym = data[`${m}_asymmetry` as keyof typeof data] as number;
+        valdAsymSum += asym;
+        valdCount++;
+      }
+    });
+    
+    const avgAsymmetry = valdCount > 0 ? (valdAsymSum / valdCount) : 0;
+    const calculatedSymmetry = Math.max(0, Math.min(100, Math.round(100 - avgAsymmetry)));
+
+    // 3. Risk Score = based on injuries in Body Map + average asymmetry
+    let calculatedRisk = 0;
+    if (data.body_map_zones && Array.isArray(data.body_map_zones)) {
+      data.body_map_zones.forEach(zone => {
+        if (zone.severity === "RED") calculatedRisk += 25;
+        else if (zone.severity === "ORANGE") calculatedRisk += 15;
+        else if (zone.severity === "YELLOW") calculatedRisk += 8;
+      });
+    }
+    calculatedRisk += Math.round(avgAsymmetry * 1.2);
+    const lowMobilityRisk = Math.max(0, 80 - calculatedMobility) * 0.4;
+    calculatedRisk += Math.round(lowMobilityRisk);
+    calculatedRisk = Math.max(10, Math.min(95, calculatedRisk)); // clamp to realistic bounds
+
+    // 4. Performance Score = weighted average of mobility, symmetry and performance impacts
+    const impactKeys = [
+      "acceleration_impact", "sprint_impact", "change_of_direction_impact",
+      "kicking_impact", "landing_impact", "single_leg_stability"
+    ];
+    const impactSum = impactKeys.reduce((sum, key) => sum + (Number(data[key as keyof typeof data]) || 0), 0);
+    const avgImpact = impactSum / impactKeys.length;
+    
+    const calculatedPerformance = Math.max(0, Math.min(100, Math.round(
+      (calculatedMobility * 0.3) + 
+      (calculatedSymmetry * 0.3) + 
+      (avgImpact * 0.4)
+    )));
+
+    return {
+      performance_score: calculatedPerformance,
+      mobility_score: calculatedMobility,
+      symmetry_score: calculatedSymmetry,
+      risk_score: calculatedRisk
+    };
+  };
+
+  useEffect(() => {
+    const computed = recalculateOverallScores(formData);
+    if (
+      computed.performance_score !== formData.performance_score ||
+      computed.mobility_score !== formData.mobility_score ||
+      computed.symmetry_score !== formData.symmetry_score ||
+      computed.risk_score !== formData.risk_score
+    ) {
+      setFormData(prev => ({
+        ...prev,
+        ...computed
+      }));
+    }
+  }, [
+    formData.cspine_rotation, formData.forward_bend, formData.hip_ir_left, formData.hip_er_both, 
+    formData.deep_squat, formData.ankle_df, formData.great_toe_ext, formData.single_leg_stand,
+    formData.hamstrings_left, formData.hamstrings_right, formData.adductors_left, formData.adductors_right, 
+    formData.hip_extension_left, formData.hip_extension_right, formData.hip_abduction_left, formData.hip_abduction_right, 
+    formData.hip_flexion_left, formData.hip_flexion_right, formData.body_map_zones, 
+    formData.acceleration_impact, formData.sprint_impact, formData.change_of_direction_impact, 
+    formData.kicking_impact, formData.landing_impact, formData.single_leg_stability
+  ]);
+
   // Auto calculate BMI
   const heightNum = parseFloat(formData.height_cm);
   const weightNum = parseFloat(formData.weight_kg);
