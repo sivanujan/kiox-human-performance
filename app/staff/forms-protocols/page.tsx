@@ -9,6 +9,7 @@ import FunctionalCheckupForm from "@/components/forms-protocols/FunctionalChecku
 import DocumentLibrary from "@/components/forms-protocols/DocumentLibrary";
 import SecureProtocolDownload from "@/components/forms-protocols/SecureProtocolDownload";
 import DownloadSchedulesModal from "@/components/forms-protocols/DownloadSchedulesModal";
+import PerformanceAssessmentReports from "@/components/forms-protocols/PerformanceAssessmentReports";
 
 type ActiveTab = "checkups" | "documents" | "protocols";
 
@@ -149,10 +150,17 @@ export default function StaffFormsAndProtocolsPage() {
           onSaved={handleCheckupSaved}
         />
       ) : activeTab === "checkups" ? (
-        <CheckupList
-          onSelectCheckup={handleSelectCheckup}
-          onCreateNew={handleCreateNewCheckup}
-        />
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+          <div className="xl:col-span-2">
+            <CheckupList
+              onSelectCheckup={handleSelectCheckup}
+              onCreateNew={handleCreateNewCheckup}
+            />
+          </div>
+          <div className="xl:col-span-1">
+            <PerformanceAssessmentReports />
+          </div>
+        </div>
       ) : activeTab === "documents" ? (
         <DocumentLibrary />
       ) : (

@@ -7,33 +7,41 @@ interface CollapsibleSectionProps {
   title: string
   children: React.ReactNode
   defaultOpen?: boolean
+  action?: React.ReactNode
 }
 
 export default function CollapsibleSection({
   title,
   children,
+  action,
   defaultOpen = true }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen)
 
   return (
     <div className="bg-bg-card border border-border-primary/50 rounded-2xl overflow-hidden mb-4 transition-all hover:border-accent-green/30 group/collapsible">
-      <button
-        onClick={() => setOpen(!open)}
-        className={`w-full px-5 py-4 md:px-6 md:py-5 bg-transparent border-none flex justify-between items-center cursor-pointer transition-colors active-scale min-h-[52px] ${
+      <div
+        className={`w-full px-5 py-4 md:px-6 md:py-5 bg-transparent border-none flex justify-between items-center transition-colors min-h-[52px] ${
           open ? 'border-b border-border-primary/50 bg-bg-secondary/20' : 'hover:bg-bg-secondary/10'
         }`}
       >
-        <span className="text-accent-green font-display text-[11px] md:text-sm tracking-[0.2em] md:tracking-[0.3em] uppercase truncate pr-4">
+        <span 
+          onClick={() => setOpen(!open)}
+          className="text-accent-green font-display text-[11px] md:text-sm tracking-[0.2em] md:tracking-[0.3em] uppercase truncate pr-4 cursor-pointer flex-grow"
+        >
           {title}
         </span>
-        <motion.div
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.3, ease: 'circOut' }}
-          className="text-accent-green/60 group-hover/collapsible:text-accent-green shrink-0"
-        >
-          <ChevronDown size={20} />
-        </motion.div>
-      </button>
+        <div className="flex items-center gap-3 select-none">
+          {action}
+          <motion.div
+            onClick={() => setOpen(!open)}
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={{ duration: 0.3, ease: 'circOut' }}
+            className="text-accent-green/60 group-hover/collapsible:text-accent-green shrink-0 cursor-pointer"
+          >
+            <ChevronDown size={20} />
+          </motion.div>
+        </div>
+      </div>
 
       <AnimatePresence initial={false}>
         {open && (

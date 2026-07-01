@@ -47,6 +47,7 @@ import CoachingTeamSection from "@/app/components/CoachingTeamSection";
 import TimeDisplay from "@/components/ui/TimeDisplay";
 import { useTimezone } from "@/hooks/useTimezone";
 import BodyMap from "@/components/forms-protocols/BodyMap";
+import { buildReportHtml } from "@/components/forms-protocols/PerformanceAssessmentReports";
 
 function CircularProgress({ score, label, color = "#22c55e" }: { score: number; label: string; color?: string }) {
   const radius = 30;
@@ -921,7 +922,34 @@ export default function DashboardOverview() {
           
           {/* PERFORMANCE ASSESSMENT SUMMARY */}
           {performanceData.latestAssessment && (
-            <CollapsibleSection title="📊 PERFORMANCE ASSESSMENT" defaultOpen={true}>
+            <CollapsibleSection 
+              title="📊 PERFORMANCE ASSESSMENT" 
+              defaultOpen={true}
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    const athleteName = profile ? `${profile.first_name} ${profile.last_name}` : "Athlete";
+                    const avatarUrl = profile?.avatar_url || "";
+                    const printWindow = window.open("", "_blank");
+                    if (printWindow) {
+                      const resHtml = buildReportHtml(athleteName, avatarUrl, performanceData.latestAssessment);
+                      printWindow.document.write(resHtml);
+                      printWindow.document.close();
+                      setTimeout(() => {
+                        if ((printWindow as any).downloadPDF) {
+                          (printWindow as any).downloadPDF();
+                          setTimeout(() => printWindow.close(), 3500);
+                        }
+                      }, 1200);
+                    }
+                  }}
+                  className="px-3 py-1 bg-accent-green/10 border border-accent-green/20 text-accent-green text-[9px] font-black uppercase tracking-wider rounded-lg transition-all hover:bg-accent-green/20 active:scale-[0.98] select-none"
+                >
+                  Download PDF
+                </button>
+              }
+            >
               <div className="space-y-6">
                 
                 {/* 4 Score Gauges */}
