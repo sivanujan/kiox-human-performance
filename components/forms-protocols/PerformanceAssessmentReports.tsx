@@ -303,15 +303,24 @@ export default function PerformanceAssessmentReports() {
                 <span>Dossier Schema Preview</span>
                 <span className="text-accent-green">A4 Portrait // 6 Pages</span>
               </div>
-              <div className="grid grid-cols-6 gap-1 h-14 opacity-60 group-hover:opacity-90 transition-opacity">
-                {[1, 2, 3, 4, 5, 6].map(page => (
-                  <div key={page} className="bg-bg-primary border border-white/10 rounded-md flex flex-col justify-between p-1 text-center select-none">
-                    <span className="text-[6px] font-mono text-gray-600 font-black">P.{page}</span>
-                    <div className="h-4 bg-white/5 rounded-sm flex items-center justify-center">
-                      <div className="w-2.5 h-0.5 bg-accent-green/40 rounded-full" />
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 opacity-90 transition-opacity">
+                {[
+                  { page: 1, label: "P.1 HERO", val: `${selectedAssessment.performance_score || 0}%`, sub: "PERF" },
+                  { page: 2, label: "P.2 MOVEMENT", val: `${selectedAssessment.mobility_score || 0}%`, sub: "MOB" },
+                  { page: 3, label: "P.3 VALD", val: `${selectedAssessment.symmetry_score || 0}%`, sub: "SYM" },
+                  { page: 4, label: "P.4 RISK", val: `${selectedAssessment.risk_score || 0}%`, sub: "RISK" },
+                  { page: 5, label: "P.5 ROADMAP", val: "W0-W8", sub: "PLAN" },
+                  { page: 6, label: "P.6 EXECUTIVE", val: "BILING", sub: "SUMM" }
+                ].map(p => {
+                  const isScore = ["PERF", "MOB", "SYM", "RISK"].includes(p.sub);
+                  return (
+                    <div key={p.page} className="bg-bg-primary border border-white/10 rounded-lg flex flex-col justify-between p-2 text-center select-none min-h-[56px]">
+                      <span className="text-[6px] font-black text-gray-500 uppercase tracking-wider">{p.label}</span>
+                      <span className={`text-[10px] font-black my-1 ${isScore ? 'text-accent-green' : 'text-gray-400'}`}>{p.val}</span>
+                      <span className="text-[6px] font-mono font-bold text-gray-600 uppercase tracking-widest">{p.sub}</span>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
