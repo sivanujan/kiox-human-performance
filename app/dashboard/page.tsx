@@ -46,8 +46,47 @@ import WellnessCheckinModal from "@/components/modals/WellnessCheckinModal";
 import CoachingTeamSection from "@/app/components/CoachingTeamSection";
 import TimeDisplay from "@/components/ui/TimeDisplay";
 import { useTimezone } from "@/hooks/useTimezone";
+import BodyMap from "@/components/forms-protocols/BodyMap";
 
+function CircularProgress({ score, label, color = "#22c55e" }: { score: number; label: string; color?: string }) {
+  const radius = 30;
+  const stroke = 4;
+  const normalizedRadius = radius - stroke * 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
 
+  return (
+    <div className="flex flex-col items-center gap-2 p-4 bg-black/40 border border-white/5 rounded-2xl">
+      <div className="relative flex items-center justify-center w-16 h-16">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 68 68">
+          <circle
+            className="text-white/5"
+            strokeWidth={stroke}
+            stroke="currentColor"
+            fill="transparent"
+            r={normalizedRadius}
+            cx="34"
+            cy="34"
+          />
+          <circle
+            stroke={color}
+            strokeWidth={stroke}
+            strokeDasharray={circumference + ' ' + circumference}
+            style={{ strokeDashoffset }}
+            strokeLinecap="round"
+            fill="transparent"
+            r={normalizedRadius}
+            cx="34"
+            cy="34"
+            className="transition-all duration-1000"
+          />
+        </svg>
+        <span className="absolute text-xs font-display font-black text-white">{score}</span>
+      </div>
+      <span className="text-[9px] font-black text-text-muted uppercase tracking-widest text-center leading-none">{label}</span>
+    </div>
+  );
+}
 
 export default function DashboardOverview() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -880,6 +919,90 @@ export default function DashboardOverview() {
         {/* LEFT COLUMN */}
         <div className="space-y-6">
           
+          {/* PERFORMANCE ASSESSMENT SUMMARY */}
+          {performanceData.latestAssessment && (
+            <CollapsibleSection title="📊 PERFORMANCE ASSESSMENT" defaultOpen={true}>
+              <div className="space-y-6">
+                
+                {/* 4 Score Gauges */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <CircularProgress score={performanceData.latestAssessment.performance_score || 0} label="Performance" color="#22c55e" />
+                  <CircularProgress score={performanceData.latestAssessment.mobility_score || 0} label="Mobility" color="#3b82f6" />
+                  <CircularProgress score={performanceData.latestAssessment.symmetry_score || 0} label="Symmetry" color="#f59e0b" />
+                  <CircularProgress score={performanceData.latestAssessment.risk_score || 0} label="Injury Risk" color="#ef4444" />
+                </div>
+
+                {/* Biomechanical Map (Read-Only) */}
+                <div className="space-y-2">
+                  <div className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Biomechanical Flagged Zones</div>
+                  <BodyMap 
+                    zones={performanceData.latestAssessment.body_map_zones || []} 
+                    readOnly={true} 
+                  />
+                </div>
+
+                {/* Findings & Risk Tags */}
+                {((performanceData.latestAssessment.key_findings && performanceData.latestAssessment.key_findings.length > 0) || 
+                  (performanceData.latestAssessment.risk_factors && performanceData.latestAssessment.risk_factors.length > 0)) && (
+                  <div className="p-5 bg-black/40 border border-white/5 rounded-2xl space-y-4">
+                    
+                    {/* Findings list */}
+                    {performanceData.latestAssessment.key_findings && performanceData.latestAssessment.key_findings.length > 0 && (
+                      <div className="space-y-2">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[2px] block">Key Findings:</span>
+                        <div className="space-y-2">
+                          {performanceData.latestAssessment.key_findings.map((f: any, idx: number) => (
+                            <div key={idx} className="flex items-start gap-2.5">
+                              <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
+                                f.severity === 'RED' ? 'bg-red-500' : f.severity === 'ORANGE' ? 'bg-amber-500' : 'bg-yellow-500'
+                              }`} />
+                              <div>
+                                <span className="text-[11px] font-black text-white uppercase tracking-wide">{f.title}: </span>
+                                <span className="text-[11px] text-gray-400 font-medium">{f.description}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Risk Factors tags */}
+                    {performanceData.latestAssessment.risk_factors && performanceData.latestAssessment.risk_factors.length > 0 && (
+                      <div className="space-y-2 pt-3 border-t border-white/5">
+                        <span className="text-[9px] font-black text-text-muted uppercase tracking-[2px] block">Risk Factors / Focus Areas:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {performanceData.latestAssessment.risk_factors.map((r: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 bg-white/5 border border-white/5 rounded-lg">
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: r.severity === 'RED' ? '#ef4444' : r.severity === 'ORANGE' ? '#f59e0b' : '#eab308' }} />
+                              <span className="text-[9px] font-black text-white uppercase tracking-wider">{r.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Coach Summary Notes */}
+                {performanceData.latestAssessment.coach_summary && (
+                  <div className="p-5 bg-accent-green/5 border-l-4 border-accent-green rounded-2xl">
+                    <div className="text-accent-green text-[9px] font-display font-black tracking-wider uppercase mb-1.5">ASSESSMENT DIRECTIVE & COACH SUMMARY</div>
+                    <p className="text-text-secondary text-xs leading-relaxed italic">"{performanceData.latestAssessment.coach_summary}"</p>
+                  </div>
+                )}
+
+                {/* Meta details */}
+                <div className="flex justify-between items-center text-[9px] font-black text-text-muted uppercase tracking-[2.5px] pt-2">
+                  <div>ASSESSMENT DATE: {performanceData.latestAssessment.assessment_date}</div>
+                  {performanceData.latestAssessment.retest_recommended_date && (
+                    <div className="text-accent-green">NEXT RETEST: {performanceData.latestAssessment.retest_recommended_date}</div>
+                  )}
+                </div>
+
+              </div>
+            </CollapsibleSection>
+          )}
+
           {/* PHYSICAL PERFORMANCE */}
           <CollapsibleSection title="⚡ PHYSICAL PERFORMANCE">
             <div className="grid grid-cols-2 gap-4">

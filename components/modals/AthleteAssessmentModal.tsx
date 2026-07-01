@@ -7,16 +7,21 @@ import {
   Activity, 
   Target, 
   Zap, 
-  Play, 
+  ArrowLeft, 
   ArrowRight, 
   Loader2, 
   ClipboardCheck,
   ShieldCheck,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Scale,
+  Plus,
+  Trash2,
+  FileText,
+  Bookmark
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-
+import BodyMap from "../forms-protocols/BodyMap";
 
 interface AthleteAssessmentModalProps {
   isOpen: boolean;
@@ -25,695 +30,885 @@ interface AthleteAssessmentModalProps {
   athleteName: string;
 }
 
+const STEPS = [
+  { step: 1, title: "Basic Info", icon: <FileText size={14} /> },
+  { step: 2, title: "Overall Scores", icon: <Activity size={14} /> },
+  { step: 3, title: "VALD Force Profile", icon: <Scale size={14} /> },
+  { step: 4, title: "Functional Tests", icon: <ShieldCheck size={14} /> },
+  { step: 5, title: "Body Map", icon: <Target size={14} /> },
+  { step: 6, title: "Performance Impact", icon: <Zap size={14} /> },
+  { step: 7, title: "Key Findings", icon: <BarChart3 size={14} /> },
+  { step: 8, title: "Review & Submit", icon: <ClipboardCheck size={14} /> }
+];
+
 export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, athleteName }: AthleteAssessmentModalProps) {
   const [resolvedAthleteName, setResolvedAthleteName] = useState(athleteName);
-  const [activeTab, setActiveTab] = useState<'PHYSICAL' | 'MATCH' | 'COGNITIVE' | 'PROGRAM'>('PHYSICAL');
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
 
+  const [formData, setFormData] = useState({
+    assessment_date: new Date().toISOString().split('T')[0],
+    assessment_type: "FULL_ASSESSMENT" as "FUNCTIONAL_CHECKUP" | "VALD_FORCE" | "MATCH_PERFORMANCE" | "FULL_ASSESSMENT",
+    season: "2026/2027",
+    height_cm: "",
+    weight_kg: "",
+    position: "FORWARD" as "GOALKEEPER" | "DEFENDER" | "MIDFIELDER" | "FORWARD",
+    status: "DRAFT" as "DRAFT" | "SUBMITTED",
+
+    // Overall Scores
+    performance_score: 70,
+    mobility_score: 70,
+    symmetry_score: 70,
+    risk_score: 70,
+
+    // VALD Force Profile
+    hamstrings_left: "", hamstrings_right: "", hamstrings_asymmetry: 0, hamstrings_status: "OK" as "OK" | "MONITOR" | "FOCUS",
+    adductors_left: "", adductors_right: "", adductors_asymmetry: 0, adductors_status: "OK" as "OK" | "MONITOR" | "FOCUS",
+    hip_extension_left: "", hip_extension_right: "", hip_extension_asymmetry: 0, hip_extension_status: "OK" as "OK" | "MONITOR" | "FOCUS",
+    hip_abduction_left: "", hip_abduction_right: "", hip_abduction_asymmetry: 0, hip_abduction_status: "OK" as "OK" | "MONITOR" | "FOCUS",
+    hip_flexion_left: "", hip_flexion_right: "", hip_flexion_asymmetry: 0, hip_flexion_status: "OK" as "OK" | "MONITOR" | "FOCUS",
+
+    // Functional Movement Tests
+    cspine_rotation: 75,
+    forward_bend: 75,
+    hip_ir_left: 75,
+    hip_er_both: 75,
+    deep_squat: 75,
+    ankle_df: 75,
+    great_toe_ext: 75,
+    single_leg_stand: 75,
+
+    // Body Map
+    body_map_zones: [] as any[],
+
+    // Performance Impact
+    acceleration_impact: 75,
+    sprint_impact: 75,
+    change_of_direction_impact: 75,
+    kicking_impact: 75,
+    landing_impact: 75,
+    single_leg_stability: 75,
+
+    // Key Findings & Summary
+    key_findings: [] as { title: string; description: string; severity: "RED" | "ORANGE" | "YELLOW" }[],
+    risk_factors: [] as { name: string; severity: "RED" | "ORANGE" | "YELLOW" }[],
+    coach_summary: "",
+
+    // Progress
+    previous_assessment_id: "",
+    improvement_notes: "",
+    retest_recommended_date: ""
+  });
+
+  // Basic lists for interactive entry
+  const [findingTitle, setFindingTitle] = useState("");
+  const [findingDesc, setFindingDesc] = useState("");
+  const [findingSev, setFindingSev] = useState<"RED" | "ORANGE" | "YELLOW">("YELLOW");
+
+  const [riskFactorName, setRiskFactorName] = useState("");
+  const [riskFactorSev, setRiskFactorSev] = useState<"RED" | "ORANGE" | "YELLOW">("YELLOW");
+
+  // Fetch name & historical assessments
   useEffect(() => {
-    const fetchAthleteName = async () => {
-      const cleanName = (athleteName || "").trim().toLowerCase();
-      const isUndefined = !cleanName || cleanName === "undefined" || cleanName === "undefined undefined" || cleanName === "undefined ";
+    const fetchAthleteDetails = async () => {
+      if (!athleteId || athleteId === "undefined") return;
+      const supabase = createClient();
       
-      if (isUndefined && athleteId) {
-        try {
-          const supabase = createClient();
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("first_name, last_name")
-            .eq("id", athleteId)
-            .single();
-          
-          if (!error && data) {
-            setResolvedAthleteName(`${data.first_name || ""} ${data.last_name || ""}`.trim());
-          } else {
-            setResolvedAthleteName("Athlete Profile");
-          }
-        } catch (err) {
-          console.error("Failed to fetch athlete name in modal:", err);
-          setResolvedAthleteName("Athlete Profile");
+      // Fetch profile
+      try {
+        const { data: p } = await supabase.from("profiles").select("first_name, last_name, height, weight, position_played").eq("id", athleteId).single();
+        if (p) {
+          setResolvedAthleteName(`${p.first_name || ""} ${p.last_name || ""}`.trim());
+          setFormData(prev => ({
+            ...prev,
+            height_cm: p.height?.toString() || "",
+            weight_kg: p.weight?.toString() || "",
+            position: (p.position_played?.toUpperCase() as any) || "FORWARD"
+          }));
         }
-      } else {
-        setResolvedAthleteName(athleteName);
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Fetch assessments list
+      try {
+        const res = await fetch(`/api/admin/athlete/${athleteId}/assessments`);
+        if (res.ok) {
+          const data = await res.json();
+          setHistory(data.assessments || []);
+          const completed = (data.assessments || []).filter((a: any) => a.status === 'SUBMITTED');
+          if (completed.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              previous_assessment_id: completed[0].id
+            }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
 
     if (isOpen) {
-      fetchAthleteName();
-    }
-  }, [isOpen, athleteId, athleteName]);
-  
-  // Fetch current metrics on open
-  useEffect(() => {
-    // Basic UUID validation or at least ensure it's not the string "undefined"
-    if (isOpen && athleteId && athleteId !== 'undefined') {
-      fetchCurrentMetrics();
+      fetchAthleteDetails();
+      setStep(1);
+      setError("");
     }
   }, [isOpen, athleteId]);
 
-  const fetchCurrentMetrics = async () => {
-    setIsFetching(true);
-    try {
-      const res = await fetch(`/api/admin/athlete/${athleteId}/metrics`);
-      if (res.ok) {
-        const data = await res.json();
-        setPhysicalForm(prev => ({
-          ...prev,
-          top_speed: data.top_speed || "",
-          distance: data.distance || "",
-          sprints: data.sprints || "",
-          power: data.power_output || "",
-          vo2_max: data.vo2_max || "",
-          directives: data.protocol_directives || "",
-          intensity: data.last_intensity?.toString() || "5",
-          duration: data.last_duration?.toString() || "60"
-        }));
-        setMatchForm(prev => ({
-          ...prev,
-          opponent: "", // Reset opponent for new entry
-          goals: data.goals || "",
-          assists: data.assists || "",
-          xg: data.xg || "",
-          pass_accuracy: data.pass_accuracy || "",
-          duels_won: data.duels_won || "",
-          pressures: data.pressures || "",
-          directives: data.protocol_directives || ""
-        }));
-        setCognitiveForm(prev => ({
-          ...prev,
-          reaction_time: data.reaction_time || "",
-          decision_score: data.decision_score?.toString() || "5",
-          focus_score: data.focus_score?.toString() || "80",
-          stress_level: data.stress_level || "Low"
-        }));
+  // Auto calculate BMI
+  const heightNum = parseFloat(formData.height_cm);
+  const weightNum = parseFloat(formData.weight_kg);
+  const calculatedBMI = (heightNum > 0 && weightNum > 0) 
+    ? (weightNum / Math.pow(heightNum / 100, 2)).toFixed(1) 
+    : "0.0";
+
+  // VALD Asymmetry calculator
+  const updateVALD = (muscle: string, field: "left" | "right", value: string) => {
+    setFormData(prev => {
+      const updated = { ...prev };
+      
+      const leftKey = `${muscle}_left`;
+      const rightKey = `${muscle}_right`;
+      const asymmetryKey = `${muscle}_asymmetry`;
+      const statusKey = `${muscle}_status`;
+
+      // Update value
+      (updated as any)[leftKey] = value;
+      if (field === "left") (updated as any)[leftKey] = value;
+      if (field === "right") (updated as any)[rightKey] = value;
+
+      const leftVal = parseFloat(String((updated as any)[leftKey]));
+      const rightVal = parseFloat(String((updated as any)[rightKey]));
+
+      if (!isNaN(leftVal) && !isNaN(rightVal)) {
+        const maxVal = Math.max(leftVal, rightVal);
+        const asymmetryVal = maxVal > 0 ? Math.round((Math.abs(leftVal - rightVal) / maxVal) * 100 * 10) / 10 : 0;
+        let statusVal: "OK" | "MONITOR" | "FOCUS" = "OK";
+        if (asymmetryVal > 20) statusVal = "FOCUS";
+        else if (asymmetryVal >= 10) statusVal = "MONITOR";
+
+        (updated as any)[asymmetryKey] = asymmetryVal;
+        (updated as any)[statusKey] = statusVal;
+      } else {
+        (updated as any)[asymmetryKey] = 0;
+        (updated as any)[statusKey] = "OK";
       }
-    } catch (err) {
-      console.error("Failed to fetch current metrics:", err);
-    } finally {
-      setIsFetching(false);
-    }
+
+      return updated;
+    });
   };
-  
-  const [physicalForm, setPhysicalForm] = useState({
-    top_speed: "",
-    distance: "",
-    sprints: "",
-    power: "",
-    vo2_max: "",
-    intensity: "5", // Default medium
-    duration: "60", // Default session
-    directives: "",
-    date: new Date().toISOString().split('T')[0]
-  });
 
-  const [matchForm, setMatchForm] = useState({
-    opponent: "",
-    goals: "",
-    assists: "",
-    xg: "",
-    pass_accuracy: "",
-    duels_won: "",
-    pressures: "",
-    directives: "",
-    date: new Date().toISOString().split('T')[0]
-  });
+  // Add Findings & Risks
+  const addFinding = () => {
+    if (!findingTitle) return;
+    setFormData(prev => ({
+      ...prev,
+      key_findings: [...prev.key_findings, { title: findingTitle, description: findingDesc, severity: findingSev }]
+    }));
+    setFindingTitle("");
+    setFindingDesc("");
+  };
 
-  const [cognitiveForm, setCognitiveForm] = useState({
-    reaction_time: "",
-    decision_score: "5",
-    focus_score: "80",
-    stress_level: "Low",
-    date: new Date().toISOString().split('T')[0]
-  });
+  const removeFinding = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      key_findings: prev.key_findings.filter((_, i) => i !== idx)
+    }));
+  };
 
-  const [programForm, setProgramForm] = useState({
-    title: "",
-    phase: "Tactical",
-    notes: "",
-    date: new Date().toISOString().split('T')[0]
-  });
+  const addRiskFactor = (nameToAdd = riskFactorName) => {
+    const finalName = nameToAdd.trim();
+    if (!finalName) return;
+    if (formData.risk_factors.find(r => r.name.toLowerCase() === finalName.toLowerCase())) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      risk_factors: [...prev.risk_factors, { name: finalName, severity: riskFactorSev }]
+    }));
+    setRiskFactorName("");
+  };
 
-  const handlePhysicalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const removeRiskFactor = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      risk_factors: prev.risk_factors.filter((_, i) => i !== idx)
+    }));
+  };
+
+  // Submit Handler
+  const handleSubmit = async (isDraft: boolean) => {
     setLoading(true);
     setError("");
-
     try {
-      const res = await fetch(`/api/admin/athlete/${athleteId}/assessment`, {
+      const payload = {
+        ...formData,
+        status: isDraft ? 'DRAFT' : 'SUBMITTED'
+      };
+
+      const res = await fetch(`/api/admin/athlete/${athleteId}/assessments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: 'PHYSICAL',
-          metrics: physicalForm,
-          date: physicalForm.date
-        }) });
+        body: JSON.stringify(payload)
+      });
 
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to commit performance assessment.");
+      }
+
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
         onClose();
       }, 1500);
     } catch (err: any) {
-      setError(err.message || "Failed to commit physical assessment.");
+      setError(err.message || "Failed to save assessment.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMatchSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch(`/api/admin/athlete/${athleteId}/assessment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: 'MATCH',
-          metrics: matchForm,
-          date: matchForm.date
-        }) });
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-      }, 1500);
-    } catch (err: any) {
-      setError(err.message || "Failed to commit match stats.");
-    } finally {
-      setLoading(false);
-    }
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-400";
+    if (score >= 60) return "text-amber-500";
+    return "text-red-500";
   };
 
-  const handleCognitiveSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`/api/admin/athlete/${athleteId}/assessment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: 'COGNITIVE',
-          metrics: cognitiveForm,
-          date: cognitiveForm.date
-        }) });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setSuccess(true);
-      setTimeout(() => { setSuccess(false); onClose(); }, 1500);
-    } catch (err: any) {
-      setError(err.message || "Failed to sync cognitive labs.");
-    } finally { setLoading(false); }
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return "bg-green-500/10 border-green-500/20";
+    if (score >= 60) return "bg-amber-500/10 border-amber-500/20";
+    return "bg-red-500/10 border-red-500/20";
   };
 
-  const handleProgramSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`/api/admin/athlete/${athleteId}/assessment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: 'PROGRAM',
-          metrics: programForm,
-          date: programForm.date
-        }) });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setSuccess(true);
-      setTimeout(() => { setSuccess(false); onClose(); }, 1500);
-    } catch (err: any) {
-      setError(err.message || "Failed to assign elite program.");
-    } finally { setLoading(false); }
+  const getSeverityLabelColor = (sev: string) => {
+    if (sev === "RED") return "bg-red-500/10 text-red-500 border-red-500/20";
+    if (sev === "ORANGE") return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+  };
+
+  const getSeverityColor = (sev: string) => {
+    if (sev === "RED") return "#ef4444";
+    if (sev === "ORANGE") return "#f59e0b";
+    return "#eab308";
   };
 
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto py-20">
+      <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 overflow-y-auto py-10 animate-fade-in">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+          className="absolute inset-0 bg-black/90 backdrop-blur-md"
         />
-        
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 30 }}
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 30 }}
-          className="relative w-full max-w-2xl bg-[#0a0a0a] border border-[#22c55e]/20 rounded-[40px] overflow-hidden shadow-[0_0_100px_rgba(34,197,94,0.15)]"
+          exit={{ opacity: 0, scale: 0.96, y: 15 }}
+          className="relative w-full max-w-5xl h-[88vh] flex bg-[#070708] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300"
         >
-          {/* Header */}
-          <div className="p-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-gradient-to-br from-[#22c55e]/15 to-transparent">
-            <div>
-              <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">
-                <BarChart3 size={14} fill="currentColor" /> SQUAD PERFORMANCE MATRIX
+          {/* LEFT SIDEBAR - WIZARD PROGRESS */}
+          <div className="hidden md:flex flex-col w-[260px] bg-black/50 border-r border-white/5 p-6 justify-between flex-shrink-0">
+            <div className="space-y-6">
+              <div>
+                <span className="text-[9px] font-black text-accent-green uppercase tracking-[4px]">Performance Hub</span>
+                <h3 className="text-sm font-display font-black text-white uppercase tracking-wider mt-1 truncate">
+                  {resolvedAthleteName}
+                </h3>
               </div>
-              <h2 className={`font-display text-3xl text-white tracking-wider uppercase`}>
-                INITIATE ASSESSMENT
-              </h2>
-              <div className="mt-2 flex items-center gap-3">
-                 <span className="text-gray-500 text-[9px] font-black uppercase tracking-widest">SUBJ:</span>
-                 <span className="text-white font-bold text-xs uppercase tracking-wide px-3 py-1 bg-white/5 rounded-full border border-white/5">{resolvedAthleteName}</span>
+
+              <div className="space-y-1">
+                {STEPS.map((s) => {
+                  const isActive = step === s.step;
+                  const isCompleted = step > s.step;
+
+                  return (
+                    <button
+                      key={s.step}
+                      onClick={() => setStep(s.step)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
+                        isActive 
+                          ? "bg-accent-green/10 text-accent-green font-bold border border-accent-green/20" 
+                          : isCompleted 
+                          ? "text-gray-300 hover:text-white" 
+                          : "text-gray-500 hover:text-gray-400"
+                      }`}
+                    >
+                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
+                        isActive ? "bg-accent-green text-black font-black" : "bg-white/5"
+                      }`}>
+                        {s.step}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-widest">{s.title}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-            <button onClick={onClose} className="p-4 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all self-end md:self-auto">
-              <X size={24} />
-            </button>
+
+            <div className="p-4 bg-bg-primary/30 border border-white/5 rounded-xl text-center">
+              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">STEPS</span>
+              <span className="text-lg font-mono font-black text-white mt-1 block">{step} / 8</span>
+            </div>
           </div>
 
-          <div className="p-10">
-            {/* Tab Selector */}
-            <div className="flex flex-wrap gap-2 mb-10 bg-black/40 border border-white/5 p-1.5 rounded-3xl w-fit">
-              <button 
-                onClick={() => setActiveTab('PHYSICAL')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
-                  activeTab === 'PHYSICAL' 
-                    ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Activity size={12} /> PHYSICAL
-              </button>
-              <button 
-                onClick={() => setActiveTab('MATCH')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
-                  activeTab === 'MATCH' 
-                    ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Target size={12} /> MATCH
-              </button>
-              <button 
-                onClick={() => setActiveTab('COGNITIVE')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
-                  activeTab === 'COGNITIVE' 
-                    ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Zap size={12} /> COGNITIVE
-              </button>
-              <button 
-                onClick={() => setActiveTab('PROGRAM')}
-                className={`px-6 py-3 rounded-2xl text-[9px] font-display tracking-[2px] uppercase transition-all flex items-center gap-2 ${
-                  activeTab === 'PROGRAM' 
-                    ? "bg-[#22c55e] text-black shadow-[0_5px_20px_rgba(34,197,94,0.3)]" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <ShieldCheck size={12} /> PROGRAM
+          {/* MAIN FORM PANEL */}
+          <div className="flex-grow flex flex-col justify-between overflow-hidden">
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-accent-green/[0.02] to-transparent">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-accent-green/10 flex items-center justify-center text-accent-green border border-accent-green/20">
+                  <Activity size={18} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-display font-black text-white uppercase tracking-wider">
+                    {STEPS[step - 1].title}
+                  </h2>
+                  <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">
+                    Athlete: {resolvedAthleteName}
+                  </p>
+                </div>
+              </div>
+              <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                <X size={16} />
               </button>
             </div>
 
-            {activeTab === 'PHYSICAL' ? (
-              <form onSubmit={handlePhysicalSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {/* ... existing physical form items ... */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Top Speed (km/h)</label>
-                    <input
-                      type="number" step="0.1"
-                      placeholder="EX: 34.5"
-                      value={physicalForm.top_speed}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, top_speed: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Distance (km)</label>
-                    <input
-                      type="number" step="0.1"
-                      placeholder="EX: 12.4"
-                      value={physicalForm.distance}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, distance: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Sprints</label>
-                    <input
-                      type="number"
-                      placeholder="EX: 28"
-                      value={physicalForm.sprints}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, sprints: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Power (Watts)</label>
-                    <input
-                      type="number"
-                      placeholder="EX: 850"
-                      value={physicalForm.power}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, power: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">VO2 Max</label>
-                    <input
-                      type="number" step="0.1"
-                      placeholder="EX: 62.1"
-                      value={physicalForm.vo2_max}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, vo2_max: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assessment Date</label>
-                    <input
-                      type="date"
-                      value={physicalForm.date}
-                      onChange={(e) => setPhysicalForm({ ...physicalForm, date: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+              {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold uppercase tracking-widest">
+                  {error}
                 </div>
+              )}
 
-                {/* ADVANCED LOAD METRICS */}
-                <div className="p-8 bg-[#22c55e]/5 border border-[#22c55e]/20 rounded-3xl space-y-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Zap size={16} className="text-[#22c55e]" />
-                    <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Load Intelligence Mapping</span>
+              {success ? (
+                <div className="flex flex-col items-center justify-center h-full text-center p-12">
+                  <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 mb-4">
+                    <ClipboardCheck size={32} />
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Session Intensity</label>
-                        <span className="text-white font-display text-xl">{physicalForm.intensity}</span>
+                  <h4 className="text-lg font-display font-black text-green-400 uppercase tracking-widest">Assessment Committed</h4>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-2">The analytics engine has synchronized the scores.</p>
+                </div>
+              ) : (
+                <>
+                  {/* STEP 1: BASIC INFO */}
+                  {step === 1 && (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Assessment Date</label>
+                          <input 
+                            type="date"
+                            value={formData.assessment_date}
+                            onChange={e => setFormData({ ...formData, assessment_date: e.target.value })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Assessment Type</label>
+                          <select 
+                            value={formData.assessment_type}
+                            onChange={e => setFormData({ ...formData, assessment_type: e.target.value as any })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none appearance-none"
+                          >
+                            <option value="FULL_ASSESSMENT">FULL COMPREHENSIVE ASSESSMENT</option>
+                            <option value="FUNCTIONAL_CHECKUP">FUNCTIONAL CHECKUP</option>
+                            <option value="VALD_FORCE">VALD FORCE PROFILE</option>
+                            <option value="MATCH_PERFORMANCE">MATCH PERFORMANCE DATA</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Season</label>
+                          <input 
+                            type="text"
+                            placeholder="e.g. 2026/2027"
+                            value={formData.season}
+                            onChange={e => setFormData({ ...formData, season: e.target.value })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Position Played</label>
+                          <select 
+                            value={formData.position}
+                            onChange={e => setFormData({ ...formData, position: e.target.value as any })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none appearance-none"
+                          >
+                            <option value="FORWARD">FORWARD</option>
+                            <option value="MIDFIELDER">MIDFIELDER</option>
+                            <option value="DEFENDER">DEFENDER</option>
+                            <option value="GOALKEEPER">GOALKEEPER</option>
+                          </select>
+                        </div>
                       </div>
-                      <input 
-                        type="range" min="1" max="10" step="1"
-                        value={physicalForm.intensity}
-                        onChange={(e) => setPhysicalForm({ ...physicalForm, intensity: e.target.value })}
-                        className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
-                      />
-                      <div className="flex justify-between text-[8px] font-black text-gray-500 uppercase tracking-widest">
-                        <span>RECOVERY</span>
-                        <span>OPTIMAL</span>
-                        <span>MAXIMAL</span>
+
+                      <div className="bg-black/30 p-6 rounded-2xl border border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Height (cm)</label>
+                          <input 
+                            type="number" step="0.1"
+                            placeholder="185"
+                            value={formData.height_cm}
+                            onChange={e => setFormData({ ...formData, height_cm: e.target.value })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Weight (kg)</label>
+                          <input 
+                            type="number" step="0.1"
+                            placeholder="80"
+                            value={formData.weight_kg}
+                            onChange={e => setFormData({ ...formData, weight_kg: e.target.value })}
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green outline-none"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Calculated BMI</label>
+                          <div className="w-full bg-[#111] border border-white/5 rounded-xl py-3 px-4 text-sm text-white font-mono font-bold">
+                            {calculatedBMI}
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  )}
 
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (Mins)</label>
-                      <input
-                        type="number"
-                        placeholder="60"
-                        value={physicalForm.duration}
-                        onChange={(e) => setPhysicalForm({ ...physicalForm, duration: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
+                  {/* STEP 2: OVERALL SCORES */}
+                  {step === 2 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+                      {[
+                        { key: "performance_score", label: "Performance Score", desc: "Global readiness based on mobility, symmetry, risk and functional findings" },
+                        { key: "mobility_score", label: "Mobility Score", desc: "Key limiter: hip rotation and ankle dorsiflexion" },
+                        { key: "symmetry_score", label: "Symmetry Score", desc: "Average force symmetry across VALD tests" },
+                        { key: "risk_score", label: "Risk Score", desc: "Load distribution risk assessment" }
+                      ].map((score) => {
+                        const val = formData[score.key as keyof typeof formData] as number;
+                        return (
+                          <div key={score.key} className="bg-black/35 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
+                            <div className="space-y-1 mb-4">
+                              <span className="text-xs font-black text-white uppercase tracking-wider block">{score.label}</span>
+                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wide block">{score.desc}</span>
+                            </div>
+                            <div className="flex items-center gap-6">
+                              <input 
+                                type="range" min="0" max="100" step="1"
+                                value={val}
+                                onChange={e => setFormData({ ...formData, [score.key]: parseInt(e.target.value) })}
+                                className="flex-grow h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
+                              />
+                              <div className={`w-14 h-14 rounded-full border flex items-center justify-center font-display font-black text-lg ${getScoreBg(val)} ${getScoreColor(val)}`}>
+                                {val}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* COACH DIRECTIVES */}
-                <div className="space-y-2">
-                  <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Coach's Protocol Directives</label>
-                  <textarea
-                    placeholder="ENTER TACTICAL ADVICE OR RECOVERY INSTRUCTIONS..."
-                    value={physicalForm.directives}
-                    onChange={(e) => setPhysicalForm({ ...physicalForm, directives: e.target.value })}
-                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                  />
-                </div>
+                  {/* STEP 3: VALD FORCE PROFILE */}
+                  {step === 3 && (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 p-4 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-wide">
+                        Enter force measurements in <span className="text-[#22c55e]">kg</span>. Asymmetry % and status tags (OK / MONITOR / FOCUS) are calculated automatically.
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {[
+                          { key: "hamstrings", label: "Hamstrings" },
+                          { key: "adductors", label: "Adductors" },
+                          { key: "hip_extension", label: "Hip Extension" },
+                          { key: "hip_abduction", label: "Hip Abduction" },
+                          { key: "hip_flexion", label: "Hip Flexion" }
+                        ].map((m) => {
+                          const left = formData[`${m.key}_left` as keyof typeof formData] as string;
+                          const right = formData[`${m.key}_right` as keyof typeof formData] as string;
+                          const asym = formData[`${m.key}_asymmetry` as keyof typeof formData] as number;
+                          const status = formData[`${m.key}_status` as keyof typeof formData] as string;
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[3px] py-6 rounded-[24px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_15px_40px_rgba(34,197,94,0.3)] disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="animate-spin" size={24} /> : <ClipboardCheck size={24} />}
-                  <span>{loading ? "SYNCING MATRIX..." : "COMMIT PHYSICAL LABS"}</span>
-                </button>
-              </form>
-            ) : activeTab === 'MATCH' ? (
-              <form onSubmit={handleMatchSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Opponent Unit</label>
-                    <input
-                      placeholder="EX: LIVERPOOL ACADEMY"
-                      value={matchForm.opponent}
-                      onChange={(e) => setMatchForm({ ...matchForm, opponent: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Goals</label>
-                      <input
-                        type="number"
-                        placeholder="0"
-                        value={matchForm.goals}
-                        onChange={(e) => setMatchForm({ ...matchForm, goals: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                          return (
+                            <div key={m.key} className="bg-black/35 p-6 rounded-2xl border border-white/5 grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                              <div className="font-display font-black text-xs text-white uppercase tracking-wider">
+                                {m.label}
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 md:col-span-2">
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Left (kg)</label>
+                                  <input 
+                                    type="number" step="0.1" placeholder="0.0"
+                                    value={left}
+                                    onChange={e => updateVALD(m.key, "left", e.target.value)}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Right (kg)</label>
+                                  <input 
+                                    type="number" step="0.1" placeholder="0.0"
+                                    value={right}
+                                    onChange={e => updateVALD(m.key, "right", e.target.value)}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white font-semibold outline-none"
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex justify-between items-center bg-black/40 border border-white/5 px-4 py-3.5 rounded-xl">
+                                <div className="space-y-0.5">
+                                  <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">Asymmetry</span>
+                                  <span className="text-xs font-mono font-bold text-white block">{asym}%</span>
+                                </div>
+                                <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getSeverityLabelColor(status === 'OK' ? 'YELLOW' : status === 'MONITOR' ? 'ORANGE' : 'RED')}`}>
+                                  {status}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 4: FUNCTIONAL TESTS */}
+                  {step === 4 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+                      {[
+                        { key: "cspine_rotation", label: "C-Spine Rotation" },
+                        { key: "forward_bend", label: "Forward Bend" },
+                        { key: "hip_ir_left", label: "Hip IR Left" },
+                        { key: "hip_er_both", label: "Hip ER Both" },
+                        { key: "deep_squat", label: "Deep Squat" },
+                        { key: "ankle_df", label: "Ankle DF" },
+                        { key: "great_toe_ext", label: "Great Toe Ext." },
+                        { key: "single_leg_stand", label: "Single Leg Stand" }
+                      ].map((t) => {
+                        const val = formData[t.key as keyof typeof formData] as number;
+                        return (
+                          <div key={t.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
+                              <span className="text-gray-300">{t.label}</span>
+                              <span className={val >= 70 ? "text-green-400" : val >= 50 ? "text-amber-500" : "text-red-500"}>{val}%</span>
+                            </div>
+                            <input 
+                              type="range" min="0" max="100" step="1"
+                              value={val}
+                              onChange={e => setFormData({ ...formData, [t.key]: parseInt(e.target.value) })}
+                              className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* STEP 5: BODY MAP */}
+                  {step === 5 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <BodyMap 
+                        zones={formData.body_map_zones}
+                        onChange={(zones: any[]) => setFormData({ ...formData, body_map_zones: zones })}
+                        readOnly={false}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assists</label>
-                      <input
-                        type="number"
-                        placeholder="0"
-                        value={matchForm.assists}
-                        onChange={(e) => setMatchForm({ ...matchForm, assists: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
+                  )}
+
+                  {/* STEP 6: PERFORMANCE IMPACT */}
+                  {step === 6 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+                      {[
+                        { key: "acceleration_impact", label: "Acceleration" },
+                        { key: "sprint_impact", label: "Sprint" },
+                        { key: "change_of_direction_impact", label: "Change of Direction" },
+                        { key: "kicking_impact", label: "Kicking Mechanics" },
+                        { key: "landing_impact", label: "Landing Mechanics" },
+                        { key: "single_leg_stability", label: "Single-Leg Stability" }
+                      ].map((i) => {
+                        const val = formData[i.key as keyof typeof formData] as number;
+                        return (
+                          <div key={i.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
+                              <span className="text-gray-300">{i.label}</span>
+                              <span className={val >= 80 ? "text-green-400" : val >= 60 ? "text-amber-500" : "text-red-500"}>{val}%</span>
+                            </div>
+                            <input 
+                              type="range" min="0" max="100" step="1"
+                              value={val}
+                              onChange={e => setFormData({ ...formData, [i.key]: parseInt(e.target.value) })}
+                              className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">xG</label>
-                      <input
-                        type="number" step="0.01"
-                        placeholder="0.0"
-                        value={matchForm.xg}
-                        onChange={(e) => setMatchForm({ ...matchForm, xg: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[
-                      { label: 'PASS %', value: matchForm.pass_accuracy, setter: (v: string) => setMatchForm({ ...matchForm, pass_accuracy: v }) },
-                      { label: 'DUELS %', value: matchForm.duels_won, setter: (v: string) => setMatchForm({ ...matchForm, duels_won: v }) },
-                      { label: 'PRESSURES', value: matchForm.pressures, setter: (v: string) => setMatchForm({ ...matchForm, pressures: v }) },
-                      { label: 'DATE', value: matchForm.date, setter: (v: string) => setMatchForm({ ...matchForm, date: v }), type: 'date' },
-                    ].map((f, i) => (
-                      <div key={i} className="space-y-2">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{f.label}</label>
-                        <input
-                          type={f.type || 'number'}
-                          value={f.value}
-                          onChange={(e) => f.setter(e.target.value)}
-                          className={`w-full bg-black/40 border-2 border-white/5 rounded-2xl py-5 text-white text-center font-display focus:border-[#22c55e] outline-none ${f.type === 'date' ? 'text-[10px] font-sans font-bold px-2' : 'text-xl px-6'}`}
+                  )}
+
+                  {/* STEP 7: KEY FINDINGS & SUMMARY */}
+                  {step === 7 && (
+                    <div className="space-y-6 animate-fade-in">
+                      
+                      {/* Findings entry */}
+                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <div className="md:col-span-12 text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
+                          Add Performance Finding
+                        </div>
+                        <div className="md:col-span-4 space-y-2">
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Title</label>
+                          <input 
+                            value={findingTitle}
+                            onChange={e => setFindingTitle(e.target.value)}
+                            placeholder="e.g. Hip Mobility Limit"
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-5 space-y-2">
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Description</label>
+                          <input 
+                            value={findingDesc}
+                            onChange={e => setFindingDesc(e.target.value)}
+                            placeholder="e.g. Restricted IR on left side"
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-3 space-y-2">
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Severity</label>
+                          <div className="flex gap-2">
+                            <select 
+                              value={findingSev}
+                              onChange={e => setFindingSev(e.target.value as any)}
+                              className="bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none appearance-none flex-grow"
+                            >
+                              <option value="YELLOW">YELLOW</option>
+                              <option value="ORANGE">ORANGE</option>
+                              <option value="RED">RED</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={addFinding}
+                              className="px-3 bg-accent-green text-black font-black uppercase text-[10px] tracking-wider rounded-xl transition-all hover:opacity-90"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* List current findings */}
+                        {formData.key_findings.length > 0 && (
+                          <div className="md:col-span-12 space-y-2 mt-2">
+                            {formData.key_findings.map((f, index) => (
+                              <div key={index} className="flex justify-between items-center p-3 bg-black/50 border border-white/5 rounded-xl">
+                                <div className="flex items-center gap-3">
+                                  <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${getSeverityLabelColor(f.severity)}`}>
+                                    {f.severity}
+                                  </span>
+                                  <div>
+                                    <span className="text-xs font-black text-white">{f.title}: </span>
+                                    <span className="text-xs text-gray-400">{f.description}</span>
+                                  </div>
+                                </div>
+                                <button type="button" onClick={() => removeFinding(index)} className="text-red-500 hover:text-red-400">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Risk factors entry */}
+                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-6">
+                        <div className="text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
+                          Add Risk Factors
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {["Groin symptoms", "Hip mobility", "Ankle mobility", "Balance", "Pelvic control", "Hamstring tightness"].map(tag => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => addRiskFactor(tag)}
+                              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-black text-gray-300 uppercase tracking-widest transition-all"
+                            >
+                              + {tag}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                          <div className="md:col-span-6 space-y-2">
+                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Custom Risk Factor</label>
+                            <input 
+                              value={riskFactorName}
+                              onChange={e => setRiskFactorName(e.target.value)}
+                              placeholder="e.g. Quad tightness"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                            />
+                          </div>
+                          <div className="md:col-span-4 space-y-2">
+                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Severity</label>
+                            <select 
+                              value={riskFactorSev}
+                              onChange={e => setRiskFactorSev(e.target.value as any)}
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none appearance-none"
+                            >
+                              <option value="YELLOW">YELLOW</option>
+                              <option value="ORANGE">ORANGE</option>
+                              <option value="RED">RED</option>
+                            </select>
+                          </div>
+                          <div className="md:col-span-2">
+                            <button
+                              type="button"
+                              onClick={() => addRiskFactor()}
+                              className="w-full py-2 bg-accent-green text-black font-black uppercase text-[10px] tracking-wider rounded-xl transition-all hover:opacity-90"
+                            >
+                              Add Tag
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* List current risk factors */}
+                        {formData.risk_factors.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
+                            {formData.risk_factors.map((r, index) => (
+                              <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-black/60 border border-white/5 rounded-xl">
+                                <span className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: getSeverityColor(r.severity) }} />
+                                <span className="text-[9px] font-black text-white uppercase tracking-wider">{r.name}</span>
+                                <button type="button" onClick={() => removeRiskFactor(index)} className="text-red-500 hover:text-red-400">
+                                  <X size={10} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Coach summary */}
+                      <div className="space-y-2">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Coach Summary Notes</label>
+                        <textarea
+                          rows={4}
+                          value={formData.coach_summary}
+                          onChange={e => setFormData({ ...formData, coach_summary: e.target.value })}
+                          placeholder="WRITE DETAILED LAB FINDINGS AND GENERAL HEALTH SUMMARY NOTES..."
+                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-xs text-text-primary focus:border-accent-green outline-none resize-none"
                         />
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* COACH DIRECTIVES (MATCH) */}
-                  <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Match Feedback & Directives</label>
-                    <textarea
-                      placeholder="ENTER POST-MATCH ANALYSIS OR FOCUS AREAS..."
-                      value={matchForm.directives}
-                      onChange={(e) => setMatchForm({ ...matchForm, directives: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[3px] py-6 rounded-[24px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_15px_40px_rgba(34,197,94,0.3)] disabled:opacity-50"
-                >
-                  {loading ? <Loader2 className="animate-spin" size={24} /> : <TrendingUp size={24} />}
-                  <span>{loading ? "COMMITTING ANALYTICS..." : "COMMIT MATCH ANALYTICS"}</span>
-                </button>
-              </form>
-            ) : activeTab === 'COGNITIVE' ? (
-              <form onSubmit={handleCognitiveSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Reaction Time (ms)</label>
-                      <input
-                        type="number" placeholder="EX: 240"
-                        value={cognitiveForm.reaction_time}
-                        onChange={(e) => setCognitiveForm({ ...cognitiveForm, reaction_time: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Assessment Date</label>
-                      <input
-                        type="date"
-                        value={cognitiveForm.date}
-                        onChange={(e) => setCognitiveForm({ ...cognitiveForm, date: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
-                    </div>
-                 </div>
+                  )}
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Decision Score (0-10)</label>
-                        <span className="text-white font-display text-xl">{cognitiveForm.decision_score}</span>
+                  {/* STEP 8: REVIEW & SUBMIT */}
+                  {step === 8 && (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                          <Bookmark size={14} className="text-accent-green" />
+                          <span className="text-[10px] font-black text-accent-green uppercase tracking-[3px]">Progress Tracking Registry</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Retest Recommended After</label>
+                            <input 
+                              type="date"
+                              value={formData.retest_recommended_date}
+                              onChange={e => setFormData({ ...formData, retest_recommended_date: e.target.value })}
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-white outline-none"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Compare Against Previous Assessment</label>
+                            <select 
+                              value={formData.previous_assessment_id}
+                              onChange={e => setFormData({ ...formData, previous_assessment_id: e.target.value })}
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-white outline-none appearance-none"
+                            >
+                              <option value="">NONE / FIRST ASSESSMENT</option>
+                              {history.map((h: any) => (
+                                <option key={h.id} value={h.id}>
+                                  {h.assessment_date} - {h.assessment_type} ({h.status})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Improvement & Growth Notes</label>
+                          <textarea 
+                            rows={3}
+                            value={formData.improvement_notes}
+                            onChange={e => setFormData({ ...formData, improvement_notes: e.target.value })}
+                            placeholder="e.g. Improved hip internal rotation by 5%..."
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-xs text-text-primary focus:border-accent-green outline-none resize-none"
+                          />
+                        </div>
                       </div>
-                      <input 
-                        type="range" min="0" max="10" step="1"
-                        value={cognitiveForm.decision_score}
-                        onChange={(e) => setCognitiveForm({ ...cognitiveForm, decision_score: e.target.value })}
-                        className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Focus Score (%)</label>
-                        <span className="text-white font-display text-xl">{cognitiveForm.focus_score}%</span>
-                      </div>
-                      <input 
-                        type="range" min="0" max="100" step="1"
-                        value={cognitiveForm.focus_score}
-                        onChange={(e) => setCognitiveForm({ ...cognitiveForm, focus_score: e.target.value })}
-                        className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
-                      />
-                    </div>
-                 </div>
 
-                 <div className="space-y-2">
-                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Psychological Stress Level</label>
-                    <div className="flex gap-4">
-                      {['Low', 'Moderate', 'High', 'Critical'].map((lvl) => (
+                      {/* Summary dashboard representation */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                          { label: "Performance", val: formData.performance_score },
+                          { label: "Mobility", val: formData.mobility_score },
+                          { label: "Symmetry", val: formData.symmetry_score },
+                          { label: "Risk Score", val: formData.risk_score }
+                        ].map(c => (
+                          <div key={c.label} className="p-4 bg-black/40 border border-white/5 rounded-xl text-center">
+                            <div className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{c.label}</div>
+                            <div className={`text-2xl font-display font-black mt-1 ${getScoreColor(c.val)}`}>{c.val}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Submit Actions */}
+                      <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4">
                         <button
-                          key={lvl} type="button"
-                          onClick={() => setCognitiveForm({ ...cognitiveForm, stress_level: lvl })}
-                          className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
-                            cognitiveForm.stress_level === lvl 
-                              ? "bg-[#22c55e] text-black border-[#22c55e]" 
-                              : "bg-white/5 text-white/40 border-white/5 hover:border-[#22c55e]/30"
-                          }`}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => handleSubmit(true)}
+                          className="py-4 bg-bg-secondary border border-border-primary/50 text-white font-black text-[10px] tracking-widest rounded-xl hover:bg-white/5 transition-all flex items-center justify-center gap-2"
                         >
-                          {lvl}
+                          {loading ? <Loader2 size={12} className="animate-spin" /> : null}
+                          SAVE AS DRAFT
                         </button>
-                      ))}
-                    </div>
-                 </div>
-
-                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[3px] py-6 rounded-[24px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_15px_40px_rgba(34,197,94,0.3)] disabled:opacity-50"
-                 >
-                   {loading ? <Loader2 className="animate-spin" size={24} /> : <Zap size={24} />}
-                   <span>{loading ? "SYNCING COGNITIVE HUB..." : "COMMIT COGNITIVE LABS"}</span>
-                 </button>
-              </form>
-            ) : (
-              <form onSubmit={handleProgramSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                 <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Active Program Title</label>
-                      <input
-                        placeholder="EX: ELITE STRIDE MECHANICS"
-                        value={programForm.title}
-                        onChange={(e) => setProgramForm({ ...programForm, title: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Training Phase</label>
-                        <select 
-                          value={programForm.phase}
-                          onChange={(e) => setProgramForm({ ...programForm, phase: e.target.value })}
-                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                        <button
+                          type="button"
+                          disabled={loading}
+                          onClick={() => handleSubmit(false)}
+                          className="py-4 bg-accent-green text-black font-black text-[10px] tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(34,197,94,0.2)]"
                         >
-                          <option value="Tactical">Tactical</option>
-                          <option value="Strength">Strength</option>
-                          <option value="Recovery">Recovery</option>
-                          <option value="Conditioning">Conditioning</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Effective Date</label>
-                        <input
-                          type="date"
-                          value={programForm.date}
-                          onChange={(e) => setProgramForm({ ...programForm, date: e.target.value })}
-                          className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                        />
+                          {loading ? <Loader2 size={12} className="animate-spin" /> : null}
+                          SUBMIT FINAL ASSESSMENT
+                        </button>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Strategic Program Notes</label>
-                      <textarea
-                        placeholder="ENTER DETAILED INSTRUCTIONS FOR THIS TRAINING PHASE..."
-                        value={programForm.notes}
-                        onChange={(e) => setProgramForm({ ...programForm, notes: e.target.value })}
-                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                      />
-                    </div>
-                 </div>
+                  )}
+                </>
+              )}
+            </div>
 
-                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-[#22c55e] text-black font-black uppercase tracking-[3px] py-6 rounded-[24px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-[0_15px_40px_rgba(34,197,94,0.3)] disabled:opacity-50"
-                 >
-                   {loading ? <Loader2 className="animate-spin" size={24} /> : <ShieldCheck size={24} />}
-                   <span>{loading ? "ASSIGNING PROGRAM..." : "INITIALIZE ELITE PROGRAM"}</span>
-                 </button>
-              </form>
-            )}
-
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
-              >
-                <ShieldCheck size={18} /> CRITICAL ERROR: {error}
-              </motion.div>
-            )}
-
-            {success && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
-              >
-                <ClipboardCheck size={18} /> ASSESSMENT COMMITTED SUCCESSFULLY
-              </motion.div>
-            )}
-
-            {isFetching && (
-               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center rounded-[40px]">
-                  <div className="flex flex-col items-center gap-4">
-                     <Loader2 className="animate-spin text-[#22c55e]" size={40} />
-                     <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Syncing Current Matrix...</span>
-                  </div>
-               </div>
+            {/* Wizard Navigation Bar */}
+            {!success && (
+              <div className="p-6 border-t border-white/5 flex justify-between bg-black/30">
+                <button
+                  type="button"
+                  disabled={step === 1}
+                  onClick={() => setStep(prev => prev - 1)}
+                  className="px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black text-gray-400 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ArrowLeft size={12} /> Back
+                </button>
+                <button
+                  type="button"
+                  disabled={step === 8}
+                  onClick={() => setStep(prev => prev + 1)}
+                  className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Next <ArrowRight size={12} />
+                </button>
+              </div>
             )}
           </div>
         </motion.div>

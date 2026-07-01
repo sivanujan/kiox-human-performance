@@ -29,7 +29,7 @@ export async function GET() {
     const athleteId = await getAthleteId(supabase, user.id);
 
     // Fetch all performance-related modules in parallel for the resolved athlete ID
-    const [planRes, injuryRes, surveyRes, videoRes, noteRes, alertRes] = await Promise.all([
+    const [planRes, injuryRes, surveyRes, videoRes, noteRes, alertRes, assessmentRes] = await Promise.all([
       supabase
         .from("athlete_training_plans")
         .select("*")
@@ -68,6 +68,15 @@ export async function GET() {
         .eq("athlete_id", athleteId)
         .eq("alert_type", "MEDICAL_CLEARANCE_REQUEST")
         .eq("is_resolved", false)
+        .maybeSingle(),
+      supabase
+        .from("performance_assessments")
+        .select("*")
+        .eq("athlete_id", athleteId)
+        .eq("status", "SUBMITTED")
+        .order("assessment_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle()
     ]);
 
@@ -85,7 +94,8 @@ export async function GET() {
       trainerNotes: noteRes.data || [],
       clearanceRequest: alertRes.data,
       profileStatus: profileData?.training_status || 'READY',
-      profileRecovery: profileData?.recovery_index || 0
+      profileRecovery: profileData?.recovery_index || 0,
+      latestAssessment: assessmentRes.data || null
     });
   } catch (err: any) {
     console.error("Performance Hub Error:", err);
