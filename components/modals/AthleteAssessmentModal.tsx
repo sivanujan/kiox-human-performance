@@ -706,30 +706,39 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                {/* Language Switcher */}
-                <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => setLang("EN")}
-                    className={`px-2.5 py-1 rounded text-[10px] font-black transition-all ${
-                      lang === "EN" ? "bg-accent-green text-black" : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLang("DE")}
-                    className={`px-2.5 py-1 rounded text-[10px] font-black transition-all ${
-                      lang === "DE" ? "bg-accent-green text-black" : "text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    DE
-                  </button>
+              <div className="flex items-center gap-4">
+                {/* Language Switcher Label & Selectors */}
+                <div className="flex items-center gap-2 bg-black/40 border-2 border-accent-green/30 px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                  <span className="text-[9px] font-black text-accent-green uppercase tracking-wider select-none">
+                    {lang === "EN" ? "Language:" : "Sprache:"}
+                  </span>
+                  <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setLang("EN")}
+                      className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
+                        lang === "EN" 
+                          ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      EN
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLang("DE")}
+                      className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
+                        lang === "DE" 
+                          ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      DE
+                    </button>
+                  </div>
                 </div>
 
-                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all active:scale-95">
                   <X size={16} />
                 </button>
               </div>
