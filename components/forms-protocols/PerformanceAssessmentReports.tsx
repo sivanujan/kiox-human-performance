@@ -912,6 +912,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         </style>
       </head>
       <body>
+        <div id="pdf-content-wrapper" style="width: 210mm; background: #08080a; margin: 0 auto; padding: 0; box-sizing: border-box; overflow: hidden; display: block; position: relative;">
 
         <!-- ================= PAGE 1 ================= -->
         <div class="pdf-page" id="page-1">
@@ -1400,6 +1401,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
             <span>Functional Check-up + VALD data</span>
           </div>
         </div>
+      </div>
 
         <script>
           function downloadPDF() {
@@ -1419,7 +1421,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
               pagebreak:    { mode: ['css', 'legacy'] }
             };
             
-            html2pdf().set(opt).from(document.body).save();
+            html2pdf().set(opt).from(document.getElementById('pdf-content-wrapper')).save();
           }
         </script>
       </body>
