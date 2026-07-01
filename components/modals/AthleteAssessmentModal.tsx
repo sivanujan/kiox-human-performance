@@ -30,16 +30,252 @@ interface AthleteAssessmentModalProps {
   athleteName: string;
 }
 
-const STEPS = [
-  { step: 1, title: "Basic Info", icon: <FileText size={14} /> },
-  { step: 2, title: "Overall Scores", icon: <Activity size={14} /> },
-  { step: 3, title: "VALD Force Profile", icon: <Scale size={14} /> },
-  { step: 4, title: "Functional Tests", icon: <ShieldCheck size={14} /> },
-  { step: 5, title: "Body Map", icon: <Target size={14} /> },
-  { step: 6, title: "Performance Impact", icon: <Zap size={14} /> },
-  { step: 7, title: "Key Findings", icon: <BarChart3 size={14} /> },
-  { step: 8, title: "Review & Submit", icon: <ClipboardCheck size={14} /> }
-];
+const t = {
+  EN: {
+    performanceHub: "Performance Hub",
+    athlete: "Athlete",
+    steps: "STEPS",
+    back: "Back",
+    next: "Next",
+    cancel: "Cancel",
+    submit: "Submit Assessment",
+    submitting: "Submitting...",
+    committed: "Assessment Committed",
+    syncText: "The analytics engine has synchronized the scores.",
+    
+    // Step Titles
+    step1: "Basic Info",
+    step2: "Overall Scores",
+    step3: "VALD Force Profile",
+    step4: "Functional Tests",
+    step5: "Body Map",
+    step6: "Performance Impact",
+    step7: "Key Findings",
+    step8: "Review & Submit",
+
+    // Step 1: Basic Info
+    date: "Assessment Date",
+    type: "Assessment Type",
+    season: "Season",
+    height: "Height (cm)",
+    weight: "Weight (kg)",
+    position: "Position Played",
+    prevAssessment: "Compare with Previous Assessment",
+    calculatedBmi: "Calculated BMI",
+    noPrev: "NONE / FIRST ASSESSMENT",
+    placeholderSeason: "e.g. 2026/2027",
+
+    // Assessment Types
+    FULL_ASSESSMENT: "FULL COMPREHENSIVE ASSESSMENT",
+    FUNCTIONAL_CHECKUP: "FUNCTIONAL CHECKUP",
+    VALD_FORCE: "VALD FORCE PROFILE",
+    MATCH_PERFORMANCE: "MATCH PERFORMANCE DATA",
+
+    // Positions
+    FORWARD: "FORWARD",
+    MIDFIELDER: "MIDFIELDER",
+    DEFENDER: "DEFENDER",
+    GOALKEEPER: "GOALKEEPER",
+
+    // Step 2: Overall Scores
+    scoresDesc: "Overall Evaluation Index Metrics",
+    performanceScore: "Performance Score",
+    mobilityScore: "Mobility Score",
+    symmetryScore: "Symmetry Score",
+    riskScore: "Risk Score",
+    autoCalc: "Auto-calculated from testing parameters",
+
+    // Step 3: VALD Force
+    valdTitle: "VALD Force Profile (kg)",
+    valdDesc: "Bilateral Force Capacity Comparisons",
+    left: "LEFT",
+    right: "RIGHT",
+    asym: "Asymmetry",
+    hamstrings: "Hamstrings",
+    adductors: "Adductors",
+    hipExt: "Hip Extension",
+    hipAbd: "Hip Abduction",
+    hipFlex: "Hip Flexion",
+    valdIntro: "Enter force measurements in kg. Asymmetry % and status tags (OK / MONITOR / FOCUS) are calculated automatically.",
+
+    // Step 4: Functional
+    functionalTitle: "Functional Movement Quality",
+    functionalDesc: "Movement Assessment Metrics",
+    cspine_rotation: "C-Spine Rotation",
+    forward_bend: "Forward Bend",
+    hip_ir_left: "Hip IR Left",
+    hip_er_both: "Hip ER Both",
+    deep_squat: "Deep Squat",
+    ankle_df: "Ankle DF",
+    great_toe_ext: "Great Toe Ext.",
+    single_leg_stand: "Single Leg Stand",
+
+    // Step 5: Body Map
+    bodyMapTitle: "Injury & Pain Body Map",
+    bodyMapDesc: "Select active pain/tension zones on the body",
+    front: "FRONT VIEW",
+    backView: "BACK VIEW",
+    noPainZones: "No pain zones selected. Click any point to add.",
+    severity: "Severity",
+    notes: "Notes",
+    addZone: "Add Zone",
+
+    // Step 6: Performance Impact
+    performanceImpactTitle: "Performance Impact Factors",
+    performanceImpactDesc: "Subjective evaluation of athletic performance limiting factors",
+    acceleration_impact: "Acceleration",
+    sprint_impact: "Sprint",
+    change_of_direction_impact: "Change of Direction",
+    kicking_impact: "Kicking Mechanics",
+    landing_impact: "Landing Mechanics",
+    single_leg_stability: "Single-Leg Stability",
+
+    // Step 7: Key Findings
+    keyFindingsTitle: "Key Findings & Action Items",
+    keyFindingsDesc: "Document core findings and coaching recommendations",
+    findingTitle: "Title",
+    findingDesc: "Description",
+    addFinding: "Add Performance Finding",
+    addFindingBtn: "Add",
+    riskFactorsTitle: "Add Risk Factors",
+    factorName: "Custom Risk Factor",
+    addFactorBtn: "Add Tag",
+    coachSummary: "Coach Summary Notes",
+    summaryPlaceholder: "WRITE DETAILED LAB FINDINGS AND GENERAL HEALTH SUMMARY NOTES...",
+
+    // Step 8: Review
+    reviewTitle: "Final Review & Submit",
+    reviewDesc: "Verify all metrics before committing to database",
+    draftText: "SAVE AS DRAFT",
+    submitText: "SUBMIT FINAL ASSESSMENT",
+    retestRecommended: "Retest Recommended After",
+    comparePrev: "Compare Against Previous Assessment",
+    growthNotes: "Improvement & Growth Notes",
+    growthPlaceholder: "e.g. Improved hip internal rotation by 5%..."
+  },
+  DE: {
+    performanceHub: "Leistungs-Hub",
+    athlete: "Athlet",
+    steps: "SCHRITTE",
+    back: "Zurück",
+    next: "Weiter",
+    cancel: "Abbrechen",
+    submit: "Bewertung absenden",
+    submitting: "Wird gesendet...",
+    committed: "Bewertung gespeichert",
+    syncText: "Die Analyse-Engine hat die Ergebnisse synchronisiert.",
+
+    // Step Titles
+    step1: "Basisinfo",
+    step2: "Gesamtwerte",
+    step3: "VALD Kraftprofil",
+    step4: "Funktionstests",
+    step5: "Körperkarte",
+    step6: "Leistungseinfluss",
+    step7: "Hauptergebnisse",
+    step8: "Prüfen & Senden",
+
+    // Step 1: Basic Info
+    date: "Bewertungsdatum",
+    type: "Bewertungstyp",
+    season: "Saison",
+    height: "Größe (cm)",
+    weight: "Gewicht (kg)",
+    position: "Position",
+    prevAssessment: "Mit vorheriger Bewertung vergleichen",
+    calculatedBmi: "Berechneter BMI",
+    noPrev: "KEINE / ERSTE BEWERTUNG",
+    placeholderSeason: "z.B. 2026/2027",
+
+    // Assessment Types
+    FULL_ASSESSMENT: "VOLLSTÄNDIGE BEWERTUNG",
+    FUNCTIONAL_CHECKUP: "FUNKTIONELLER CHECK-UP",
+    VALD_FORCE: "NUR VALD KRAFTPROLFIL",
+    MATCH_PERFORMANCE: "SPIEL-LEISTUNGSDATEN",
+
+    // Positions
+    FORWARD: "STÜRMER",
+    MIDFIELDER: "MITTELFELDSPIELER",
+    DEFENDER: "ABWEHRSPIELER",
+    GOALKEEPER: "TORWART",
+
+    // Step 2: Overall Scores
+    scoresDesc: "Gesamtbewertung Indexmetriken",
+    performanceScore: "Leistungswert",
+    mobilityScore: "Mobilitätswert",
+    symmetryScore: "Symmetriewert",
+    riskScore: "Risikowert",
+    autoCalc: "Automatisch berechnet aus Testparametern",
+
+    // Step 3: VALD Force
+    valdTitle: "VALD Kraftprofil (kg)",
+    valdDesc: "Bilateraler Kraftkapazitätsvergleich",
+    left: "LINKS",
+    right: "RECHTS",
+    asym: "Asymmetrie",
+    hamstrings: "Hamstrings",
+    adductors: "Adduktoren",
+    hipExt: "Hüftstreckung",
+    hipAbd: "Hüftabduktion",
+    hipFlex: "Hüftbeugung",
+    valdIntro: "Geben Sie die Kraftwerte in kg ein. Die Asymmetrie % und Status-Tags (OK / MONITOR / FOCUS) werden automatisch berechnet.",
+
+    // Step 4: Functional
+    functionalTitle: "Funktionelle Bewegungsqualität",
+    functionalDesc: "Bewegungsbewertungs-Metriken",
+    cspine_rotation: "HWS-Rotation",
+    forward_bend: "Vorwärtsbeuge",
+    hip_ir_left: "Hüft-IR Links",
+    hip_er_both: "Hüft-ER Beidseitig",
+    deep_squat: "Tiefe Kniebeuge",
+    ankle_df: "Sprunggelenk Dorsalflexion",
+    great_toe_ext: "Großzehenstreckung",
+    single_leg_stand: "Einbeinstand",
+
+    // Step 5: Body Map
+    bodyMapTitle: "Verletzungs- & Schmerzkörperkarte",
+    bodyMapDesc: "Aktive Schmerz- oder Spannungszonen am Körper auswählen",
+    front: "VORDERANSICHT",
+    backView: "RÜCKANSICHT",
+    noPainZones: "Keine Schmerzzonen ausgewählt. Klicken Sie auf einen Punkt, um ihn hinzuzufügen.",
+    severity: "Schweregrad",
+    notes: "Notizen",
+    addZone: "Zone hinzufügen",
+
+    // Step 6: Performance Impact
+    performanceImpactTitle: "Leistungsbeeinflussende Faktoren",
+    performanceImpactDesc: "Subjektive Bewertung von leistungsbegrenzenden Faktoren",
+    acceleration_impact: "Beschleunigung",
+    sprint_impact: "Sprint",
+    change_of_direction_impact: "Richtungswechsel (COD)",
+    kicking_impact: "Schussmechanik",
+    landing_impact: "Landemechanik",
+    single_leg_stability: "Einbein-Stabilität",
+
+    // Step 7: Key Findings
+    keyFindingsTitle: "Hauptergebnisse & Maßnahmen",
+    keyFindingsDesc: "Kernaussagen und Empfehlungen dokumentieren",
+    findingTitle: "Titel",
+    findingDesc: "Beschreibung",
+    addFinding: "Hauptergebnis hinzufügen",
+    addFindingBtn: "Hinzufügen",
+    riskFactorsTitle: "Risikofaktoren hinzufügen",
+    factorName: "Risikofaktor",
+    addFactorBtn: "Hinzufügen",
+    coachSummary: "Notizen zur Trainerzusammenfassung",
+    summaryPlaceholder: "DETAILLIERTE BEWERTUNGSNOTIZEN UND ALLGEMEINE GESUNDHEITSNOTIZEN SCHREIBEN...",
+
+    // Step 8: Review
+    reviewTitle: "Abschließende Prüfung & Absenden",
+    reviewDesc: "Überprüfen Sie alle Werte, bevor Sie sie speichern",
+    draftText: "ALS ENTWURF SPEICHERN",
+    submitText: "BEWERTUNG ABSENDEN",
+    retestRecommended: "Retest empfohlen nach",
+    comparePrev: "Mit vorheriger Bewertung vergleichen",
+    growthNotes: "Verbesserungs- & Wachstumsnotizen",
+    growthPlaceholder: "z.B. Hüftinnenrotation links um 5% verbessert..."
+  }
+};
 
 export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, athleteName }: AthleteAssessmentModalProps) {
   const [resolvedAthleteName, setResolvedAthleteName] = useState(athleteName);
@@ -48,6 +284,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [lang, setLang] = useState<"EN" | "DE">("EN");
 
   const [formData, setFormData] = useState({
     assessment_date: new Date().toISOString().split('T')[0],
@@ -103,6 +340,17 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     retest_recommended_date: ""
   });
 
+  const STEPS = [
+    { step: 1, title: t[lang].step1, icon: <FileText size={14} /> },
+    { step: 2, title: t[lang].step2, icon: <Activity size={14} /> },
+    { step: 3, title: t[lang].step3, icon: <Scale size={14} /> },
+    { step: 4, title: t[lang].step4, icon: <ShieldCheck size={14} /> },
+    { step: 5, title: t[lang].step5, icon: <Target size={14} /> },
+    { step: 6, title: t[lang].step6, icon: <Zap size={14} /> },
+    { step: 7, title: t[lang].step7, icon: <BarChart3 size={14} /> },
+    { step: 8, title: t[lang].step8, icon: <ClipboardCheck size={14} /> }
+  ];
+
   // Basic lists for interactive entry
   const [findingTitle, setFindingTitle] = useState("");
   const [findingDesc, setFindingDesc] = useState("");
@@ -117,7 +365,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
       if (!athleteId || athleteId === "undefined") return;
       const supabase = createClient();
       
-      // Fetch profile
       try {
         const { data: p } = await supabase.from("profiles").select("first_name, last_name, height, weight, position_played").eq("id", athleteId).single();
         if (p) {
@@ -133,7 +380,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
         console.error(e);
       }
 
-      // Fetch assessments list
       try {
         const res = await fetch(`/api/admin/athlete/${athleteId}/assessments`);
         if (res.ok) {
@@ -161,7 +407,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
   // Dynamic Overall Scores Auto-Calculation
   const recalculateOverallScores = (data: typeof formData) => {
-    // 1. Mobility Score = average of all 8 functional tests
     const functionalKeys = [
       "cspine_rotation", "forward_bend", "hip_ir_left", "hip_er_both", 
       "deep_squat", "ankle_df", "great_toe_ext", "single_leg_stand"
@@ -169,7 +414,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     const mobilitySum = functionalKeys.reduce((sum, key) => sum + (Number(data[key as keyof typeof data]) || 0), 0);
     const calculatedMobility = Math.round(mobilitySum / functionalKeys.length);
 
-    // 2. Symmetry Score = 100 - average of all active VALD asymmetry values
     const valdMuscles = ["hamstrings", "adductors", "hip_extension", "hip_abduction", "hip_flexion"];
     let valdCount = 0;
     let valdAsymSum = 0;
@@ -187,7 +431,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     const avgAsymmetry = valdCount > 0 ? (valdAsymSum / valdCount) : 0;
     const calculatedSymmetry = Math.max(0, Math.min(100, Math.round(100 - avgAsymmetry)));
 
-    // 3. Risk Score = based on injuries in Body Map + average asymmetry
     let calculatedRisk = 0;
     if (data.body_map_zones && Array.isArray(data.body_map_zones)) {
       data.body_map_zones.forEach(zone => {
@@ -199,9 +442,8 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     calculatedRisk += Math.round(avgAsymmetry * 1.2);
     const lowMobilityRisk = Math.max(0, 80 - calculatedMobility) * 0.4;
     calculatedRisk += Math.round(lowMobilityRisk);
-    calculatedRisk = Math.max(10, Math.min(95, calculatedRisk)); // clamp to realistic bounds
+    calculatedRisk = Math.max(10, Math.min(95, calculatedRisk));
 
-    // 4. Performance Score = weighted average of mobility, symmetry and performance impacts
     const impactKeys = [
       "acceleration_impact", "sprint_impact", "change_of_direction_impact",
       "kicking_impact", "landing_impact", "single_leg_stability"
@@ -246,14 +488,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     formData.kicking_impact, formData.landing_impact, formData.single_leg_stability
   ]);
 
-  // Auto calculate BMI
   const heightNum = parseFloat(formData.height_cm);
   const weightNum = parseFloat(formData.weight_kg);
   const calculatedBMI = (heightNum > 0 && weightNum > 0) 
     ? (weightNum / Math.pow(heightNum / 100, 2)).toFixed(1) 
     : "0.0";
 
-  // VALD Asymmetry calculator
   const updateVALD = (muscle: string, field: "left" | "right", value: string) => {
     setFormData(prev => {
       const updated = { ...prev };
@@ -263,7 +503,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
       const asymmetryKey = `${muscle}_asymmetry`;
       const statusKey = `${muscle}_status`;
 
-      // Update value
       if (field === "left") (updated as any)[leftKey] = value;
       if (field === "right") (updated as any)[rightKey] = value;
 
@@ -288,7 +527,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     });
   };
 
-  // Add Findings & Risks
   const addFinding = () => {
     if (!findingTitle) return;
     setFormData(prev => ({
@@ -325,7 +563,6 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     }));
   };
 
-  // Submit Handler
   const handleSubmit = async (isDraft: boolean) => {
     setLoading(true);
     setError("");
@@ -405,7 +642,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           <div className="hidden md:flex flex-col w-[260px] bg-black/50 border-r border-white/5 p-6 justify-between flex-shrink-0">
             <div className="space-y-6">
               <div>
-                <span className="text-[9px] font-black text-accent-green uppercase tracking-[4px]">Performance Hub</span>
+                <span className="text-[9px] font-black text-accent-green uppercase tracking-[4px]">
+                  {t[lang].performanceHub}
+                </span>
                 <h3 className="text-sm font-display font-black text-white uppercase tracking-wider mt-1 truncate">
                   {resolvedAthleteName}
                 </h3>
@@ -419,6 +658,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   return (
                     <button
                       key={s.step}
+                      type="button"
                       onClick={() => setStep(s.step)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
                         isActive 
@@ -441,7 +681,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
             </div>
 
             <div className="p-4 bg-bg-primary/30 border border-white/5 rounded-xl text-center">
-              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">STEPS</span>
+              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">
+                {t[lang].steps}
+              </span>
               <span className="text-lg font-mono font-black text-white mt-1 block">{step} / 8</span>
             </div>
           </div>
@@ -459,13 +701,38 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     {STEPS[step - 1].title}
                   </h2>
                   <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">
-                    Athlete: {resolvedAthleteName}
+                    {t[lang].athlete}: {resolvedAthleteName}
                   </p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
-                <X size={16} />
-              </button>
+              
+              <div className="flex items-center gap-3">
+                {/* Language Switcher */}
+                <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setLang("EN")}
+                    className={`px-2.5 py-1 rounded text-[10px] font-black transition-all ${
+                      lang === "EN" ? "bg-accent-green text-black" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    EN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLang("DE")}
+                    className={`px-2.5 py-1 rounded text-[10px] font-black transition-all ${
+                      lang === "DE" ? "bg-accent-green text-black" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    DE
+                  </button>
+                </div>
+
+                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
 
             {/* Scrollable Content */}
@@ -481,8 +748,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 mb-4">
                     <ClipboardCheck size={32} />
                   </div>
-                  <h4 className="text-lg font-display font-black text-green-400 uppercase tracking-widest">Assessment Committed</h4>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-2">The analytics engine has synchronized the scores.</p>
+                  <h4 className="text-lg font-display font-black text-green-400 uppercase tracking-widest">
+                    {t[lang].committed}
+                  </h4>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-2">
+                    {t[lang].syncText}
+                  </p>
                 </div>
               ) : (
                 <>
@@ -491,7 +762,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     <div className="space-y-6 animate-fade-in">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Assessment Date</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].date}
+                          </label>
                           <input 
                             type="date"
                             value={formData.assessment_date}
@@ -500,46 +773,54 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Assessment Type</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].type}
+                          </label>
                           <select 
                             value={formData.assessment_type}
                             onChange={e => setFormData({ ...formData, assessment_type: e.target.value as any })}
                             className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none appearance-none"
                           >
-                            <option value="FULL_ASSESSMENT">FULL COMPREHENSIVE ASSESSMENT</option>
-                            <option value="FUNCTIONAL_CHECKUP">FUNCTIONAL CHECKUP</option>
-                            <option value="VALD_FORCE">VALD FORCE PROFILE</option>
-                            <option value="MATCH_PERFORMANCE">MATCH PERFORMANCE DATA</option>
+                            <option value="FULL_ASSESSMENT">{t[lang].FULL_ASSESSMENT}</option>
+                            <option value="FUNCTIONAL_CHECKUP">{t[lang].FUNCTIONAL_CHECKUP}</option>
+                            <option value="VALD_FORCE">{t[lang].VALD_FORCE}</option>
+                            <option value="MATCH_PERFORMANCE">{t[lang].MATCH_PERFORMANCE}</option>
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Season</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].season}
+                          </label>
                           <input 
                             type="text"
-                            placeholder="e.g. 2026/2027"
+                            placeholder={t[lang].placeholderSeason}
                             value={formData.season}
                             onChange={e => setFormData({ ...formData, season: e.target.value })}
                             className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none"
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Position Played</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].position}
+                          </label>
                           <select 
                             value={formData.position}
                             onChange={e => setFormData({ ...formData, position: e.target.value as any })}
                             className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3.5 px-4 text-sm text-text-primary focus:border-accent-green outline-none appearance-none"
                           >
-                            <option value="FORWARD">FORWARD</option>
-                            <option value="MIDFIELDER">MIDFIELDER</option>
-                            <option value="DEFENDER">DEFENDER</option>
-                            <option value="GOALKEEPER">GOALKEEPER</option>
+                            <option value="FORWARD">{t[lang].FORWARD}</option>
+                            <option value="MIDFIELDER">{t[lang].MIDFIELDER}</option>
+                            <option value="DEFENDER">{t[lang].DEFENDER}</option>
+                            <option value="GOALKEEPER">{t[lang].GOALKEEPER}</option>
                           </select>
                         </div>
                       </div>
 
                       <div className="bg-black/30 p-6 rounded-2xl border border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Height (cm)</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].height}
+                          </label>
                           <input 
                             type="number" step="0.1"
                             placeholder="185"
@@ -549,7 +830,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Weight (kg)</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].weight}
+                          </label>
                           <input 
                             type="number" step="0.1"
                             placeholder="80"
@@ -559,7 +842,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Calculated BMI</label>
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                            {t[lang].calculatedBmi}
+                          </label>
                           <div className="w-full bg-[#111] border border-white/5 rounded-xl py-3 px-4 text-sm text-white font-mono font-bold">
                             {calculatedBMI}
                           </div>
@@ -572,17 +857,17 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {step === 2 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
                       {[
-                        { key: "performance_score", label: "Performance Score", desc: "Global readiness based on mobility, symmetry, risk and functional findings" },
-                        { key: "mobility_score", label: "Mobility Score", desc: "Key limiter: hip rotation and ankle dorsiflexion" },
-                        { key: "symmetry_score", label: "Symmetry Score", desc: "Average force symmetry across VALD tests" },
-                        { key: "risk_score", label: "Risk Score", desc: "Load distribution risk assessment" }
+                        { key: "performance_score", label: t[lang].performanceScore, desc: t[lang].scoresDesc },
+                        { key: "mobility_score", label: t[lang].mobilityScore, desc: t[lang].scoresDesc },
+                        { key: "symmetry_score", label: t[lang].symmetryScore, desc: t[lang].scoresDesc },
+                        { key: "risk_score", label: t[lang].riskScore, desc: t[lang].scoresDesc }
                       ].map((score) => {
                         const val = formData[score.key as keyof typeof formData] as number;
                         return (
                           <div key={score.key} className="bg-black/35 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
                             <div className="space-y-1 mb-4">
                               <span className="text-xs font-black text-white uppercase tracking-wider block">{score.label}</span>
-                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wide block">{score.desc}</span>
+                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wide block">{t[lang].autoCalc}</span>
                             </div>
                             <div className="flex items-center gap-6">
                               <input 
@@ -605,16 +890,16 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {step === 3 && (
                     <div className="space-y-6 animate-fade-in">
                       <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 p-4 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-wide">
-                        Enter force measurements in <span className="text-[#22c55e]">kg</span>. Asymmetry % and status tags (OK / MONITOR / FOCUS) are calculated automatically.
+                        {t[lang].valdIntro}
                       </div>
                       
                       <div className="space-y-4">
                         {[
-                          { key: "hamstrings", label: "Hamstrings" },
-                          { key: "adductors", label: "Adductors" },
-                          { key: "hip_extension", label: "Hip Extension" },
-                          { key: "hip_abduction", label: "Hip Abduction" },
-                          { key: "hip_flexion", label: "Hip Flexion" }
+                          { key: "hamstrings", label: t[lang].hamstrings },
+                          { key: "adductors", label: t[lang].adductors },
+                          { key: "hip_extension", label: t[lang].hipExt },
+                          { key: "hip_abduction", label: t[lang].hipAbd },
+                          { key: "hip_flexion", label: t[lang].hipFlex }
                         ].map((m) => {
                           const left = formData[`${m.key}_left` as keyof typeof formData] as string;
                           const right = formData[`${m.key}_right` as keyof typeof formData] as string;
@@ -628,7 +913,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                               </div>
                               <div className="grid grid-cols-2 gap-4 md:col-span-2">
                                 <div className="space-y-1">
-                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Left (kg)</label>
+                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].left} (kg)</label>
                                   <input 
                                     type="number" step="0.1" placeholder="0.0"
                                     value={left}
@@ -637,7 +922,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Right (kg)</label>
+                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].right} (kg)</label>
                                   <input 
                                     type="number" step="0.1" placeholder="0.0"
                                     value={right}
@@ -648,7 +933,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                               </div>
                               <div className="flex justify-between items-center bg-black/40 border border-white/5 px-4 py-3.5 rounded-xl">
                                 <div className="space-y-0.5">
-                                  <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">Asymmetry</span>
+                                  <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">{t[lang].asym}</span>
                                   <span className="text-xs font-mono font-bold text-white block">{asym}%</span>
                                 </div>
                                 <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getSeverityLabelColor(status === 'OK' ? 'YELLOW' : status === 'MONITOR' ? 'ORANGE' : 'RED')}`}>
@@ -666,26 +951,26 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {step === 4 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
                       {[
-                        { key: "cspine_rotation", label: "C-Spine Rotation" },
-                        { key: "forward_bend", label: "Forward Bend" },
-                        { key: "hip_ir_left", label: "Hip IR Left" },
-                        { key: "hip_er_both", label: "Hip ER Both" },
-                        { key: "deep_squat", label: "Deep Squat" },
-                        { key: "ankle_df", label: "Ankle DF" },
-                        { key: "great_toe_ext", label: "Great Toe Ext." },
-                        { key: "single_leg_stand", label: "Single Leg Stand" }
-                      ].map((t) => {
-                        const val = formData[t.key as keyof typeof formData] as number;
+                        { key: "cspine_rotation", label: t[lang].cspine_rotation },
+                        { key: "forward_bend", label: t[lang].forward_bend },
+                        { key: "hip_ir_left", label: t[lang].hip_ir_left },
+                        { key: "hip_er_both", label: t[lang].hip_er_both },
+                        { key: "deep_squat", label: t[lang].deep_squat },
+                        { key: "ankle_df", label: t[lang].ankle_df },
+                        { key: "great_toe_ext", label: t[lang].great_toe_ext },
+                        { key: "single_leg_stand", label: t[lang].single_leg_stand }
+                      ].map((tField) => {
+                        const val = formData[tField.key as keyof typeof formData] as number;
                         return (
-                          <div key={t.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
+                          <div key={tField.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
-                              <span className="text-gray-300">{t.label}</span>
+                              <span className="text-gray-300">{tField.label}</span>
                               <span className={val >= 70 ? "text-green-400" : val >= 50 ? "text-amber-500" : "text-red-500"}>{val}%</span>
                             </div>
                             <input 
                               type="range" min="0" max="100" step="1"
                               value={val}
-                              onChange={e => setFormData({ ...formData, [t.key]: parseInt(e.target.value) })}
+                              onChange={e => setFormData({ ...formData, [tField.key]: parseInt(e.target.value) })}
                               className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e]"
                             />
                           </div>
@@ -709,12 +994,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {step === 6 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
                       {[
-                        { key: "acceleration_impact", label: "Acceleration" },
-                        { key: "sprint_impact", label: "Sprint" },
-                        { key: "change_of_direction_impact", label: "Change of Direction" },
-                        { key: "kicking_impact", label: "Kicking Mechanics" },
-                        { key: "landing_impact", label: "Landing Mechanics" },
-                        { key: "single_leg_stability", label: "Single-Leg Stability" }
+                        { key: "acceleration_impact", label: t[lang].acceleration_impact },
+                        { key: "sprint_impact", label: t[lang].sprint_impact },
+                        { key: "change_of_direction_impact", label: t[lang].change_of_direction_impact },
+                        { key: "kicking_impact", label: t[lang].kicking_impact },
+                        { key: "landing_impact", label: t[lang].landing_impact },
+                        { key: "single_leg_stability", label: t[lang].single_leg_stability }
                       ].map((i) => {
                         const val = formData[i.key as keyof typeof formData] as number;
                         return (
@@ -738,14 +1023,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {/* STEP 7: KEY FINDINGS & SUMMARY */}
                   {step === 7 && (
                     <div className="space-y-6 animate-fade-in">
-                      
                       {/* Findings entry */}
                       <div className="p-6 bg-black/40 border border-white/5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6">
                         <div className="md:col-span-12 text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
-                          Add Performance Finding
+                          {t[lang].addFinding}
                         </div>
                         <div className="md:col-span-4 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Title</label>
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].findingTitle}</label>
                           <input 
                             value={findingTitle}
                             onChange={e => setFindingTitle(e.target.value)}
@@ -754,7 +1038,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="md:col-span-5 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Description</label>
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].findingDesc}</label>
                           <input 
                             value={findingDesc}
                             onChange={e => setFindingDesc(e.target.value)}
@@ -763,7 +1047,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="md:col-span-3 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Severity</label>
+                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].severity}</label>
                           <div className="flex gap-2">
                             <select 
                               value={findingSev}
@@ -779,7 +1063,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                               onClick={addFinding}
                               className="px-3 bg-accent-green text-black font-black uppercase text-[10px] tracking-wider rounded-xl transition-all hover:opacity-90"
                             >
-                              Add
+                              {t[lang].addFindingBtn}
                             </button>
                           </div>
                         </div>
@@ -810,7 +1094,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       {/* Risk factors entry */}
                       <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-6">
                         <div className="text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
-                          Add Risk Factors
+                          {t[lang].riskFactorsTitle}
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {["Groin symptoms", "Hip mobility", "Ankle mobility", "Balance", "Pelvic control", "Hamstring tightness"].map(tag => (
@@ -826,7 +1110,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
                           <div className="md:col-span-6 space-y-2">
-                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Custom Risk Factor</label>
+                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].factorName}</label>
                             <input 
                               value={riskFactorName}
                               onChange={e => setRiskFactorName(e.target.value)}
@@ -835,7 +1119,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                             />
                           </div>
                           <div className="md:col-span-4 space-y-2">
-                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">Severity</label>
+                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].severity}</label>
                             <select 
                               value={riskFactorSev}
                               onChange={e => setRiskFactorSev(e.target.value as any)}
@@ -852,7 +1136,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                               onClick={() => addRiskFactor()}
                               className="w-full py-2 bg-accent-green text-black font-black uppercase text-[10px] tracking-wider rounded-xl transition-all hover:opacity-90"
                             >
-                              Add Tag
+                              {t[lang].addFactorBtn}
                             </button>
                           </div>
                         </div>
@@ -875,12 +1159,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
                       {/* Coach summary */}
                       <div className="space-y-2">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">Coach Summary Notes</label>
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">{t[lang].coachSummary}</label>
                         <textarea
                           rows={4}
                           value={formData.coach_summary}
                           onChange={e => setFormData({ ...formData, coach_summary: e.target.value })}
-                          placeholder="WRITE DETAILED LAB FINDINGS AND GENERAL HEALTH SUMMARY NOTES..."
+                          placeholder={t[lang].summaryPlaceholder}
                           className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-xs text-text-primary focus:border-accent-green outline-none resize-none"
                         />
                       </div>
@@ -893,11 +1177,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-4">
                         <div className="flex items-center gap-2 pb-2 border-b border-white/5">
                           <Bookmark size={14} className="text-accent-green" />
-                          <span className="text-[10px] font-black text-accent-green uppercase tracking-[3px]">Progress Tracking Registry</span>
+                          <span className="text-[10px] font-black text-accent-green uppercase tracking-[3px]">
+                            {t[lang].reviewTitle}
+                          </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Retest Recommended After</label>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].retestRecommended}</label>
                             <input 
                               type="date"
                               value={formData.retest_recommended_date}
@@ -906,13 +1192,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Compare Against Previous Assessment</label>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].comparePrev}</label>
                             <select 
                               value={formData.previous_assessment_id}
                               onChange={e => setFormData({ ...formData, previous_assessment_id: e.target.value })}
                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-white outline-none appearance-none"
                             >
-                              <option value="">NONE / FIRST ASSESSMENT</option>
+                              <option value="">{t[lang].noPrev}</option>
                               {history.map((h: any) => (
                                 <option key={h.id} value={h.id}>
                                   {h.assessment_date} - {h.assessment_type} ({h.status})
@@ -922,12 +1208,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">Improvement & Growth Notes</label>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].growthNotes}</label>
                           <textarea 
                             rows={3}
                             value={formData.improvement_notes}
                             onChange={e => setFormData({ ...formData, improvement_notes: e.target.value })}
-                            placeholder="e.g. Improved hip internal rotation by 5%..."
+                            placeholder={t[lang].growthPlaceholder}
                             className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-xs text-text-primary focus:border-accent-green outline-none resize-none"
                           />
                         </div>
@@ -936,10 +1222,10 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       {/* Summary dashboard representation */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                          { label: "Performance", val: formData.performance_score },
-                          { label: "Mobility", val: formData.mobility_score },
-                          { label: "Symmetry", val: formData.symmetry_score },
-                          { label: "Risk Score", val: formData.risk_score }
+                          { label: t[lang].performanceScore, val: formData.performance_score },
+                          { label: t[lang].mobilityScore, val: formData.mobility_score },
+                          { label: t[lang].symmetryScore, val: formData.symmetry_score },
+                          { label: t[lang].riskScore, val: formData.risk_score }
                         ].map(c => (
                           <div key={c.label} className="p-4 bg-black/40 border border-white/5 rounded-xl text-center">
                             <div className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{c.label}</div>
@@ -957,7 +1243,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           className="py-4 bg-bg-secondary border border-border-primary/50 text-white font-black text-[10px] tracking-widest rounded-xl hover:bg-white/5 transition-all flex items-center justify-center gap-2"
                         >
                           {loading ? <Loader2 size={12} className="animate-spin" /> : null}
-                          SAVE AS DRAFT
+                          {t[lang].draftText}
                         </button>
                         <button
                           type="button"
@@ -966,7 +1252,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           className="py-4 bg-accent-green text-black font-black text-[10px] tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(34,197,94,0.2)]"
                         >
                           {loading ? <Loader2 size={12} className="animate-spin" /> : null}
-                          SUBMIT FINAL ASSESSMENT
+                          {t[lang].submitText}
                         </button>
                       </div>
                     </div>
@@ -984,7 +1270,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   onClick={() => setStep(prev => prev - 1)}
                   className="px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black text-gray-400 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  <ArrowLeft size={12} /> Back
+                  <ArrowLeft size={12} /> {t[lang].back}
                 </button>
                 <button
                   type="button"
@@ -992,7 +1278,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   onClick={() => setStep(prev => prev + 1)}
                   className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  Next <ArrowRight size={12} />
+                  {t[lang].next} <ArrowRight size={12} />
                 </button>
               </div>
             )}
