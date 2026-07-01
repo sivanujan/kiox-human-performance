@@ -28,19 +28,66 @@ export async function POST(request: Request) {
 
     const adminClient = createAdminClient();
     
+    // Collect all unique IDs to batch fetch profiles and auth details
+    const allIds = new Set<string>();
+
+    if (notifyStaff) {
+      const { data: staffProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .in("role", ["staff", "superadmin"]);
+        
+      if (staffProfiles) {
+        staffProfiles.forEach(staff => allIds.add(staff.id));
+      }
+    }
+
+    for (const session of sessions) {
+      if (session.coachId) allIds.add(session.coachId);
+      if (session.athleteIds && Array.isArray(session.athleteIds)) {
+        session.athleteIds.forEach((id: string) => allIds.add(id));
+      }
+    }
+
+    // 1. Batch fetch profiles in a single DB query
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, first_name, role")
+      .in("id", Array.from(allIds));
+
+    const profilesMap = new Map((profiles || []).map(p => [p.id, p]));
+
+    // 2. Fetch user auth details (emails) in parallel
+    const userLookups = await Promise.all(
+      Array.from(allIds).map(async (id) => {
+        try {
+          const { data } = await adminClient.auth.admin.getUserById(id);
+          return { id, user: data?.user || null };
+        } catch (e) {
+          console.error("Error fetching user details from auth schema:", id, e);
+          return { id, user: null };
+        }
+      })
+    );
+
+    const usersMap = new Map();
+    userLookups.forEach(item => {
+      if (item.user) usersMap.set(item.id, item.user);
+    });
+
     // Map to collect sessions per recipient ID
     // Map<string, { email, name, role, sessions }>
     const recipientsMap = new Map<string, { email: string; name: string; role: string; sessions: { title: string; time: string }[] }>();
 
-    const getRecipient = async (id: string, defaultRole: string) => {
+    const getRecipientSync = (id: string, defaultRole: string) => {
       if (recipientsMap.has(id)) return recipientsMap.get(id);
       
-      const { data: profileData } = await supabase.from("profiles").select("first_name, role").eq("id", id).single();
-      const { data: userData } = await adminClient.auth.admin.getUserById(id);
+      const profileData = profilesMap.get(id);
+      const userData = usersMap.get(id);
       
-      if (userData?.user && userData.user.email) {
+      if (userData && userData.email) {
         const rec = {
-          email: userData.user.email,
+          email: userData.email,
           name: profileData?.first_name || defaultRole,
           role: profileData?.role === 'staff' || profileData?.role === 'superadmin' ? 'Staff' : (profileData?.role === 'athlete' ? 'Athlete' : 'Coach'),
           sessions: [] as { title: string; time: string }[]
@@ -51,7 +98,7 @@ export async function POST(request: Request) {
       return null;
     };
 
-    // Get all staff members if notifyStaff is true
+    // Pre-populate staff in recipient map if notifyStaff is active
     if (notifyStaff) {
       const { data: staffProfiles } = await supabase
         .from("profiles")
@@ -59,9 +106,7 @@ export async function POST(request: Request) {
         .in("role", ["staff", "superadmin"]);
         
       if (staffProfiles) {
-        for (const staff of staffProfiles) {
-          await getRecipient(staff.id, 'Staff');
-        }
+        staffProfiles.forEach(staff => getRecipientSync(staff.id, 'Staff'));
       }
     }
 
@@ -71,7 +116,7 @@ export async function POST(request: Request) {
 
       // Add to coach
       if (session.coachId) {
-        const coachRec = await getRecipient(session.coachId, 'Coach');
+        const coachRec = getRecipientSync(session.coachId, 'Coach');
         if (coachRec && !coachRec.sessions.find(s => s.title === sData.title && s.time === sData.time)) {
           coachRec.sessions.push(sData);
         }
@@ -80,7 +125,7 @@ export async function POST(request: Request) {
       // Add to athletes
       if (session.athleteIds && Array.isArray(session.athleteIds)) {
         for (const aId of session.athleteIds) {
-          const athleteRec = await getRecipient(aId, 'Athlete');
+          const athleteRec = getRecipientSync(aId, 'Athlete');
           if (athleteRec && !athleteRec.sessions.find(s => s.title === sData.title && s.time === sData.time)) {
             athleteRec.sessions.push(sData);
           }
@@ -98,29 +143,33 @@ export async function POST(request: Request) {
     const { sendEmail, getBulkSessionAssignmentTemplate } = await import("@/utils/email");
     
     let sentCount = 0;
-    for (const [id, recipient] of recipientsMap.entries()) {
-      if (!recipient.email || recipient.sessions.length === 0) continue;
-      
-      const emailSubject = "NEW ASSIGNMENTS: KIO-X Elite Portal";
-      const htmlContent = getBulkSessionAssignmentTemplate(
-        recipient.name,
-        dateStr,
-        recipient.role,
-        recipient.sessions
-      );
+    
+    // Send all assignment emails in parallel
+    await Promise.all(
+      Array.from(recipientsMap.entries()).map(async ([id, recipient]) => {
+        if (!recipient.email || recipient.sessions.length === 0) return;
+        
+        const emailSubject = "NEW ASSIGNMENTS: KIO-X Elite Portal";
+        const htmlContent = getBulkSessionAssignmentTemplate(
+          recipient.name,
+          dateStr,
+          recipient.role,
+          recipient.sessions
+        );
 
-      const emailResult = await sendEmail({
-        to: recipient.email,
-        subject: emailSubject,
-        html: htmlContent
-      });
-      
-      if (!emailResult.success) {
-        console.error("Failed to send email to", recipient.email, emailResult.error);
-      } else {
-        sentCount++;
-      }
-    }
+        const emailResult = await sendEmail({
+          to: recipient.email,
+          subject: emailSubject,
+          html: htmlContent
+        });
+        
+        if (!emailResult.success) {
+          console.error("Failed to send email to", recipient.email, emailResult.error);
+        } else {
+          sentCount++;
+        }
+      })
+    );
 
     return NextResponse.json({ success: true, count: sentCount });
   } catch (err: any) {

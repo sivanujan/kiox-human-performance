@@ -44,7 +44,7 @@ interface ScheduleItem {
   is_external: boolean;
   external_clients: ExternalClientEntry[];
   session_category: 'CURRICULUM' | 'SCHEDULE' | 'EMERGENCY';
-  session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM' | 'MEAL' | 'CURFEW' | 'LOGISTICS';
+  session_type: string;
   assigned_athletes: string[];
 }
 
@@ -83,7 +83,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
           training_end_date: defaultDate || format(new Date(), "yyyy-MM-dd")
         }
       ],
-      session_category: defaultIsCurriculum ? 'CURRICULUM' : (defaultIsCurriculum === false ? 'SCHEDULE' : 'SCHEDULE'),
+      session_category: (defaultIsCurriculum && profile?.role === 'superadmin') ? 'CURRICULUM' : 'SCHEDULE',
       session_type: 'TACTICAL',
       assigned_athletes: []
     }
@@ -127,7 +127,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
               training_end_date: initialDate
             }
           ],
-          session_category: defaultIsCurriculum ? 'CURRICULUM' : 'SCHEDULE',
+          session_category: (defaultIsCurriculum && profile?.role === 'superadmin') ? 'CURRICULUM' : 'SCHEDULE',
           session_type: 'TACTICAL',
           assigned_athletes: []
         }
@@ -536,22 +536,38 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
                                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
                                />
                              </div>
-                             <div className="space-y-2">
-                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Type</label>
-                               <select
-                                 value={item.session_type}
-                                 onChange={e => updateItem(item.id, { session_type: e.target.value as any })}
-                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
-                               >
-                                  <option value="TACTICAL" className="bg-[#111]">TACTICAL</option>
-                                  <option value="STRENGTH" className="bg-[#111]">STRENGTH</option>
-                                  <option value="CONDITIONING" className="bg-[#111]">CONDITIONING</option>
-                                  <option value="RECOVERY" className="bg-[#111]">RECOVERY</option>
-                                  <option value="LOGISTICS" className="bg-[#111]">LOGISTICS</option>
-                                  <option value="MEAL" className="bg-[#111]">MEAL</option>
-                                  <option value="CURFEW" className="bg-[#111]">CURFEW</option>
-                               </select>
-                             </div>
+                              <div className="space-y-2">
+                                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Type</label>
+                                <select
+                                  value={!["TACTICAL", "STRENGTH", "CONDITIONING", "RECOVERY", "LOGISTICS", "MEAL", "CURFEW"].includes(item.session_type) ? "CUSTOM" : item.session_type}
+                                  onChange={e => {
+                                    if (e.target.value === "CUSTOM") {
+                                      updateItem(item.id, { session_type: "" });
+                                    } else {
+                                      updateItem(item.id, { session_type: e.target.value });
+                                    }
+                                  }}
+                                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
+                                >
+                                   <option value="TACTICAL" className="bg-[#111]">TACTICAL</option>
+                                   <option value="STRENGTH" className="bg-[#111]">STRENGTH</option>
+                                   <option value="CONDITIONING" className="bg-[#111]">CONDITIONING</option>
+                                   <option value="RECOVERY" className="bg-[#111]">RECOVERY</option>
+                                   <option value="LOGISTICS" className="bg-[#111]">LOGISTICS</option>
+                                   <option value="MEAL" className="bg-[#111]">MEAL</option>
+                                   <option value="CURFEW" className="bg-[#111]">CURFEW</option>
+                                   <option value="CUSTOM" className="bg-[#111]">CUSTOM TYPE...</option>
+                                </select>
+                                {!["TACTICAL", "STRENGTH", "CONDITIONING", "RECOVERY", "LOGISTICS", "MEAL", "CURFEW"].includes(item.session_type) && (
+                                   <input 
+                                     required
+                                     value={item.session_type}
+                                     onChange={e => updateItem(item.id, { session_type: e.target.value.toUpperCase() })}
+                                     placeholder="EX: YOGA / MATCH_PREP"
+                                     className="w-full mt-2 bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                   />
+                                )}
+                              </div>
                             <div className="space-y-2">
                                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Start Time</label>
                                <input 

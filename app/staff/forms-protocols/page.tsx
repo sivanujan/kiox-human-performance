@@ -3,12 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck } from "lucide-react";
+import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck, Lock } from "lucide-react";
 import CheckupList from "@/components/forms-protocols/CheckupList";
 import FunctionalCheckupForm from "@/components/forms-protocols/FunctionalCheckupForm";
 import DocumentLibrary from "@/components/forms-protocols/DocumentLibrary";
+import SecureProtocolDownload from "@/components/forms-protocols/SecureProtocolDownload";
+import DownloadSchedulesModal from "@/components/forms-protocols/DownloadSchedulesModal";
 
-type ActiveTab = "checkups" | "documents";
+type ActiveTab = "checkups" | "documents" | "protocols";
 
 export default function StaffFormsAndProtocolsPage() {
   const { profile, loading } = useAuth();
@@ -18,6 +20,7 @@ export default function StaffFormsAndProtocolsPage() {
   const [selectedCheckupId, setSelectedCheckupId] = useState<string | null>(null);
   const [checkupReadOnly, setCheckupReadOnly] = useState(false);
   const [isCreatingCheckup, setIsCreatingCheckup] = useState(false);
+  const [isSchedulesModalOpen, setIsSchedulesModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && (!profile || (profile.role !== "superadmin" && profile.role !== "staff" && profile.role !== "medical"))) {
@@ -61,6 +64,7 @@ export default function StaffFormsAndProtocolsPage() {
   };
 
   const isCheckupFormActive = selectedCheckupId !== null || isCreatingCheckup;
+  const isAuthorizedForProtocol = profile?.role === "superadmin" || profile?.role === "staff";
 
   return (
     <div className="space-y-6">
@@ -109,13 +113,28 @@ export default function StaffFormsAndProtocolsPage() {
               Library
             </button>
 
-            {/* Training schedules link redirect */}
+            {/* Protocols Tab (visible to superadmin/staff only) */}
+            {isAuthorizedForProtocol && (
+              <button
+                onClick={() => setActiveTab("protocols")}
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all active-scale ${
+                  activeTab === "protocols"
+                    ? "bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 text-[var(--accent-green)] font-black"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent"
+                }`}
+              >
+                <Lock size={14} />
+                Protocols
+              </button>
+            )}
+
+            {/* Training schedules modal trigger */}
             <button
-              onClick={() => router.push("/staff/curriculum")}
+              onClick={() => setIsSchedulesModalOpen(true)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent active-scale"
             >
               <Calendar size={14} />
-              Schedules →
+              Schedules
             </button>
           </div>
         )}
@@ -134,9 +153,17 @@ export default function StaffFormsAndProtocolsPage() {
           onSelectCheckup={handleSelectCheckup}
           onCreateNew={handleCreateNewCheckup}
         />
-      ) : (
+      ) : activeTab === "documents" ? (
         <DocumentLibrary />
+      ) : (
+        <SecureProtocolDownload />
       )}
+
+      <DownloadSchedulesModal
+        isOpen={isSchedulesModalOpen}
+        onClose={() => setIsSchedulesModalOpen(false)}
+        adminRedirectPath="/staff/curriculum"
+      />
     </div>
   );
 }

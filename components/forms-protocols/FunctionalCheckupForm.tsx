@@ -16,40 +16,40 @@ interface FunctionalCheckupFormProps {
 const DEFAULT_REGIONS: Record<string, { test: string; procedure: string }[]> = {
   "1. Cervical Spine (Neck)": [
     { test: "Rotation 80/0/80", procedure: "Active movement in sitting position" },
-    { test: "Seitneigung 45/0/45", procedure: "Active movement in sitting position" },
+    { test: "Lateral Flexion 45/0/45", procedure: "Active movement in sitting position" },
     { test: "Flexion/Extension 40/0/40", procedure: "Active movement in sitting position" }
   ],
   "2. Lumbar Spine (Lower Back)": [
-    { test: "Vorbeugtest", procedure: "Standing forward bend, monitor pelvis & spine" }
+    { test: "Forward Bend Test", procedure: "Standing forward bend, monitor pelvis & spine" }
   ],
   "3. Pelvis & Hip": [
     { test: "FABER-Test", procedure: "Flexion, Abduction, External Rotation" },
     { test: "Thomas-Test", procedure: "Evaluate hip flexion contracture/iliopsoas tightness" },
-    { test: "Beweglichkeit-Hüfte", procedure: "Internal/External rotation & abduction" },
-    { test: "Vorlauftest", procedure: "Standing spine flexion, palpate PSIS" },
-    { test: "Sacrumtest", procedure: "Springing/provocation test on sacrum" }
+    { test: "Hip Mobility", procedure: "Internal/External rotation & abduction" },
+    { test: "Standing Forward Flexion Test", procedure: "Standing spine flexion, palpate PSIS" },
+    { test: "Sacrum Test", procedure: "Springing/provocation test on sacrum" }
   ],
   "4. Knee & Ankle": [
-    { test: "Kniebeweglichkeit", procedure: "Flexion & extension mobility" },
-    { test: "Tiefe Hocke", procedure: "Deep squat assessment, heels on floor" },
-    { test: "Dorsalfexion-Test", procedure: "Weight-bearing lunge test" },
-    { test: "OSG/Talus/Fibula", procedure: "Upper ankle joint translation & fibular head mobility" },
-    { test: "USG/Navic./Cuboid/Calcium", procedure: "Subtalar joint and midfoot mobility" }
+    { test: "Knee Mobility", procedure: "Flexion & extension mobility" },
+    { test: "Deep Squat", procedure: "Deep squat assessment, heels on floor" },
+    { test: "Dorsiflexion Test", procedure: "Weight-bearing lunge test" },
+    { test: "Upper Ankle Joint (Talus/Fibula)", procedure: "Upper ankle joint translation & fibular head mobility" },
+    { test: "Subtalar Joint (Navic./Cuboid/Calcaneus)", procedure: "Subtalar joint and midfoot mobility" }
   ],
   "5. Jaw, Breathing Mechanics & Thorax": [
-    { test: "Mundöffnung", procedure: "3-finger test width for jaw opening" },
-    { test: "Thoraxexpansion", procedure: "Chest circumference change during deep breathing" },
-    { test: "Zwerchfellaktivität", procedure: "Diaphragm excursions palpation" }
+    { test: "Jaw Opening", procedure: "3-finger test width for jaw opening" },
+    { test: "Thorax Expansion", procedure: "Chest circumference change during deep breathing" },
+    { test: "Diaphragm Activity", procedure: "Diaphragm excursions palpation" }
   ],
   "6. Visceral Check": [
-    { test: "Oberbauch", procedure: "Palpation of liver, stomach, gallbladder area" },
-    { test: "Unterbauch", procedure: "Palpation of intestines, cecum, sigmoid area" },
-    { test: "Becken", procedure: "Urogenital system & pelvic floor visceral check" }
+    { test: "Upper Abdomen", procedure: "Palpation of liver, stomach, gallbladder area" },
+    { test: "Lower Abdomen", procedure: "Palpation of intestines, cecum, sigmoid area" },
+    { test: "Pelvis", procedure: "Urogenital system & pelvic floor visceral check" }
   ],
   "7. Isolated Strength Tests": [
-    { test: "RL muscle group tests", procedure: "Supine isolated muscle resistance" },
-    { test: "SL muscle group tests", procedure: "Side-lying isolated muscle resistance" },
-    { test: "BL muscle group tests", procedure: "Prone isolated muscle resistance" }
+    { test: "Supine (RL) muscle group tests", procedure: "Supine isolated muscle resistance" },
+    { test: "Side-lying (SL) muscle group tests", procedure: "Side-lying isolated muscle resistance" },
+    { test: "Prone (BL) muscle group tests", procedure: "Prone isolated muscle resistance" }
   ],
   "8. Gait Analysis & Drop Jump": [
     { test: "Single Leg Stand 30sec", procedure: "Balance & stability check on left/right leg" }
@@ -351,16 +351,16 @@ export default function FunctionalCheckupForm({
             <tbody>
               ${tests
                 .map((t, index) => {
-                  const finalBefund = t.result === "Custom" ? t.resultCustom : t.result;
-                  const isRestricted = finalBefund === "Restricted" || finalBefund === "Eingeschränkt";
+                  const finalResult = t.result === "Custom" ? t.resultCustom : t.result;
+                  const isRestricted = finalResult === "Restricted" || finalResult === "Eingeschränkt";
                   
                   let badgeHtml = "";
-                  if (finalBefund === "OK") {
+                  if (finalResult === "OK") {
                     badgeHtml = `<span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">OK</span>`;
                   } else if (isRestricted) {
                     badgeHtml = `<span style="background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">Restricted</span>`;
                   } else {
-                    badgeHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">${finalBefund || 'Custom'}</span>`;
+                    badgeHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">${finalResult || 'Custom'}</span>`;
                   }
 
                   const rowBg = index % 2 === 0 ? "#ffffff" : "#f8fafc";

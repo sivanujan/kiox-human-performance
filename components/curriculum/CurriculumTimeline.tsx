@@ -462,7 +462,6 @@ export default function CurriculumTimeline() {
         isOpen={!!selectedSession}
         onClose={() => { setSelectedSession(null); fetchDayData(); fetchMonthCurriculumDates(); }}
         session={selectedSession}
-      />
-    </div>
+      />    </div>
   );
 }

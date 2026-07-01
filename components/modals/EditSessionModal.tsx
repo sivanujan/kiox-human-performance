@@ -305,14 +305,40 @@ export default function EditSessionModal({
                   <div>
                     <label className={labelCls}><Zap size={10} className="inline mr-1" />Session Type</label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {SESSION_TYPES.map(t => (
-                        <button key={t.value} onClick={() => setSessionType(t.value)}
-                          className={`px-3 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
-                            sessionType === t.value ? t.active : "border-white/10 text-white/30 hover:border-white/20 hover:text-white/50"
-                          }`}
-                        >{t.label}</button>
-                      ))}
+                      {SESSION_TYPES.map(t => {
+                        const isSelected = t.value === "CUSTOM" 
+                          ? !["STRENGTH", "TACTICAL", "CONDITIONING", "RECOVERY", "MEAL", "CURFEW", "LOGISTICS"].includes(sessionType) 
+                          : sessionType === t.value;
+                        return (
+                          <button 
+                            key={t.value} 
+                            type="button"
+                            onClick={() => {
+                              if (t.value === "CUSTOM") {
+                                setSessionType("");
+                              } else {
+                                setSessionType(t.value);
+                              }
+                            }}
+                            className={`px-3 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
+                              isSelected ? t.active : "border-white/10 text-white/30 hover:border-white/20 hover:text-white/50"
+                            }`}
+                          >
+                            {t.label}
+                          </button>
+                        );
+                      })}
                     </div>
+                    {!["STRENGTH", "TACTICAL", "CONDITIONING", "RECOVERY", "MEAL", "CURFEW", "LOGISTICS"].includes(sessionType) && (
+                      <input 
+                        type="text" 
+                        required
+                        value={sessionType} 
+                        onChange={e => setSessionType(e.target.value.toUpperCase())} 
+                        placeholder="EX: YOGA / MATCH_PREP" 
+                        className="mt-3 w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium" 
+                      />
+                    )}
                   </div>
 
                   {/* Time & Duration */}

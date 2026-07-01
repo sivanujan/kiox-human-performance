@@ -7,7 +7,7 @@ import { format } from "date-fns";
 export interface TrainingSession {
   id: string;
   title: string;
-  session_type: 'STRENGTH' | 'TACTICAL' | 'CONDITIONING' | 'RECOVERY' | 'CUSTOM' | 'MEAL' | 'CURFEW' | 'LOGISTICS';
+  session_type: string;
   scheduled_date: string;
   start_time: string;
   duration_minutes: number;
