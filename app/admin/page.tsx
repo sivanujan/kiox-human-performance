@@ -139,7 +139,7 @@ export default function AdminDashboard() {
     if (!authLoading) {
       if (!user) {
         router.push("/signin");
-      } else if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
+      } else if (!['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile?.role || '')) {
         router.push("/dashboard");
       } else {
         fetchAdminData();

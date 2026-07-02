@@ -24,12 +24,12 @@ export default function AdminFormsAndProtocolsPage() {
   const [isSchedulesModalOpen, setIsSchedulesModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && (!profile || profile.role !== "superadmin")) {
+    if (!loading && (!profile || !['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile.role))) {
       router.push("/dashboard");
     }
   }, [profile, loading, router]);
 
-  if (loading || !profile || profile.role !== "superadmin") {
+  if (loading || !profile || !['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile.role)) {
     return (
       <div className="min-h-[400px] flex flex-col items-center justify-center gap-3">
         <Loader2 className="animate-spin text-[var(--accent-green)]" size={32} />

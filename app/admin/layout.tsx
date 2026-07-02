@@ -132,7 +132,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!loading && user) {
-      if (profile?.role !== 'superadmin') {
+      if (!['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile?.role || '')) {
         router.push("/dashboard");
       } else {
         fetchPendingCount();

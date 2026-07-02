@@ -10,22 +10,20 @@ export default function AdminCurriculumPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && profile && profile.role !== "superadmin") {
-      router.push("/admin");
+    if (!loading && profile && !['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile.role)) {
+      router.push("/dashboard");
     }
   }, [profile, loading, router]);
 
-  // Only block on auth loading — once auth resolves, render the timeline
-  // (The timeline has its own data loading state)
   if (loading) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-[#22c55e]/20 border-t-[#22c55e] animate-spin" />
+      <div className="p-8 flex items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--accent-green)]" />
       </div>
     );
   }
 
-  if (!profile || profile.role !== "superadmin") return null;
+  if (!profile || !['superadmin', 'admin', 'staff', 'coach', 'medical'].includes(profile.role)) return null;
 
   return <CurriculumTimeline />;
 }
