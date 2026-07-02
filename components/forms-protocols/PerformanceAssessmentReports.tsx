@@ -199,22 +199,34 @@ export default function PerformanceAssessmentReports() {
 
       // Build the HTML and inject into a hidden off-screen container
       const htmlContent = buildReportHtml(athleteName, avatarUrl, selectedAssessment);
+
+      // ── Extract the <style> block from the <head> BEFORE stripping it ──
+      // The .replace below would delete our entire .page{padding} stylesheet
+      // if we didn't pull it out first.
+      const styleMatch = htmlContent.match(/<style>([\s\S]*?)<\/style>/i);
+      const preservedStyle = styleMatch ? `<style>${styleMatch[1]}</style>` : "";
+
+      // Strip html/head/body wrappers, but keep the extracted style.
+      // Also remove <script> tags so downloadPDF() doesn't auto-fire.
+      const bodyContent = htmlContent
+        .replace(/[\s\S]*<body[^>]*>/i, "")
+        .replace(/<\/body>[\s\S]*/i, "")
+        .replace(/<script[\s\S]*?<\/script>/gi, "");
+
       const container = document.createElement("div");
+      // Container matches the exact page width so nothing clips on the right
       container.style.cssText = `
         position: fixed;
         top: -99999px;
         left: -99999px;
         width: 794px;
         z-index: -1;
-        background: #06060a;
+        background: #080d08;
         pointer-events: none;
+        box-sizing: border-box;
       `;
-      container.innerHTML = htmlContent
-        // Strip <html><head>...</head><body> wrapper — keep only body content
-        .replace(/[\s\S]*<body[^>]*>/i, "")
-        .replace(/<\/body>[\s\S]*/i, "")
-        // Remove the auto-print script
-        .replace(/<script[\s\S]*?<\/script>/gi, "");
+      // Inject preserved stylesheet first, then the body page divs
+      container.innerHTML = preservedStyle + bodyContent;
       document.body.appendChild(container);
 
       // Wait for fonts + backgrounds to render
@@ -253,8 +265,6 @@ export default function PerformanceAssessmentReports() {
       alert("PDF generation failed. Please check your browser console for details.");
     }
   };
-
-
 
   return (
     <div className="bg-bg-card border border-border-primary/50 rounded-2xl p-5 md:p-6 shadow-xl space-y-6 relative overflow-hidden">
@@ -408,6 +418,7 @@ export default function PerformanceAssessmentReports() {
     </div>
   );
 }
+
 // ==========================================
 // DYNAMIC REPORT HTML GENERATION BUILDER
 // Uses native window.print()
@@ -447,23 +458,23 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     return `
       <div style="flex:1;background:#141f14;border:1px solid #1f2d1f;border-radius:14px;
                   padding:22px 14px;text-align:center;position:relative;overflow:hidden;min-height:110px;
-                  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+                  display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 10px rgba(0,0,0,0.15);box-sizing:border-box;width:100%;">
         <div style="font-size:10px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">${label}</div>
         <div style="font-size:38px;font-weight:900;font-family:'Outfit',sans-serif;color:${color};line-height:1;">${val}<span style="font-size:16px;">%</span></div>
         <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:${color};"></div>
       </div>`;
   };
 
-  const bar = (label: string, val: number, max = 100, color?: string, barHeight = "14px") => {
+  const bar = (label: string, val: number, max = 100, color?: string, barHeight = "14px", rowMinHeight = "45px", marginBottom = "16px") => {
     const c = color || getScoreColor(val);
     const pct = Math.min(100, Math.round((val / max) * 100));
     return `
-      <div style="margin-bottom:14px;min-height:42px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="margin-bottom:${marginBottom};min-height:${rowMinHeight};display:flex;flex-direction:column;justify-content:center;width:100%;box-sizing:border-box;">
         <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:#ffffff;text-transform:uppercase;margin-bottom:6px;letter-spacing:1px;">
           <span>${label}</span><span style="color:${c};font-weight:900;">${val}${max===100?"%":"kg"}</span>
         </div>
         <div style="height:${barHeight};background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);">
-          <div style="height:100%;width:${pct}%;background:${c};border-radius:8px;transition:width 0.5s ease-in-out;"></div>
+          <div style="height:100%;width:${pct}%;background:${c};border-radius:8px;"></div>
         </div>
       </div>`;
   };
@@ -478,7 +489,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     
     if (l === 0 && r === 0) {
       return `
-        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;min-height:92px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;min-height:92px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);box-sizing:border-box;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:11px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">${label}</span>
             <span style="font-size:8px;font-weight:900;color:#9ca3af;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:3px 8px;border-radius:6px;">NO DATA RECORDED</span>
@@ -490,7 +501,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     const asym = Math.abs(((l - r) / max) * 100).toFixed(1);
     const asymColor = parseFloat(asym) < 10 ? "#22c55e" : parseFloat(asym) < 15 ? "#f97316" : "#ef4444";
     return `
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;box-shadow:0 4px 10px rgba(0,0,0,0.15);display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;box-shadow:0 4px 10px rgba(0,0,0,0.15);display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;width:100%;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:6px;">
           <span style="font-size:11px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">${label}</span>
           <span style="font-size:9px;font-weight:900;color:${asymColor};background:${asymColor}15;border:1px solid ${asymColor}30;padding:3px 9px;border-radius:6px;letter-spacing:1px;">ASYM ${asym}%</span>
@@ -498,12 +509,12 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div>
             <div style="font-size:8px;font-weight:800;color:#9ca3af;margin-bottom:5px;letter-spacing:1px;">LEFT CAPACITY</div>
-            ${bar("", l, Math.max(l,r,50)*1.2, "#3b82f6", "10px")}
+            ${bar("", l, Math.max(l,r,50)*1.2, "#3b82f6", "10px", "35px", "8px")}
             <div style="font-size:13px;font-weight:900;color:#3b82f6;margin-top:2px;">${l} kg</div>
           </div>
           <div>
             <div style="font-size:8px;font-weight:800;color:#9ca3af;margin-bottom:5px;letter-spacing:1px;">RIGHT CAPACITY</div>
-            ${bar("", r, Math.max(l,r,50)*1.2, "#22c55e", "10px")}
+            ${bar("", r, Math.max(l,r,50)*1.2, "#22c55e", "10px", "35px", "8px")}
             <div style="font-size:13px;font-weight:900;color:#22c55e;margin-top:2px;">${r} kg</div>
           </div>
         </div>
@@ -511,7 +522,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
   };
 
   const header = (page: string, title: string, sub: string) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:12px;margin-bottom:24px;">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:12px;margin-bottom:24px;height:60px;">
       <div>
         <div style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:900;letter-spacing:2px;color:#fff;">KIO-<span style="color:#22c55e;">X</span> PERFORMANCE</div>
         <div style="font-size:9px;font-weight:800;color:#22c55e;text-transform:uppercase;letter-spacing:4px;margin-top:4px;">${sub}</div>
@@ -522,11 +533,14 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
       </div>
     </div>`;
 
+  const athleteFooterText = `ATHLETE: ${athleteName} - CONFIDENTIAL`;
+  const athleteFooterFontSize = athleteName.length > 25 ? "7.5px" : "8px";
+
   const footer = `
-    <div style="border-top:1px solid #1f2d1f;padding-top:12px;display:flex;justify-content:space-between;
-                font-size:8px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;">
-      <span>KIO-X Performance Center - ${record.assessment_date}</span>
-      <span>Athlete: ${athleteName} - CONFIDENTIAL</span>
+    <div class="page-footer" style="border-top:1px solid #1f2d1f;padding:12px 0 0 0;display:flex;justify-content:space-between;align-items:center;
+                font-size:${athleteFooterFontSize};font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;height:30px;margin-top:auto;">
+      <span>KIO-X PERFORMANCE CENTER - ${record.assessment_date}</span>
+      <span>${athleteFooterText}</span>
     </div>`;
 
   return `<!DOCTYPE html>
@@ -535,6 +549,38 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
   <meta charset="UTF-8">
   <title>KIO-X Performance Report - ${athleteName}</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    async function downloadPDF() {
+      try {
+        const h2c = window.html2canvas;
+        const { jsPDF } = window.jspdf;
+        const pages = Array.from(document.querySelectorAll(".page"));
+        const pdf = new jsPDF({ unit: "px", format: [794, 1123], orientation: "portrait", hotfixes: ["px_scaling"] });
+
+        for (let i = 0; i < pages.length; i++) {
+          const canvas = await h2c(pages[i], {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: 794,
+            height: 1123,
+            windowWidth: 794,
+            backgroundColor: "#06060a",
+          });
+          const imgData = canvas.toDataURL("image/jpeg", 0.92);
+          if (i > 0) pdf.addPage([794, 1123], "portrait");
+          pdf.addImage(imgData, "JPEG", 0, 0, 794, 1123);
+        }
+
+        const safeAthleteSlug = "${athleteName.replace(/\s+/g, "_").toUpperCase()}";
+        pdf.save("KIO-X_" + safeAthleteSlug + "_" + "${record.assessment_date}" + ".pdf");
+      } catch (err) {
+        console.error("PDF download error:", err);
+      }
+    }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -563,26 +609,31 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     }
 
     .page {
-      width: 210mm;
-      min-height: 297mm;
-      max-height: 297mm;
+      /* Use explicit px — mm units can be unreliable in html2canvas/canvas context */
+      width: 794px;
+      height: 1123px;
+      min-height: 1123px;
+      max-height: 1123px;
       overflow: hidden;
       background-color: #080d08;
-      /* Layered: subtle hex grid + green radial glow + dark vignette */
       background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 0 L56 14 L56 42 L28 56 L0 42 L0 14 Z' fill='none' stroke='rgba(34,197,94,0.03)' stroke-width='1'/%3E%3Cpath d='M28 56 L56 70 L56 98 L28 112 L0 98 L0 70 Z' fill='none' stroke='rgba(34,197,94,0.03)' stroke-width='1'/%3E%3C/svg%3E"),
         radial-gradient(ellipse 70% 50% at 20% 30%, rgba(34,197,94,0.045) 0%, transparent 60%),
         radial-gradient(ellipse 50% 40% at 80% 70%, rgba(59,130,246,0.03) 0%, transparent 55%),
         linear-gradient(160deg, #0f1a0f 0%, #080d08 40%, #050805 100%);
       background-size: 56px 100px, cover, cover, cover;
-      padding: 16mm 18mm;
+      /* Single source of padding — 28px L/R breathing room, 60px top/bottom */
+      padding: 60px 28px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
       box-sizing: border-box;
     }
-    .page > * { position: relative; z-index: 1; }
+    /* Absolute overlays (avatar, gradient) still cover full 794px bleed area */
+    .page > [style*="position:absolute"] { z-index: 0; }
+    /* All other direct children sit inside the padded content box */
+    .page > :not([style*="position:absolute"]) { position: relative; z-index: 1; }
   </style>
 </head>
 <body>
@@ -595,105 +646,198 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
   }
   <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,13,8,0.92) 0%,rgba(5,8,5,0.97) 100%);"></div>
   
-  <div style="position:relative;z-index:10;display:flex;flex-direction:column;justify-content:space-between;height:100%;flex:1;">
+  <div style="position:relative;z-index:10;display:flex;flex-direction:column;justify-content:space-between;flex:1;">
     <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:12px;">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #22c55e;padding-bottom:12px;height:60px;margin-bottom:24px;">
       <div style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:900;letter-spacing:3px;color:#fff;">KIO-<span style="color:#22c55e;">X</span> PERFORMANCE</div>
       <div style="font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;">${record.assessment_date}</div>
     </div>
 
-    <!-- Athlete name -->
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;margin:40px 0;">
-      <div style="font-size:12px;font-weight:900;color:#22c55e;letter-spacing:6px;text-transform:uppercase;margin-bottom:12px;">Elite Athlete Dossier</div>
-      <div style="font-family:'Outfit',sans-serif;font-size:52px;font-weight:900;line-height:1.1;text-transform:uppercase;letter-spacing:3px;color:#ffffff;margin-bottom:12px;word-wrap:break-word;">
-        ${athleteName}
-      </div>
-      <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:3px;">
-        ${(record.assessment_type||"Full Assessment").replace(/_/g," ")} - Season ${record.season||"2026/2027"}
-      </div>
-    </div>
-
-    <!-- Score cards row -->
-    <div style="display:flex;gap:12px;margin-bottom:24px;width:100%;">
-      ${scoreCard("Performance", perf)}
-      ${scoreCard("Mobility", mob)}
-      ${scoreCard("Symmetry", sym)}
-      ${scoreCard("Injury Risk", risk, true)}
-    </div>
-
-    <!-- Key findings preview & summary -->
-    <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;flex:0.8;justify-content:flex-end;">
-      ${findings.length > 0 ? `
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Key Findings</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          ${findings.slice(0,3).map((f: string,i: number) => `
-            <div style="display:flex;gap:10px;align-items:flex-start;">
-              <span style="background:#22c55e;color:#000;width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
-              <span style="font-size:11px;color:#ffffff;font-weight:500;">${f}</span>
-            </div>`).join("")}
+    <!-- Content (flex-grow to fill space) -->
+    <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;">
+      <!-- Athlete name -->
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;margin:30px 0;">
+        <div style="font-size:12px;font-weight:900;color:#22c55e;letter-spacing:6px;text-transform:uppercase;margin-bottom:12px;">Elite Athlete Dossier</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:52px;font-weight:900;line-height:1.1;text-transform:uppercase;letter-spacing:3px;color:#ffffff;margin-bottom:12px;word-wrap:break-word;">
+          ${athleteName}
         </div>
-      </div>` : `
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;text-align:center;color:#9ca3af;font-size:11px;font-style:italic;">
-        No findings recorded
-      </div>`}
+        <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:3px;">
+          ${(record.assessment_type||"Full Assessment").replace(/_/g," ")} - Season ${record.season||"2026/2027"}
+        </div>
+      </div>
 
-      ${record.coach_summary ? `
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Coach Summary</div>
-        <p style="font-size:11px;color:#9ca3af;line-height:1.6;font-style:italic;margin:0;">
-          "${record.coach_summary}"
-        </p>
-      </div>` : ""}
+      <!-- Score cards row -->
+      <div style="display:flex;gap:12px;margin-bottom:24px;width:100%;">
+        ${scoreCard("Performance", perf)}
+        ${scoreCard("Mobility", mob)}
+        ${scoreCard("Symmetry", sym)}
+        ${scoreCard("Injury Risk", risk, true)}
+      </div>
+
+      <!-- Key findings preview & summary -->
+      <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:12px;flex:1.2;justify-content:flex-end;">
+        ${findings.length > 0 ? `
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:24px;box-shadow:0 4px 10px rgba(0,0,0,0.15);min-height:130px;">
+          <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Key Findings</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${findings.slice(0,3).map((f: string,i: number) => `
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <span style="background:#22c55e;color:#000;width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
+                <span style="font-size:12px;color:#ffffff;font-weight:500;">${f}</span>
+              </div>`).join("")}
+          </div>
+        </div>` : `
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:24px;text-align:center;color:#9ca3af;font-size:12px;font-style:italic;min-height:130px;display:flex;align-items:center;justify-content:center;">
+          No findings recorded
+        </div>`}
+
+        ${record.coach_summary ? `
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:24px;box-shadow:0 4px 10px rgba(0,0,0,0.15);min-height:120px;">
+          <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Coach Summary</div>
+          <p style="font-size:12px;color:#9ca3af;line-height:1.6;font-style:italic;margin:0;">
+            "${record.coach_summary}"
+          </p>
+        </div>` : ""}
+      </div>
     </div>
 
     ${footer}
   </div>
 </div>
 
-<!-- PAGE 2: FUNCTIONAL TESTS & MOBILITY -->
+<!-- PAGE 2: MOVEMENT & MOBILITY DASHBOARD -->
 <div class="page">
-  ${header("02","FUNCTIONAL ASSESSMENT","Movement Screen & Mobility")}
-  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;align-content:space-between;">
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Functional Tests</div>
-      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;">
-        ${bar("Deep Squat",           record.deep_squat           || 0, 100, undefined, "14px")}
-        ${bar("Inline Lunge",         record.inline_lunge         || 0, 100, undefined, "14px")}
-        ${bar("Hurdle Step",          record.hurdle_step          || 0, 100, undefined, "14px")}
-        ${bar("ASLR",                 record.aslr                 || 0, 100, undefined, "14px")}
-        ${bar("Shoulder Mobility",    record.shoulder_mobility    || 0, 100, undefined, "14px")}
-        ${bar("Rotary Stability",     record.rotary_stability     || 0, 100, undefined, "14px")}
-        ${bar("Trunk Stability",      record.trunk_stability_pushup || 0, 100, undefined, "14px")}
-        ${bar("Single Leg Stand",     record.single_leg_stand     || 0, 100, undefined, "14px")}
-      </div>
-    </div>
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Mobility Ranges</div>
-      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;">
-        ${bar("Ankle DF",       record.ankle_df        || 0, 100, undefined, "14px")}
-        ${bar("Hip IR Left",    record.hip_ir_left     || 0, 100, undefined, "14px")}
-        ${bar("Hip IR Right",   record.hip_ir_right    || 0, 100, undefined, "14px")}
-        ${bar("Hip ER Left",    record.hip_er_left     || 0, 100, undefined, "14px")}
-        ${bar("Hip ER Right",   record.hip_er_right    || 0, 100, undefined, "14px")}
-        ${bar("Cspine Rotation",record.cspine_rotation || 0, 100, undefined, "14px")}
-        ${bar("Forward Bend",   record.forward_bend    || 0, 100, undefined, "14px")}
-        ${bar("Hip Flexion",    record.hip_flexion     || 0, 100, undefined, "14px")}
-      </div>
-    </div>
-  </div>
-  
-  <!-- Mobility score summary -->
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Overall Mobility Index</div>
-        <div style="font-size:12px;color:#9ca3af;font-weight:500;">
-          Hip rotation, ankle dorsiflexion, and spinal flexibility metrics are combined.
+  ${header("02","MOVEMENT & MOBILITY DASHBOARD","Functional Screen & Mobility Profile")}
+  <div class="page-content" style="flex:1;display:flex;flex-direction:column;gap:16px;overflow:hidden;margin-bottom:24px;">
+
+    <!-- Row 1: Radar Chart + Body Map side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:310px;">
+
+      <!-- MOBILITY PROFILE radar chart (SVG) -->
+      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;display:flex;flex-direction:column;">
+        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:6px;">Mobility Profile</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 240 200" width="240" height="200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Axes labels -->
+            <text x="120" y="14" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Hip</text>
+            <text x="222" y="82" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Ankle</text>
+            <text x="200" y="175" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Balance</text>
+            <text x="120" y="198" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Foot Chain</text>
+            <text x="38" y="175" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Rotation</text>
+            <text x="18" y="82" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter,sans-serif" font-weight="700">Squat</text>
+
+            <!-- Background grid rings (3 rings at 33%, 66%, 100%) -->
+            ${[1,2,3].map(ring => {
+              const r = ring * 0.333;
+              const cx = 120, cy = 100, R = 72;
+              const pts = [0,1,2,3,4,5].map(i => {
+                const angle = (i * 60 - 90) * Math.PI / 180;
+                return `${cx + R*r*Math.cos(angle)},${cy + R*r*Math.sin(angle)}`;
+              }).join(" ");
+              return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+            }).join("")}
+
+            <!-- Axis lines from center -->
+            ${[0,1,2,3,4,5].map(i => {
+              const angle = (i * 60 - 90) * Math.PI / 180;
+              const cx = 120, cy = 100, R = 72;
+              return `<line x1="${cx}" y1="${cy}" x2="${cx + R*Math.cos(angle)}" y2="${cy + R*Math.sin(angle)}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+            }).join("")}
+
+            <!-- Data polygon -->
+            ${(() => {
+              const vals = [
+                Math.min(1, ((record.hip_ir_left || 0) + (record.hip_er_left || 0)) / 130),
+                Math.min(1, (record.ankle_df || 0) / 100),
+                Math.min(1, (record.single_leg_stand || 0) / 100),
+                Math.min(1, (record.great_toe_ext || record.forward_bend || 0) / 100),
+                Math.min(1, (record.cspine_rotation || 0) / 100),
+                Math.min(1, (record.deep_squat || 0) / 100),
+              ];
+              const cx = 120, cy = 100, R = 72;
+              const pts = vals.map((v, i) => {
+                const angle = (i * 60 - 90) * Math.PI / 180;
+                return `${cx + R*v*Math.cos(angle)},${cy + R*v*Math.sin(angle)}`;
+              }).join(" ");
+              return `<polygon points="${pts}" fill="rgba(34,197,94,0.25)" stroke="#22c55e" stroke-width="2"/>
+                      ${vals.map((v, i) => {
+                        const angle = (i * 60 - 90) * Math.PI / 180;
+                        return `<circle cx="${cx + R*v*Math.cos(angle)}" cy="${cy + R*v*Math.sin(angle)}" r="3.5" fill="#22c55e"/>`;
+                      }).join("")}`;
+            })()}
+          </svg>
         </div>
       </div>
-      <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(mob)};line-height:1;">${mob}<span style="font-size:20px;">%</span></div>
+
+      <!-- BODY MAP - FOCUS ZONES (SVG) -->
+      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;display:flex;flex-direction:column;">
+        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:6px;">Body Map — Focus Zones</div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;">
+          <svg viewBox="0 0 240 240" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body silhouette (simplified front view) -->
+            <!-- Head -->
+            <circle cx="120" cy="28" r="18" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1.5"/>
+            <!-- Neck -->
+            <rect x="114" y="44" width="12" height="12" rx="3" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1"/>
+            <!-- Torso -->
+            <rect x="96" y="54" width="48" height="64" rx="8" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1.5"/>
+            <!-- Left arm -->
+            <rect x="76" y="56" width="18" height="52" rx="9" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1"/>
+            <!-- Right arm -->
+            <rect x="146" y="56" width="18" height="52" rx="9" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1"/>
+            <!-- Left leg -->
+            <rect x="98" y="118" width="20" height="70" rx="10" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1"/>
+            <!-- Right leg -->
+            <rect x="122" y="118" width="20" height="70" rx="10" fill="#1e2d1e" stroke="#2d3d2d" stroke-width="1"/>
+
+            <!-- FOCUS ZONE DOTS with labels -->
+            <!-- Groin (red - high risk) -->
+            <circle cx="150" cy="112" r="7" fill="#ef4444" opacity="0.9"/>
+            <text x="160" y="116" fill="#ef4444" font-size="8" font-family="Inter,sans-serif" font-weight="700">Groin</text>
+
+            <!-- Hip (orange - moderate) -->
+            <circle cx="88" cy="125" r="7" fill="#f97316" opacity="0.9"/>
+            <text x="58" y="129" fill="#f97316" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="end">Hip</text>
+
+            <!-- Balance (yellow) -->
+            <circle cx="150" cy="145" r="6" fill="#eab308" opacity="0.9"/>
+            <text x="160" y="149" fill="#eab308" font-size="8" font-family="Inter,sans-serif" font-weight="700">Balance</text>
+
+            <!-- Ankle (orange) -->
+            <circle cx="88" cy="175" r="6" fill="#f97316" opacity="0.9"/>
+            <text x="60" y="179" fill="#f97316" font-size="8" font-family="Inter,sans-serif" font-weight="700" text-anchor="end">Ankle</text>
+
+            <!-- Toe (red) -->
+            <circle cx="150" cy="185" r="5" fill="#ef4444" opacity="0.9"/>
+            <text x="160" y="189" fill="#ef4444" font-size="8" font-family="Inter,sans-serif" font-weight="700">Toe</text>
+          </svg>
+        </div>
+      </div>
     </div>
+
+    <!-- Row 2: FUNCTIONAL TEST STATUS bars in 2 columns -->
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px 24px;flex:1;">
+      <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:6px;">Functional Test Status</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 28px;">
+        ${bar("C-Spine Rotation",  record.cspine_rotation   || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Forward Bend",      record.forward_bend      || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Hip IR Left",       record.hip_ir_left       || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Hip ER Both",       Math.round(((record.hip_er_left||0)+(record.hip_er_right||0))/2), 100, undefined, "10px", "36px", "6px")}
+        ${bar("Deep Squat",        record.deep_squat        || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Ankle DF",          record.ankle_df          || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Great Toe Ext.",    record.great_toe_ext     || 0, 100, undefined, "10px", "36px", "6px")}
+        ${bar("Single Leg Stand",  record.single_leg_stand  || 0, 100, undefined, "10px", "36px", "6px")}
+      </div>
+    </div>
+
+    <!-- Row 3: INTERPRETATION -->
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:18px 24px;min-height:80px;">
+      <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:6px;">Interpretation</div>
+      <p style="font-size:11px;color:#9ca3af;line-height:1.6;margin:0;">
+        ${record.mobility_interpretation || "Movement limitations are concentrated around the hip-pelvis-foot chain. Restricted hip rotation and ankle dorsiflexion may reduce force transfer during sprinting, kicking and change-of-direction actions."}
+      </p>
+    </div>
+
   </div>
   ${footer}
 </div>
@@ -701,32 +845,33 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
 <!-- PAGE 3: VALD FORCE PROFILE -->
 <div class="page">
   ${header("03","VALD FORCE PROFILE","Bilateral Strength & Symmetry")}
-  
-  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3, auto);gap:16px;margin-bottom:24px;align-content:space-between;">
-    <div style="grid-column:1;">
-      ${valdRow("Hamstrings", "hamstrings_left", "hamstrings_right")}
-    </div>
-    <div style="grid-column:2;">
-      ${valdRow("Adductors", "adductors_left", "adductors_right")}
-    </div>
-    <div style="grid-column:1;">
-      ${valdRow("Hip Extension", "hip_extension_left", "hip_extension_right")}
-    </div>
-    <div style="grid-column:2;">
-      ${valdRow("Hip Abduction", "hip_abduction_left", "hip_abduction_right")}
-    </div>
-    <div style="grid-column:1 / span 2;">
-      ${valdRow("Hip Flexion", "hip_flexion_left", "hip_flexion_right")}
-    </div>
-  </div>
-  
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:10px;font-weight:900;color:#3b82f6;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Symmetry Index</div>
-        <div style="font-size:12px;color:#9ca3af;font-weight:500;">Bilateral force comparison across active muscle groups.</div>
+  <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;width:100%;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3, auto);gap:16px;margin-bottom:20px;flex:1;align-content:space-between;width:100%;">
+      <div style="grid-column:1;">
+        ${valdRow("Hamstrings", "hamstrings_left", "hamstrings_right")}
       </div>
-      <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(sym)};line-height:1;">${sym}<span style="font-size:20px;">%</span></div>
+      <div style="grid-column:2;">
+        ${valdRow("Adductors", "adductors_left", "adductors_right")}
+      </div>
+      <div style="grid-column:1;">
+        ${valdRow("Hip Extension", "hip_extension_left", "hip_extension_right")}
+      </div>
+      <div style="grid-column:2;">
+        ${valdRow("Hip Abduction", "hip_abduction_left", "hip_abduction_right")}
+      </div>
+      <div style="grid-column:1 / span 2;">
+        ${valdRow("Hip Flexion", "hip_flexion_left", "hip_flexion_right")}
+      </div>
+    </div>
+    
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:24px 20px;min-height:110px;box-shadow:0 4px 10px rgba(0,0,0,0.15);width:100%;box-sizing:border-box;">
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+        <div>
+          <div style="font-size:10px;font-weight:900;color:#3b82f6;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Symmetry Index</div>
+          <div style="font-size:12px;color:#9ca3af;font-weight:500;">Bilateral force comparison across active muscle groups.</div>
+        </div>
+        <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(sym)};line-height:1;">${sym}<span style="font-size:20px;">%</span></div>
+      </div>
     </div>
   </div>
   ${footer}
@@ -735,50 +880,52 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
 <!-- PAGE 4: PERFORMANCE IMPACT & RISK -->
 <div class="page">
   ${header("04","PERFORMANCE IMPACT","Athletic Capacity & Injury Risk")}
-  <div style="flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;margin-bottom:24px;align-content:space-between;">
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Performance Capacities</div>
-      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;">
-        ${bar("Acceleration",         record.acceleration_impact    || 0, 100, undefined, "14px")}
-        ${bar("Sprint",               record.sprint_impact          || 0, 100, undefined, "14px")}
-        ${bar("Change of Direction",  record.change_of_direction_impact || 0, 100, undefined, "14px")}
-        ${bar("Kicking Mechanics",    record.kicking_impact         || 0, 100, undefined, "14px")}
-        ${bar("Landing Mechanics",    record.landing_impact         || 0, 100, undefined, "14px")}
-        ${bar("Single-Leg Stability", record.single_leg_stability   || 0, 100, undefined, "14px")}
+  <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;width:100%;">
+    <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;flex:1;margin-bottom:20px;width:100%;">
+      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+        <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Performance Capacities</div>
+        <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;">
+          ${bar("Acceleration",         record.acceleration_impact    || 0, 100, undefined, "14px", "45px", "18px")}
+          ${bar("Sprint",               record.sprint_impact          || 0, 100, undefined, "14px", "45px", "18px")}
+          ${bar("Change of Direction",  record.change_of_direction_impact || 0, 100, undefined, "14px", "45px", "18px")}
+          ${bar("Kicking Mechanics",    record.kicking_impact         || 0, 100, undefined, "14px", "45px", "18px")}
+          ${bar("Landing Mechanics",    record.landing_impact         || 0, 100, undefined, "14px", "45px", "18px")}
+          ${bar("Single-Leg Stability", record.single_leg_stability   || 0, 100, undefined, "14px", "45px", "18px")}
+        </div>
+      </div>
+      
+      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+        <div style="font-size:11px;font-weight:900;color:#ef4444;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Risk Profile</div>
+        
+        <div style="text-align:center;margin:20px 0;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+          <div style="width:145px;height:145px;border-radius:50%;border:10px solid ${getScoreColor(risk, true)}20;border-top-color:${getScoreColor(risk, true)};display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 20px rgba(0,0,0,0.2);">
+            <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(risk,true)};line-height:1;">${risk}%</div>
+          </div>
+          <div style="font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;margin-top:16px;">Injury Risk Score</div>
+        </div>
+        
+        <div style="margin-top:10px;">
+          <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:4px;">Active Risk Factors</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${riskFactors.length > 0
+              ? riskFactors.map((r: any) => {
+                  const c = getSeverityColor(r.severity);
+                  return `<span style="padding:5px 12px;border-radius:8px;border:1px solid ${c}30;background:${c}10;font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.5px;">${r.name}</span>`;
+                }).join("")
+              : `<span style="font-size:10px;color:#9ca3af;font-style:italic;">No specific risk factors flagged.</span>`
+            }
+          </div>
+        </div>
       </div>
     </div>
     
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#ef4444;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Risk Profile</div>
-      
-      <div style="text-align:center;margin:20px 0;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-        <div style="width:120px;height:120px;border-radius:50%;border:8px solid ${getScoreColor(risk, true)}20;border-top-color:${getScoreColor(risk, true)};display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 20px rgba(0,0,0,0.2);">
-          <div style="font-size:42px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(risk,true)};line-height:1;">${risk}%</div>
-        </div>
-        <div style="font-size:9px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;margin-top:12px;">Injury Risk Score</div>
-      </div>
-      
-      <div>
-        <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:4px;">Active Risk Factors</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${riskFactors.length > 0
-            ? riskFactors.map((r: any) => {
-                const c = getSeverityColor(r.severity);
-                return `<span style="padding:4px 10px;border-radius:8px;border:1px solid ${c}30;background:${c}10;font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.5px;">${r.name}</span>`;
-              }).join("")
-            : `<span style="font-size:10px;color:#9ca3af;font-style:italic;">No specific risk factors flagged.</span>`
-          }
-        </div>
-      </div>
+    <!-- Interpretation Section -->
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:24px 20px;min-height:120px;box-shadow:0 4px 10px rgba(0,0,0,0.15);width:100%;box-sizing:border-box;">
+      <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Performance Interpretation</div>
+      <p style="font-size:12px;color:#9ca3af;line-height:1.6;margin:0;">
+        ${record.performance_interpretation || "Sprint: Reduced ankle dorsiflexion and unilateral asymmetry may limit linear force projection. Landing mechanics must prioritize multi-planar deceleration control to mitigate risk profiles."}
+      </p>
     </div>
-  </div>
-  
-  <!-- Interpretation Section -->
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Performance Interpretation</div>
-    <p style="font-size:11px;color:#9ca3af;line-height:1.6;margin:0;">
-      Sprint: Reduced ankle dorsiflexion and unilateral asymmetry may limit linear force projection. Landing mechanics must prioritize multi-planar deceleration control to mitigate risk profiles.
-    </p>
   </div>
   ${footer}
 </div>
@@ -786,27 +933,26 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
 <!-- PAGE 5: PRIORITIES & ROADMAP -->
 <div class="page">
   ${header("05","ACTION PLAN","Priorities & Return-to-Performance Roadmap")}
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:24px;">
-    
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;flex:1;margin-bottom:16px;display:flex;flex-direction:column;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Top Priorities</div>
-      <div style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:space-between;">
+  <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;width:100%;">
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;flex:1;margin-bottom:20px;display:flex;flex-direction:column;width:100%;">
+      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Top Priorities</div>
+      <div style="display:flex;flex-direction:column;gap:12px;flex:1;justify-content:space-between;">
         ${findings.length > 0
           ? findings.map((f: string, i: number) => `
-              <div style="display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:12px 16px;">
-                <span style="background:${i===0?"#ef4444":i===1?"#f97316":"#3b82f6"};color:#fff;width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
-                <span style="font-size:11px;color:#ffffff;font-weight:500;">${f}</span>
+              <div style="display:flex;gap:16px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:18px 24px;min-height:80px;flex:1;">
+                <span style="background:${i===0?"#ef4444":i===1?"#f97316":"#3b82f6"};color:#fff;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
+                <span style="font-size:12px;color:#ffffff;font-weight:500;line-height:1.4;">${f}</span>
               </div>`).join("")
-          : `<div style="padding:14px;text-align:center;font-size:11px;color:#9ca3af;font-style:italic;">No priority actions documented.</div>`
+          : `<div style="padding:20px;text-align:center;font-size:12px;color:#9ca3af;font-style:italic;display:flex;align-items:center;justify-content:center;flex:1;">No priority actions documented.</div>`
         }
       </div>
     </div>
 
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
+    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;min-height:330px;width:100%;">
       <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">8-Week Return-to-Performance Roadmap</div>
-      <div style="position:relative;padding:20px 0;margin:10px 0;">
-        <div style="position:absolute;left:0;right:0;top:28px;height:3px;background:rgba(255,255,255,0.08);z-index:1;"></div>
-        <div style="display:flex;justify-content:space-between;position:relative;z-index:2;">
+      <div style="position:relative;padding:24px 0;margin:12px 0;width:100%;">
+        <div style="position:absolute;left:0;right:0;top:44px;height:3px;background:rgba(255,255,255,0.08);z-index:1;"></div>
+        <div style="display:flex;justify-content:space-between;position:relative;z-index:2;width:100%;">
           ${[
             {week:"W0-1",label:"Baseline",color:"#22c55e",desc:"Initial testing"},
             {week:"W2-3",label:"Mobility",color:"#3b82f6",desc:"Joint mechanics"},
@@ -815,22 +961,22 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
             {week:"W7",label:"Sport",color:"#f43f5e",desc:"Skill integration"},
             {week:"W8",label:"Return",color:"#22c55e",desc:"Full clearance"},
           ].map(n => `
-            <div style="display:flex;flex-direction:column;align-items:center;width:75px;text-align:center;">
-              <div style="width:34px;height:34px;border-radius:50%;background:${n.color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;box-shadow:0 0 14px ${n.color}40;border:3px solid #141f14;">${n.week.slice(0,2)}</div>
-              <div style="font-size:9px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;">${n.label}</div>
-              <div style="font-size:7px;font-weight:600;color:#9ca3af;margin-top:2px;text-transform:uppercase;">${n.desc}</div>
+            <div style="display:flex;flex-direction:column;align-items:center;width:80px;text-align:center;">
+              <div style="width:44px;height:44px;border-radius:50%;background:${n.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;box-shadow:0 0 14px ${n.color}40;border:3px solid #141f14;">${n.week.slice(0,2)}</div>
+              <div style="font-size:9.5px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;margin-top:10px;">${n.label}</div>
+              <div style="font-size:8px;font-weight:600;color:#9ca3af;margin-top:3px;text-transform:uppercase;">${n.desc}</div>
             </div>`).join("")}
         </div>
       </div>
       
       <!-- Main Targets Checklist -->
-      <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.05);padding-top:14px;">
-        <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Primary Targets</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Eliminate bilateral asymmetries</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Build absolute force outputs</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Increase mobility thresholds</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Optimize load distribution</div>
+      <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.05);padding-top:18px;width:100%;">
+        <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">Primary Targets</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:50px;width:100%;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Eliminate bilateral asymmetries</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Build absolute force outputs</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Increase mobility thresholds</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Optimize load distribution</div>
         </div>
       </div>
     </div>
@@ -845,226 +991,41 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     KIO-X HUMAN PERFORMANCE
   </div>
 
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;flex:1;">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;flex:1;">
     ${header("06","EXECUTIVE SUMMARY","Season Assessment Overview")}
-    <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">English Report</div>
-        <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;flex:1;display:flex;align-items:center;">
-          "${record.coach_summary || "No summary evaluation notes assigned."}"
-        </p>
-      </div>
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Deutsch Bericht</div>
-        <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;flex:1;display:flex;align-items:center;">
-          "${record.coach_summary_de || record.coach_summary || "Keine Zusammenfassung eingetragen."}"
-        </p>
-      </div>
-    </div>
     
-    <!-- Score matrix repeat -->
-    <div style="display:flex;gap:12px;margin-bottom:24px;width:100%;">
-      ${scoreCard("Performance", perf)}
-      ${scoreCard("Mobility",    mob)}
-      ${scoreCard("Symmetry",    sym)}
-      ${scoreCard("Injury Risk", risk, true)}
-        ${bar("Hip IR Right",   record.hip_ir_right    || 0, 100, undefined, "14px")}
-        ${bar("Hip ER Left",    record.hip_er_left     || 0, 100, undefined, "14px")}
-        ${bar("Hip ER Right",   record.hip_er_right    || 0, 100, undefined, "14px")}
-        ${bar("Cspine Rotation",record.cspine_rotation || 0, 100, undefined, "14px")}
-        ${bar("Forward Bend",   record.forward_bend    || 0, 100, undefined, "14px")}
-        ${bar("Hip Flexion",    record.hip_flexion     || 0, 100, undefined, "14px")}
-      </div>
-    </div>
-  </div>
-  
-  <!-- Mobility score summary -->
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Overall Mobility Index</div>
-        <div style="font-size:12px;color:#9ca3af;font-weight:500;">
-          Hip rotation, ankle dorsiflexion, and spinal flexibility metrics are combined.
+    <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;">
+      <!-- Language Reports Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;height:240px;margin-bottom:24px;width:100%;">
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">English Report</div>
+          <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;margin:0;overflow:auto;flex:1;display:flex;align-items:center;">
+            "${record.coach_summary || "No summary evaluation notes assigned."}"
+          </p>
         </div>
-      </div>
-      <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(mob)};line-height:1;">${mob}<span style="font-size:20px;">%</span></div>
-    </div>
-  </div>
-  ${footer}
-</div>
-
-<!-- PAGE 3: VALD FORCE PROFILE -->
-<div class="page">
-  ${header("03","VALD FORCE PROFILE","Bilateral Strength & Symmetry")}
-  
-  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3, auto);gap:16px;margin-bottom:24px;align-content:space-between;">
-    <div style="grid-column:1;">
-      ${valdRow("Hamstrings", "hamstrings_left", "hamstrings_right")}
-    </div>
-    <div style="grid-column:2;">
-      ${valdRow("Adductors", "adductors_left", "adductors_right")}
-    </div>
-    <div style="grid-column:1;">
-      ${valdRow("Hip Extension", "hip_extension_left", "hip_extension_right")}
-    </div>
-    <div style="grid-column:2;">
-      ${valdRow("Hip Abduction", "hip_abduction_left", "hip_abduction_right")}
-    </div>
-    <div style="grid-column:1 / span 2;">
-      ${valdRow("Hip Flexion", "hip_flexion_left", "hip_flexion_right")}
-    </div>
-  </div>
-  
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:10px;font-weight:900;color:#3b82f6;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Symmetry Index</div>
-        <div style="font-size:12px;color:#9ca3af;font-weight:500;">Bilateral force comparison across active muscle groups.</div>
-      </div>
-      <div style="font-size:46px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(sym)};line-height:1;">${sym}<span style="font-size:20px;">%</span></div>
-    </div>
-  </div>
-  ${footer}
-</div>
-
-<!-- PAGE 4: PERFORMANCE IMPACT & RISK -->
-<div class="page">
-  ${header("04","PERFORMANCE IMPACT","Athletic Capacity & Injury Risk")}
-  <div style="flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;margin-bottom:24px;align-content:space-between;">
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Performance Capacities</div>
-      <div style="display:flex;flex-direction:column;justify-content:space-between;flex:1;">
-        ${bar("Acceleration",         record.acceleration_impact    || 0, 100, undefined, "14px")}
-        ${bar("Sprint",               record.sprint_impact          || 0, 100, undefined, "14px")}
-        ${bar("Change of Direction",  record.change_of_direction_impact || 0, 100, undefined, "14px")}
-        ${bar("Kicking Mechanics",    record.kicking_impact         || 0, 100, undefined, "14px")}
-        ${bar("Landing Mechanics",    record.landing_impact         || 0, 100, undefined, "14px")}
-        ${bar("Single-Leg Stability", record.single_leg_stability   || 0, 100, undefined, "14px")}
-      </div>
-    </div>
-    
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-      <div style="font-size:11px;font-weight:900;color:#ef4444;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Risk Profile</div>
-      
-      <div style="text-align:center;margin:20px 0;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-        <div style="width:120px;height:120px;border-radius:50%;border:8px solid ${getScoreColor(risk, true)}20;border-top-color:${getScoreColor(risk, true)};display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 20px rgba(0,0,0,0.2);">
-          <div style="font-size:42px;font-weight:900;font-family:'Outfit',sans-serif;color:${getScoreColor(risk,true)};line-height:1;">${risk}%</div>
-        </div>
-        <div style="font-size:9px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px;margin-top:12px;">Injury Risk Score</div>
-      </div>
-      
-      <div>
-        <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:4px;">Active Risk Factors</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${riskFactors.length > 0
-            ? riskFactors.map((r: any) => {
-                const c = getSeverityColor(r.severity);
-                return `<span style="padding:4px 10px;border-radius:8px;border:1px solid ${c}30;background:${c}10;font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.5px;">${r.name}</span>`;
-              }).join("")
-            : `<span style="font-size:10px;color:#9ca3af;font-style:italic;">No specific risk factors flagged.</span>`
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Interpretation Section -->
-  <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
-    <div style="font-size:10px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Performance Interpretation</div>
-    <p style="font-size:11px;color:#9ca3af;line-height:1.6;margin:0;">
-      Sprint: Reduced ankle dorsiflexion and unilateral asymmetry may limit linear force projection. Landing mechanics must prioritize multi-planar deceleration control to mitigate risk profiles.
-    </p>
-  </div>
-  ${footer}
-</div>
-
-<!-- PAGE 5: PRIORITIES & ROADMAP -->
-<div class="page">
-  ${header("05","ACTION PLAN","Priorities & Return-to-Performance Roadmap")}
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:24px;">
-    
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:20px;flex:1;margin-bottom:16px;display:flex;flex-direction:column;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Top Priorities</div>
-      <div style="display:flex;flex-direction:column;gap:10px;flex:1;justify-content:space-between;">
-        ${findings.length > 0
-          ? findings.map((f: string, i: number) => `
-              <div style="display:flex;gap:12px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:12px 16px;">
-                <span style="background:${i===0?"#ef4444":i===1?"#f97316":"#3b82f6"};color:#fff;width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
-                <span style="font-size:11px;color:#ffffff;font-weight:500;">${f}</span>
-              </div>`).join("")
-          : `<div style="padding:14px;text-align:center;font-size:11px;color:#9ca3af;font-style:italic;">No priority actions documented.</div>`
-        }
-      </div>
-    </div>
-
-    <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">8-Week Return-to-Performance Roadmap</div>
-      <div style="position:relative;padding:20px 0;margin:10px 0;">
-        <div style="position:absolute;left:0;right:0;top:28px;height:3px;background:rgba(255,255,255,0.08);z-index:1;"></div>
-        <div style="display:flex;justify-content:space-between;position:relative;z-index:2;">
-          ${[
-            {week:"W0-1",label:"Baseline",color:"#22c55e",desc:"Initial testing"},
-            {week:"W2-3",label:"Mobility",color:"#3b82f6",desc:"Joint mechanics"},
-            {week:"W4-5",label:"Strength",color:"#8b5cf6",desc:"Hypertrophy"},
-            {week:"W6",label:"Power",color:"#f97316",desc:"RFD metrics"},
-            {week:"W7",label:"Sport",color:"#f43f5e",desc:"Skill integration"},
-            {week:"W8",label:"Return",color:"#22c55e",desc:"Full clearance"},
-          ].map(n => `
-            <div style="display:flex;flex-direction:column;align-items:center;width:75px;text-align:center;">
-              <div style="width:34px;height:34px;border-radius:50%;background:${n.color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;box-shadow:0 0 14px ${n.color}40;border:3px solid #141f14;">${n.week.slice(0,2)}</div>
-              <div style="font-size:9px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;">${n.label}</div>
-              <div style="font-size:7px;font-weight:600;color:#9ca3af;margin-top:2px;text-transform:uppercase;">${n.desc}</div>
-            </div>`).join("")}
+        <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Deutsch Bericht</div>
+          <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;margin:0;overflow:auto;flex:1;display:flex;align-items:center;">
+            "${record.coach_summary_de || record.coach_summary || "Keine Zusammenfassung eingetragen."}"
+          </p>
         </div>
       </div>
       
-      <!-- Main Targets Checklist -->
-      <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,0.05);padding-top:14px;">
-        <div style="font-size:9px;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">Primary Targets</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Eliminate bilateral asymmetries</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Build absolute force outputs</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Increase mobility thresholds</div>
-          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#ffffff;"><span style="color:#22c55e;font-weight:bold;">✔</span> Optimize load distribution</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  ${footer}
-</div>
-
-<!-- PAGE 6: EXECUTIVE SUMMARY -->
-<div class="page" style="position:relative;">
-  <!-- Watermark in empty space -->
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);font-family:'Outfit',sans-serif;font-size:42px;font-weight:900;color:rgba(255,255,255,0.015);text-transform:uppercase;letter-spacing:8px;pointer-events:none;white-space:nowrap;z-index:0;text-align:center;">
-    KIO-X HUMAN PERFORMANCE
-  </div>
-
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;height:100%;flex:1;">
-    ${header("06","EXECUTIVE SUMMARY","Season Assessment Overview")}
-    <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">English Report</div>
-        <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;flex:1;display:flex;align-items:center;">
-          "${record.coach_summary || "No summary evaluation notes assigned."}"
-        </p>
-      </div>
-      <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:6px;">Deutsch Bericht</div>
-        <p style="font-size:12px;color:#9ca3af;line-height:1.7;font-style:italic;flex:1;display:flex;align-items:center;">
-          "${record.coach_summary_de || record.coach_summary || "Keine Zusammenfassung eingetragen."}"
-        </p>
+      <!-- Divider -->
+      <div style="border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:24px;width:100%;"></div>
+      
+      <!-- Score matrix repeat in 4-column Grid -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;width:100%;">
+        ${scoreCard("PERFORMANCE", perf)}
+        ${scoreCard("MOBILITY",    mob)}
+        ${scoreCard("SYMMETRY",    sym)}
+        ${scoreCard("INJURY RISK", risk, true)}
       </div>
     </div>
     
-    <!-- Score matrix repeat -->
-    <div style="display:flex;gap:12px;margin-bottom:24px;width:100%;">
-      ${scoreCard("Performance", perf)}
-      ${scoreCard("Mobility",    mob)}
-      ${scoreCard("Symmetry",    sym)}
-      ${scoreCard("Injury Risk", risk, true)}
-    </div>
     ${footer}
   </div>
-</div>`;
+</div>
+</body>
+</html>`;
 }
