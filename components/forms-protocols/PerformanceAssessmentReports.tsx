@@ -492,7 +492,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
         <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;min-height:92px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.1);box-sizing:border-box;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:11px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">${label}</span>
-            <div style="font-size:8px !important;font-weight:900;color:#9ca3af;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:4px 8px !important;border-radius:6px;line-height:1;">NO DATA RECORDED</div>
+            <div style="font-size:8px;font-weight:900;color:#9ca3af;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:4px 8px;border-radius:6px;line-height:1;">NO DATA RECORDED</div>
           </div>
         </div>`;
     }
@@ -504,7 +504,7 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
       <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:14px;padding:18px;margin-bottom:12px;box-shadow:0 4px 10px rgba(0,0,0,0.15);display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;width:100%;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.04);padding-bottom:6px;">
           <span style="font-size:11px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:1px;">${label}</span>
-          <div style="font-size:9px !important;font-weight:900;color:${asymColor};background:${asymColor}15;border:1px solid ${asymColor}30;padding:4px 10px !important;border-radius:6px;letter-spacing:1px;line-height:1;white-space:nowrap;">ASYM ${asym}%</div>
+          <div style="font-size:9px;font-weight:900;color:${asymColor};background:${asymColor}15;border:1px solid ${asymColor}30;padding:4px 10px;border-radius:6px;letter-spacing:1px;line-height:1;white-space:nowrap;">ASYM ${asym}%</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div>
@@ -582,8 +582,9 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
     }
   </script>
   <style>
-    /* margin reset; padding intentionally NOT zeroed globally — badge divs use inline padding:!important */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* margin reset; padding NOT zeroed globally to allow inline padding on badges to work without !important (which crashes html2canvas) */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    ul, ol { padding: 0; }
 
     @page {
       size: A4 portrait;
