@@ -936,14 +936,14 @@ export function buildReportHtml(athleteName: string, avatarUrl: string, record: 
   <div class="page-content" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;margin-bottom:24px;width:100%;">
     <div style="background:#141f14;border:1px solid #1f2d1f;border-radius:16px;padding:24px;flex:1;margin-bottom:20px;display:flex;flex-direction:column;width:100%;">
       <div style="font-size:11px;font-weight:900;color:#22c55e;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:8px;">Top Priorities</div>
-      <div style="display:flex;flex-direction:column;gap:12px;flex:1;justify-content:space-between;">
+      <div style="display:flex;flex-direction:column;gap:10px;justify-content:flex-start;">
         ${findings.length > 0
           ? findings.map((f: string, i: number) => `
-              <div style="display:flex;gap:16px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:18px 24px;min-height:80px;flex:1;">
+              <div style="display:flex;gap:16px;align-items:center;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:14px 20px;min-height:56px;width:100%;">
                 <span style="background:${i===0?"#ef4444":i===1?"#f97316":"#3b82f6"};color:#fff;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">${String(i+1).padStart(2,"0")}</span>
                 <span style="font-size:12px;color:#ffffff;font-weight:500;line-height:1.4;">${f}</span>
               </div>`).join("")
-          : `<div style="padding:20px;text-align:center;font-size:12px;color:#9ca3af;font-style:italic;display:flex;align-items:center;justify-content:center;flex:1;">No priority actions documented.</div>`
+          : `<div style="padding:20px;text-align:center;font-size:12px;color:#9ca3af;font-style:italic;display:flex;align-items:center;justify-content:center;">No priority actions documented.</div>`
         }
       </div>
     </div>
