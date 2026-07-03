@@ -149,6 +149,10 @@ export async function POST(
         improvement_notes: body.improvement_notes,
         retest_recommended_date: body.retest_recommended_date || null,
         
+        // Performance Diagnostics
+        step_test_data: body.step_test_data || [],
+        training_zones: body.training_zones || {},
+
         // Meta
         created_by: user.id
       })

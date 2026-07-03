@@ -70,6 +70,7 @@ const t = {
     FUNCTIONAL_CHECKUP: "FUNCTIONAL CHECKUP",
     VALD_FORCE: "VALD FORCE PROFILE",
     MATCH_PERFORMANCE: "MATCH PERFORMANCE DATA",
+    PERFORMANCE_DIAGNOSTICS: "PERFORMANCE DIAGNOSTICS",
 
     // Positions
     FORWARD: "FORWARD",
@@ -192,6 +193,7 @@ const t = {
     FUNCTIONAL_CHECKUP: "FUNKTIONELLER CHECK-UP",
     VALD_FORCE: "NUR VALD KRAFTPROLFIL",
     MATCH_PERFORMANCE: "SPIEL-LEISTUNGSDATEN",
+    PERFORMANCE_DIAGNOSTICS: "LEISTUNGSDIAGNOSTIK",
 
     // Positions
     FORWARD: "STÜRMER",
@@ -288,7 +290,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
   const [formData, setFormData] = useState({
     assessment_date: new Date().toISOString().split('T')[0],
-    assessment_type: "FULL_ASSESSMENT" as "FUNCTIONAL_CHECKUP" | "VALD_FORCE" | "MATCH_PERFORMANCE" | "FULL_ASSESSMENT",
+    assessment_type: "FULL_ASSESSMENT" as "FUNCTIONAL_CHECKUP" | "VALD_FORCE" | "MATCH_PERFORMANCE" | "FULL_ASSESSMENT" | "PERFORMANCE_DIAGNOSTICS",
     season: "2026/2027",
     height_cm: "",
     weight_kg: "",
@@ -337,19 +339,43 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
     // Progress
     previous_assessment_id: "",
     improvement_notes: "",
-    retest_recommended_date: ""
+    retest_recommended_date: "",
+
+    // Performance Diagnostics
+    step_test_data: [
+      { stage: 1, speed: "10.0", duration: "00:03:00", lactate: "2.10", heart_rate: "152" },
+      { stage: 2, speed: "10.8", duration: "00:03:00", lactate: "3.20", heart_rate: "163" },
+      { stage: 3, speed: "11.7", duration: "00:03:00", lactate: "3.50", heart_rate: "168" },
+      { stage: 4, speed: "12.6", duration: "00:03:00", lactate: "4.00", heart_rate: "179" },
+      { stage: 5, speed: "13.5", duration: "00:03:00", lactate: "4.60", heart_rate: "184" }
+    ] as { stage: number; speed: string; duration: string; lactate: string; heart_rate: string }[],
+    training_zones: {
+      regeneration: { lactate: "-6.11 - -2.23", heart_rate: "123 - 132", speed: "7.9 - 8.6" },
+      basic_training: { lactate: "-0.34 - 2.77", heart_rate: "139 - 158", speed: "9.0 - 10.4" },
+      build_up: { lactate: "2.77 - 3.54", heart_rate: "158 - 167", speed: "10.4 - 11.5" },
+      competition: { lactate: "3.54 - 3.86", heart_rate: "167 - 177", speed: "11.5 - 12.4" },
+      anaerobic: { lactate: "3.82 - 4.62", heart_rate: "176 - 184", speed: "12.3 - 13.5" }
+    } as any
   });
 
-  const STEPS = [
-    { step: 1, title: t[lang].step1, icon: <FileText size={14} /> },
-    { step: 2, title: t[lang].step2, icon: <Activity size={14} /> },
-    { step: 3, title: t[lang].step3, icon: <Scale size={14} /> },
-    { step: 4, title: t[lang].step4, icon: <ShieldCheck size={14} /> },
-    { step: 5, title: t[lang].step5, icon: <Target size={14} /> },
-    { step: 6, title: t[lang].step6, icon: <Zap size={14} /> },
-    { step: 7, title: t[lang].step7, icon: <BarChart3 size={14} /> },
-    { step: 8, title: t[lang].step8, icon: <ClipboardCheck size={14} /> }
-  ];
+  const STEPS = formData.assessment_type === "PERFORMANCE_DIAGNOSTICS"
+    ? [
+        { step: 1, title: t[lang].step1, icon: <FileText size={14} /> },
+        { step: 2, title: lang === "EN" ? "Step Test Data" : "Stufentestdaten", icon: <Activity size={14} /> },
+        { step: 3, title: lang === "EN" ? "Training Zones" : "Trainingsbereiche", icon: <Target size={14} /> },
+        { step: 4, title: t[lang].step7, icon: <BarChart3 size={14} /> },
+        { step: 5, title: t[lang].step8, icon: <ClipboardCheck size={14} /> }
+      ]
+    : [
+        { step: 1, title: t[lang].step1, icon: <FileText size={14} /> },
+        { step: 2, title: t[lang].step2, icon: <Activity size={14} /> },
+        { step: 3, title: t[lang].step3, icon: <Scale size={14} /> },
+        { step: 4, title: t[lang].step4, icon: <ShieldCheck size={14} /> },
+        { step: 5, title: t[lang].step5, icon: <Target size={14} /> },
+        { step: 6, title: t[lang].step6, icon: <Zap size={14} /> },
+        { step: 7, title: t[lang].step7, icon: <BarChart3 size={14} /> },
+        { step: 8, title: t[lang].step8, icon: <ClipboardCheck size={14} /> }
+      ];
 
   // Basic lists for interactive entry
   const [findingTitle, setFindingTitle] = useState("");
@@ -684,7 +710,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               <span className="text-[8px] font-bold text-text-muted uppercase tracking-widest block">
                 {t[lang].steps}
               </span>
-              <span className="text-lg font-mono font-black text-text-primary mt-1 block">{step} / 8</span>
+              <span className="text-lg font-mono font-black text-text-primary mt-1 block">{step} / {STEPS.length}</span>
             </div>
           </div>
 
@@ -794,6 +820,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                             <option value="FUNCTIONAL_CHECKUP">{t[lang].FUNCTIONAL_CHECKUP}</option>
                             <option value="VALD_FORCE">{t[lang].VALD_FORCE}</option>
                             <option value="MATCH_PERFORMANCE">{t[lang].MATCH_PERFORMANCE}</option>
+                            <option value="PERFORMANCE_DIAGNOSTICS">{t[lang].PERFORMANCE_DIAGNOSTICS}</option>
                           </select>
                         </div>
                         <div className="space-y-2">
@@ -862,8 +889,8 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     </div>
                   )}
 
-                  {/* STEP 2: OVERALL SCORES */}
-                  {step === 2 && (
+                  {/* STEP 2: OVERALL SCORES OR STEP TEST DATA */}
+                  {step === 2 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
                       {[
                         { key: "performance_score", label: t[lang].performanceScore, desc: t[lang].scoresDesc },
@@ -895,8 +922,111 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     </div>
                   )}
 
-                  {/* STEP 3: VALD FORCE PROFILE */}
-                  {step === 3 && (
+                  {step === 2 && formData.assessment_type === "PERFORMANCE_DIAGNOSTICS" && (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="bg-accent-green/5 border border-accent-green/15 p-4 rounded-xl text-[10px] text-text-muted font-bold uppercase tracking-wide">
+                        {lang === "EN" 
+                          ? "ENTER INCREMENTAL STEP TEST STAGE DATA (SPEED, LACTATE, AND HEART RATE METRICS)" 
+                          : "EINGABE DER STUFENTESTDATEN (GESCHWINDIGKEIT, LAKTAT UND HERZFREQUENZ)"}
+                      </div>
+
+                      <div className="overflow-x-auto bg-bg-secondary border border-border-primary rounded-2xl">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="border-b border-border-primary/50 text-[9px] font-black text-text-muted uppercase tracking-widest bg-bg-primary/40">
+                              <th className="p-4">{lang === "EN" ? "STAGE" : "STUFE"}</th>
+                              <th className="p-4">{lang === "EN" ? "SPEED (KM/H)" : "GESCHWINDIGKEIT (KM/H)"}</th>
+                              <th className="p-4">{lang === "EN" ? "DURATION (MIN/SEC)" : "ZEIT (MM:SS)"}</th>
+                              <th className="p-4">{lang === "EN" ? "LACTATE (MMOL/L)" : "LAKTAT (MMOL/L)"}</th>
+                              <th className="p-4">{lang === "EN" ? "HEART RATE (BPM)" : "HERZFREQUENZ (1/MIN)"}</th>
+                              <th className="p-4 text-center"></th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border-primary/50">
+                            {formData.step_test_data.map((row, idx) => (
+                              <tr key={idx} className="hover:bg-bg-primary/20 transition-colors">
+                                <td className="p-3 pl-4 font-mono text-xs font-bold text-accent-green">#{row.stage}</td>
+                                <td className="p-3">
+                                  <input 
+                                    type="text" 
+                                    value={row.speed} 
+                                    onChange={e => {
+                                      const updated = [...formData.step_test_data];
+                                      updated[idx].speed = e.target.value;
+                                      setFormData({ ...formData, step_test_data: updated });
+                                    }}
+                                    className="bg-bg-primary border border-border-primary/50 rounded-lg px-3 py-1.5 text-xs text-text-primary font-mono outline-none focus:border-accent-green w-28"
+                                  />
+                                </td>
+                                <td className="p-3">
+                                  <input 
+                                    type="text" 
+                                    value={row.duration} 
+                                    onChange={e => {
+                                      const updated = [...formData.step_test_data];
+                                      updated[idx].duration = e.target.value;
+                                      setFormData({ ...formData, step_test_data: updated });
+                                    }}
+                                    className="bg-bg-primary border border-border-primary/50 rounded-lg px-3 py-1.5 text-xs text-text-primary font-mono outline-none focus:border-accent-green w-28"
+                                  />
+                                </td>
+                                <td className="p-3">
+                                  <input 
+                                    type="text" 
+                                    value={row.lactate} 
+                                    onChange={e => {
+                                      const updated = [...formData.step_test_data];
+                                      updated[idx].lactate = e.target.value;
+                                      setFormData({ ...formData, step_test_data: updated });
+                                    }}
+                                    className="bg-bg-primary border border-border-primary/50 rounded-lg px-3 py-1.5 text-xs text-text-primary font-mono outline-none focus:border-accent-green w-28"
+                                  />
+                                </td>
+                                <td className="p-3">
+                                  <input 
+                                    type="text" 
+                                    value={row.heart_rate} 
+                                    onChange={e => {
+                                      const updated = [...formData.step_test_data];
+                                      updated[idx].heart_rate = e.target.value;
+                                      setFormData({ ...formData, step_test_data: updated });
+                                    }}
+                                    className="bg-bg-primary border border-border-primary/50 rounded-lg px-3 py-1.5 text-xs text-text-primary font-mono outline-none focus:border-accent-green w-28"
+                                  />
+                                </td>
+                                <td className="p-3 text-center">
+                                  <button 
+                                    type="button" 
+                                    onClick={() => {
+                                      const updated = formData.step_test_data.filter((_, i) => i !== idx).map((r, i) => ({ ...r, stage: i + 1 }));
+                                      setFormData({ ...formData, step_test_data: updated });
+                                    }}
+                                    className="text-red-500 hover:text-red-400 p-1 transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextStage = formData.step_test_data.length + 1;
+                          const updated = [...formData.step_test_data, { stage: nextStage, speed: "", duration: "00:03:00", lactate: "", heart_rate: "" }];
+                          setFormData({ ...formData, step_test_data: updated });
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 border border-border-primary hover:border-border-active rounded-xl text-[10px] text-text-secondary hover:text-text-primary font-black uppercase tracking-widest transition-all bg-bg-secondary"
+                      >
+                        <Plus size={12} /> {lang === "EN" ? "ADD STAGE" : "STUFE HINZUFÜGEN"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* STEP 3: VALD FORCE PROFILE OR TRAINING ZONES */}
+                  {step === 3 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS" && (
                     <div className="space-y-6 animate-fade-in">
                       <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 p-4 rounded-xl text-[10px] text-text-muted font-bold uppercase tracking-wide">
                         {t[lang].valdIntro}
@@ -956,8 +1086,78 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     </div>
                   )}
 
+                  {step === 3 && formData.assessment_type === "PERFORMANCE_DIAGNOSTICS" && (
+                    <div className="space-y-6 animate-fade-in">
+                      <div className="bg-accent-green/5 border border-accent-green/15 p-4 rounded-xl text-[10px] text-text-muted font-bold uppercase tracking-wide">
+                        {lang === "EN" 
+                          ? "CONFIG INTERVENTIONAL TRAINING ZONES (TARGET RANGES FOR LACTATE, HEART RATE AND SPEED)" 
+                          : "TRAININGSBEREICHE KONFIGURIEREN (ZIELBEREICHE FÜR LAKTAT, HERZFREQUENZ UND GESCHWINDIGKEIT)"}
+                      </div>
+
+                      <div className="space-y-4">
+                        {[
+                          { key: "regeneration", label: lang === "EN" ? "Regeneration (EL/AL)" : "Regeneration (EL/AL)", color: "border-l-blue-500/50" },
+                          { key: "basic_training", label: lang === "EN" ? "Basic Endurance (g)" : "Grundlagentraining (g)", color: "border-l-green-500/50" },
+                          { key: "build_up", label: lang === "EN" ? "Build-up (GA2/MDL)" : "Aufbau (GA2/MDL)", color: "border-l-yellow-500/50" },
+                          { key: "competition", label: lang === "EN" ? "Competition (Schwelle)" : "Wettkampf (Schwelle)", color: "border-l-orange-500/50" },
+                          { key: "anaerobic", label: lang === "EN" ? "Anaerobic (Intervals)" : "anaerobes Training (Intervalle)", color: "border-l-red-500/50" }
+                        ].map((zone) => {
+                          const zoneData = formData.training_zones[zone.key] || { lactate: "", heart_rate: "", speed: "" };
+                          return (
+                            <div key={zone.key} className={`bg-bg-secondary p-6 rounded-2xl border border-border-primary border-l-[6px] ${zone.color} grid grid-cols-1 md:grid-cols-4 gap-6 items-center`}>
+                              <div className="font-display font-black text-xs text-text-primary uppercase tracking-wider">
+                                {zone.label}
+                              </div>
+                              <div className="grid grid-cols-3 gap-4 md:col-span-3">
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "LACTATE RANGE" : "LAKTATBEREICH"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 2.0 - 3.0"
+                                    value={zoneData.lactate}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, lactate: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "HR RANGE" : "HF-BEREICH"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 130 - 150"
+                                    value={zoneData.heart_rate}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, heart_rate: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "SPEED RANGE" : "GESCHWINDIGKEIT"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 8.0 - 10.0"
+                                    value={zoneData.speed}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, speed: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* STEP 4: FUNCTIONAL TESTS */}
-                  {step === 4 && (
+                  {step === 4 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
                       {[
                         { key: "cspine_rotation", label: t[lang].cspine_rotation },
@@ -989,7 +1189,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   )}
 
                   {/* STEP 5: BODY MAP */}
-                  {step === 5 && (
+                  {step === 5 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS" && (
                     <div className="space-y-4 animate-fade-in">
                       <BodyMap 
                         zones={formData.body_map_zones}
@@ -1000,7 +1200,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   )}
 
                   {/* STEP 6: PERFORMANCE IMPACT */}
-                  {step === 6 && (
+                  {step === 6 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
                       {[
                         { key: "acceleration_impact", label: t[lang].acceleration_impact },
@@ -1030,7 +1230,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   )}
 
                   {/* STEP 7: KEY FINDINGS & SUMMARY */}
-                  {step === 7 && (
+                  {((step === 7 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS") || (step === 4 && formData.assessment_type === "PERFORMANCE_DIAGNOSTICS")) && (
                     <div className="space-y-6 animate-fade-in">
                       {/* Findings entry */}
                       <div className="p-6 bg-bg-card border border-border-primary rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -1181,7 +1381,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   )}
 
                   {/* STEP 8: REVIEW & SUBMIT */}
-                  {step === 8 && (
+                  {((step === 8 && formData.assessment_type !== "PERFORMANCE_DIAGNOSTICS") || (step === 5 && formData.assessment_type === "PERFORMANCE_DIAGNOSTICS")) && (
                     <div className="space-y-6 animate-fade-in">
                       <div className="p-6 bg-bg-card border border-border-primary rounded-2xl space-y-4">
                         <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
@@ -1283,7 +1483,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                 </button>
                 <button
                   type="button"
-                  disabled={step === 8}
+                  disabled={step === STEPS.length}
                   onClick={() => setStep(prev => prev + 1)}
                   className="px-6 py-3 bg-white/5 border border-border-primary rounded-xl text-[10px] font-black text-text-primary hover:bg-white/10 uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >

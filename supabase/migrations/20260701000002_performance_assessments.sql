@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.performance_assessments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   athlete_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   assessment_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  assessment_type TEXT NOT NULL CHECK (assessment_type IN ('FUNCTIONAL_CHECKUP', 'VALD_FORCE', 'MATCH_PERFORMANCE', 'FULL_ASSESSMENT')),
+  assessment_type TEXT NOT NULL CHECK (assessment_type IN ('FUNCTIONAL_CHECKUP', 'VALD_FORCE', 'MATCH_PERFORMANCE', 'FULL_ASSESSMENT', 'PERFORMANCE_DIAGNOSTICS')),
   season TEXT,
   height_cm DECIMAL,
   weight_kg DECIMAL,
@@ -74,6 +74,10 @@ CREATE TABLE IF NOT EXISTS public.performance_assessments (
   key_findings JSONB DEFAULT '[]',
   risk_factors JSONB DEFAULT '[]',
   coach_summary TEXT,
+  
+  -- Performance Diagnostics
+  step_test_data JSONB DEFAULT '[]',
+  training_zones JSONB DEFAULT '{}',
   
   -- Progress
   previous_assessment_id UUID REFERENCES public.performance_assessments(id) ON DELETE SET NULL,
