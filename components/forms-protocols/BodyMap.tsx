@@ -130,7 +130,7 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-bg-card/40 border border-border-primary/40 rounded-3xl p-6 relative w-full">
       {/* Visual Silhouette Column */}
-      <div className="md:col-span-7 flex flex-col items-center justify-center bg-black/30 rounded-2xl p-4 border border-white/5 relative min-h-[420px]">
+      <div className="md:col-span-7 flex flex-col items-center justify-center bg-bg-secondary rounded-2xl p-4 border border-border-primary/50 relative min-h-[420px]">
         <div className="absolute top-4 left-4 text-[9px] font-black text-text-muted uppercase tracking-[3px]">
           Biomechanical Map
         </div>
@@ -152,7 +152,7 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
           </defs>
 
           {/* FRONT SILHOUETTE */}
-          <g stroke="rgba(255,255,255,0.08)" strokeWidth="2" fill="none">
+          <g stroke="var(--text-primary)" strokeOpacity="0.15" strokeWidth="2" fill="none">
             <circle cx="100" cy="50" r="16" />
             <line x1="100" y1="66" x2="100" y2="100" />
             <path d="M 70 100 L 130 100 L 120 190 L 80 190 Z" />
@@ -163,7 +163,7 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
           </g>
 
           {/* BACK SILHOUETTE */}
-          <g stroke="rgba(255,255,255,0.08)" strokeWidth="2" fill="none">
+          <g stroke="var(--text-primary)" strokeOpacity="0.15" strokeWidth="2" fill="none">
             <circle cx="300" cy="50" r="16" />
             <line x1="300" y1="66" x2="300" y2="100" />
             <path d="M 270 100 L 330 100 L 320 190 L 280 190 Z" strokeDasharray="3,3" />
@@ -174,8 +174,8 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
             <path d="M 315 190 L 320 280 L 320 350 L 325 358" />
           </g>
 
-          <text x="100" y="415" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="10" fontWeight="900" letterSpacing="2">FRONT</text>
-          <text x="300" y="415" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="10" fontWeight="900" letterSpacing="2">BACK</text>
+          <text x="100" y="415" textAnchor="middle" fill="var(--text-muted)" opacity="0.5" fontSize="10" fontWeight="900" letterSpacing="2">FRONT</text>
+          <text x="300" y="415" textAnchor="middle" fill="var(--text-muted)" opacity="0.5" fontSize="10" fontWeight="900" letterSpacing="2">BACK</text>
 
           {HOTSPOTS.map((hs) => {
             const entry = activeZoneMap.get(hs.zone);
@@ -194,13 +194,15 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
                   cx={hs.x} 
                   cy={hs.y} 
                   r={isSelected ? "11" : isHovered ? "9" : entry ? "8" : "5"} 
-                  fill={entry ? getSeverityColor(entry.severity) : "rgba(255, 255, 255, 0.08)"}
-                  stroke={isSelected ? "#ffffff" : isHovered ? "rgba(255, 255, 255, 0.6)" : entry ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.15)"}
+                  fill={entry ? getSeverityColor(entry.severity) : "var(--text-primary)"}
+                  fillOpacity={entry ? 1 : 0.05}
+                  stroke="var(--text-primary)"
+                  strokeOpacity={isSelected ? 1 : isHovered ? 0.6 : entry ? 0.2 : 0.15}
                   strokeWidth={isSelected || isHovered ? "2.5" : "1.5"}
                   filter={entry ? (entry.severity === 'RED' ? 'url(#glow-red)' : entry.severity === 'ORANGE' ? 'url(#glow-orange)' : 'url(#glow-yellow)') : undefined}
                   className="transition-all duration-200"
                 />
-                {entry && <circle cx={hs.x} cy={hs.y} r="3" fill="#ffffff" className="animate-pulse" />}
+                {entry && <circle cx={hs.x} cy={hs.y} r="3" fill="var(--bg-primary)" className="animate-pulse" />}
               </g>
             );
           })}
@@ -210,13 +212,13 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
       {/* Editor & Notes Sidebar Column */}
       <div className="md:col-span-5 flex flex-col justify-between">
         {!readOnly && selectedHotspot ? (
-          <div className="space-y-4 p-5 bg-black/40 border border-white/5 rounded-2xl flex-1 flex flex-col justify-between">
+          <div className="space-y-4 p-5 bg-bg-secondary border border-border-primary/50 rounded-2xl flex-1 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex justify-between items-center pb-2 border-b border-white/5">
                 <span className="text-[10px] font-black text-accent-green uppercase tracking-[2px]">
                   Configuring: {selectedHotspot.zone.toUpperCase()}
                 </span>
-                <button onClick={() => setSelectedHotspot(null)} className="text-gray-400 hover:text-white text-[9px] uppercase font-bold">
+                <button onClick={() => setSelectedHotspot(null)} className="text-text-muted hover:text-text-primary text-[9px] uppercase font-bold">
                   Cancel
                 </button>
               </div>
@@ -231,7 +233,7 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
                       onClick={() => setSeverity(sev)}
                       style={{ 
                         backgroundColor: severity === sev ? getSeverityColor(sev) + "25" : "transparent",
-                        borderColor: severity === sev ? getSeverityColor(sev) : "rgba(255,255,255,0.05)",
+                        borderColor: severity === sev ? getSeverityColor(sev) : "var(--border-primary)",
                         color: severity === sev ? getSeverityColor(sev) : "#94a3b8"
                       }}
                       className="border py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
@@ -282,7 +284,7 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
               </div>
               
               {zones.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center bg-black/20 rounded-xl border border-white/5 border-dashed">
+                <div className="flex flex-col items-center justify-center p-8 text-center bg-bg-secondary rounded-xl border border-border-primary/50 border-dashed">
                   <ShieldCheck size={28} className="text-accent-green mb-2" />
                   <span className="text-[9px] font-black text-accent-green uppercase tracking-[2px]">Neutral Telemetry</span>
                   <span className="text-[8px] text-gray-500 font-bold uppercase tracking-wider mt-1">No biomechanical anomalies flagged</span>
@@ -293,11 +295,11 @@ function NewBodyMap({ zones = [], onChange, readOnly = false }: { zones: BodyZon
                     <div 
                       key={zone.zone_name}
                       style={{ borderLeft: `3px solid ${getSeverityColor(zone.severity)}` }}
-                      className="p-3 bg-black/40 border border-white/5 rounded-xl flex items-start justify-between gap-3 relative group"
+                      className="p-3 bg-bg-secondary border border-border-primary/50 rounded-xl flex items-start justify-between gap-3 relative group"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-white uppercase tracking-wider">{zone.zone_name}</span>
+                          <span className="text-[10px] font-black text-text-primary uppercase tracking-wider">{zone.zone_name}</span>
                           <span 
                             style={{ 
                               color: getSeverityColor(zone.severity),
