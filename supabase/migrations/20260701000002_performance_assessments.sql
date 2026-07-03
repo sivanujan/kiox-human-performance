@@ -100,6 +100,7 @@ ALTER TABLE public.performance_assessments ENABLE ROW LEVEL SECURITY;
 -- SELECT POLICY:
 -- Staff, Admin, Coach, Medical can read all assessments.
 -- Players (Athletes) can only select their own assessments.
+DROP POLICY IF EXISTS "performance_assessments_select" ON public.performance_assessments;
 CREATE POLICY "performance_assessments_select"
   ON public.performance_assessments
   FOR SELECT
@@ -116,6 +117,7 @@ CREATE POLICY "performance_assessments_select"
 
 -- INSERT POLICY:
 -- Staff, Admin, Coach, Medical can insert.
+DROP POLICY IF EXISTS "performance_assessments_insert" ON public.performance_assessments;
 CREATE POLICY "performance_assessments_insert"
   ON public.performance_assessments
   FOR INSERT
@@ -131,6 +133,7 @@ CREATE POLICY "performance_assessments_insert"
 -- UPDATE POLICY:
 -- Admin and Staff can update any assessment.
 -- Coach and Medical can only update their own created assessments.
+DROP POLICY IF EXISTS "performance_assessments_update" ON public.performance_assessments;
 CREATE POLICY "performance_assessments_update"
   ON public.performance_assessments
   FOR UPDATE
@@ -164,6 +167,7 @@ CREATE POLICY "performance_assessments_update"
 
 -- DELETE POLICY:
 -- Only Admin and Staff can delete assessments.
+DROP POLICY IF EXISTS "performance_assessments_delete" ON public.performance_assessments;
 CREATE POLICY "performance_assessments_delete"
   ON public.performance_assessments
   FOR DELETE
