@@ -208,69 +208,69 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
           className="relative w-full max-w-5xl bg-[#080808] border border-white/10 rounded-[48px] overflow-hidden shadow-2xl"
         >
           {/* Header */}
-          <div className="p-12 border-b border-white/5 bg-gradient-to-r from-[#22c55e]/[0.05] to-transparent flex justify-between items-start">
+          <div className="p-8 border-b border-white/5 bg-gradient-to-r from-[#22c55e]/[0.05] to-transparent flex justify-between items-start">
              <div>
-                <div className="flex items-center gap-3 mb-4">
-                   <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                <div className="flex items-center gap-3 mb-3">
+                   <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
                      session.status === 'IN_PROGRESS' ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 animate-pulse' : 'bg-white/5 text-white/40 border-white/10'
                    }`}>
                       {session.status}
                    </span>
-                   <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">{session.session_type} // {session.id.slice(0, 8)}</span>
+                   <span className="block text-[11px] font-sans font-medium text-text-secondary tracking-wide ml-1">{session.session_type} // {session.id.slice(0, 8)}</span>
                 </div>
-                <h2 className={`font-display text-5xl text-white tracking-wider uppercase mb-2`}>{session.title}</h2>
-                <div className="flex items-center gap-6 text-white/40 text-xs font-bold uppercase tracking-widest">
-                   <div className="flex items-center gap-2"><Calendar size={14} className="text-[#22c55e]" /> {session.scheduled_date}</div>
-                   <div className="flex items-center gap-2"><Clock size={14} className="text-[#22c55e]" /> {session.start_time}</div>
-                   <div className="flex items-center gap-2"><MapPin size={14} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
+                <h2 className="font-display text-2xl text-white tracking-wider uppercase mb-1.5">{session.title}</h2>
+                <div className="flex items-center gap-4 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                   <div className="flex items-center gap-1.5"><Calendar size={12} className="text-[#22c55e]" /> {session.scheduled_date}</div>
+                   <div className="flex items-center gap-1.5"><Clock size={12} className="text-[#22c55e]" /> {session.start_time}</div>
+                   <div className="flex items-center gap-1.5"><MapPin size={12} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
                 </div>
              </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {isStaff && (
                    <button 
                      onClick={() => setIsEditModalOpen(true)}
                      title="Edit session"
-                     className="p-5 rounded-full bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all"
+                     className="p-3 rounded-full bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all"
                    >
-                     <Edit2 size={22} />
+                     <Edit2 size={16} />
                    </button>
                 )}
                 {canDelete && (
                    <button 
                      onClick={handleDeleteSession}
-                     className="p-5 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                     className="p-3 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
                    >
-                     <Trash2 size={24} />
+                     <Trash2 size={18} />
                    </button>
                 )}
-                <button onClick={onClose} className="p-5 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
-                   <X size={28} />
+                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                   <X size={20} />
                 </button>
              </div>
           </div>
 
-          <div className="flex h-[500px]">
+          <div className="flex h-[450px]">
              {/* Tabs Sidebar */}
              {!isFacilityWide && (
-                <div className="w-[120px] border-r border-white/5 flex flex-col items-center py-10 gap-8">
+                <div className="w-[100px] border-r border-white/5 flex flex-col items-center py-8 gap-6">
                    {[
-                      { id: 'INFO', icon: <Activity size={24} />, label: 'INFO' },
-                      { id: 'ROSTER', icon: <Users size={24} />, label: 'ROSTER' }
+                      { id: 'INFO', icon: <Activity size={20} />, label: 'INFO' },
+                      { id: 'ROSTER', icon: <Users size={20} />, label: 'ROSTER' }
                    ].map(tab => (
                       <button 
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex flex-col items-center gap-2 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
+                        className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
                       >
                          {tab.icon}
-                         <span className="text-[8px] font-black tracking-widest">{tab.label}</span>
+                         <span className="text-[9px] font-black tracking-widest">{tab.label}</span>
                       </button>
                    ))}
                 </div>
              )}
 
              {/* Content Area */}
-             <div className="flex-1 overflow-y-auto p-12 scrollbar-hide">
+             <div className="flex-1 overflow-y-auto p-8 scrollbar-hide">
                 {activeTab === 'INFO' || isFacilityWide ? (
                    <div className="space-y-12">
                       {isFacilityWide ? (
@@ -313,7 +313,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                      {session.external_person_phone || 'N/A'}
                                   </div>
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT DIRECT LINE</div>
-                               </div>
+                                </div>
                                <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">EMAIL ADDRESS</div>
                                   <div className="text-base font-mono text-white truncate">
@@ -350,7 +350,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                      {session.payment_notes || 'No notes specified.'}
                                   </div>
                                   <div className="text-gray-500 text-[8px] font-black uppercase mt-4">TRANSACTION METADATA</div>
-                                </div>
+                               </div>
                             </div>
 
                             {session.payment_status !== 'CONFIRMED' && isStaff && (
@@ -406,12 +406,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    </div>
                 ) : (
                    <div className="space-y-8">
-                      <div className="flex justify-between items-center bg-amber-500/10 border border-amber-500/20 p-6 rounded-3xl">
-                         <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">OPERATIONAL AUDIT: DATA RETENTION REQUIRED FOR COMPLETION</div>
+                      <div className="flex justify-between items-center bg-amber-500/10 border border-amber-500/20 p-5 rounded-2xl">
+                         <div className="block text-[10px] font-black uppercase tracking-wider text-text-secondary">OPERATIONAL AUDIT: DATA RETENTION REQUIRED FOR COMPLETION</div>
                          <button 
                            onClick={handleComplete}
                            disabled={loading}
-                           className="px-8 py-3 bg-amber-500 text-black font-display text-xs tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2"
+                           className="px-6 py-2.5 bg-amber-500 text-black font-display text-[10px] tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2"
                          >
                             {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} COMMIT LOADS & CLOSE
                          </button>
@@ -419,9 +419,9 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
                       <div className="space-y-4">
                          {athleteLogs.map((log, i) => (
-                           <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[32px] flex flex-wrap lg:flex-nowrap items-center gap-8 group">
-                              <div className="flex items-center gap-4 shrink-0 w-[250px]">
-                                 <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
+                           <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-[24px] flex flex-wrap lg:flex-nowrap items-center gap-6 group">
+                              <div className="flex items-center gap-3 shrink-0 w-[200px]">
+                                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
                                     {athleteProfiles[log.athlete_id]?.avatar_url ? (
                                        <img src={athleteProfiles[log.athlete_id].avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
@@ -435,12 +435,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                  </div>
                               </div>
 
-                              <div className="flex gap-2 p-1.5 bg-black/40 rounded-2xl border border-white/5 shrink-0">
+                              <div className="flex gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 shrink-0">
                                  {['PRESENT', 'ABSENT', 'LATE'].map(status => (
                                    <button 
                                      key={status}
                                      onClick={() => handleUpdateLog(log.athlete_id, { attendance: status })}
-                                     className={`px-4 py-2 rounded-xl text-[8px] font-black tracking-widest transition-all ${
+                                     className={`px-3 py-1.5 rounded-lg text-[9px] font-black tracking-widest transition-all ${
                                        log.attendance === status ? 'bg-[#22c55e] text-black' : 'text-gray-500 hover:text-white'
                                      }`}
                                    >
@@ -449,25 +449,25 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                  ))}
                               </div>
 
-                              <div className="flex-1 grid grid-cols-2 gap-6">
-                                 <div className="space-y-2">
-                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">ACTUAL LOAD (AU)</label>
+                              <div className="flex-1 grid grid-cols-2 gap-6 items-center">
+                                 <div className="space-y-1.5">
+                                    <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">ACTUAL LOAD (AU)</label>
                                     <input 
                                       type="number"
                                       value={log.actual_load_au}
                                       onChange={e => handleUpdateLog(log.athlete_id, { actual_load_au: parseInt(e.target.value) })}
-                                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
                                     />
                                  </div>
-                                 <div className="space-y-2">
-                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">RPE <span>{log.rpe}/10</span></label>
+                                 <div className="space-y-1.5">
+                                    <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">RPE <span className="text-[#22c55e]">{log.rpe}/10</span></label>
                                     <input 
                                       type="range"
                                       min="1"
                                       max="10"
                                       value={log.rpe}
                                       onChange={e => handleUpdateLog(log.athlete_id, { rpe: parseInt(e.target.value) })}
-                                      className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium appearance-none cursor-pointer"
+                                      className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e] mt-2 block"
                                     />
                                  </div>
                               </div>
