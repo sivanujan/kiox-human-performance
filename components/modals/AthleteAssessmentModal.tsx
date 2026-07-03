@@ -350,11 +350,11 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
       { stage: 5, speed: "13.5", duration: "00:03:00", lactate: "4.60", heart_rate: "184" }
     ] as { stage: number; speed: string; duration: string; lactate: string; heart_rate: string }[],
     training_zones: {
-      regeneration: { lactate: "-6.11 - -2.23", heart_rate: "123 - 132", speed: "7.9 - 8.6" },
-      basic_training: { lactate: "-0.34 - 2.77", heart_rate: "139 - 158", speed: "9.0 - 10.4" },
-      build_up: { lactate: "2.77 - 3.54", heart_rate: "158 - 167", speed: "10.4 - 11.5" },
-      competition: { lactate: "3.54 - 3.86", heart_rate: "167 - 177", speed: "11.5 - 12.4" },
-      anaerobic: { lactate: "3.82 - 4.62", heart_rate: "176 - 184", speed: "12.3 - 13.5" }
+      regeneration: { lactate: "-6.11 - -2.23", heart_rate: "123 - 132", speed: "7.9 - 8.6", speed_ms: "2.2 - 2.4", energy: "629 - 686", time_1000m: "07:37 - 07:00", marathon_time: "05:21 - 04:55" },
+      basic_training: { lactate: "-0.34 - 2.77", heart_rate: "139 - 158", speed: "9.0 - 10.4", speed_ms: "2.5 - 2.9", energy: "723 - 836", time_1000m: "06:38 - 05:44", marathon_time: "04:40 - 04:02" },
+      build_up: { lactate: "2.77 - 3.54", heart_rate: "158 - 167", speed: "10.4 - 11.5", speed_ms: "2.9 - 3.2", energy: "836 - 920", time_1000m: "05:44 - 05:12", marathon_time: "04:02 - 03:40" },
+      competition: { lactate: "3.54 - 3.86", heart_rate: "167 - 177", speed: "11.5 - 12.4", speed_ms: "3.2 - 3.5", energy: "920 - 995", time_1000m: "05:12 - 04:49", marathon_time: "03:40 - 03:23" },
+      anaerobic: { lactate: "3.82 - 4.62", heart_rate: "176 - 184", speed: "12.3 - 13.5", speed_ms: "3.4 - 3.7", energy: "986 - 1080", time_1000m: "04:52 - 04:26", marathon_time: "03:25 - 03:07" }
     } as any
   });
 
@@ -1102,13 +1102,13 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           { key: "competition", label: lang === "EN" ? "Competition (Schwelle)" : "Wettkampf (Schwelle)", color: "border-l-orange-500/50" },
                           { key: "anaerobic", label: lang === "EN" ? "Anaerobic (Intervals)" : "anaerobes Training (Intervalle)", color: "border-l-red-500/50" }
                         ].map((zone) => {
-                          const zoneData = formData.training_zones[zone.key] || { lactate: "", heart_rate: "", speed: "" };
+                          const zoneData = formData.training_zones[zone.key] || { lactate: "", heart_rate: "", speed: "", speed_ms: "", energy: "", time_1000m: "", marathon_time: "" };
                           return (
-                            <div key={zone.key} className={`bg-bg-secondary p-6 rounded-2xl border border-border-primary border-l-[6px] ${zone.color} grid grid-cols-1 md:grid-cols-4 gap-6 items-center`}>
+                            <div key={zone.key} className={`bg-bg-secondary p-6 rounded-2xl border border-border-primary border-l-[6px] ${zone.color} space-y-4`}>
                               <div className="font-display font-black text-xs text-text-primary uppercase tracking-wider">
                                 {zone.label}
                               </div>
-                              <div className="grid grid-cols-3 gap-4 md:col-span-3">
+                              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
                                 <div className="space-y-1">
                                   <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "LACTATE RANGE" : "LAKTATBEREICH"}</label>
                                   <input 
@@ -1119,7 +1119,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                                       updatedZones[zone.key] = { ...zoneData, lactate: e.target.value };
                                       setFormData({ ...formData, training_zones: updatedZones });
                                     }}
-                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
                                   />
                                 </div>
                                 <div className="space-y-1">
@@ -1132,11 +1132,11 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                                       updatedZones[zone.key] = { ...zoneData, heart_rate: e.target.value };
                                       setFormData({ ...formData, training_zones: updatedZones });
                                     }}
-                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "SPEED RANGE" : "GESCHWINDIGKEIT"}</label>
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "SPEED (KM/H)" : "GESCHWINDIGKEIT (KM/H)"}</label>
                                   <input 
                                     type="text" placeholder="e.g. 8.0 - 10.0"
                                     value={zoneData.speed}
@@ -1145,7 +1145,59 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                                       updatedZones[zone.key] = { ...zoneData, speed: e.target.value };
                                       setFormData({ ...formData, training_zones: updatedZones });
                                     }}
-                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "SPEED (M/S)" : "GESCHWINDIGKEIT (M/S)"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 2.2 - 2.4"
+                                    value={zoneData.speed_ms || ""}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, speed_ms: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "ENERGY (KCAL/H)" : "ENERGIEVERBRAUCH (KCAL/H)"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 600 - 700"
+                                    value={zoneData.energy || ""}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, energy: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "1000M TIME" : "1000M-ZEIT"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 07:00 - 06:00"
+                                    value={zoneData.time_1000m || ""}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, time_1000m: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{lang === "EN" ? "MARATHON TIME" : "MARATHON-ZEIT"}</label>
+                                  <input 
+                                    type="text" placeholder="e.g. 05:00 - 04:00"
+                                    value={zoneData.marathon_time || ""}
+                                    onChange={e => {
+                                      const updatedZones = { ...formData.training_zones };
+                                      updatedZones[zone.key] = { ...zoneData, marathon_time: e.target.value };
+                                      setFormData({ ...formData, training_zones: updatedZones });
+                                    }}
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-[10px] text-text-primary font-semibold outline-none"
                                   />
                                 </div>
                               </div>
