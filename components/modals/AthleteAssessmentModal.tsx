@@ -636,16 +636,16 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
-          className="relative w-full max-w-5xl h-[88vh] flex bg-[#070708] border border-white/10 rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300"
+          className="relative w-full max-w-5xl h-[88vh] flex bg-bg-primary border border-border-primary rounded-[32px] overflow-hidden shadow-2xl transition-all duration-300"
         >
           {/* LEFT SIDEBAR - WIZARD PROGRESS */}
-          <div className="hidden md:flex flex-col w-[260px] bg-black/50 border-r border-white/5 p-6 justify-between flex-shrink-0">
+          <div className="hidden md:flex flex-col w-[260px] bg-bg-sidebar border-r border-border-primary p-6 justify-between flex-shrink-0">
             <div className="space-y-6">
               <div>
                 <span className="text-[9px] font-black text-accent-green uppercase tracking-[4px]">
                   {t[lang].performanceHub}
                 </span>
-                <h3 className="text-sm font-display font-black text-white uppercase tracking-wider mt-1 truncate">
+                <h3 className="text-sm font-display font-black text-text-primary uppercase tracking-wider mt-1 truncate">
                   {resolvedAthleteName}
                 </h3>
               </div>
@@ -664,8 +664,8 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         isActive 
                           ? "bg-accent-green/10 text-accent-green font-bold border border-accent-green/20" 
                           : isCompleted 
-                          ? "text-gray-300 hover:text-white" 
-                          : "text-gray-500 hover:text-gray-400"
+                          ? "text-text-secondary hover:text-text-primary" 
+                          : "text-text-muted hover:text-text-muted"
                       }`}
                     >
                       <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
@@ -680,27 +680,27 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               </div>
             </div>
 
-            <div className="p-4 bg-bg-primary/30 border border-white/5 rounded-xl text-center">
-              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">
+            <div className="p-4 bg-bg-primary/30 border border-border-primary rounded-xl text-center">
+              <span className="text-[8px] font-bold text-text-muted uppercase tracking-widest block">
                 {t[lang].steps}
               </span>
-              <span className="text-lg font-mono font-black text-white mt-1 block">{step} / 8</span>
+              <span className="text-lg font-mono font-black text-text-primary mt-1 block">{step} / 8</span>
             </div>
           </div>
 
           {/* MAIN FORM PANEL */}
           <div className="flex-grow flex flex-col justify-between overflow-hidden">
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-accent-green/[0.02] to-transparent">
+            <div className="p-6 border-b border-border-primary flex justify-between items-center bg-gradient-to-r from-accent-green/[0.02] to-transparent">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-accent-green/10 flex items-center justify-center text-accent-green border border-accent-green/20">
                   <Activity size={18} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-display font-black text-white uppercase tracking-wider">
+                  <h2 className="text-lg font-display font-black text-text-primary uppercase tracking-wider">
                     {STEPS[step - 1].title}
                   </h2>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">
+                  <p className="text-[9px] text-text-muted font-bold uppercase tracking-wider mt-0.5">
                     {t[lang].athlete}: {resolvedAthleteName}
                   </p>
                 </div>
@@ -708,18 +708,18 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
               
               <div className="flex items-center gap-4">
                 {/* Language Switcher Label & Selectors */}
-                <div className="flex items-center gap-2 bg-black/40 border-2 border-accent-green/30 px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                <div className="flex items-center gap-2 bg-bg-card border-2 border-accent-green/30 px-3 py-1.5 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.1)]">
                   <span className="text-[9px] font-black text-accent-green uppercase tracking-wider select-none">
                     {lang === "EN" ? "Language:" : "Sprache:"}
                   </span>
-                  <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/10">
+                  <div className="flex bg-white/5 p-0.5 rounded-lg border border-border-primary">
                     <button
                       type="button"
                       onClick={() => setLang("EN")}
                       className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
                         lang === "EN" 
                           ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
-                          : "text-gray-400 hover:text-white"
+                          : "text-text-muted hover:text-text-primary"
                       }`}
                     >
                       EN
@@ -730,7 +730,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       className={`px-3 py-1 rounded-md text-[10px] font-black tracking-widest transition-all ${
                         lang === "DE" 
                           ? "bg-accent-green text-black shadow-[0_0_10px_rgba(34,197,94,0.4)]" 
-                          : "text-gray-400 hover:text-white"
+                          : "text-text-muted hover:text-text-primary"
                       }`}
                     >
                       DE
@@ -738,7 +738,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   </div>
                 </div>
 
-                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all active:scale-95">
+                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-text-muted hover:text-text-primary border border-border-primary transition-all active:scale-95">
                   <X size={16} />
                 </button>
               </div>
@@ -760,7 +760,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   <h4 className="text-lg font-display font-black text-green-400 uppercase tracking-widest">
                     {t[lang].committed}
                   </h4>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-2">
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider mt-2">
                     {t[lang].syncText}
                   </p>
                 </div>
@@ -771,7 +771,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                     <div className="space-y-6 animate-fade-in">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].date}
                           </label>
                           <input 
@@ -782,7 +782,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].type}
                           </label>
                           <select 
@@ -797,7 +797,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].season}
                           </label>
                           <input 
@@ -809,7 +809,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].position}
                           </label>
                           <select 
@@ -825,9 +825,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         </div>
                       </div>
 
-                      <div className="bg-black/30 p-6 rounded-2xl border border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                      <div className="bg-bg-secondary p-6 rounded-2xl border border-border-primary grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].height}
                           </label>
                           <input 
@@ -839,7 +839,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].weight}
                           </label>
                           <input 
@@ -851,10 +851,10 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">
+                          <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">
                             {t[lang].calculatedBmi}
                           </label>
-                          <div className="w-full bg-[#111] border border-white/5 rounded-xl py-3 px-4 text-sm text-white font-mono font-bold">
+                          <div className="w-full bg-bg-secondary border border-border-primary rounded-xl py-3 px-4 text-sm text-text-primary font-mono font-bold">
                             {calculatedBMI}
                           </div>
                         </div>
@@ -873,10 +873,10 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       ].map((score) => {
                         const val = formData[score.key as keyof typeof formData] as number;
                         return (
-                          <div key={score.key} className="bg-black/35 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
+                          <div key={score.key} className="bg-bg-secondary p-6 rounded-2xl border border-border-primary flex flex-col justify-between">
                             <div className="space-y-1 mb-4">
-                              <span className="text-xs font-black text-white uppercase tracking-wider block">{score.label}</span>
-                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wide block">{t[lang].autoCalc}</span>
+                              <span className="text-xs font-black text-text-primary uppercase tracking-wider block">{score.label}</span>
+                              <span className="text-[10px] text-text-muted font-bold uppercase tracking-wide block">{t[lang].autoCalc}</span>
                             </div>
                             <div className="flex items-center gap-6">
                               <input 
@@ -898,7 +898,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {/* STEP 3: VALD FORCE PROFILE */}
                   {step === 3 && (
                     <div className="space-y-6 animate-fade-in">
-                      <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 p-4 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-wide">
+                      <div className="bg-[#22c55e]/5 border border-[#22c55e]/15 p-4 rounded-xl text-[10px] text-text-muted font-bold uppercase tracking-wide">
                         {t[lang].valdIntro}
                       </div>
                       
@@ -916,34 +916,34 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           const status = formData[`${m.key}_status` as keyof typeof formData] as string;
 
                           return (
-                            <div key={m.key} className="bg-black/35 p-6 rounded-2xl border border-white/5 grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-                              <div className="font-display font-black text-xs text-white uppercase tracking-wider">
+                            <div key={m.key} className="bg-bg-secondary p-6 rounded-2xl border border-border-primary grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                              <div className="font-display font-black text-xs text-text-primary uppercase tracking-wider">
                                 {m.label}
                               </div>
                               <div className="grid grid-cols-2 gap-4 md:col-span-2">
                                 <div className="space-y-1">
-                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].left} (kg)</label>
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{t[lang].left} (kg)</label>
                                   <input 
                                     type="number" step="0.1" placeholder="0.0"
                                     value={left}
                                     onChange={e => updateVALD(m.key, "left", e.target.value)}
-                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white font-semibold outline-none"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].right} (kg)</label>
+                                  <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest">{t[lang].right} (kg)</label>
                                   <input 
                                     type="number" step="0.1" placeholder="0.0"
                                     value={right}
                                     onChange={e => updateVALD(m.key, "right", e.target.value)}
-                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white font-semibold outline-none"
+                                    className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary font-semibold outline-none"
                                   />
                                 </div>
                               </div>
-                              <div className="flex justify-between items-center bg-black/40 border border-white/5 px-4 py-3.5 rounded-xl">
+                              <div className="flex justify-between items-center bg-bg-card border border-border-primary px-4 py-3.5 rounded-xl">
                                 <div className="space-y-0.5">
-                                  <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">{t[lang].asym}</span>
-                                  <span className="text-xs font-mono font-bold text-white block">{asym}%</span>
+                                  <span className="text-[8px] font-bold text-text-muted uppercase tracking-widest block">{t[lang].asym}</span>
+                                  <span className="text-xs font-mono font-bold text-text-primary block">{asym}%</span>
                                 </div>
                                 <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${getSeverityLabelColor(status === 'OK' ? 'YELLOW' : status === 'MONITOR' ? 'ORANGE' : 'RED')}`}>
                                   {status}
@@ -971,9 +971,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       ].map((tField) => {
                         const val = formData[tField.key as keyof typeof formData] as number;
                         return (
-                          <div key={tField.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
+                          <div key={tField.key} className="bg-bg-secondary p-5 rounded-xl border border-border-primary space-y-3">
                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
-                              <span className="text-gray-300">{tField.label}</span>
+                              <span className="text-text-secondary">{tField.label}</span>
                               <span className={val >= 70 ? "text-green-400" : val >= 50 ? "text-amber-500" : "text-red-500"}>{val}%</span>
                             </div>
                             <input 
@@ -1012,9 +1012,9 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       ].map((i) => {
                         const val = formData[i.key as keyof typeof formData] as number;
                         return (
-                          <div key={i.key} className="bg-black/35 p-5 rounded-xl border border-white/5 space-y-3">
+                          <div key={i.key} className="bg-bg-secondary p-5 rounded-xl border border-border-primary space-y-3">
                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
-                              <span className="text-gray-300">{i.label}</span>
+                              <span className="text-text-secondary">{i.label}</span>
                               <span className={val >= 80 ? "text-green-400" : val >= 60 ? "text-amber-500" : "text-red-500"}>{val}%</span>
                             </div>
                             <input 
@@ -1033,35 +1033,35 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {step === 7 && (
                     <div className="space-y-6 animate-fade-in">
                       {/* Findings entry */}
-                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6">
-                        <div className="md:col-span-12 text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
+                      <div className="p-6 bg-bg-card border border-border-primary rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <div className="md:col-span-12 text-[10px] font-black text-text-primary uppercase tracking-[2px] pb-2 border-b border-border-primary">
                           {t[lang].addFinding}
                         </div>
                         <div className="md:col-span-4 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].findingTitle}</label>
+                          <label className="block text-[9px] font-bold text-text-muted uppercase tracking-widest">{t[lang].findingTitle}</label>
                           <input 
                             value={findingTitle}
                             onChange={e => setFindingTitle(e.target.value)}
                             placeholder="e.g. Hip Mobility Limit"
-                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary outline-none"
                           />
                         </div>
                         <div className="md:col-span-5 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].findingDesc}</label>
+                          <label className="block text-[9px] font-bold text-text-muted uppercase tracking-widest">{t[lang].findingDesc}</label>
                           <input 
                             value={findingDesc}
                             onChange={e => setFindingDesc(e.target.value)}
                             placeholder="e.g. Restricted IR on left side"
-                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                            className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary outline-none"
                           />
                         </div>
                         <div className="md:col-span-3 space-y-2">
-                          <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].severity}</label>
+                          <label className="block text-[9px] font-bold text-text-muted uppercase tracking-widest">{t[lang].severity}</label>
                           <div className="flex gap-2">
                             <select 
                               value={findingSev}
                               onChange={e => setFindingSev(e.target.value as any)}
-                              className="bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none appearance-none flex-grow"
+                              className="bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary outline-none appearance-none flex-grow"
                             >
                               <option value="YELLOW">YELLOW</option>
                               <option value="ORANGE">ORANGE</option>
@@ -1081,14 +1081,14 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         {formData.key_findings.length > 0 && (
                           <div className="md:col-span-12 space-y-2 mt-2">
                             {formData.key_findings.map((f, index) => (
-                              <div key={index} className="flex justify-between items-center p-3 bg-black/50 border border-white/5 rounded-xl">
+                              <div key={index} className="flex justify-between items-center p-3 bg-bg-sidebar border border-border-primary rounded-xl">
                                 <div className="flex items-center gap-3">
                                   <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${getSeverityLabelColor(f.severity)}`}>
                                     {f.severity}
                                   </span>
                                   <div>
-                                    <span className="text-xs font-black text-white">{f.title}: </span>
-                                    <span className="text-xs text-gray-400">{f.description}</span>
+                                    <span className="text-xs font-black text-text-primary">{f.title}: </span>
+                                    <span className="text-xs text-text-muted">{f.description}</span>
                                   </div>
                                 </div>
                                 <button type="button" onClick={() => removeFinding(index)} className="text-red-500 hover:text-red-400">
@@ -1101,8 +1101,8 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                       </div>
 
                       {/* Risk factors entry */}
-                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-6">
-                        <div className="text-[10px] font-black text-white uppercase tracking-[2px] pb-2 border-b border-white/5">
+                      <div className="p-6 bg-bg-card border border-border-primary rounded-2xl space-y-6">
+                        <div className="text-[10px] font-black text-text-primary uppercase tracking-[2px] pb-2 border-b border-border-primary">
                           {t[lang].riskFactorsTitle}
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -1111,7 +1111,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                               key={tag}
                               type="button"
                               onClick={() => addRiskFactor(tag)}
-                              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-black text-gray-300 uppercase tracking-widest transition-all"
+                              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-black text-text-secondary uppercase tracking-widest transition-all"
                             >
                               + {tag}
                             </button>
@@ -1119,20 +1119,20 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
                           <div className="md:col-span-6 space-y-2">
-                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].factorName}</label>
+                            <label className="block text-[9px] font-bold text-text-muted uppercase tracking-widest">{t[lang].factorName}</label>
                             <input 
                               value={riskFactorName}
                               onChange={e => setRiskFactorName(e.target.value)}
                               placeholder="e.g. Quad tightness"
-                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary outline-none"
                             />
                           </div>
                           <div className="md:col-span-4 space-y-2">
-                            <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">{t[lang].severity}</label>
+                            <label className="block text-[9px] font-bold text-text-muted uppercase tracking-widest">{t[lang].severity}</label>
                             <select 
                               value={riskFactorSev}
                               onChange={e => setRiskFactorSev(e.target.value as any)}
-                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-white outline-none appearance-none"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary outline-none appearance-none"
                             >
                               <option value="YELLOW">YELLOW</option>
                               <option value="ORANGE">ORANGE</option>
@@ -1152,11 +1152,11 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
                         {/* List current risk factors */}
                         {formData.risk_factors.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
+                          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border-primary">
                             {formData.risk_factors.map((r, index) => (
-                              <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-black/60 border border-white/5 rounded-xl">
+                              <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-bg-secondary border border-border-primary rounded-xl">
                                 <span className={`w-1.5 h-1.5 rounded-full`} style={{ backgroundColor: getSeverityColor(r.severity) }} />
-                                <span className="text-[9px] font-black text-white uppercase tracking-wider">{r.name}</span>
+                                <span className="text-[9px] font-black text-text-primary uppercase tracking-wider">{r.name}</span>
                                 <button type="button" onClick={() => removeRiskFactor(index)} className="text-red-500 hover:text-red-400">
                                   <X size={10} />
                                 </button>
@@ -1168,7 +1168,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
                       {/* Coach summary */}
                       <div className="space-y-2">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider">{t[lang].coachSummary}</label>
+                        <label className="block text-[11px] font-black text-text-muted uppercase tracking-wider">{t[lang].coachSummary}</label>
                         <textarea
                           rows={4}
                           value={formData.coach_summary}
@@ -1183,8 +1183,8 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   {/* STEP 8: REVIEW & SUBMIT */}
                   {step === 8 && (
                     <div className="space-y-6 animate-fade-in">
-                      <div className="p-6 bg-black/40 border border-white/5 rounded-2xl space-y-4">
-                        <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                      <div className="p-6 bg-bg-card border border-border-primary rounded-2xl space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
                           <Bookmark size={14} className="text-accent-green" />
                           <span className="text-[10px] font-black text-accent-green uppercase tracking-[3px]">
                             {t[lang].reviewTitle}
@@ -1192,20 +1192,20 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].retestRecommended}</label>
+                            <label className="block text-[10px] font-black text-text-muted uppercase tracking-wider">{t[lang].retestRecommended}</label>
                             <input 
                               type="date"
                               value={formData.retest_recommended_date}
                               onChange={e => setFormData({ ...formData, retest_recommended_date: e.target.value })}
-                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-white outline-none"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-text-primary outline-none"
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].comparePrev}</label>
+                            <label className="block text-[10px] font-black text-text-muted uppercase tracking-wider">{t[lang].comparePrev}</label>
                             <select 
                               value={formData.previous_assessment_id}
                               onChange={e => setFormData({ ...formData, previous_assessment_id: e.target.value })}
-                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-white outline-none appearance-none"
+                              className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2.5 px-3 text-xs text-text-primary outline-none appearance-none"
                             >
                               <option value="">{t[lang].noPrev}</option>
                               {history.map((h: any) => (
@@ -1217,7 +1217,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-wider">{t[lang].growthNotes}</label>
+                          <label className="block text-[10px] font-black text-text-muted uppercase tracking-wider">{t[lang].growthNotes}</label>
                           <textarea 
                             rows={3}
                             value={formData.improvement_notes}
@@ -1236,20 +1236,20 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                           { label: t[lang].symmetryScore, val: formData.symmetry_score },
                           { label: t[lang].riskScore, val: formData.risk_score }
                         ].map(c => (
-                          <div key={c.label} className="p-4 bg-black/40 border border-white/5 rounded-xl text-center">
-                            <div className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{c.label}</div>
+                          <div key={c.label} className="p-4 bg-bg-card border border-border-primary rounded-xl text-center">
+                            <div className="text-[8px] font-black text-text-muted uppercase tracking-widest">{c.label}</div>
                             <div className={`text-2xl font-display font-black mt-1 ${getScoreColor(c.val)}`}>{c.val}</div>
                           </div>
                         ))}
                       </div>
 
                       {/* Submit Actions */}
-                      <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4">
+                      <div className="pt-6 border-t border-border-primary grid grid-cols-2 gap-4">
                         <button
                           type="button"
                           disabled={loading}
                           onClick={() => handleSubmit(true)}
-                          className="py-4 bg-bg-secondary border border-border-primary/50 text-white font-black text-[10px] tracking-widest rounded-xl hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                          className="py-4 bg-bg-secondary border border-border-primary/50 text-text-primary font-black text-[10px] tracking-widest rounded-xl hover:bg-white/5 transition-all flex items-center justify-center gap-2"
                         >
                           {loading ? <Loader2 size={12} className="animate-spin" /> : null}
                           {t[lang].draftText}
@@ -1272,12 +1272,12 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
 
             {/* Wizard Navigation Bar */}
             {!success && (
-              <div className="p-6 border-t border-white/5 flex justify-between bg-black/30">
+              <div className="p-6 border-t border-border-primary flex justify-between bg-bg-secondary">
                 <button
                   type="button"
                   disabled={step === 1}
                   onClick={() => setStep(prev => prev - 1)}
-                  className="px-6 py-3 rounded-xl border border-white/5 text-[10px] font-black text-gray-400 hover:text-white uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-6 py-3 rounded-xl border border-border-primary text-[10px] font-black text-text-muted hover:text-text-primary uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   <ArrowLeft size={12} /> {t[lang].back}
                 </button>
@@ -1285,7 +1285,7 @@ export default function AthleteAssessmentModal({ isOpen, onClose, athleteId, ath
                   type="button"
                   disabled={step === 8}
                   onClick={() => setStep(prev => prev + 1)}
-                  className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white hover:bg-white/10 uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-white/5 border border-border-primary rounded-xl text-[10px] font-black text-text-primary hover:bg-white/10 uppercase tracking-widest flex items-center gap-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   {t[lang].next} <ArrowRight size={12} />
                 </button>
