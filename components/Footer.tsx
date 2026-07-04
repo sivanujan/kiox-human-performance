@@ -20,7 +20,7 @@ export default function Footer() {
         </p>
         
         <div className="flex items-center gap-8 mb-12">
-          {["Instagram", "Twitter", "LinkedIn", "YouTube"].map((social) => (
+          {["Instagram", "X", "LinkedIn", "YouTube"].map((social) => (
             <Link key={social} href="#" className="font-sans text-xs font-semibold tracking-[0.2em] text-gray-500 hover:text-gold uppercase transition-colors">
               {social}
             </Link>

@@ -9,7 +9,6 @@ import {
   User, 
   MessageSquare,
   Facebook,
-  Twitter,
   ArrowRight
 } from "lucide-react";
 
@@ -165,8 +164,8 @@ export default function Contact() {
               <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-accent-green/50 flex items-center justify-center text-accent-green hover:bg-accent-green hover:text-text-on-green hover:scale-110 transition-all duration-300 cursor-pointer">
                 <Facebook size={18} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-accent-green/50 flex items-center justify-center text-accent-green hover:bg-accent-green hover:text-text-on-green hover:scale-110 transition-all duration-300 cursor-pointer">
-                <Twitter size={18} />
+              <a href="https://x.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-accent-green/50 flex items-center justify-center text-accent-green hover:bg-accent-green hover:text-text-on-green hover:scale-110 transition-all duration-300 cursor-pointer" title="X (Twitter)">
+                <svg className="w-[16px] h-[16px]" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
             </div>
           </motion.div>
