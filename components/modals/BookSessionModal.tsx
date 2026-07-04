@@ -201,20 +201,22 @@ export default function BookSessionModal({ isOpen, onClose, session, onSuccess }
             )}
 
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-white/5">
                <button 
+                 type="button"
                  onClick={onClose}
-                 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
+                 className="px-6 py-3 bg-transparent border border-white/10 hover:border-white/20 text-text-secondary hover:text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all active-scale"
                >
                  ABORT
                </button>
                <button 
+                 type="button"
                  disabled={!confirmed || loading}
                  onClick={handleBooking}
-                 className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1"
+                 className="h-11 px-6 bg-[#22c55e] hover:bg-[#1ebd50] disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 active-scale shadow-[0_4px_15px_rgba(34,197,94,0.2)]"
                >
-                 {loading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
-                 CONFIRM DEPLOYMENT
+                 {loading ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
+                 <span>CONFIRM DEPLOYMENT</span>
                </button>
             </div>
           </div>
