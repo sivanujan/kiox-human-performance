@@ -338,7 +338,7 @@ export default function CurriculumTimeline() {
                           </div>
                         </div>
 
-                        {session.max_capacity && (
+                        {isWritable && session.max_capacity && (
                           <div className="px-3 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest whitespace-nowrap">
                             Slots: {session.confirmed_count || 0} / {session.max_capacity}
                           </div>
