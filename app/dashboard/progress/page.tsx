@@ -176,82 +176,9 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* CORE VITALS & HISTORICAL CHART CARD */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Main Progression Chart (Placeholder with Framer Motion) */}
-        <div className="lg:col-span-2 bg-bg-card border border-border-primary/50 rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl shadow-accent/5">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-               <h3 className="text-[12px] font-black text-text-primary uppercase tracking-[3px] mb-1">Architecture Evolution</h3>
-               <p className="text-[9px] font-black text-text-muted uppercase tracking-[2px]">Monthly performance indices</p>
-            </div>
-            <div className="flex gap-2">
-               <div className="px-3 py-1 bg-bg-primary/50 border border-border-primary/50 rounded-lg text-[8px] font-black text-text-primary uppercase tracking-[2px]">30D</div>
-               <div className="px-3 py-1 bg-accent-green/10 text-accent-green border border-accent-green/30 rounded-lg text-[8px] font-black uppercase tracking-[2px]">90D</div>
-            </div>
-          </div>
-
-          <div className="h-[250px] w-full relative flex items-end gap-1 px-4">
-             {chartPoints.map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-4">
-                   <motion.div 
-                     initial={{ height: 0 }}
-                     animate={{ height: `${val}%` }}
-                     transition={{ duration: 1, delay: i * 0.1 }}
-                     className="w-full bg-gradient-to-t from-accent-green/5 to-accent-green/40 border-t-2 border-accent-green rounded-t-lg relative group"
-                   >
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-bg-card text-text-primary border border-border-primary/50 text-[9px] font-black px-2 py-1 rounded shadow-xl">
-                         {val}%
-                      </div>
-                   </motion.div>
-                   <span className="text-[8px] font-black text-text-muted uppercase tracking-[2px]">{chartLabels[i]}</span>
-                </div>
-             ))}
-          </div>
-        </div>
-
-        {/* Breakdown Sidebar */}
-        <div className="space-y-8">
-           <div className="bg-bg-card border border-border-primary/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-accent/5">
-              <h3 className="text-[11px] font-black text-text-muted uppercase tracking-[3px] mb-8">Metric Distribution</h3>
-              <div className="space-y-6">
-                 {distribution.map((item, i) => (
-                   <div key={i} className="space-y-2">
-                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[2px]">
-                        <div className="flex items-center gap-2 text-text-secondary">
-                           {item.icon} {item.label}
-                        </div>
-                        <span className="text-text-primary">{item.val}%</span>
-                     </div>
-                     <div className="w-full h-1 bg-bg-primary/50 border border-border-primary/50 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${item.val}%` }}
-                          transition={{ duration: 1.5 }}
-                          className="h-full bg-accent-green" 
-                        />
-                     </div>
-                   </div>
-                 ))}
-              </div>
-           </div>
-
-           <div className="bg-gradient-to-br from-bg-card to-bg-secondary border border-border-primary/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-accent/5">
-              <h3 className="text-[11px] font-black text-accent-green uppercase tracking-[3px] mb-6">Elite Benchmark</h3>
-              <p className="text-xs text-text-secondary leading-relaxed uppercase tracking-wider font-semibold mb-6">
-                Your current force-to-velocity ratio is scoring in the **Top 8th Percentile** for your deploy base.
-              </p>
-              <button className="w-full py-4 bg-accent-green/5 border border-accent-green/20 rounded-xl text-[9px] font-black text-accent-green uppercase tracking-[2px] transition-all hover:bg-accent-green hover:text-text-on-green">
-                Export Performance Dossier
-              </button>
-           </div>
-        </div>
-      </div>
-
       {/* BIOMECHANICAL & VALD ASSESSMENT ANALYSIS */}
       {latestAssessment ? (
-        <div className="space-y-8 border-t border-white/5 pt-12">
+        <div className="space-y-8 border-b border-white/5 pb-12">
           
           <div>
             <span className="text-[10px] font-black text-accent-green uppercase tracking-[4px]">Laboratory Telemetry</span>
@@ -491,6 +418,79 @@ export default function ProgressPage() {
           No lab biomechanical assessments recorded on file yet.
         </div>
       )}
+
+      {/* CORE VITALS & HISTORICAL CHART CARD */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Main Progression Chart (Placeholder with Framer Motion) */}
+        <div className="lg:col-span-2 bg-bg-card border border-border-primary/50 rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl shadow-accent/5">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+               <h3 className="text-[12px] font-black text-text-primary uppercase tracking-[3px] mb-1">Architecture Evolution</h3>
+               <p className="text-[9px] font-black text-text-muted uppercase tracking-[2px]">Monthly performance indices</p>
+            </div>
+            <div className="flex gap-2">
+               <div className="px-3 py-1 bg-bg-primary/50 border border-border-primary/50 rounded-lg text-[8px] font-black text-text-primary uppercase tracking-[2px]">30D</div>
+               <div className="px-3 py-1 bg-accent-green/10 text-accent-green border border-accent-green/30 rounded-lg text-[8px] font-black uppercase tracking-[2px]">90D</div>
+            </div>
+          </div>
+
+          <div className="h-[250px] w-full relative flex items-end gap-1 px-4">
+             {chartPoints.map((val, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-4">
+                   <motion.div 
+                     initial={{ height: 0 }}
+                     animate={{ height: `${val}%` }}
+                     transition={{ duration: 1, delay: i * 0.1 }}
+                     className="w-full bg-gradient-to-t from-accent-green/5 to-accent-green/40 border-t-2 border-accent-green rounded-t-lg relative group"
+                   >
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-bg-card text-text-primary border border-border-primary/50 text-[9px] font-black px-2 py-1 rounded shadow-xl">
+                         {val}%
+                      </div>
+                   </motion.div>
+                   <span className="text-[8px] font-black text-text-muted uppercase tracking-[2px]">{chartLabels[i]}</span>
+                </div>
+             ))}
+          </div>
+        </div>
+
+        {/* Breakdown Sidebar */}
+        <div className="space-y-8">
+           <div className="bg-bg-card border border-border-primary/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-accent/5">
+              <h3 className="text-[11px] font-black text-text-muted uppercase tracking-[3px] mb-8">Metric Distribution</h3>
+              <div className="space-y-6">
+                 {distribution.map((item, i) => (
+                   <div key={i} className="space-y-2">
+                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[2px]">
+                        <div className="flex items-center gap-2 text-text-secondary">
+                           {item.icon} {item.label}
+                        </div>
+                        <span className="text-text-primary">{item.val}%</span>
+                     </div>
+                     <div className="w-full h-1 bg-bg-primary/50 border border-border-primary/50 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${item.val}%` }}
+                          transition={{ duration: 1.5 }}
+                          className="h-full bg-accent-green" 
+                        />
+                     </div>
+                   </div>
+                 ))}
+              </div>
+           </div>
+
+           <div className="bg-gradient-to-br from-bg-card to-bg-secondary border border-border-primary/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-accent/5">
+              <h3 className="text-[11px] font-black text-accent-green uppercase tracking-[3px] mb-6">Elite Benchmark</h3>
+              <p className="text-xs text-text-secondary leading-relaxed uppercase tracking-wider font-semibold mb-6">
+                Your current force-to-velocity ratio is scoring in the **Top 8th Percentile** for your deploy base.
+              </p>
+              <button className="w-full py-4 bg-accent-green/5 border border-accent-green/20 rounded-xl text-[9px] font-black text-accent-green uppercase tracking-[2px] transition-all hover:bg-accent-green hover:text-text-on-green">
+                Export Performance Dossier
+              </button>
+           </div>
+        </div>
+      </div>
 
     </div>
   );
