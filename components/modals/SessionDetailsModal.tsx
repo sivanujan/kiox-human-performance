@@ -407,28 +407,28 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
            animate={{ opacity: 1 }}
            exit={{ opacity: 0 }}
            onClick={onClose}
-           className="absolute inset-0 bg-black/95 backdrop-blur-2xl"
+           className="absolute inset-0 bg-black/60 dark:bg-black/90 backdrop-blur-md"
         />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl bg-[#080808] border border-white/10 rounded-[48px] overflow-hidden shadow-2xl"
+          className="relative w-full max-w-5xl bg-bg-card border border-border-card rounded-[48px] overflow-hidden shadow-2xl transition-colors duration-300"
         >
           {/* Header */}
-          <div className="p-8 border-b border-white/5 bg-gradient-to-r from-[#22c55e]/[0.05] to-transparent flex justify-between items-start">
+          <div className="p-8 border-b border-border-card/60 bg-gradient-to-r from-[#22c55e]/[0.03] to-transparent flex justify-between items-start">
              <div>
                 <div className="flex items-center gap-3 mb-3">
                    <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
-                     session.status === 'IN_PROGRESS' ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 animate-pulse' : 'bg-white/5 text-white/40 border-white/10'
+                     session.status === 'IN_PROGRESS' ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 animate-pulse' : 'bg-bg-input text-text-muted border-border-input'
                    }`}>
                       {session.status}
                    </span>
                    <span className="block text-[11px] font-sans font-medium text-text-secondary tracking-wide ml-1">{session.session_type} // {session.id.slice(0, 8)}</span>
                 </div>
-                <h2 className="font-display text-2xl text-white tracking-wider uppercase mb-1.5">{session.title}</h2>
-                <div className="flex items-center gap-4 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                <h2 className="font-display text-2xl text-text-primary tracking-wider uppercase mb-1.5">{session.title}</h2>
+                <div className="flex items-center gap-4 text-text-muted text-[10px] font-bold uppercase tracking-widest">
                    <div className="flex items-center gap-1.5"><Calendar size={12} className="text-[#22c55e]" /> {session.scheduled_date}</div>
                    <div className="flex items-center gap-1.5"><Clock size={12} className="text-[#22c55e]" /> {session.start_time}</div>
                    <div className="flex items-center gap-1.5"><MapPin size={12} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
@@ -439,7 +439,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    <button 
                      onClick={() => setIsEditModalOpen(true)}
                      title="Edit session"
-                     className="p-3 rounded-full bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all"
+                     className="p-3 rounded-full bg-[#22c55e]/10 text-[#22c55e] hover:bg-[#22c55e]/20 transition-all cursor-pointer"
                    >
                      <Edit2 size={16} />
                    </button>
@@ -447,12 +447,12 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 {canDelete && (
                    <button 
                      onClick={handleDeleteSession}
-                     className="p-3 rounded-full bg-white/5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                     className="p-3 rounded-full bg-bg-input border border-border-input text-text-secondary hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all cursor-pointer"
                    >
                      <Trash2 size={18} />
                    </button>
                 )}
-                <button onClick={onClose} className="p-3 rounded-full bg-white/5 text-gray-400 hover:text-white transition-all">
+                <button onClick={onClose} className="p-3 rounded-full bg-bg-input border border-border-input text-text-secondary hover:text-text-primary transition-all cursor-pointer">
                    <X size={20} />
                 </button>
              </div>
@@ -461,7 +461,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
           <div className="flex h-[450px]">
              {/* Tabs Sidebar */}
              {!isFacilityWide && (
-                <div className="w-[100px] border-r border-white/5 flex flex-col items-center py-8 gap-6">
+                <div className="w-[100px] border-r border-border-card/60 flex flex-col items-center py-8 gap-6">
                    {[
                       { id: 'INFO', icon: <Activity size={20} />, label: 'INFO' },
                       { id: 'ROSTER', icon: <Users size={20} />, label: 'ROSTER' },
@@ -470,7 +470,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                       <button 
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-gray-500 hover:text-white/40'}`}
+                        className={`flex flex-col items-center gap-1.5 transition-all cursor-pointer ${activeTab === tab.id ? 'text-[#22c55e]' : 'text-text-secondary/60 hover:text-text-primary'}`}
                       >
                          {tab.icon}
                          <span className="text-[9px] font-black tracking-widest">{tab.label}</span>
@@ -485,63 +485,63 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                    <div className="space-y-12">
                       {isFacilityWide ? (
                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                            <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PROTOCOL CREATOR</div>
                                <div className="text-xl font-display text-[#22c55e] uppercase truncate">
                                   {creatorName || "SYSTEM CENTRAL"}
                                </div>
-                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">INITIALIZED BY COMMAND PROFILE</div>
+                               <div className="text-text-muted text-[8px] font-black uppercase mt-2">INITIALIZED BY COMMAND PROFILE</div>
                             </div>
-                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                            <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">ASSIGNED COACH</div>
                                <div className="text-xl font-display text-sky-400 uppercase truncate">
                                   {assignedCoachName || "UNASSIGNED"}
                                </div>
-                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">LEAD COACH FOR PROTOCOL</div>
+                               <div className="text-text-muted text-[8px] font-black uppercase mt-2">LEAD COACH FOR PROTOCOL</div>
                             </div>
-                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                            <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">INITIALIZED TIMESTAMP</div>
-                               <div className="text-sm font-mono text-white mt-1">
+                               <div className="text-sm font-mono text-text-primary mt-1">
                                   {session.created_at ? format(new Date(session.created_at), "yyyy-MM-dd HH:mm") : "N/A"}
                                 </div>
-                               <div className="text-gray-500 text-[8px] font-black uppercase mt-4">SYSTEM RECORD ENTRY TIME</div>
+                               <div className="text-text-muted text-[8px] font-black uppercase mt-4">SYSTEM RECORD ENTRY TIME</div>
                             </div>
                          </div>
                       ) : session.is_external ? (
                          <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">EXTERNAL CLIENT</div>
                                   <div className="text-xl font-display text-[#22c55e] uppercase truncate">
                                      {session.external_player_name}
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">REGISTERED NAME</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-2">REGISTERED NAME</div>
                                </div>
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PHONE NUMBER</div>
-                                  <div className="text-base font-mono text-white truncate">
+                                  <div className="text-base font-mono text-text-primary truncate">
                                      {session.external_person_phone || 'N/A'}
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT DIRECT LINE</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-2">CONTACT DIRECT LINE</div>
                                 </div>
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">EMAIL ADDRESS</div>
-                                  <div className="text-base font-mono text-white truncate">
+                                  <div className="text-base font-mono text-text-primary truncate">
                                      {session.external_person_email || 'N/A'}
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-2">CONTACT INBOX</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-2">CONTACT INBOX</div>
                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">TRAINING PERIOD</div>
-                                  <div className="text-xs font-bold text-white uppercase mt-1">
+                                  <div className="text-xs font-bold text-text-primary uppercase mt-1">
                                      {session.training_start_date || 'N/A'} TO {session.training_end_date || 'N/A'}
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">CONTRACTED TIMELINE</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-4">CONTRACTED TIMELINE</div>
                                </div>
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PAYMENT STATUS</div>
                                   <div className="flex items-center gap-2 mt-1">
                                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
@@ -552,14 +552,14 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                         {session.payment_status || 'PENDING'}
                                      </span>
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">FINANCIAL CLEARANCE</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-4">FINANCIAL CLEARANCE</div>
                                </div>
-                               <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                               <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                   <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">PAYMENT NOTES</div>
-                                  <div className="text-xs text-white/70 italic truncate mt-1">
+                                  <div className="text-xs text-text-secondary italic truncate mt-1">
                                      {session.payment_notes || 'No notes specified.'}
                                   </div>
-                                  <div className="text-gray-500 text-[8px] font-black uppercase mt-4">TRANSACTION METADATA</div>
+                                  <div className="text-text-muted text-[8px] font-black uppercase mt-4">TRANSACTION METADATA</div>
                                </div>
                             </div>
 
@@ -567,7 +567,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                <button
                                  onClick={handleConfirmPayment}
                                  disabled={updatingPayment}
-                                 className="w-full py-4 bg-emerald-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 mt-4"
+                                 className="w-full py-4 bg-emerald-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 mt-4 cursor-pointer"
                                >
                                  {updatingPayment ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />} CONFIRM PAYMENT & VALIDATE SESSION
                                </button>
@@ -575,22 +575,22 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          </div>
                       ) : (
                          <div className="grid grid-cols-2 gap-12">
-                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                            <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">TARGET INTENSITY MATRIX</div>
                                <div className="text-4xl font-display text-[#22c55e]">{session.target_load_au} AU</div>
-                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
+                               <div className="text-text-muted text-[8px] font-black uppercase mt-2">PROJECTED SQUAD ACCUMULATION</div>
                             </div>
-                            <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
+                            <div className="p-8 bg-bg-secondary rounded-3xl border border-border-card/60">
                                <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">UNIT ASSIGNMENT</div>
-                               <div className="text-4xl font-display text-white">{(session.assigned_athletes || []).length} SUBJECTS</div>
-                               <div className="text-gray-500 text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
+                               <div className="text-4xl font-display text-text-primary">{(session.assigned_athletes || []).length} SUBJECTS</div>
+                               <div className="text-text-muted text-[8px] font-black uppercase mt-2">OPERATIONAL UNIT SIZE</div>
                             </div>
                          </div>
                       )}
 
                       <div className="space-y-4">
                          <div className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">MISSION NOTES</div>
-                         <p className="text-white/60 text-sm leading-relaxed italic">"{session.notes || 'No operational modifications recorded for this session.'}"</p>
+                         <p className="text-text-secondary text-sm leading-relaxed italic">"{session.notes || 'No operational modifications recorded for this session.'}"</p>
                       </div>
 
                       {!isFacilityWide && (
@@ -598,7 +598,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                             {isStaff && session.status === 'SCHEDULED' && (
                               <button 
                                 onClick={() => updateSessionStatus(session.id, 'IN_PROGRESS')}
-                                className="flex-1 py-4 bg-[#22c55e] text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                                className="flex-1 py-4 bg-[#22c55e] text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 cursor-pointer"
                               >
                                  <Play size={18} fill="currentColor" /> MARK IN PROGRESS
                               </button>
@@ -606,7 +606,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                             {isStaff && session.status === 'IN_PROGRESS' && (
                               <button 
                                 onClick={() => setActiveTab('ROSTER')}
-                                className="flex-1 py-4 bg-amber-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3"
+                                className="flex-1 py-4 bg-amber-500 text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 cursor-pointer"
                               >
                                  <CheckCircle2 size={18} /> INITIALIZE COMPLETION LOG
                               </button>
@@ -621,7 +621,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          <button 
                            onClick={handleComplete}
                            disabled={loading}
-                           className="px-6 py-2.5 bg-amber-500 text-black font-display text-[10px] tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2"
+                           className="px-6 py-2.5 bg-amber-500 text-black font-display text-[10px] tracking-widest rounded-xl hover:bg-white transition-all uppercase shadow-lg flex items-center gap-2 cursor-pointer"
                          >
                             {loading ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} COMMIT LOADS & CLOSE
                          </button>
@@ -629,29 +629,29 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
 
                       <div className="space-y-4">
                          {athleteLogs.map((log, i) => (
-                           <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-[24px] flex flex-wrap lg:flex-nowrap items-center gap-6 group">
+                           <div key={i} className="bg-bg-secondary border border-border-card/60 p-6 rounded-[24px] flex flex-wrap lg:flex-nowrap items-center gap-6 group">
                               <div className="flex items-center gap-3 shrink-0 w-[200px]">
-                                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
+                                 <div className="w-10 h-10 rounded-xl bg-bg-input border border-border-input flex items-center justify-center font-display shadow-xl uppercase overflow-hidden">
                                     {athleteProfiles[log.athlete_id]?.avatar_url ? (
                                        <img src={athleteProfiles[log.athlete_id].avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
                                        athleteProfiles[log.athlete_id]?.first_name?.slice(0, 2) || log.athlete_id.slice(0, 2)
                                     )}
                                  </div>
-                                 <div className="text-white font-bold text-xs uppercase tracking-wider truncate">
+                                 <div className="text-text-primary font-bold text-xs uppercase tracking-wider truncate">
                                     {athleteProfiles[log.athlete_id] 
                                        ? `${athleteProfiles[log.athlete_id].first_name} ${athleteProfiles[log.athlete_id].last_name || ''}`
                                        : `SUBJECT ${log.athlete_id.slice(0, 8)}`}
                                  </div>
                               </div>
 
-                              <div className="flex gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 shrink-0">
+                              <div className="flex gap-1.5 p-1 bg-bg-primary rounded-xl border border-border-card shrink-0">
                                  {['PRESENT', 'ABSENT', 'LATE'].map(status => (
                                    <button 
                                      key={status}
                                      onClick={() => handleUpdateLog(log.athlete_id, { attendance: status })}
-                                     className={`px-3 py-1.5 rounded-lg text-[9px] font-black tracking-widest transition-all ${
-                                       log.attendance === status ? 'bg-[#22c55e] text-black' : 'text-gray-500 hover:text-white'
+                                     className={`px-3 py-1.5 rounded-lg text-[9px] font-black tracking-widest transition-all cursor-pointer ${
+                                       log.attendance === status ? 'bg-[#22c55e] text-black' : 'text-text-muted hover:text-text-primary'
                                      }`}
                                    >
                                       {status}
@@ -677,7 +677,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                       max="10"
                                       value={log.rpe}
                                       onChange={e => handleUpdateLog(log.athlete_id, { rpe: parseInt(e.target.value) })}
-                                      className="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-[#22c55e] mt-2 block"
+                                      className="w-full h-1.5 bg-bg-input rounded-lg appearance-none cursor-pointer accent-[#22c55e] mt-2 block"
                                     />
                                  </div>
                               </div>
@@ -688,7 +688,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                  ) : (
                     <div className="space-y-8 animate-slide-up">
                        {/* Section 1 — Test Setup */}
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-bg-secondary border border-border-card/60 p-6 rounded-[24px]">
                           <div className="space-y-1.5 col-span-1 md:col-span-2">
                              <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 1 — Test Setup</h3>
                           </div>
@@ -766,7 +766,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                        </div>
 
                        {/* Section 2 — Resting Values */}
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-bg-secondary border border-border-card/60 p-6 rounded-[24px]">
                           <div className="space-y-1.5 col-span-1 md:col-span-2">
                              <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 2 — Resting Values</h3>
                           </div>
@@ -794,13 +794,13 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                        </div>
 
                        {/* Section 3 — Stage Test Data */}
-                       <div className="bg-white/5 border border-white/5 p-6 rounded-[24px] space-y-4">
+                       <div className="bg-bg-secondary border border-border-card/60 p-6 rounded-[24px] space-y-4">
                           <div className="flex justify-between items-center">
                              <h3 className="text-sm font-display text-accent-green uppercase tracking-wider">Section 3 — Stage Test Data</h3>
                              <button
                                type="button"
                                onClick={handleAddStage}
-                               className="px-4 py-2 border border-accent-green text-accent-green hover:bg-accent-green hover:text-black font-display text-[10px] tracking-widest rounded-xl transition-all uppercase flex items-center gap-1.5"
+                               className="px-4 py-2 border border-accent-green text-accent-green hover:bg-accent-green hover:text-black font-display text-[10px] tracking-widest rounded-xl transition-all uppercase flex items-center gap-1.5 cursor-pointer"
                              >
                                 <Plus size={12} /> ADD STAGE
                              </button>
@@ -809,7 +809,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                           <div className="overflow-x-auto">
                              <table className="w-full border-collapse">
                                 <thead>
-                                   <tr className="border-b border-white/10 text-left text-[9px] font-black text-text-muted uppercase tracking-widest">
+                                   <tr className="border-b border-border-input text-left text-[9px] font-black text-text-muted uppercase tracking-widest">
                                       <th className="pb-3 pl-2 w-16">Stage</th>
                                       <th className="pb-3 w-32">Speed (km/h)</th>
                                       <th className="pb-3 w-32">Time</th>
@@ -818,7 +818,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                       <th className="pb-3 w-12 text-center"></th>
                                    </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-border-card">
                                    {stages.length === 0 ? (
                                       <tr>
                                          <td colSpan={6} className="py-6 text-center text-xs text-text-secondary italic">
@@ -828,7 +828,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                    ) : (
                                       stages.map((row, index) => (
                                          <tr key={index} className="align-middle">
-                                            <td className="py-3 pl-2 text-xs font-mono text-white font-bold">{row.stage}</td>
+                                            <td className="py-3 pl-2 text-xs font-mono text-text-primary font-bold">{row.stage}</td>
                                             <td className="py-3 pr-4">
                                                <input
                                                  type="number"
@@ -871,7 +871,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                                                <button
                                                  type="button"
                                                  onClick={() => handleRemoveStage(index)}
-                                                 className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                                 className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
                                                >
                                                   <Trash2 size={14} />
                                                </button>
@@ -885,7 +885,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                        </div>
 
                        {/* Section 4 — Recovery Data */}
-                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-bg-secondary border border-border-card/60 p-6 rounded-[24px]">
                           <div className="space-y-1.5 col-span-1 md:col-span-3">
                              <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 4 — Recovery Data</h3>
                           </div>
@@ -927,7 +927,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          type="button"
                          onClick={handleSaveLabData}
                          disabled={savingLabData}
-                         className="w-full py-4 bg-accent-green text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl font-button"
+                         className="w-full py-4 bg-accent-green text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl font-button cursor-pointer"
                        >
                           {savingLabData ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />} SAVE LAB DATA
                        </button>
