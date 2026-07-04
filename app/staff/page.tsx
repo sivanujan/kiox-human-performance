@@ -41,9 +41,7 @@ import ManageScheduleModal from "@/components/modals/ManageScheduleModal";
 import ProgramAssignModal from "@/components/modals/ProgramAssignModal";
 
 // Admin UI Components
-import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
-import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
@@ -489,12 +487,11 @@ export default function StaffPortal() {
           <div className="space-y-8 w-full">
             <AdminBookingsPanel />
             <CoachScheduleWidget coach={profile} />
-            <LiveTrainingMonitor />
           </div>
         </div>
 
         {/* 7. TRAINING LOAD MANAGEMENT */}
-        <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
+
 
 
 

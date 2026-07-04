@@ -40,9 +40,7 @@ import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 import ProgramAssignModal from "@/components/modals/ProgramAssignModal";
 
 // Admin UI Components
-import TrainingLoadWidget from "@/components/admin/TrainingLoadWidget";
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
-import LiveTrainingMonitor from "@/components/admin/LiveTrainingMonitor";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
@@ -454,11 +452,10 @@ export default function AdminDashboard() {
 
           <div className="space-y-8 w-full">
             <AdminBookingsPanel />
-            <LiveTrainingMonitor />
           </div>
         </div>
 
-        <TrainingLoadWidget onExpand={() => setIsLoadModalOpen(true)} />
+
 
         {/* Global Registry Shortcuts */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 pt-4">

@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck, Lock, FlaskConical } from "lucide-react";
 import CheckupList from "@/components/forms-protocols/CheckupList";
 import FunctionalCheckupForm from "@/components/forms-protocols/FunctionalCheckupForm";
 import DocumentLibrary from "@/components/forms-protocols/DocumentLibrary";
 import SecureProtocolDownload from "@/components/forms-protocols/SecureProtocolDownload";
 import DownloadSchedulesModal from "@/components/forms-protocols/DownloadSchedulesModal";
 import PerformanceAssessmentReports from "@/components/forms-protocols/PerformanceAssessmentReports";
+import VL4LabReports from "@/components/forms-protocols/VL4LabReports";
 
-type ActiveTab = "checkups" | "documents" | "protocols";
+type ActiveTab = "checkups" | "documents" | "protocols" | "lab-reports";
 
 export default function AdminFormsAndProtocolsPage() {
   const { profile, loading } = useAuth();
@@ -99,6 +100,19 @@ export default function AdminFormsAndProtocolsPage() {
               Check-Ups
             </button>
 
+            {/* Lab Reports tab */}
+            <button
+              onClick={() => setActiveTab("lab-reports")}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all active-scale ${
+                activeTab === "lab-reports"
+                  ? "bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 text-[var(--accent-green)] font-black"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent"
+              }`}
+            >
+              <FlaskConical size={14} />
+              Lab Reports
+            </button>
+
             {/* Document Library tab */}
             <button
               onClick={() => setActiveTab("documents")}
@@ -157,6 +171,8 @@ export default function AdminFormsAndProtocolsPage() {
             <PerformanceAssessmentReports />
           </div>
         </div>
+      ) : activeTab === "lab-reports" ? (
+        <VL4LabReports />
       ) : activeTab === "documents" ? (
         <DocumentLibrary />
       ) : (

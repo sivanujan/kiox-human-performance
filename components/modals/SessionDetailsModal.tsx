@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2, Edit2 } from "lucide-react";
+import { X, Calendar, Clock, MapPin, Activity, Users, Save, Loader2, Play, CheckCircle2, Trash2, Edit2, Plus, FlaskConical } from "lucide-react";
 import EditSessionModal from "@/components/modals/EditSessionModal";
 import { useSessions, TrainingSession } from "@/hooks/useSessions";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -22,7 +22,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const { profile } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [athleteLogs, setAthleteLogs] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"INFO" | "ROSTER">("INFO");
+  const [activeTab, setActiveTab] = useState<"INFO" | "ROSTER" | "LAB_DATA">("INFO");
   const [creatorName, setCreatorName] = useState<string | null>(null);
   const [assignedCoachName, setAssignedCoachName] = useState<string | null>(null);
   const [updatingPayment, setUpdatingPayment] = useState(false);
@@ -31,10 +31,38 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   const [localAthletes, setLocalAthletes] = useState<any[]>([]);
   const [athleteProfiles, setAthleteProfiles] = useState<Record<string, any>>({});
 
+  // VL4 Lab Test State
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string>("");
+  const [testMethod, setTestMethod] = useState<string>("Running");
+  const [temperature, setTemperature] = useState<string>("");
+  const [inclinePercent, setInclinePercent] = useState<string>("");
+  const [testerName, setTesterName] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+  const [restingLactate, setRestingLactate] = useState<string>("");
+  const [restingHr, setRestingHr] = useState<string>("");
+
+  interface StageRow {
+    stage: number;
+    speed_kmh: string;
+    time: string;
+    lactate_mmol: string;
+    heart_rate: string;
+  }
+  const [stages, setStages] = useState<StageRow[]>([]);
+
+  const [recoveryLactate, setRecoveryLactate] = useState<string>("");
+  const [recoveryHr, setRecoveryHr] = useState<string>("");
+  const [recoveryTime, setRecoveryTime] = useState<string>("");
+
+  const [savingLabData, setSavingLabData] = useState<boolean>(false);
+  const [savedLabTests, setSavedLabTests] = useState<Record<string, any>>({});
+  const [loadingLabTests, setLoadingLabTests] = useState<boolean>(false);
+
   const supabase = createClient();
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'staff';
   const isFacilityWide = session ? ["MEAL", "CURFEW", "LOGISTICS"].includes(session.session_type) : false;
   const canDelete = profile?.role === 'superadmin' || (profile?.role === 'staff' && !session?.is_curriculum);
+  const canAccessLabData = profile?.role && ['superadmin', 'staff', 'coach', 'medical'].includes(profile.role);
 
   useEffect(() => {
     setMounted(true);
@@ -43,6 +71,9 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
   useEffect(() => {
     if (isOpen && session) {
       loadSessionData();
+      if (canAccessLabData) {
+        loadLabTestData();
+      }
       // Fetch coaches for edit modal
       supabase
         .from("profiles")
@@ -57,7 +88,185 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
         .order("first_name")
         .then(({ data }: { data: any[] | null }) => { if (data) setLocalAthletes(data); });
     }
-  }, [isOpen, session]);
+  }, [isOpen, session, canAccessLabData]);
+
+  const loadLabTestData = async () => {
+    if (!session) return;
+    setLoadingLabTests(true);
+    try {
+      const { data, error } = await supabase
+        .from("vl4_lab_tests")
+        .select("*")
+        .eq("session_id", session.id);
+      
+      if (error) {
+        if (error.code === '42P01') {
+          console.warn("Table 'vl4_lab_tests' does not exist yet. Please run migration.");
+        } else {
+          throw error;
+        }
+      }
+      
+      if (data) {
+        const testsMap: Record<string, any> = {};
+        data.forEach((test: any) => {
+          testsMap[test.athlete_id] = test;
+        });
+        setSavedLabTests(testsMap);
+      }
+    } catch (err: any) {
+      console.error("Failed to load VL4 lab tests:", err.message);
+    } finally {
+      setLoadingLabTests(false);
+    }
+  };
+
+  const handleAthleteChange = (athleteId: string) => {
+    setSelectedAthleteId(athleteId);
+  };
+
+  // Sync form inputs with selected athlete data from database, handling race conditions when database load completes
+  useEffect(() => {
+    if (!selectedAthleteId) {
+      setTestMethod("Running");
+      setTemperature("");
+      setInclinePercent("");
+      setTesterName(`${profile?.first_name || ""} ${profile?.last_name || ""}`.trim());
+      setNotes("");
+      setRestingLactate("");
+      setRestingHr("");
+      setStages([]);
+      setRecoveryLactate("");
+      setRecoveryHr("");
+      setRecoveryTime("");
+      return;
+    }
+
+    const savedTest = savedLabTests[selectedAthleteId];
+    if (savedTest) {
+      setTestMethod(savedTest.test_method || "Running");
+      setTemperature(savedTest.temperature !== null && savedTest.temperature !== undefined ? savedTest.temperature.toString() : "");
+      setInclinePercent(savedTest.incline_percent !== null && savedTest.incline_percent !== undefined ? savedTest.incline_percent.toString() : "");
+      setTesterName(savedTest.tester_name || "");
+      setNotes(savedTest.notes || "");
+      setRestingLactate(savedTest.resting_lactate !== null && savedTest.resting_lactate !== undefined ? savedTest.resting_lactate.toString() : "");
+      setRestingHr(savedTest.resting_hr !== null && savedTest.resting_hr !== undefined ? savedTest.resting_hr.toString() : "");
+      
+      const parsedStages = Array.isArray(savedTest.stage_data) ? savedTest.stage_data.map((s: any) => ({
+        stage: s.stage,
+        speed_kmh: s.speed_kmh !== undefined && s.speed_kmh !== null ? s.speed_kmh.toString() : "",
+        time: s.time || "",
+        lactate_mmol: s.lactate_mmol !== undefined && s.lactate_mmol !== null ? s.lactate_mmol.toString() : "",
+        heart_rate: s.heart_rate !== undefined && s.heart_rate !== null ? s.heart_rate.toString() : ""
+      })) : [];
+      setStages(parsedStages);
+
+      setRecoveryLactate(savedTest.recovery_lactate !== null && savedTest.recovery_lactate !== undefined ? savedTest.recovery_lactate.toString() : "");
+      setRecoveryHr(savedTest.recovery_hr !== null && savedTest.recovery_hr !== undefined ? savedTest.recovery_hr.toString() : "");
+      setRecoveryTime(savedTest.recovery_time || "");
+    } else {
+      setTestMethod("Running");
+      setTemperature("");
+      setInclinePercent("");
+      setTesterName(`${profile?.first_name || ""} ${profile?.last_name || ""}`.trim());
+      setNotes("");
+      setRestingLactate("");
+      setRestingHr("");
+      setStages([]);
+      setRecoveryLactate("");
+      setRecoveryHr("");
+      setRecoveryTime("");
+    }
+  }, [selectedAthleteId, savedLabTests, profile]);
+
+  const handleAddStage = () => {
+    setStages(prev => [
+      ...prev,
+      {
+        stage: prev.length + 1,
+        speed_kmh: "",
+        time: "00:03:00",
+        lactate_mmol: "",
+        heart_rate: ""
+      }
+    ]);
+  };
+
+  const handleRemoveStage = (index: number) => {
+    setStages(prev => {
+      const filtered = prev.filter((_, i) => i !== index);
+      return filtered.map((row, i) => ({
+        ...row,
+        stage: i + 1
+      }));
+    });
+  };
+
+  const handleUpdateStage = (index: number, field: keyof StageRow, value: string) => {
+    setStages(prev => prev.map((row, i) => i === index ? { ...row, [field]: value } : row));
+  };
+
+  const handleSaveLabData = async () => {
+    if (!session) return;
+    if (!selectedAthleteId) {
+      alert("Please select an athlete first.");
+      return;
+    }
+    setSavingLabData(true);
+    try {
+      const formattedStages = stages.map(s => ({
+        stage: s.stage,
+        speed_kmh: s.speed_kmh ? parseFloat(s.speed_kmh) : null,
+        time: s.time || null,
+        lactate_mmol: s.lactate_mmol ? parseFloat(s.lactate_mmol) : null,
+        heart_rate: s.heart_rate ? parseInt(s.heart_rate) : null
+      }));
+
+      const testData = {
+        session_id: session.id,
+        athlete_id: selectedAthleteId,
+        test_date: new Date().toISOString().split('T')[0],
+        test_method: testMethod,
+        temperature: temperature ? parseFloat(temperature) : null,
+        incline_percent: inclinePercent ? parseFloat(inclinePercent) : null,
+        tester_name: testerName || null,
+        notes: notes || null,
+        resting_lactate: restingLactate ? parseFloat(restingLactate) : null,
+        resting_hr: restingHr ? parseInt(restingHr) : null,
+        stage_data: formattedStages,
+        recovery_lactate: recoveryLactate ? parseFloat(recoveryLactate) : null,
+        recovery_hr: recoveryHr ? parseInt(recoveryHr) : null,
+        recovery_time: recoveryTime || null,
+        created_by: profile?.id
+      };
+
+      const { data, error } = await supabase
+        .from("vl4_lab_tests")
+        .upsert(testData, { onConflict: "session_id,athlete_id" })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setSavedLabTests(prev => ({
+        ...prev,
+        [selectedAthleteId]: data
+      }));
+
+      alert("VL4 Lab Test Data saved successfully!");
+    } catch (err: any) {
+      console.error("Failed to save lab data:", err);
+      alert(`Error saving lab data: ${err.message}`);
+    } finally {
+      setSavingLabData(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'LAB_DATA' && !selectedAthleteId && session?.assigned_athletes && session.assigned_athletes.length > 0) {
+      handleAthleteChange(session.assigned_athletes[0]);
+    }
+  }, [activeTab, selectedAthleteId, session]);
 
   const loadSessionData = async () => {
     if (!session) return;
@@ -255,7 +464,8 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 <div className="w-[100px] border-r border-white/5 flex flex-col items-center py-8 gap-6">
                    {[
                       { id: 'INFO', icon: <Activity size={20} />, label: 'INFO' },
-                      { id: 'ROSTER', icon: <Users size={20} />, label: 'ROSTER' }
+                      { id: 'ROSTER', icon: <Users size={20} />, label: 'ROSTER' },
+                      ...(canAccessLabData ? [{ id: 'LAB_DATA', icon: <FlaskConical size={20} />, label: 'LAB DATA' }] : [])
                    ].map(tab => (
                       <button 
                         key={tab.id}
@@ -404,7 +614,7 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                          </div>
                       )}
                    </div>
-                ) : (
+                ) : activeTab === 'ROSTER' ? (
                    <div className="space-y-8">
                       <div className="flex justify-between items-center bg-amber-500/10 border border-amber-500/20 p-5 rounded-2xl">
                          <div className="block text-[10px] font-black uppercase tracking-wider text-text-secondary">OPERATIONAL AUDIT: DATA RETENTION REQUIRED FOR COMPLETION</div>
@@ -473,9 +683,256 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                               </div>
                            </div>
                          ))}
-                      </div>
-                   </div>
-                )}
+                       </div>
+                    </div>
+                 ) : (
+                    <div className="space-y-8 animate-slide-up">
+                       {/* Section 1 — Test Setup */}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                          <div className="space-y-1.5 col-span-1 md:col-span-2">
+                             <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 1 — Test Setup</h3>
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Select Athlete</label>
+                             <select
+                               value={selectedAthleteId}
+                               onChange={e => handleAthleteChange(e.target.value)}
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             >
+                                <option value="">Select an athlete...</option>
+                                {(session.assigned_athletes || []).map(id => (
+                                  <option key={id} value={id}>
+                                     {athleteProfiles[id] 
+                                        ? `${athleteProfiles[id].first_name} ${athleteProfiles[id].last_name || ''}`
+                                        : `SUBJECT ${id.slice(0, 8)}`}
+                                  </option>
+                                ))}
+                             </select>
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Test Method</label>
+                             <select
+                               value={testMethod}
+                               onChange={e => setTestMethod(e.target.value)}
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             >
+                                <option value="Running">Running</option>
+                                <option value="Cycling">Cycling</option>
+                                <option value="Swimming">Swimming</option>
+                             </select>
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Temperature (°C)</label>
+                             <input
+                               type="number"
+                               step="0.1"
+                               value={temperature}
+                               onChange={e => setTemperature(e.target.value)}
+                               placeholder="e.g. 21.5"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Incline %</label>
+                             <input
+                               type="number"
+                               step="0.1"
+                               value={inclinePercent}
+                               onChange={e => setInclinePercent(e.target.value)}
+                               placeholder="e.g. 1.0"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5 col-span-1 md:col-span-2">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Tester/Coach Name</label>
+                             <input
+                               type="text"
+                               value={testerName}
+                               onChange={e => setTesterName(e.target.value)}
+                               placeholder="Tester name"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5 col-span-1 md:col-span-2">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Notes</label>
+                             <textarea
+                               value={notes}
+                               onChange={e => setNotes(e.target.value)}
+                               placeholder="Additional observations..."
+                               rows={3}
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold resize-none"
+                             />
+                          </div>
+                       </div>
+
+                       {/* Section 2 — Resting Values */}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                          <div className="space-y-1.5 col-span-1 md:col-span-2">
+                             <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 2 — Resting Values</h3>
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Resting Lactate (mmol/l)</label>
+                             <input
+                               type="number"
+                               step="0.01"
+                               value={restingLactate}
+                               onChange={e => setRestingLactate(e.target.value)}
+                               placeholder="e.g. 1.20"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Resting Heart Rate (bpm)</label>
+                             <input
+                               type="number"
+                               value={restingHr}
+                               onChange={e => setRestingHr(e.target.value)}
+                               placeholder="e.g. 60"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                       </div>
+
+                       {/* Section 3 — Stage Test Data */}
+                       <div className="bg-white/5 border border-white/5 p-6 rounded-[24px] space-y-4">
+                          <div className="flex justify-between items-center">
+                             <h3 className="text-sm font-display text-accent-green uppercase tracking-wider">Section 3 — Stage Test Data</h3>
+                             <button
+                               type="button"
+                               onClick={handleAddStage}
+                               className="px-4 py-2 border border-accent-green text-accent-green hover:bg-accent-green hover:text-black font-display text-[10px] tracking-widest rounded-xl transition-all uppercase flex items-center gap-1.5"
+                             >
+                                <Plus size={12} /> ADD STAGE
+                             </button>
+                          </div>
+                          
+                          <div className="overflow-x-auto">
+                             <table className="w-full border-collapse">
+                                <thead>
+                                   <tr className="border-b border-white/10 text-left text-[9px] font-black text-text-muted uppercase tracking-widest">
+                                      <th className="pb-3 pl-2 w-16">Stage</th>
+                                      <th className="pb-3 w-32">Speed (km/h)</th>
+                                      <th className="pb-3 w-32">Time</th>
+                                      <th className="pb-3 w-32">Lactate (mmol/l)</th>
+                                      <th className="pb-3 w-32">HR (bpm)</th>
+                                      <th className="pb-3 w-12 text-center"></th>
+                                   </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                   {stages.length === 0 ? (
+                                      <tr>
+                                         <td colSpan={6} className="py-6 text-center text-xs text-text-secondary italic">
+                                            No stages added yet. Click "+ ADD STAGE" to begin.
+                                         </td>
+                                      </tr>
+                                   ) : (
+                                      stages.map((row, index) => (
+                                         <tr key={index} className="align-middle">
+                                            <td className="py-3 pl-2 text-xs font-mono text-white font-bold">{row.stage}</td>
+                                            <td className="py-3 pr-4">
+                                               <input
+                                                 type="number"
+                                                 step="0.1"
+                                                 value={row.speed_kmh}
+                                                 onChange={e => handleUpdateStage(index, 'speed_kmh', e.target.value)}
+                                                 placeholder="e.g. 10.0"
+                                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-1.5 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                                               />
+                                            </td>
+                                            <td className="py-3 pr-4">
+                                               <input
+                                                 type="text"
+                                                 value={row.time}
+                                                 onChange={e => handleUpdateStage(index, 'time', e.target.value)}
+                                                 placeholder="00:03:00"
+                                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-1.5 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold font-mono"
+                                               />
+                                            </td>
+                                            <td className="py-3 pr-4">
+                                               <input
+                                                 type="number"
+                                                 step="0.01"
+                                                 value={row.lactate_mmol}
+                                                 onChange={e => handleUpdateStage(index, 'lactate_mmol', e.target.value)}
+                                                 placeholder="e.g. 2.10"
+                                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-1.5 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                                               />
+                                            </td>
+                                            <td className="py-3 pr-4">
+                                               <input
+                                                 type="number"
+                                                 value={row.heart_rate}
+                                                 onChange={e => handleUpdateStage(index, 'heart_rate', e.target.value)}
+                                                 placeholder="e.g. 152"
+                                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-1.5 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                                               />
+                                            </td>
+                                            <td className="py-3 text-center">
+                                               <button
+                                                 type="button"
+                                                 onClick={() => handleRemoveStage(index)}
+                                                 className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                               >
+                                                  <Trash2 size={14} />
+                                               </button>
+                                            </td>
+                                         </tr>
+                                      ))
+                                   )}
+                                </tbody>
+                             </table>
+                          </div>
+                       </div>
+
+                       {/* Section 4 — Recovery Data */}
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white/5 border border-white/5 p-6 rounded-[24px]">
+                          <div className="space-y-1.5 col-span-1 md:col-span-3">
+                             <h3 className="text-sm font-display text-accent-green uppercase tracking-wider mb-2">Section 4 — Recovery Data</h3>
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Recovery Lactate (mmol/l)</label>
+                             <input
+                               type="number"
+                               step="0.01"
+                               value={recoveryLactate}
+                               onChange={e => setRecoveryLactate(e.target.value)}
+                               placeholder="e.g. 4.50"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Recovery Heart Rate (bpm)</label>
+                             <input
+                               type="number"
+                               value={recoveryHr}
+                               onChange={e => setRecoveryHr(e.target.value)}
+                               placeholder="e.g. 110"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold"
+                             />
+                          </div>
+                          <div className="space-y-1.5">
+                             <label className="block text-[9px] font-black text-text-muted uppercase tracking-widest ml-1">Recovery Time (hh:mm:ss)</label>
+                             <input
+                               type="text"
+                               value={recoveryTime}
+                               onChange={e => setRecoveryTime(e.target.value)}
+                               placeholder="00:05:00"
+                               className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-2 px-3 text-xs text-text-primary focus:border-accent-green focus:ring-1 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-semibold font-mono"
+                             />
+                          </div>
+                       </div>
+
+                       {/* Save Button */}
+                       <button
+                         type="button"
+                         onClick={handleSaveLabData}
+                         disabled={savingLabData}
+                         className="w-full py-4 bg-accent-green text-black font-display text-sm tracking-widest rounded-2xl hover:bg-white transition-all uppercase flex items-center justify-center gap-3 shadow-xl font-button"
+                       >
+                          {savingLabData ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />} SAVE LAB DATA
+                       </button>
+                    </div>
+                 )}
              </div>
           </div>
         </motion.div>

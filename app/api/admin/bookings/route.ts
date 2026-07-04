@@ -138,7 +138,14 @@ export async function PATCH(request: Request) {
   try {
     const { bookingId, status, notes, isExternal } = await request.json();
 
-    if (isExternal) {
+    // Check if this is a standard booking in session_bookings table
+    const { data: bookingRecord } = await adminDb
+      .from('session_bookings')
+      .select('id')
+      .eq('id', bookingId)
+      .maybeSingle();
+
+    if (isExternal && !bookingRecord) {
       // Handle external session update in training_sessions table
       const updateData: any = {};
       if (status === 'CONFIRMED') {

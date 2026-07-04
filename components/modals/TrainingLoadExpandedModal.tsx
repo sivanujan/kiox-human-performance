@@ -29,6 +29,7 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
   const [mounted, setMounted] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [isLogging, setIsLogging] = useState(false);
+  const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false);
   const [form, setForm] = useState({
     athleteId: "",
     value: "",
@@ -51,6 +52,28 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
     const loads = await getTeamWeeklyLoads();
     setData(loads);
   };
+
+  // Merge the fetched database weekly loads with the full roster passed in the athletes prop
+  const processedData = (athletes || []).map(athlete => {
+    const fullName = `${athlete.first_name || ""} ${athlete.last_name || ""}`.trim();
+    const dbLoad = data.find((d: any) => d.name?.toLowerCase() === fullName.toLowerCase());
+    return {
+      id: athlete.id,
+      name: fullName,
+      weekly_total: dbLoad ? dbLoad.weekly_total : 0
+    };
+  });
+
+  // Include any extra database entries that aren't present in the athletes roster
+  data.forEach((dbLoad: any) => {
+    if (!processedData.some(p => p.name.toLowerCase() === dbLoad.name?.toLowerCase())) {
+      processedData.push({
+        id: dbLoad.id || "",
+        name: dbLoad.name,
+        weekly_total: dbLoad.weekly_total
+      });
+    }
+  });
 
   const handleLog = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,38 +147,40 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
                         </div>
                      </div>
                   </div>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fill: '#444', fontSize: 10, fontFamily: 'Anton' }}
-                      />
-                      <YAxis 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fill: '#444', fontSize: 10 }}
-                        domain={[0, 1000]}
-                      />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                        contentStyle={{ 
-                          backgroundColor: '#111', 
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: '16px',
-                          textTransform: 'uppercase',
-                          fontFamily: 'Anton'
-                        }}
-                      />
-                      <Bar dataKey="weekly_total" radius={[6, 6, 0, 0]}>
-                        {data.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={getStatus(entry.weekly_total).color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="h-[250px] w-full mt-4">
+                     <ResponsiveContainer width="100%" height="100%">
+                       <BarChart data={processedData}>
+                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                         <XAxis 
+                           dataKey="name" 
+                           axisLine={false} 
+                           tickLine={false} 
+                           tick={{ fill: '#888', fontSize: 10, fontFamily: 'Anton' }}
+                         />
+                         <YAxis 
+                           axisLine={false} 
+                           tickLine={false} 
+                           tick={{ fill: '#888', fontSize: 10 }}
+                           domain={[0, 1000]}
+                         />
+                         <Tooltip 
+                           cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                           contentStyle={{ 
+                             backgroundColor: '#111', 
+                             border: '1px solid rgba(255,255,255,0.1)',
+                             borderRadius: '16px',
+                             textTransform: 'uppercase',
+                             fontFamily: 'Anton'
+                           }}
+                         />
+                         <Bar dataKey="weekly_total" radius={[6, 6, 0, 0]}>
+                           {processedData.map((entry, index) => (
+                             <Cell key={`cell-${index}`} fill={getStatus(entry.weekly_total).color} />
+                           ))}
+                         </Bar>
+                       </BarChart>
+                     </ResponsiveContainer>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
@@ -185,27 +210,42 @@ export default function TrainingLoadExpandedModal({ isOpen, onClose, athletes }:
                    </p>
                 </div>
 
-                <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden">
-                   <div className="p-6 border-b border-white/5 bg-white/5">
-                      <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">SUBJECT BREAKDOWN</span>
-                   </div>
-                   <div className="divide-y divide-white/5 max-h-[300px] overflow-y-auto scrollbar-hide">
-                      {data.map((subject, i) => (
-                        <div key={i} className="p-6 flex justify-between items-center hover:bg-white/[0.02] transition-colors">
-                           <div>
-                              <div className="text-white font-bold text-xs uppercase tracking-wide">{subject.name}</div>
-                              <div className="text-[10px] font-black tracking-widest mt-1" style={{ color: getStatus(subject.weekly_total).color }}>
-                                 {getStatus(subject.weekly_total).label}
-                              </div>
-                           </div>
-                           <div className="text-right">
-                              <div className="text-xl font-display text-white">{subject.weekly_total}</div>
-                              <div className="text-[8px] text-gray-700 font-bold uppercase tracking-widest">AU TOTAL</div>
-                           </div>
-                        </div>
-                      ))}
-                   </div>
-                </div>
+                 <div className="bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden">
+                    <button 
+                      onClick={() => setIsBreakdownExpanded(!isBreakdownExpanded)}
+                      className="w-full p-6 border-b border-white/5 bg-white/5 flex justify-between items-center hover:bg-white/[0.05] transition-all cursor-pointer text-left"
+                    >
+                       <span className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide uppercase">SUBJECT BREAKDOWN</span>
+                       <span className="text-[10px] text-accent-green font-bold tracking-widest uppercase">
+                          {isBreakdownExpanded ? "COLLAPSE ▲" : "EXPAND ▼"}
+                       </span>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isBreakdownExpanded && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="divide-y divide-white/5 max-h-[300px] overflow-y-auto scrollbar-hide"
+                        >
+                           {processedData.map((subject, i) => (
+                             <div key={i} className="p-6 flex justify-between items-center hover:bg-white/[0.02] transition-colors">
+                                <div>
+                                   <div className="text-white font-bold text-xs uppercase tracking-wide">{subject.name}</div>
+                                   <div className="text-[10px] font-black tracking-widest mt-1" style={{ color: getStatus(subject.weekly_total).color }}>
+                                      {getStatus(subject.weekly_total).label}
+                                   </div>
+                                </div>
+                                <div className="text-right">
+                                   <div className="text-xl font-display text-white">{subject.weekly_total}</div>
+                                   <div className="text-[8px] text-gray-700 font-bold uppercase tracking-widest">AU TOTAL</div>
+                                </div>
+                             </div>
+                           ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                 </div>
               </div>
             </div>
           </div>
