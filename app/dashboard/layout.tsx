@@ -353,7 +353,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 { icon: athleteNavItems[3].icon, label: "Child's Calendar", href: '/dashboard/calendar' },
                 { icon: athleteNavItems[4].icon, label: "Child's Progress", href: '/dashboard/progress' },
                 { icon: athleteNavItems[5].icon, label: 'Chat Terminal', href: '/dashboard/chat' },
-                { icon: athleteNavItems[8].icon, label: 'Curriculum', href: '/dashboard/curriculum' },
                 { icon: athleteNavItems[7].icon, label: 'Settings', href: '/dashboard/settings' },
               ] : [
                 { icon: athleteNavItems[0].icon, label: 'Overview', href: '/dashboard' },
@@ -363,7 +362,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 { icon: athleteNavItems[4].icon, label: 'Progress', href: '/dashboard/progress' },
                 { icon: athleteNavItems[5].icon, label: 'Chat Terminal', href: '/dashboard/chat' },
                 { icon: athleteNavItems[6].icon, label: 'Book Session', href: '/dashboard/booking/coach', badge: 'NEW' },
-                { icon: athleteNavItems[8].icon, label: 'Curriculum', href: '/dashboard/curriculum' },
                 { icon: athleteNavItems[9].icon, label: 'Forms & Protocols', href: '/dashboard/forms-protocols' },
                 { icon: athleteNavItems[7].icon, label: 'Settings', href: '/dashboard/settings' },
               ];
