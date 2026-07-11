@@ -42,6 +42,7 @@ import UserProfileModal from "@/components/modals/UserProfileModal";
 
 // Admin UI Components
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
+import TrainingTodayWidget from "@/components/dashboard/TrainingTodayWidget";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
@@ -425,6 +426,9 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* TRAINING TODAY WIDGET */}
+        <TrainingTodayWidget />
+
         {/* 3. ATHLETE LIST */}
         <AthleteRoster 
           onSelectAthlete={(id) => { 
@@ -440,6 +444,7 @@ export default function AdminDashboard() {
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
           onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
           onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
+          onViewSession={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
           externalSearchQuery={searchQuery}
         />
 
@@ -741,6 +746,16 @@ export default function AdminDashboard() {
           setProfileToView(null);
         }}
         user_profile={profileToView}
+      />
+      <ProgramAssignModal 
+        isOpen={isAssignProgramModalOpen}
+        onClose={() => setIsAssignProgramModalOpen(false)}
+        athleteId={selectedAthlete}
+        athleteName={(() => {
+          const a = athletes.find(x => x.id === selectedAthlete);
+          return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
+        })()}
+        onSuccess={fetchAdminData}
       />
     </div>
   );

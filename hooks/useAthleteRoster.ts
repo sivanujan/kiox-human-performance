@@ -24,6 +24,7 @@ export interface AthleteData {
   computed_status: AthleteStatus;
   alert_count: number;
   has_training_today?: boolean;
+  today_session?: any;
 }
 
 export function useAthleteRoster() {
@@ -67,17 +68,23 @@ export function useAthleteRoster() {
 
       // Fetch today's training sessions to see who has training today
       const trainingTodayIds = new Set<string>();
+      const athleteTodaySessions = new Map<string, any>();
       try {
         const todayStr = new Date().toISOString().split('T')[0];
         const { data: todaySessions } = await supabase
           .from('training_sessions')
-          .select('assigned_athletes')
+          .select('*')
           .eq('scheduled_date', todayStr);
 
         if (todaySessions) {
-          todaySessions.forEach((s: { assigned_athletes?: string[] | null }) => {
+          todaySessions.forEach((s: any) => {
             if (s.assigned_athletes) {
-              s.assigned_athletes.forEach((id: string) => trainingTodayIds.add(id));
+              s.assigned_athletes.forEach((id: string) => {
+                trainingTodayIds.add(id);
+                if (!athleteTodaySessions.has(id)) {
+                  athleteTodaySessions.set(id, s);
+                }
+              });
             }
           });
         }
@@ -114,6 +121,7 @@ export function useAthleteRoster() {
           sport: 'Football', // Fallback
           computed_status: computedStatus,
           has_training_today: trainingTodayIds.has(p.id),
+          today_session: athleteTodaySessions.get(p.id) || null,
           last_session: sessions[0],
           load_trend: mockTrend,
           alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,

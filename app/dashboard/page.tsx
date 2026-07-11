@@ -43,6 +43,7 @@ import Avatar from "@/components/ui/Avatar";
 import SessionDetailsModal from "@/components/modals/SessionDetailsModal";
 import WeeklySchedule from "@/components/dashboard/WeeklySchedule";
 import WellnessCheckinModal from "@/components/modals/WellnessCheckinModal";
+import TrainingTodayWidget from "@/components/dashboard/TrainingTodayWidget";
 import CoachingTeamSection from "@/app/components/CoachingTeamSection";
 import TimeDisplay from "@/components/ui/TimeDisplay";
 import { useTimezone } from "@/hooks/useTimezone";
@@ -870,6 +871,11 @@ export default function DashboardOverview() {
            </div>
         </motion.button>
       </motion.div>
+
+      {/* ========================
+          TRAINING TODAY WIDGET
+          ======================== */}
+      <TrainingTodayWidget />
 
       {/* ========================
           SECTION 2: WEEKLY SUMMARY
