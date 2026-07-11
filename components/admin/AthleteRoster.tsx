@@ -36,7 +36,6 @@ interface AthleteRosterProps {
   onViewAnalytics: (id: string) => void;
   onAssess: (id: string) => void;
   onAssignProgram?: (id: string) => void;
-  onViewSession?: (session: any) => void;
   externalSearchQuery?: string;
 }
 
@@ -48,7 +47,6 @@ export default function AthleteRoster({
   onViewAnalytics,
   onAssess,
   onAssignProgram,
-  onViewSession,
   externalSearchQuery = ""
 }: AthleteRosterProps) {
   const router = useRouter();
@@ -358,23 +356,13 @@ export default function AthleteRoster({
                       {/* SECTION 5 — Actions (fixed width, never shrinks or hides) */}
                       <div className="flex-shrink-0 flex items-center gap-2 relative">
                         {/* Training Plan View button */}
-                        {athlete.has_training_today && athlete.today_session && onViewSession ? (
-                          <button
-                            title="View Today's Training Session"
-                            onClick={() => onViewSession(athlete.today_session)}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(59,130,246,0.2)]"
-                          >
-                            Session
-                          </button>
-                        ) : (
-                          <button
-                            title="Configure Training Plan"
-                            onClick={() => onSelectAthlete(athlete.id)}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-accent-green hover:bg-accent-green-dim text-text-on-green font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(34,197,94,0.2)]"
-                          >
-                            View
-                          </button>
-                        )}
+                        <button
+                          title="Configure Training Plan"
+                          onClick={() => onSelectAthlete(athlete.id)}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-accent-green hover:bg-accent-green-dim text-text-on-green font-mono text-[10px] font-bold rounded-xl transition-all touch-manipulation min-h-[36px] uppercase tracking-wider shadow-[0_4px_10px_rgba(34,197,94,0.2)]"
+                        >
+                          View
+                        </button>
 
                         {/* Dropdown trigger */}
                         <button

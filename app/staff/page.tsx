@@ -43,7 +43,6 @@ import UserProfileModal from "@/components/modals/UserProfileModal";
 
 // Admin UI Components
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
-import TrainingTodayWidget from "@/components/dashboard/TrainingTodayWidget";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
@@ -338,9 +337,6 @@ export default function StaffPortal() {
           { label: 'Active Athletes', value: teamStats.active, icon: '✅', color: '#22c55e' },
         ]} />
 
-        {/* TRAINING TODAY WIDGET */}
-        <TrainingTodayWidget />
-
         {/* ========================
             INDIVIDUAL MANAGEMENT SECTION
             ======================== */}
@@ -359,7 +355,6 @@ export default function StaffPortal() {
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
           onAssess={(id) => { setSelectedAthlete(id); setIsAssessmentModalOpen(true); }}
           onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
-          onViewSession={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
           externalSearchQuery={searchQuery}
         />
 
