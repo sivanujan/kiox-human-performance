@@ -47,6 +47,7 @@ import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
 import CoachScheduleWidget from "@/app/components/CoachScheduleWidget";
+import TrainingTodayWidget from "@/components/dashboard/TrainingTodayWidget";
 
 // Operational Modals
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
@@ -357,6 +358,9 @@ export default function StaffPortal() {
           onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
           externalSearchQuery={searchQuery}
         />
+
+        {/* TRAINING TODAY WIDGET (Below Athlete List Roster) */}
+        <TrainingTodayWidget />
 
         {/* NEW: ASSIGNED ARCHITECTURES SECTION */}
         <div id="assigned-architectures" className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">

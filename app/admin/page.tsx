@@ -45,6 +45,7 @@ import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
 import TrainingSessionControl from "@/components/admin/TrainingSessionControl";
 import AthleteRoster from "@/components/admin/AthleteRoster";
 import AdminBookingsPanel from "@/components/admin/AdminBookingsPanel";
+import TrainingTodayWidget from "@/components/dashboard/TrainingTodayWidget";
 
 // Operational Modals
 import CreateSessionModal from "@/components/modals/CreateSessionModal";
@@ -442,6 +443,9 @@ export default function AdminDashboard() {
           onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
           externalSearchQuery={searchQuery}
         />
+
+        {/* TRAINING TODAY WIDGET (Below Athlete List Roster) */}
+        <TrainingTodayWidget />
 
 
 

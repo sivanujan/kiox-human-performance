@@ -156,7 +156,6 @@ export default function AthleteRoster({
             { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b', dotColor: '#f59e0b' },
             { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444', dotColor: '#ef4444' },
             { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444', dotColor: '#ef4444' },
-            { id: 'TRAINING_TODAY', label: 'TRAINING TODAY', count: stats.trainingToday, color: '#3b82f6', dotColor: '#3b82f6' },
           ].map(filter => (
             <button
               key={filter.id}
