@@ -38,6 +38,7 @@ import TrainingLoadExpandedModal from "@/components/modals/TrainingLoadExpandedM
 import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
 import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 import ProgramAssignModal from "@/components/modals/ProgramAssignModal";
+import UserProfileModal from "@/components/modals/UserProfileModal";
 
 // Admin UI Components
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
@@ -109,6 +110,8 @@ export default function AdminDashboard() {
 
   // Management Modal States
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [profileToView, setProfileToView] = useState<any | null>(null);
   const [isInjuryModalOpen, setIsInjuryModalOpen] = useState(false);
   const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -428,6 +431,10 @@ export default function AdminDashboard() {
             setSelectedAthlete(id); 
             setIsPlanModalOpen(true);
           }}
+          onViewProfile={(athlete) => {
+            setProfileToView(athlete);
+            setIsViewProfileOpen(true);
+          }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
           onViewAnalytics={(id) => { setSelectedAthlete(id); setIsVideoModalOpen(true); }}
@@ -726,6 +733,14 @@ export default function AdminDashboard() {
           const a = athletes.find(x => x.id === selectedAthlete);
           return a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() : "";
         })()}
+      />
+      <UserProfileModal 
+        isOpen={isViewProfileOpen}
+        onClose={() => {
+          setIsViewProfileOpen(false);
+          setProfileToView(null);
+        }}
+        user_profile={profileToView}
       />
     </div>
   );

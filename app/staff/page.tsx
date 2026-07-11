@@ -39,6 +39,7 @@ import ReviewAlertsModal from "@/components/modals/ReviewAlertsModal";
 import AthleteAssessmentModal from "@/components/modals/AthleteAssessmentModal";
 import ManageScheduleModal from "@/components/modals/ManageScheduleModal";
 import ProgramAssignModal from "@/components/modals/ProgramAssignModal";
+import UserProfileModal from "@/components/modals/UserProfileModal";
 
 // Admin UI Components
 import AlertsFlagsWidget from "@/components/admin/AlertsFlagsWidget";
@@ -93,6 +94,8 @@ export default function StaffPortal() {
 
   // Management Modal States
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [profileToView, setProfileToView] = useState<any | null>(null);
   const [isInjuryModalOpen, setIsInjuryModalOpen] = useState(false);
   const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -342,6 +345,10 @@ export default function StaffPortal() {
           onSelectAthlete={(id) => { 
             setSelectedAthlete(id); 
             setIsPlanModalOpen(true);
+          }}
+          onViewProfile={(athlete) => {
+            setProfileToView(athlete);
+            setIsViewProfileOpen(true);
           }}
           onLogSession={(id) => { setSelectedAthlete(id); setIsLoadModalOpen(true); }}
           onLogInjury={(id) => { setSelectedAthlete(id); setIsInjuryModalOpen(true); }}
@@ -787,6 +794,14 @@ export default function StaffPortal() {
         onClose={() => setIsAdjustLoadOpen(false)}
         sessions={[]} 
         athletes={athletes}
+      />
+      <UserProfileModal 
+        isOpen={isViewProfileOpen}
+        onClose={() => {
+          setIsViewProfileOpen(false);
+          setProfileToView(null);
+        }}
+        user_profile={profileToView}
       />
     </div>
   );

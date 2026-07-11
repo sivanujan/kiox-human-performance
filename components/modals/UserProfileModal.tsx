@@ -48,8 +48,8 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
     }
   };
 
-  const DetailItem = ({ icon: Icon, label, value, color = "text-accent-green" }: any) => (
-    <div className="p-4 bg-bg-secondary border border-border-primary/50 rounded-2xl flex items-center gap-4 group hover:border-border-primary transition-all">
+  const DetailItem = ({ icon: Icon, label, value, color = "text-accent-green", className = "" }: any) => (
+    <div className={`p-4 bg-bg-secondary border border-border-primary/50 rounded-2xl flex items-center gap-4 group hover:border-border-primary transition-all ${className}`}>
       <div className={`w-10 h-10 rounded-xl bg-bg-card flex items-center justify-center ${color} shrink-0`}>
         <Icon size={18} />
       </div>
@@ -99,9 +99,15 @@ export default function UserProfileModal({ isOpen, onClose, user_profile }: User
         {/* Tactical Matrix Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
            <DetailItem icon={Fingerprint} label="Internal Identifier" value={user_profile.id.substring(0, 12) + "..."} color="text-amber-500" />
-           <DetailItem icon={Mail} label="Tactical Tag" value={`@${user_profile.username || 'UNSET'}`} />
            <DetailItem icon={Target} label="Core Specialization" value={user_profile.position_played} color="text-red-500" />
+           <DetailItem 
+             icon={Fingerprint} 
+             label="Tactical Tag" 
+             value={user_profile.username ? `@${user_profile.username.includes('@') ? user_profile.username.split('@')[0] : user_profile.username}` : 'UNSET'} 
+             color="text-accent-green" 
+           />
            <DetailItem icon={Clock} label="Registry Date" value={new Date(user_profile.created_at).toLocaleDateString()} color="text-blue-500" />
+           <DetailItem icon={Mail} label="Secure Email" value={user_profile.email || (user_profile.username?.includes('@') ? user_profile.username : 'NOT SPECIFIED')} color="text-blue-500" className="sm:col-span-2" />
         </div>
 
         {/* Biometric Narrative */}

@@ -9,12 +9,29 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { data, error } = await supabase
+  const { data: profiles, error } = await supabase
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  let authUsers: any[] = [];
+  try {
+    const { data: authData } = await supabase.auth.admin.listUsers();
+    authUsers = authData?.users || [];
+  } catch (err) {
+    console.error("Failed to list auth users in admin users API:", err);
+  }
+
+  const data = (profiles || []).map(p => {
+    const authUser = authUsers.find(u => u.id === p.id);
+    return {
+      ...p,
+      email: authUser?.email || null
+    };
+  });
+
   return NextResponse.json(data);
 }
 

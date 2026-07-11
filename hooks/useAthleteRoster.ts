@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-export type AthleteStatus = 'READY' | 'MONITOR' | 'ALERT' | 'INJURED' | 'REST';
+export type AthleteStatus = 'READY' | 'MONITOR' | 'ALERT' | 'INJURED' | 'REST' | 'TRAINING_TODAY';
 
 export interface AthleteData {
   id: string;
@@ -23,6 +23,7 @@ export interface AthleteData {
   };
   computed_status: AthleteStatus;
   alert_count: number;
+  has_training_today?: boolean;
 }
 
 export function useAthleteRoster() {
@@ -64,6 +65,26 @@ export function useAthleteRoster() {
         return;
       }
 
+      // Fetch today's training sessions to see who has training today
+      const trainingTodayIds = new Set<string>();
+      try {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const { data: todaySessions } = await supabase
+          .from('training_sessions')
+          .select('assigned_athletes')
+          .eq('scheduled_date', todayStr);
+
+        if (todaySessions) {
+          todaySessions.forEach((s: { assigned_athletes?: string[] | null }) => {
+            if (s.assigned_athletes) {
+              s.assigned_athletes.forEach((id: string) => trainingTodayIds.add(id));
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch today's training sessions in hook:", err);
+      }
+
       const processed = (profiles || []).map((p: any) => {
         // 1. Resolve Status
         const activeInjuries = p.athlete_injury_logs?.filter((l: any) => l.status !== 'Cleared') || [];
@@ -92,6 +113,7 @@ export function useAthleteRoster() {
           ...p,
           sport: 'Football', // Fallback
           computed_status: computedStatus,
+          has_training_today: trainingTodayIds.has(p.id),
           last_session: sessions[0],
           load_trend: mockTrend,
           alert_count: p.athlete_alerts?.filter((a: any) => !a.is_resolved).length || 0,
@@ -116,7 +138,12 @@ export function useAthleteRoster() {
     return athletes
       .filter(a => {
         const matchesSearch = `${a.first_name} ${a.last_name} ${a.username}`.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'ALL' || a.computed_status === statusFilter;
+        const matchesStatus = 
+          statusFilter === 'ALL' 
+            ? true 
+            : statusFilter === 'TRAINING_TODAY' 
+              ? !!a.has_training_today 
+              : a.computed_status === statusFilter;
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
@@ -136,6 +163,7 @@ export function useAthleteRoster() {
     monitor: athletes.filter(a => a.computed_status === 'MONITOR').length,
     alert: athletes.filter(a => a.computed_status === 'ALERT').length,
     injured: athletes.filter(a => a.computed_status === 'INJURED').length,
+    trainingToday: athletes.filter(a => a.has_training_today).length,
   }), [athletes]);
 
   return {

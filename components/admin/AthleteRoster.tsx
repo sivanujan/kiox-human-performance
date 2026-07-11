@@ -22,7 +22,7 @@ import {
   Layers
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAthleteRoster, AthleteStatus } from "@/hooks/useAthleteRoster";
+import { useAthleteRoster, AthleteStatus, AthleteData } from "@/hooks/useAthleteRoster";
 import LoadProgressBar from "./LoadProgressBar";
 import { SkeletonRow } from "@/components/ui/Skeleton";
 
@@ -30,6 +30,7 @@ import { SkeletonRow } from "@/components/ui/Skeleton";
 
 interface AthleteRosterProps {
   onSelectAthlete: (id: string) => void;
+  onViewProfile?: (athlete: AthleteData) => void;
   onLogSession: (id: string) => void;
   onLogInjury: (id: string) => void;
   onViewAnalytics: (id: string) => void;
@@ -40,6 +41,7 @@ interface AthleteRosterProps {
 
 export default function AthleteRoster({ 
   onSelectAthlete, 
+  onViewProfile,
   onLogSession, 
   onLogInjury, 
   onViewAnalytics,
@@ -154,6 +156,7 @@ export default function AthleteRoster({
             { id: 'MONITOR', label: 'MONITOR', count: stats.monitor, color: '#f59e0b', dotColor: '#f59e0b' },
             { id: 'ALERT', label: 'ALERT', count: stats.alert, color: '#ef4444', dotColor: '#ef4444' },
             { id: 'INJURED', label: 'INJURED', count: stats.injured, color: '#ef4444', dotColor: '#ef4444' },
+            { id: 'TRAINING_TODAY', label: 'TRAINING TODAY', count: stats.trainingToday, color: '#3b82f6', dotColor: '#3b82f6' },
           ].map(filter => (
             <button
               key={filter.id}
@@ -236,19 +239,27 @@ export default function AthleteRoster({
                       style={{ borderLeft: `4px solid ${getBorderColor(athlete)}` }}
                     >
                       {/* SECTION 1 — Avatar (fixed width, never shrinks) */}
-                      <div className="flex-shrink-0 relative">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center font-display text-sm font-bold border ${getAvatarBg(status)}`}>
+                      <button
+                        onClick={() => onViewProfile?.(athlete)}
+                        className="flex-shrink-0 relative focus:outline-none group/avatar cursor-pointer"
+                        title={`View ${athleteName}'s Profile`}
+                      >
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center font-display text-sm font-bold border transition-all duration-200 group-hover/avatar:scale-105 group-hover/avatar:border-accent-green ${getAvatarBg(status)}`}>
                           {getInitials(athleteName)}
                         </div>
                         {/* Online dot */}
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-bg-card bg-green-400" />
-                      </div>
+                      </button>
 
                       {/* SECTION 2 — Identity (fixed width, text truncates) */}
                       <div className="flex-shrink-0 w-[160px] min-w-0">
-                        <div className="font-display text-sm font-bold text-text-primary tracking-wider uppercase truncate">
+                        <button
+                          onClick={() => onViewProfile?.(athlete)}
+                          className="font-display text-sm font-bold text-text-primary hover:text-accent-green tracking-wider uppercase truncate block text-left w-full transition-colors duration-200 focus:outline-none cursor-pointer"
+                          title={`View ${athleteName}'s Profile`}
+                        >
                           {athleteName}
-                        </div>
+                        </button>
                         <div className="font-mono text-xs text-text-muted tracking-wider truncate mt-0.5">
                           @{athlete.username} • {athlete.sport}
                         </div>
