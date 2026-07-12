@@ -3,16 +3,18 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck, Lock, FlaskConical } from "lucide-react";
+import { Loader2, FileText, FolderOpen, Calendar, ShieldCheck, Lock, FlaskConical, Award } from "lucide-react";
 import CheckupList from "@/components/forms-protocols/CheckupList";
 import FunctionalCheckupForm from "@/components/forms-protocols/FunctionalCheckupForm";
+import IdppList from "@/components/forms-protocols/IdppList";
+import IdppForm from "@/components/forms-protocols/IdppForm";
 import DocumentLibrary from "@/components/forms-protocols/DocumentLibrary";
 import SecureProtocolDownload from "@/components/forms-protocols/SecureProtocolDownload";
 import DownloadSchedulesModal from "@/components/forms-protocols/DownloadSchedulesModal";
 import PerformanceAssessmentReports from "@/components/forms-protocols/PerformanceAssessmentReports";
 import VL4LabReports from "@/components/forms-protocols/VL4LabReports";
 
-type ActiveTab = "checkups" | "documents" | "protocols" | "lab-reports";
+type ActiveTab = "checkups" | "idpps" | "documents" | "protocols" | "lab-reports";
 
 export default function AdminFormsAndProtocolsPage() {
   const { profile, loading } = useAuth();
@@ -22,6 +24,12 @@ export default function AdminFormsAndProtocolsPage() {
   const [selectedCheckupId, setSelectedCheckupId] = useState<string | null>(null);
   const [checkupReadOnly, setCheckupReadOnly] = useState(false);
   const [isCreatingCheckup, setIsCreatingCheckup] = useState(false);
+
+  // IDPP States
+  const [selectedIdppId, setSelectedIdppId] = useState<string | null>(null);
+  const [idppReadOnly, setIdppReadOnly] = useState(false);
+  const [isCreatingIdpp, setIsCreatingIdpp] = useState(false);
+
   const [isSchedulesModalOpen, setIsSchedulesModalOpen] = useState(false);
 
   useEffect(() => {
@@ -59,13 +67,36 @@ export default function AdminFormsAndProtocolsPage() {
     setCheckupReadOnly(false);
   };
 
+  const handleSelectIdpp = (id: string, readOnly: boolean) => {
+    setSelectedIdppId(id);
+    setIdppReadOnly(readOnly);
+    setIsCreatingIdpp(false);
+  };
+
+  const handleCreateNewIdpp = () => {
+    setSelectedIdppId(null);
+    setIdppReadOnly(false);
+    setIsCreatingIdpp(true);
+  };
+
+  const handleIdppSaved = () => {
+    setSelectedIdppId(null);
+    setIsCreatingIdpp(false);
+    setIdppReadOnly(false);
+  };
+
   const handleBackToList = () => {
     setSelectedCheckupId(null);
     setIsCreatingCheckup(false);
     setCheckupReadOnly(false);
+    setSelectedIdppId(null);
+    setIsCreatingIdpp(false);
+    setIdppReadOnly(false);
   };
 
   const isCheckupFormActive = selectedCheckupId !== null || isCreatingCheckup;
+  const isIdppFormActive = selectedIdppId !== null || isCreatingIdpp;
+  const isAnyFormActive = isCheckupFormActive || isIdppFormActive;
 
   return (
     <div className="space-y-6">
@@ -85,7 +116,7 @@ export default function AdminFormsAndProtocolsPage() {
         </div>
 
         {/* Tab Controls */}
-        {!isCheckupFormActive && (
+        {!isAnyFormActive && (
           <div className="flex p-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl w-full sm:w-auto">
             {/* Functional Check-up tab */}
             <button
@@ -98,6 +129,19 @@ export default function AdminFormsAndProtocolsPage() {
             >
               <FileText size={14} />
               Check-Ups
+            </button>
+
+            {/* IDPP Tab */}
+            <button
+              onClick={() => setActiveTab("idpps")}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all active-scale ${
+                activeTab === "idpps"
+                  ? "bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 text-[var(--accent-green)] font-black"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent"
+              }`}
+            >
+              <Award size={14} />
+              IDPP
             </button>
 
             {/* Lab Reports tab */}
@@ -159,12 +203,31 @@ export default function AdminFormsAndProtocolsPage() {
           onBack={handleBackToList}
           onSaved={handleCheckupSaved}
         />
+      ) : isIdppFormActive ? (
+        <IdppForm
+          idppId={selectedIdppId}
+          readOnly={idppReadOnly}
+          onBack={handleBackToList}
+          onSaved={handleIdppSaved}
+        />
       ) : activeTab === "checkups" ? (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
           <div className="xl:col-span-2">
             <CheckupList
               onSelectCheckup={handleSelectCheckup}
               onCreateNew={handleCreateNewCheckup}
+            />
+          </div>
+          <div className="xl:col-span-1">
+            <PerformanceAssessmentReports />
+          </div>
+        </div>
+      ) : activeTab === "idpps" ? (
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+          <div className="xl:col-span-2">
+            <IdppList
+              onSelectIdpp={handleSelectIdpp}
+              onCreateNew={handleCreateNewIdpp}
             />
           </div>
           <div className="xl:col-span-1">
