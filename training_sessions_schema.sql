@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS public.training_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    session_type TEXT CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'CUSTOM')),
+    session_type TEXT,
     scheduled_date DATE NOT NULL DEFAULT CURRENT_DATE,
     start_time TIME NOT NULL,
     duration_minutes INTEGER DEFAULT 60,
@@ -22,10 +22,7 @@ CREATE TABLE IF NOT EXISTS public.training_sessions (
 DO $$ 
 BEGIN
     -- Core identity & timing
-    -- Standardize session_type check constraint (Handles Uppercase standard)
-    ALTER TABLE public.training_sessions DROP CONSTRAINT IF EXISTS training_sessions_session_type_check;
-    ALTER TABLE public.training_sessions ADD CONSTRAINT training_sessions_session_type_check 
-        CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'ASSESSMENT', 'CUSTOM'));
+    -- Note: session_type check constraint dropped to allow custom session types.
     
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='training_sessions' AND column_name='scheduled_date') THEN
         ALTER TABLE public.training_sessions ADD COLUMN scheduled_date DATE NOT NULL DEFAULT CURRENT_DATE;

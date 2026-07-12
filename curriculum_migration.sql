@@ -2,10 +2,8 @@
 -- This script alters the training_sessions constraint to support new categories (MEAL, CURFEW, LOGISTICS)
 -- and creates the system_settings table to support editable Program Director contact info.
 
--- 1. EXTEND session_type CHECK CONSTRAINT ON training_sessions
+-- 1. DROP session_type CHECK CONSTRAINT ON training_sessions
 ALTER TABLE public.training_sessions DROP CONSTRAINT IF EXISTS training_sessions_session_type_check;
-ALTER TABLE public.training_sessions ADD CONSTRAINT training_sessions_session_type_check 
-    CHECK (session_type IN ('STRENGTH', 'TACTICAL', 'CONDITIONING', 'RECOVERY', 'ASSESSMENT', 'CUSTOM', 'MEAL', 'CURFEW', 'LOGISTICS'));
 
 -- 2. CREATE SYSTEM SETTINGS TABLE
 CREATE TABLE IF NOT EXISTS public.system_settings (

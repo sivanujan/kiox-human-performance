@@ -73,7 +73,7 @@ export default function SharedCalendarPage() {
 
   // Navigation State
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"month" | "week">("month");
+  const [viewMode, setViewMode] = useState<"month" | "week">("week");
 
   // Viewport resize effect to default to week view on mobile
   useEffect(() => {
