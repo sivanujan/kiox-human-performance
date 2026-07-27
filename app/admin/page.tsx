@@ -426,6 +426,12 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* TRAINING TODAY WIDGET & SESSION REQUEST (Above Athlete List Roster) */}
+        <div className="space-y-6">
+          <TrainingTodayWidget />
+          <AdminBookingsPanel />
+        </div>
+
         {/* 3. ATHLETE LIST */}
         <AthleteRoster 
           onSelectAthlete={(id) => { 
@@ -444,13 +450,8 @@ export default function AdminDashboard() {
           externalSearchQuery={searchQuery}
         />
 
-        {/* TRAINING TODAY WIDGET (Below Athlete List Roster) */}
-        <TrainingTodayWidget />
-
-
-
-        {/* 4, 5, 6. OPERATIONS GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10 items-start">
+        {/* OPERATIONS GRID */}
+        <div className="grid grid-cols-1 gap-8 relative z-10 items-start">
           <div className="space-y-8 w-full">
             <TrainingSessionControl 
               onViewDetails={(session) => { setActiveSession(session); setIsDetailsOpen(true); }}
@@ -459,10 +460,6 @@ export default function AdminDashboard() {
               isSuperAdmin={profile?.role === 'superadmin'}
             />
             <AlertsFlagsWidget onReviewAll={() => setIsAlertsModalOpen(true)} />
-          </div>
-
-          <div className="space-y-8 w-full">
-            <AdminBookingsPanel />
           </div>
         </div>
 

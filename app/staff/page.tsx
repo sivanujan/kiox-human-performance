@@ -338,6 +338,12 @@ export default function StaffPortal() {
           { label: 'Active Athletes', value: teamStats.active, icon: '✅', color: '#22c55e' },
         ]} />
 
+        {/* TRAINING TODAY WIDGET & SESSION REQUEST (Above Athlete List Roster) */}
+        <div className="space-y-6">
+          <TrainingTodayWidget />
+          <AdminBookingsPanel />
+        </div>
+
         {/* ========================
             INDIVIDUAL MANAGEMENT SECTION
             ======================== */}
@@ -358,9 +364,6 @@ export default function StaffPortal() {
           onAssignProgram={(id) => { setSelectedAthlete(id); setIsAssignProgramModalOpen(true); }}
           externalSearchQuery={searchQuery}
         />
-
-        {/* TRAINING TODAY WIDGET (Below Athlete List Roster) */}
-        <TrainingTodayWidget />
 
         {/* NEW: ASSIGNED ARCHITECTURES SECTION */}
         <div id="assigned-architectures" className="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-[24px] p-8 shadow-xl relative overflow-hidden group/arch">
@@ -496,7 +499,6 @@ export default function StaffPortal() {
           </div>
 
           <div className="space-y-8 w-full">
-            <AdminBookingsPanel />
             <CoachScheduleWidget coach={profile} />
           </div>
         </div>
