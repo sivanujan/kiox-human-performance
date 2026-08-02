@@ -389,10 +389,12 @@ export default function FunctionalCheckupForm({
               ? "#eab308" 
               : "#f97316";
 
+          const markerY = m.y <= 100 ? parseFloat((m.y * 2.2).toFixed(1)) : m.y;
+
           return `
             <g>
-              <circle cx="${m.x}" cy="${m.y}" r="6" fill="${severityColor}" stroke="#ffffff" stroke-width="1.2" />
-              <text x="${m.x}" y="${m.y + 2.2}" text-anchor="middle" font-size="7" font-weight="900" fill="#ffffff" font-family="sans-serif">${globalIdx}</text>
+              <circle cx="${m.x}" cy="${markerY}" r="6" fill="${severityColor}" stroke="#ffffff" stroke-width="1.2" />
+              <text x="${m.x}" y="${markerY + 2.2}" text-anchor="middle" font-size="7" font-weight="900" fill="#ffffff" font-family="sans-serif">${globalIdx}</text>
             </g>
           `;
         })

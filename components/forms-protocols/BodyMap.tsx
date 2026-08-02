@@ -38,12 +38,16 @@ const HOTSPOTS = [
   { id: "neck_front", label: "Neck", x: 100, y: 80, side: "FRONT", zone: "Neck" },
   { id: "shoulder_l_front", label: "L Shoulder", x: 65, y: 110, side: "FRONT", zone: "Shoulder" },
   { id: "shoulder_r_front", label: "R Shoulder", x: 135, y: 110, side: "FRONT", zone: "Shoulder" },
-  { id: "chest_front", label: "Chest", x: 100, y: 130, side: "FRONT", zone: "Back" },
+  { id: "chest_front", label: "Chest", x: 100, y: 130, side: "FRONT", zone: "Chest" },
   { id: "hip_l_front", label: "L Hip", x: 75, y: 190, side: "FRONT", zone: "Hip" },
   { id: "hip_r_front", label: "R Hip", x: 125, y: 190, side: "FRONT", zone: "Hip" },
   { id: "groin_front", label: "Groin", x: 100, y: 200, side: "FRONT", zone: "Groin" },
+  { id: "quad_l_front", label: "L Thigh/Quad", x: 80, y: 240, side: "FRONT", zone: "Leg" },
+  { id: "quad_r_front", label: "R Thigh/Quad", x: 120, y: 240, side: "FRONT", zone: "Leg" },
   { id: "knee_l_front", label: "L Knee", x: 80, y: 280, side: "FRONT", zone: "Knee" },
   { id: "knee_r_front", label: "R Knee", x: 120, y: 280, side: "FRONT", zone: "Knee" },
+  { id: "calf_l_front", label: "L Shin/Calf", x: 80, y: 315, side: "FRONT", zone: "Leg" },
+  { id: "calf_r_front", label: "R Shin/Calf", x: 120, y: 315, side: "FRONT", zone: "Leg" },
   { id: "ankle_l_front", label: "L Ankle", x: 80, y: 350, side: "FRONT", zone: "Ankle" },
   { id: "ankle_r_front", label: "R Ankle", x: 120, y: 350, side: "FRONT", zone: "Ankle" },
   { id: "toe_l_front", label: "L Toe", x: 75, y: 380, side: "FRONT", zone: "Toe" },
@@ -60,6 +64,8 @@ const HOTSPOTS = [
   { id: "hamstring_r_back", label: "R Hamstring", x: 320, y: 245, side: "BACK", zone: "Hamstring" },
   { id: "knee_l_back", label: "L Knee Back", x: 280, y: 280, side: "BACK", zone: "Knee" },
   { id: "knee_r_back", label: "R Knee Back", x: 320, y: 280, side: "BACK", zone: "Knee" },
+  { id: "calf_l_back", label: "L Calf", x: 280, y: 315, side: "BACK", zone: "Calf" },
+  { id: "calf_r_back", label: "R Calf", x: 320, y: 315, side: "BACK", zone: "Calf" },
   { id: "ankle_l_back", label: "L Ankle Back", x: 280, y: 350, side: "BACK", zone: "Ankle" },
   { id: "ankle_r_back", label: "R Ankle Back", x: 320, y: 350, side: "BACK", zone: "Ankle" }
 ];
@@ -362,7 +368,7 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
     const svg = e.currentTarget;
     const rect = svg.getBoundingClientRect();
     const x = parseFloat((((e.clientX - rect.left) / rect.width) * 100).toFixed(1));
-    const y = parseFloat((((e.clientY - rect.top) / rect.height) * 100).toFixed(1));
+    const y = parseFloat((((e.clientY - rect.top) / rect.height) * 220).toFixed(1));
 
     setClickCoords({ x, y, side });
     setTempNote("");
@@ -493,10 +499,12 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
                   ? "#eab308" 
                   : "#f97316";
 
+              const markerY = marker.y <= 100 ? parseFloat((marker.y * 2.2).toFixed(1)) : marker.y;
+
               return (
                 <g key={marker.id} className="cursor-pointer" onClick={(e) => { e.stopPropagation(); startEditing(marker); }}>
-                  <circle cx={marker.x} cy={marker.y} r="5" fill={severityColor} stroke="#ffffff" strokeWidth="1" />
-                  <text x={marker.x} y={marker.y - 8} textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
+                  <circle cx={marker.x} cy={markerY} r="5" fill={severityColor} stroke="#ffffff" strokeWidth="1" />
+                  <text x={marker.x} y={markerY - 8} textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
                     {markerIndex}
                   </text>
                 </g>
