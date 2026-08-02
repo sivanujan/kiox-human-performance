@@ -85,20 +85,32 @@ export default function DownloadSchedulesModal({
               else if (s.session_type === "MEAL") catClass = "meal";
               else if (s.session_type === "LOGISTICS") catClass = "logistics";
 
-              const parts = s.start_time.split(":");
+              const parts = (s.start_time || "09:00").split(":");
               let h = parseInt(parts[0], 10);
-              const m = parts[1] || "00";
-              const ampm = h >= 12 ? "PM" : "AM";
-              h = h % 12 || 12;
-              const timeLabel = `${h}:${m}`;
-              const timeAmpm = ampm;
+              const m = parseInt(parts[1] || "00", 10);
+              const durationMins = Number(s.duration_minutes) || 60;
+              const totalStartMins = h * 60 + m;
+              const totalEndMins = (totalStartMins + durationMins) % 1440;
+              const endHRaw = Math.floor(totalEndMins / 60);
+              const endMRaw = totalEndMins % 60;
+
+              const format12hParts = (hour: number, min: number) => {
+                const ampm = hour >= 12 ? "PM" : "AM";
+                const displayH = hour % 12 || 12;
+                const displayM = min.toString().padStart(2, "0");
+                return { label: `${displayH}:${displayM}`, ampm, full: `${displayH}:${displayM} ${ampm}` };
+              };
+
+              const startTimeObj = format12hParts(h, m);
+              const endTimeObj = format12hParts(endHRaw, endMRaw);
+              const fullTimeRange = `${startTimeObj.full} - ${endTimeObj.full}`;
 
               return `
                 <div class="timeline-item">
                   <!-- Time Column -->
                   <div class="timeline-time-col">
-                    <span class="time-label">${timeLabel}</span>
-                    <span class="time-ampm">${timeAmpm}</span>
+                    <span class="time-label">${startTimeObj.label} ${startTimeObj.ampm}</span>
+                    <span class="time-ampm" style="margin-top:2px; font-size: 11px; color: #64748b;">TO ${endTimeObj.label} ${endTimeObj.ampm}</span>
                   </div>
                   <!-- Timeline Node Column -->
                   <div class="timeline-line-col">
@@ -110,7 +122,7 @@ export default function DownloadSchedulesModal({
                     <div class="session-card ${catClass}">
                       <div class="card-header">
                         <span class="category-tag ${catClass}">${s.session_type === 'LOGISTICS' ? 'LOGISTICS/GENERAL' : s.session_type}</span>
-                        <span class="duration-badge">${s.duration_minutes} MIN</span>
+                        <span class="duration-badge">⏱ ${fullTimeRange} (${s.duration_minutes} MIN)</span>
                       </div>
                       <div class="session-title">${s.title}</div>
                       <div class="session-meta">
@@ -538,7 +550,7 @@ export default function DownloadSchedulesModal({
       <div className="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-3xl p-6 shadow-2xl space-y-6">
         <div className="flex justify-between items-center border-b border-[var(--border-primary)] pb-4">
           <div>
-            <h3 className="text-sm font-black text-[var(--accent-green)] uppercase tracking-[3px]">Curriculum Schedules</h3>
+            <h3 className="text-sm font-black text-[var(--accent-green)] uppercase tracking-[3px]">Curriculum</h3>
             <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider mt-1">Download operational curriculum lists</p>
           </div>
           <button
@@ -550,7 +562,7 @@ export default function DownloadSchedulesModal({
         </div>
 
         <div className="space-y-4">
-          {/* Download Today's Schedule */}
+          {/* Download Today's Curriculum */}
           <button
             onClick={() => {
               printDailySchedule(today);
@@ -566,12 +578,12 @@ export default function DownloadSchedulesModal({
             ) : (
               <>
                 <Download size={14} />
-                Download Today's Schedule
+                Download Today's Curriculum
               </>
             )}
           </button>
 
-          {/* Download Tomorrow's Schedule */}
+          {/* Download Tomorrow's Curriculum */}
           <button
             onClick={() => {
               printDailySchedule(tomorrow);
@@ -587,7 +599,7 @@ export default function DownloadSchedulesModal({
             ) : (
               <>
                 <Download size={14} className="text-[var(--accent-green)]" />
-                Download Tomorrow's Schedule
+                Download Tomorrow's Curriculum
               </>
             )}
           </button>

@@ -14,16 +14,18 @@ import {
   Zap
 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { calculateEndTime, calculateDurationMinutes } from "@/utils/timeUtils";
 
 interface ManageScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  program: any;
+  program: any | null;
+  onSuccess?: () => void;
 }
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-export default function ManageScheduleModal({ isOpen, onClose, program }: ManageScheduleModalProps) {
+export default function ManageScheduleModal({ isOpen, onClose, program, onSuccess }: ManageScheduleModalProps) {
   const [activeTab, setActiveTab] = useState<'schedule' | 'syllabus'>('schedule');
   const [schedule, setSchedule] = useState<any[]>([]);
   const [syllabus, setSyllabus] = useState<any[]>([]);
@@ -32,6 +34,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
   const [formData, setFormData] = useState({
     days: [1] as number[],
     start_time: "09:00",
+    end_time: "10:00",
     duration_minutes: 60,
     title: "",
     notes: ""
@@ -119,6 +122,7 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
       setFormData({
         days: [1],
         start_time: "09:00",
+        end_time: "10:00",
         duration_minutes: 60,
         title: "",
         notes: ""
@@ -281,27 +285,50 @@ export default function ManageScheduleModal({ isOpen, onClose, program }: Manage
                                     ))}
                                  </div>
                               </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                 <div className="space-y-2">
-                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Commencement</label>
-                                    <input 
-                                       type="time"
-                                       value={formData.start_time}
-                                       onChange={e => setFormData({...formData, start_time: e.target.value})}
-                                       className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                                    />
-                                 </div>
-                                 <div className="space-y-2">
-                                    <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (MIN)</label>
-                                    <input 
-                                       type="number"
-                                       value={formData.duration_minutes}
-                                       onChange={e => setFormData({...formData, duration_minutes: parseInt(e.target.value)})}
-                                       className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                                    />
-                                 </div>
-                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div className="space-y-2">
+                                     <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Start Time</label>
+                                     <input 
+                                        type="time"
+                                        value={formData.start_time}
+                                        onChange={e => {
+                                          const newStart = e.target.value;
+                                          const newEnd = calculateEndTime(newStart, formData.duration_minutes);
+                                          setFormData({ ...formData, start_time: newStart, end_time: newEnd });
+                                        }}
+                                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                     />
+                                  </div>
+                                  <div className="space-y-2">
+                                     <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">End Time</label>
+                                     <input 
+                                        type="time"
+                                        value={formData.end_time || calculateEndTime(formData.start_time, formData.duration_minutes)}
+                                        onChange={e => {
+                                          const newEnd = e.target.value;
+                                          const newDuration = calculateDurationMinutes(formData.start_time, newEnd);
+                                          setFormData({ ...formData, end_time: newEnd, duration_minutes: newDuration });
+                                        }}
+                                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                     />
+                                  </div>
+                                  <div className="space-y-2">
+                                     <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (MIN)</label>
+                                     <input 
+                                        type="number"
+                                        min={1}
+                                        step={5}
+                                        value={formData.duration_minutes}
+                                        onChange={e => {
+                                          const newDur = Math.max(1, parseInt(e.target.value) || 1);
+                                          const newEnd = calculateEndTime(formData.start_time, newDur);
+                                          setFormData({ ...formData, duration_minutes: newDur, end_time: newEnd });
+                                        }}
+                                        className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                     />
+                                  </div>
+                               </div>
 
                               <div className="flex gap-4 pt-4">
                                  <button 

@@ -429,9 +429,27 @@ export default function SessionDetailsModal({ isOpen, onClose, session }: Sessio
                 </div>
                 <h2 className="font-display text-2xl text-text-primary tracking-wider uppercase mb-1.5">{session.title}</h2>
                 <div className="flex items-center gap-4 text-text-muted text-[10px] font-bold uppercase tracking-widest">
-                   <div className="flex items-center gap-1.5"><Calendar size={12} className="text-[#22c55e]" /> {session.scheduled_date}</div>
-                   <div className="flex items-center gap-1.5"><Clock size={12} className="text-[#22c55e]" /> {session.start_time}</div>
-                   <div className="flex items-center gap-1.5"><MapPin size={12} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
+                    <div className="flex items-center gap-1.5"><Calendar size={12} className="text-[#22c55e]" /> {session.scheduled_date}</div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock size={12} className="text-[#22c55e]" /> 
+                      {(() => {
+                        const parts = (session.start_time || "09:00").split(":");
+                        let h = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1] || "00", 10);
+                        const dur = Number(session.duration_minutes) || 60;
+                        const endMins = (h * 60 + m + dur) % 1440;
+                        const eh = Math.floor(endMins / 60);
+                        const em = endMins % 60;
+                        const fmt = (hour: number, min: number) => {
+                          const ampm = hour >= 12 ? "PM" : "AM";
+                          const dh = hour % 12 || 12;
+                          const dm = min.toString().padStart(2, "0");
+                          return `${dh}:${dm} ${ampm}`;
+                        };
+                        return `${fmt(h, m)} - ${fmt(eh, em)} (${dur}m)`;
+                      })()}
+                    </div>
+                    <div className="flex items-center gap-1.5"><MapPin size={12} className="text-[#22c55e]" /> {session.location || 'HQ FIELD'}</div>
                 </div>
              </div>
               <div className="flex items-center gap-3">

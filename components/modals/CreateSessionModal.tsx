@@ -9,6 +9,7 @@ import { useTimezone } from "@/hooks/useTimezone";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
+import { calculateEndTime, calculateDurationMinutes } from "@/utils/timeUtils";
 
 interface CreateSessionModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ interface ExternalClientEntry {
   last_name: string;
   email: string;
   phone: string;
-  payment_status: 'PENDING' | 'CONFIRMED';
+  payment_status: 'PENDING' | 'PAID' | 'COMPLIMENTARY';
   payment_notes: string;
   training_start_date: string;
   training_end_date: string;
@@ -35,6 +36,7 @@ interface ScheduleItem {
   id: string;
   title: string;
   start_time: string;
+  end_time?: string;
   duration_minutes: number;
   location: string;
   coach_id: string;
@@ -63,7 +65,8 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
     { 
       id: "1", 
       title: "", 
-      start_time: "09:00", 
+      start_time: "09:00",
+      end_time: "10:00", 
       duration_minutes: 60, 
       location: "HQ FIELD", 
       coach_id: "", 
@@ -108,6 +111,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
           id: "1", 
           title: "", 
           start_time: "09:00", 
+          end_time: "10:00",
           duration_minutes: 60, 
           location: "HQ FIELD", 
           coach_id: "", 
@@ -362,6 +366,7 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
         id: Math.random().toString(),
         title: "",
         start_time: "09:00",
+        end_time: "10:00",
         duration_minutes: 60,
         location: "HQ FIELD",
         coach_id: "",
@@ -388,13 +393,37 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
     ]);
   };
 
-
   const removeItem = (id: string) => {
     setScheduleItems(prev => prev.filter(item => item.id !== id));
   };
 
   const updateItem = (id: string, updates: Partial<ScheduleItem>) => {
     setScheduleItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
+  };
+
+  const updateItemStartTime = (id: string, newStart: string) => {
+    setScheduleItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const end_time = calculateEndTime(newStart, item.duration_minutes || 60);
+      return { ...item, start_time: newStart, end_time };
+    }));
+  };
+
+  const updateItemEndTime = (id: string, newEnd: string) => {
+    setScheduleItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const duration_minutes = calculateDurationMinutes(item.start_time || "09:00", newEnd);
+      return { ...item, end_time: newEnd, duration_minutes };
+    }));
+  };
+
+  const updateItemDuration = (id: string, newDur: number) => {
+    const dur = Math.max(1, newDur);
+    setScheduleItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const end_time = calculateEndTime(item.start_time || "09:00", dur);
+      return { ...item, duration_minutes: dur, end_time };
+    }));
   };
 
   const isSuperAdmin = profile?.role === 'superadmin';
@@ -568,17 +597,43 @@ export default function CreateSessionModal({ isOpen, onClose, onSuccess, athlete
                                    />
                                 )}
                               </div>
-                            <div className="space-y-2">
-                               <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Start Time</label>
-                               <input 
-                                 type="time"
-                                 required
-                                 value={item.start_time}
-                                 onChange={e => updateItem(item.id, { start_time: e.target.value })}
-                                 className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
-                               />
-                            </div>
-                         </div>
+                          </div>
+
+                          {/* Time & Duration */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                             <div className="space-y-2">
+                                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Start Time</label>
+                                <input 
+                                  type="time"
+                                  required
+                                  value={item.start_time}
+                                  onChange={e => updateItemStartTime(item.id, e.target.value)}
+                                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                />
+                             </div>
+                             <div className="space-y-2">
+                                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">End Time</label>
+                                <input 
+                                  type="time"
+                                  required
+                                  value={item.end_time || calculateEndTime(item.start_time, item.duration_minutes)}
+                                  onChange={e => updateItemEndTime(item.id, e.target.value)}
+                                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                />
+                             </div>
+                             <div className="space-y-2">
+                                <label className="block text-[13px] font-sans font-medium text-text-secondary tracking-wide ml-1">Duration (Min)</label>
+                                <input 
+                                  type="number"
+                                  required
+                                  min={1}
+                                  step={5}
+                                  value={item.duration_minutes}
+                                  onChange={e => updateItemDuration(item.id, Number(e.target.value))}
+                                  className="w-full bg-bg-primary border border-border-primary/50 rounded-xl py-3 px-4 text-sm text-text-primary focus:border-accent-green focus:ring-2 focus:ring-accent-green/20 outline-none transition-all placeholder:text-text-muted/50 font-medium"
+                                />
+                             </div>
+                          </div>
 
                          {/* Coach & Location */}
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

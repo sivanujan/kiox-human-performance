@@ -267,19 +267,35 @@ export default function CurriculumTimeline() {
                   <div key={session.id} className="relative group">
                     
                     {/* Time Label (Left) */}
-                    <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end min-w-[70px]">
-                      <span className="text-sm font-black text-[var(--text-primary)] font-mono">
-                        {(() => {
-                          const parts = session.start_time.split(":");
-                          let hours = parseInt(parts[0], 10);
-                          const minutes = parts[1] || "00";
-                          const ampm = hours >= 12 ? "PM" : "AM";
-                          hours = hours % 12;
-                          hours = hours ? hours : 12;
-                          return `${hours}:${minutes} ${ampm}`;
-                        })()}
-                      </span>
-                      <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider mt-0.5">{session.duration_minutes} MIN</span>
+                    <div className="absolute right-full mr-8 top-1 hidden sm:flex flex-col items-end min-w-[90px]">
+                      {(() => {
+                        const parts = (session.start_time || "09:00").split(":");
+                        let h = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1] || "00", 10);
+                        const durationMins = Number(session.duration_minutes) || 60;
+                        const totalEndMins = (h * 60 + m + durationMins) % 1440;
+                        const eh = Math.floor(totalEndMins / 60);
+                        const em = totalEndMins % 60;
+
+                        const format12h = (hour: number, min: number) => {
+                          const ampm = hour >= 12 ? "PM" : "AM";
+                          const displayH = hour % 12 || 12;
+                          const displayM = min.toString().padStart(2, "0");
+                          return `${displayH}:${displayM} ${ampm}`;
+                        };
+
+                        return (
+                          <>
+                            <span className="text-xs font-black text-[var(--text-primary)] font-mono whitespace-nowrap">
+                              {format12h(h, m)}
+                            </span>
+                            <span className="text-[9px] font-bold text-[var(--text-muted)] font-mono whitespace-nowrap">
+                              to {format12h(eh, em)}
+                            </span>
+                          </>
+                        );
+                      })()}
+                      <span className="text-[8px] text-[var(--accent-green)] font-bold uppercase tracking-wider mt-1">{session.duration_minutes} MIN</span>
                     </div>
 
                     {/* Timeline Node Dot */}
@@ -297,15 +313,23 @@ export default function CurriculumTimeline() {
                           <div className="sm:hidden flex items-center gap-2 text-[9px] font-black text-[var(--text-muted)] uppercase">
                             <Clock size={10} /> 
                             {(() => {
-                              const parts = session.start_time.split(":");
-                              let hours = parseInt(parts[0], 10);
-                              const minutes = parts[1] || "00";
-                              const ampm = hours >= 12 ? "PM" : "AM";
-                              hours = hours % 12;
-                              hours = hours ? hours : 12;
-                              return `${hours}:${minutes} ${ampm}`;
+                              const parts = (session.start_time || "09:00").split(":");
+                              let h = parseInt(parts[0], 10);
+                              const m = parseInt(parts[1] || "00", 10);
+                              const durationMins = Number(session.duration_minutes) || 60;
+                              const totalEndMins = (h * 60 + m + durationMins) % 1440;
+                              const eh = Math.floor(totalEndMins / 60);
+                              const em = totalEndMins % 60;
+
+                              const format12h = (hour: number, min: number) => {
+                                const ampm = hour >= 12 ? "PM" : "AM";
+                                const displayH = hour % 12 || 12;
+                                const displayM = min.toString().padStart(2, "0");
+                                return `${displayH}:${displayM} ${ampm}`;
+                              };
+
+                              return `${format12h(h, m)} - ${format12h(eh, em)} (${session.duration_minutes} MIN)`;
                             })()}
-                             ({session.duration_minutes} MIN)
                           </div>
 
                           <div className="flex items-center gap-3">

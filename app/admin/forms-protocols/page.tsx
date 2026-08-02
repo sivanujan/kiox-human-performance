@@ -183,13 +183,13 @@ export default function AdminFormsAndProtocolsPage() {
               Protocols
             </button>
 
-            {/* Training schedules modal trigger */}
+            {/* Training curriculum modal trigger */}
             <button
               onClick={() => setIsSchedulesModalOpen(true)}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent active-scale"
             >
               <Calendar size={14} />
-              Schedules
+              Curriculum
             </button>
           </div>
         )}

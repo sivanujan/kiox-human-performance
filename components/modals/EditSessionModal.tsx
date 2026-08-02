@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { createPortal } from "react-dom";
+import { calculateEndTime, calculateDurationMinutes } from "@/utils/timeUtils";
 
 interface EditSessionModalProps {
   isOpen: boolean;
@@ -44,12 +45,37 @@ export default function EditSessionModal({
   const [title, setTitle] = useState("");
   const [sessionType, setSessionType] = useState("TACTICAL");
   const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [location, setLocation] = useState("");
   const [coachId, setCoachId] = useState("");
   const [notes, setNotes] = useState("");
   const [targetLoadAu, setTargetLoadAu] = useState(450);
   const [maxCapacity, setMaxCapacity] = useState<number | "">("");
+
+  /* Time change handlers */
+  const handleStartTimeChange = (newStart: string) => {
+    setStartTime(newStart);
+    if (newStart && durationMinutes) {
+      setEndTime(calculateEndTime(newStart, durationMinutes));
+    }
+  };
+
+  const handleEndTimeChange = (newEnd: string) => {
+    setEndTime(newEnd);
+    if (startTime && newEnd) {
+      const computedDuration = calculateDurationMinutes(startTime, newEnd);
+      setDurationMinutes(computedDuration);
+    }
+  };
+
+  const handleDurationChange = (newDur: number) => {
+    const dur = Math.max(1, newDur);
+    setDurationMinutes(dur);
+    if (startTime) {
+      setEndTime(calculateEndTime(startTime, dur));
+    }
+  };
 
   /* ── athlete roster ── */
   const [selectedAthletes, setSelectedAthletes] = useState<string[]>([]);
@@ -66,8 +92,11 @@ export default function EditSessionModal({
     if (isOpen && session) {
       setTitle(session.title || "");
       setSessionType(session.session_type || "TACTICAL");
-      setStartTime(session.start_time ? session.start_time.slice(0, 5) : "09:00");
-      setDurationMinutes(session.duration_minutes || 60);
+      const st = session.start_time ? session.start_time.slice(0, 5) : "09:00";
+      const dur = session.duration_minutes || 60;
+      setStartTime(st);
+      setDurationMinutes(dur);
+      setEndTime(calculateEndTime(st, dur));
       setLocation(session.location || "");
       setCoachId(session.coach_id || "");
       setNotes(session.notes || "");
@@ -342,14 +371,18 @@ export default function EditSessionModal({
                   </div>
 
                   {/* Time & Duration */}
-                  <div className="grid grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className={labelCls}><Clock size={10} className="inline mr-1" />Start Time</label>
-                      <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className={inputCls} />
+                      <input type="time" value={startTime} onChange={e => handleStartTimeChange(e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}><Clock size={10} className="inline mr-1" />End Time</label>
+                      <input type="time" value={endTime} onChange={e => handleEndTimeChange(e.target.value)} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}><Clock size={10} className="inline mr-1" />Duration (min)</label>
-                      <input type="number" value={durationMinutes} min={5} step={5} onChange={e => setDurationMinutes(Number(e.target.value))} className={inputCls} />
+                      <input type="number" value={durationMinutes} min={1} step={5} onChange={e => handleDurationChange(Number(e.target.value))} className={inputCls} />
                     </div>
                   </div>
 
