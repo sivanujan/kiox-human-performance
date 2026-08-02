@@ -148,20 +148,30 @@ export default function DownloadSchedulesModal({
             <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
             <style>
               @media print {
-                body {
+                html, body {
                   background-color: #ffffff !important;
                   color: #0c0a09 !important;
                   -webkit-print-color-adjust: exact;
                   print-color-adjust: exact;
+                  height: 100% !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  overflow: hidden !important;
                 }
                 .watermark {
                   color: rgba(0, 0, 0, 0.015) !important;
+                }
+                .container {
+                  height: 100% !important;
+                  max-height: 98vh !important;
+                  page-break-inside: avoid !important;
+                  break-inside: avoid !important;
                 }
               }
               
               @page {
                 size: A4 portrait;
-                margin: 15mm 15mm 15mm 15mm;
+                margin: 8mm 10mm 8mm 10mm;
               }
 
               * {
@@ -175,9 +185,9 @@ export default function DownloadSchedulesModal({
                 background-size: 24px 24px;
                 color: #0c0a09;
                 margin: 0;
-                padding: 10px;
+                padding: 4px;
                 position: relative;
-                min-height: 96vh;
+                min-height: 98vh;
               }
 
               .watermark {
@@ -200,20 +210,21 @@ export default function DownloadSchedulesModal({
                 margin: 0 auto;
                 display: flex;
                 flex-direction: column;
-                min-height: 94vh;
+                justify-content: space-between;
+                min-height: 96vh;
               }
 
               /* HEADER SECTION */
               .header {
                 background-color: #121212;
                 color: #ffffff;
-                padding: 24px 32px;
+                padding: 14px 20px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 border-bottom: 4px solid #16a34a; /* bold green */
                 border-radius: 8px;
-                margin-bottom: 35px;
+                margin-bottom: 14px;
               }
 
               .header-left {
@@ -222,7 +233,7 @@ export default function DownloadSchedulesModal({
               }
 
               .logo {
-                font-size: 32px;
+                font-size: 24px;
                 font-weight: 900;
                 letter-spacing: 2px;
                 color: #ffffff;
@@ -234,12 +245,12 @@ export default function DownloadSchedulesModal({
               }
 
               .subtitle {
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 3px;
+                letter-spacing: 2px;
                 color: #a3a3a3;
-                margin-top: 6px;
+                margin-top: 4px;
               }
 
               .header-right {
@@ -249,28 +260,28 @@ export default function DownloadSchedulesModal({
               }
 
               .title {
-                font-size: 20px;
+                font-size: 16px;
                 font-weight: 900;
                 text-transform: uppercase;
-                letter-spacing: 3px;
+                letter-spacing: 2px;
                 color: #ffffff;
                 line-height: 1;
               }
 
               .date-label {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 1.5px;
+                letter-spacing: 1px;
                 color: #22c55e;
-                margin-top: 6px;
+                margin-top: 4px;
               }
 
               .gen-time {
                 font-size: 8px;
                 font-weight: 600;
                 color: #737373;
-                margin-top: 4px;
+                margin-top: 3px;
                 letter-spacing: 1px;
               }
 
@@ -279,6 +290,7 @@ export default function DownloadSchedulesModal({
                 display: flex;
                 flex-direction: column;
                 flex-grow: 1;
+                gap: 2px;
               }
 
               .timeline-item {
@@ -289,34 +301,36 @@ export default function DownloadSchedulesModal({
               }
 
               .timeline-time-col {
-                width: 90px;
+                width: 80px;
                 text-align: right;
-                padding-right: 15px;
-                padding-top: 14px;
+                padding-right: 10px;
+                padding-top: 8px;
                 display: flex;
                 flex-direction: column;
                 flex-shrink: 0;
               }
 
               .time-label {
-                font-size: 18px;
+                font-size: 12px;
                 font-weight: 900;
                 color: #0f172a;
                 font-family: monospace;
-                line-height: 1;
+                line-height: 1.1;
+                white-space: nowrap;
               }
 
               .time-ampm {
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 800;
                 color: #64748b;
                 text-transform: uppercase;
                 margin-top: 2px;
                 letter-spacing: 0.5px;
+                white-space: nowrap;
               }
 
               .timeline-line-col {
-                width: 30px;
+                width: 24px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -325,13 +339,13 @@ export default function DownloadSchedulesModal({
               }
 
               .timeline-dot {
-                width: 14px;
-                height: 14px;
+                width: 12px;
+                height: 12px;
                 border-radius: 50%;
                 background-color: #cbd5e1;
-                border: 3px solid #ffffff;
+                border: 2px solid #ffffff;
                 box-shadow: 0 0 0 2px #cbd5e1;
-                margin-top: 16px;
+                margin-top: 10px;
                 z-index: 2;
               }
 
@@ -348,8 +362,8 @@ export default function DownloadSchedulesModal({
                 width: 2px;
                 background-color: #cbd5e1;
                 position: absolute;
-                top: 30px;
-                bottom: -30px;
+                top: 22px;
+                bottom: -15px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 1;
@@ -361,22 +375,22 @@ export default function DownloadSchedulesModal({
 
               .timeline-card-col {
                 flex-grow: 1;
-                padding-bottom: 24px;
-                padding-left: 10px;
+                padding-bottom: 8px;
+                padding-left: 8px;
               }
 
               /* SESSION CARD DESIGN */
               .session-card {
-                background-color: #f8fafc; /* very light off-white/gray */
+                background-color: #f8fafc;
                 border: 1px solid #e2e8f0;
-                border-left: 6px solid #94a3b8; /* default left border */
-                border-radius: 12px;
-                padding: 16px 20px;
+                border-left: 5px solid #94a3b8;
+                border-radius: 8px;
+                padding: 8px 14px;
                 display: flex;
                 flex-direction: column;
-                gap: 12px;
+                gap: 5px;
                 position: relative;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
               }
 
               /* LEFT BORDERS */
@@ -396,13 +410,13 @@ export default function DownloadSchedulesModal({
 
               /* PILL BADGES */
               .category-tag {
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 800;
-                padding: 4px 12px;
-                border-radius: 20px;
+                padding: 2px 8px;
+                border-radius: 12px;
                 text-transform: uppercase;
                 color: #ffffff;
-                letter-spacing: 1px;
+                letter-spacing: 0.5px;
                 display: inline-block;
               }
 
@@ -415,17 +429,17 @@ export default function DownloadSchedulesModal({
               .category-tag.logistics { background-color: #0284c7; }
 
               .duration-badge {
-                font-size: 9px;
+                font-size: 8.5px;
                 font-weight: 800;
                 background-color: #1e293b;
                 color: #ffffff;
-                padding: 3px 8px;
-                border-radius: 6px;
+                padding: 2px 6px;
+                border-radius: 4px;
                 letter-spacing: 0.5px;
               }
 
               .session-title {
-                font-size: 18px;
+                font-size: 14px;
                 font-weight: 900;
                 color: #0f172a;
                 text-transform: uppercase;
@@ -435,8 +449,8 @@ export default function DownloadSchedulesModal({
 
               .session-meta {
                 display: flex;
-                gap: 20px;
-                font-size: 12px;
+                gap: 14px;
+                font-size: 10.5px;
                 font-weight: 700;
                 color: #475569;
                 text-transform: uppercase;
@@ -444,24 +458,24 @@ export default function DownloadSchedulesModal({
               }
 
               .session-notes {
-                font-size: 12px;
+                font-size: 10px;
                 font-style: italic;
                 color: #64748b;
                 border-top: 1px dashed #e2e8f0;
-                padding-top: 8px;
-                margin-top: 4px;
+                padding-top: 4px;
+                margin-top: 2px;
               }
 
               .no-sessions {
-                font-size: 14px;
+                font-size: 13px;
                 color: #64748b;
                 text-align: center;
-                padding: 80px 0;
+                padding: 40px 0;
                 text-transform: uppercase;
                 letter-spacing: 2px;
                 background: #f8fafc;
                 border: 1px dashed #cbd5e1;
-                border-radius: 12px;
+                border-radius: 10px;
               }
 
               /* FOOTER SECTION */
@@ -469,20 +483,20 @@ export default function DownloadSchedulesModal({
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 1.5px;
+                letter-spacing: 1px;
                 color: #64748b;
                 border-top: 2px solid #1e293b;
-                padding-top: 16px;
-                margin-top: auto;
+                padding-top: 8px;
+                margin-top: 8px;
               }
 
               .footer-logo {
                 font-weight: 900;
                 color: #0f172a;
-                margin-right: 8px;
+                margin-right: 6px;
               }
 
               .footer-logo span {
