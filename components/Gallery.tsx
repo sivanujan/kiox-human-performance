@@ -14,7 +14,10 @@ import {
   X, 
   Loader2,
   FolderOpen,
-  Settings
+  Settings,
+  Image as ImageIcon,
+  Video,
+  Film
 } from 'lucide-react';
 
 function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, isLast }: { 
@@ -220,6 +223,7 @@ export default function Gallery() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
+  const [activeMediaType, setActiveMediaType] = useState<'ALL' | 'image' | 'video'>('ALL');
   const [playingVideo, setPlayingVideo] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   
@@ -393,7 +397,11 @@ export default function Gallery() {
     }
   };
 
-  const filtered = activeFilter === 'ALL' ? items : items.filter(i => (i.category || 'TRAINING') === activeFilter);
+  const filtered = items.filter((item) => {
+    const matchesCategory = activeFilter === 'ALL' || (item.category || 'TRAINING') === activeFilter;
+    const matchesType = activeMediaType === 'ALL' || item.type === activeMediaType;
+    return matchesCategory && matchesType;
+  });
 
   return (
     <>
@@ -497,48 +505,101 @@ export default function Gallery() {
           </motion.div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', padding: '40px 20px', flexWrap: 'wrap' }}>
+        {/* MEDIA TYPE TAB SELECTOR (ALL MEDIA / IMAGES / VIDEOS) */}
+        <div className="flex justify-center items-center gap-3 pt-10 pb-4 px-4 flex-wrap">
+          <motion.button
+            onClick={() => setActiveMediaType('ALL')}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[2px] font-display transition-all cursor-pointer ${
+              activeMediaType === 'ALL'
+                ? 'bg-[#22c55e] text-black shadow-[0_0_25px_rgba(34,197,94,0.4)]'
+                : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <Film size={15} />
+            ALL MEDIA ({items.length})
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveMediaType('image')}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[2px] font-display transition-all cursor-pointer ${
+              activeMediaType === 'image'
+                ? 'bg-[#22c55e] text-black shadow-[0_0_25px_rgba(34,197,94,0.4)]'
+                : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <ImageIcon size={15} />
+            IMAGES ({items.filter(i => i.type === 'image').length})
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveMediaType('video')}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[2px] font-display transition-all cursor-pointer ${
+              activeMediaType === 'video'
+                ? 'bg-[#22c55e] text-black shadow-[0_0_25px_rgba(34,197,94,0.4)]'
+                : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-white/20'
+            }`}
+          >
+            <Video size={15} />
+            VIDEOS ({items.filter(i => i.type === 'video').length})
+          </motion.button>
+        </div>
+
+        {/* CATEGORY FILTER BAR */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', padding: '16px 20px 40px', flexWrap: 'wrap' }}>
           <motion.button
             onClick={() => setActiveFilter('ALL')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             className="font-display"
             style={{
-              background: activeFilter === 'ALL' ? '#22c55e' : 'transparent',
-              color: activeFilter === 'ALL' ? '#000000' : 'var(--text-secondary)',
-              border: activeFilter === 'ALL' ? '1px solid #22c55e' : '1px solid rgba(34,197,94,0.2)',
-              padding: '12px 28px', borderRadius: '50px', fontSize: '11px', letterSpacing: '0.2em',
+              background: activeFilter === 'ALL' ? 'rgba(34,197,94,0.15)' : 'transparent',
+              color: activeFilter === 'ALL' ? '#22c55e' : 'var(--text-secondary)',
+              border: activeFilter === 'ALL' ? '1px solid #22c55e' : '1px solid rgba(255,255,255,0.08)',
+              padding: '10px 24px', borderRadius: '50px', fontSize: '10px', letterSpacing: '0.2em',
               fontWeight: '900', cursor: 'pointer', transition: 'all 0.3s ease',
             }}
           >
-            ALL ({items.length})
+            ALL CATEGORIES ({activeMediaType === 'ALL' ? items.length : items.filter(i => i.type === activeMediaType).length})
           </motion.button>
           
-          {categories.map((cat, i) => (
-            <motion.button
-              key={cat.id}
-              onClick={() => setActiveFilter(cat.name)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="font-display"
-              style={{
-                background: activeFilter === cat.name ? '#22c55e' : 'transparent',
-                color: activeFilter === cat.name ? '#000000' : 'var(--text-secondary)',
-                border: activeFilter === cat.name ? '1px solid #22c55e' : '1px solid rgba(34,197,94,0.2)',
-                padding: '12px 28px', borderRadius: '50px', fontSize: '11px', letterSpacing: '0.2em',
-                fontWeight: '900', cursor: 'pointer', transition: 'all 0.3s ease',
-                boxShadow: activeFilter === cat.name ? '0 0 20px rgba(34,197,94,0.3)' : 'none',
-              }}
-            >
-              {cat.name}
-              <span style={{ marginLeft: '8px', fontSize: '10px', opacity: 0.7 }}>
-                ({items.filter(item => (item.category || 'TRAINING') === cat.name).length})
-              </span>
-            </motion.button>
-          ))}
+          {categories.map((cat, i) => {
+            const categoryCount = items.filter(item => 
+              (item.category || 'TRAINING') === cat.name && 
+              (activeMediaType === 'ALL' || item.type === activeMediaType)
+            ).length;
+
+            return (
+              <motion.button
+                key={cat.id}
+                onClick={() => setActiveFilter(cat.name)}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="font-display"
+                style={{
+                  background: activeFilter === cat.name ? 'rgba(34,197,94,0.15)' : 'transparent',
+                  color: activeFilter === cat.name ? '#22c55e' : 'var(--text-secondary)',
+                  border: activeFilter === cat.name ? '1px solid #22c55e' : '1px solid rgba(255,255,255,0.08)',
+                  padding: '10px 24px', borderRadius: '50px', fontSize: '10px', letterSpacing: '0.2em',
+                  fontWeight: '900', cursor: 'pointer', transition: 'all 0.3s ease',
+                  boxShadow: activeFilter === cat.name ? '0 0 15px rgba(34,197,94,0.2)' : 'none',
+                }}
+              >
+                {cat.name}
+                <span style={{ marginLeft: '6px', fontSize: '9px', opacity: 0.7 }}>
+                  ({categoryCount})
+                </span>
+              </motion.button>
+            );
+          })}
         </div>
 
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 30px' }}>
