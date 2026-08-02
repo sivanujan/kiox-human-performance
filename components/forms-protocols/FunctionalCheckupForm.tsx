@@ -389,7 +389,7 @@ export default function FunctionalCheckupForm({
               ? "#eab308" 
               : "#f97316";
 
-          const markerY = m.y <= 100 ? parseFloat((m.y * 2.2).toFixed(1)) : m.y;
+          const markerY = m.y <= 100 ? parseFloat((m.y * 2.55).toFixed(1)) : m.y;
 
           return `
             <g>
@@ -401,7 +401,7 @@ export default function FunctionalCheckupForm({
         .join("");
 
       return `
-        <svg viewBox="0 0 100 220" style="width: 110px; height: auto; padding: 4px; background: #ffffff;">
+        <svg viewBox="0 0 100 255" style="width: 110px; height: auto; padding: 4px; background: #ffffff;">
           <path d="M 50 15 C 42 15, 38 21, 38 28 C 38 35, 42 41, 50 41 C 58 41, 62 35, 62 28 C 62 21, 58 15, 50 15 Z M 45 41 L 55 41 L 55 48 L 45 48 Z M 45 48 C 33 49, 30 55, 27 63 L 14 105 C 12 110, 16 114, 20 110 L 28 80 L 28 125 C 28 127, 29 129, 31 129 C 33 129, 34 127, 34 125 L 34 70 L 37 70 L 37 135 L 63 135 L 63 70 L 66 70 L 66 125 C 66 127, 67 129, 69 129 C 71 129, 72 127, 72 125 L 72 80 L 80 110 C 84 114, 88 110, 86 105 L 73 63 C 70 55, 67 49, 55 48 Z M 37 135 L 63 135 L 60 155 L 40 155 Z M 40 155 L 35 200 L 38 245 C 38 249, 43 249, 44 245 L 49 200 L 49 155 Z M 60 155 L 65 200 L 62 245 C 62 249, 57 249, 56 245 L 51 200 L 51 155 Z" 
                 fill="#f1f5f9" stroke="#18181b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M 36 72 Q 50 78 64 72" fill="none" stroke="#cbd5e1" stroke-width="0.8" opacity="0.5" />

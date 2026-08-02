@@ -358,20 +358,69 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
   const [tempNote, setTempNote] = useState("");
   const [severity, setSeverity] = useState<"mild" | "moderate" | "severe">("moderate");
   const [showNoteInput, setShowNoteInput] = useState(false);
-  const [clickCoords, setClickCoords] = useState<{ x: number; y: number; side: "front" | "back" } | null>(null);
+  const [clickCoords, setClickCoords] = useState<{ x: number; y: number; side: "front" | "back"; regionName?: string } | null>(null);
 
   const frontSvgRef = useRef<SVGSVGElement>(null);
   const backSvgRef = useRef<SVGSVGElement>(null);
 
+  const BODY_REGIONS = [
+    { label: "Neck", side: "front", x: 50, y: 32, note: "Neck / Cervical region" },
+    { label: "L Shoulder", side: "front", x: 28, y: 60, note: "Left Shoulder" },
+    { label: "R Shoulder", side: "front", x: 72, y: 60, note: "Right Shoulder" },
+    { label: "Chest", side: "front", x: 50, y: 78, note: "Chest" },
+    { label: "Core / Abdomen", side: "front", x: 50, y: 110, note: "Core / Abdominal area" },
+    { label: "L Thigh / Quad", side: "front", x: 42, y: 175, note: "Left Thigh / Quad" },
+    { label: "R Thigh / Quad", side: "front", x: 58, y: 175, note: "Right Thigh / Quad" },
+    { label: "L Knee", side: "front", x: 41, y: 205, note: "Left Knee" },
+    { label: "R Knee", side: "front", x: 59, y: 205, note: "Right Knee" },
+    { label: "L Calf / Shin", side: "front", x: 40, y: 228, note: "Left Calf / Shin" },
+    { label: "R Calf / Shin", side: "front", x: 60, y: 228, note: "Right Calf / Shin" },
+    { label: "L Ankle", side: "front", x: 38, y: 246, note: "Left Ankle" },
+    { label: "R Ankle", side: "front", x: 62, y: 246, note: "Right Ankle" },
+
+    { label: "Upper Back", side: "back", x: 50, y: 78, note: "Upper Back / Thoracic" },
+    { label: "Lower Back", side: "back", x: 50, y: 120, note: "Lower Back / Lumbar" },
+    { label: "L Hamstring", side: "back", x: 42, y: 175, note: "Left Hamstring" },
+    { label: "R Hamstring", side: "back", x: 58, y: 175, note: "Right Hamstring" },
+    { label: "L Knee (Back)", side: "back", x: 41, y: 205, note: "Left Knee (Back)" },
+    { label: "R Knee (Back)", side: "back", x: 59, y: 205, note: "Right Knee (Back)" },
+    { label: "L Calf (Back)", side: "back", x: 40, y: 228, note: "Left Calf (Back)" },
+    { label: "R Calf (Back)", side: "back", x: 60, y: 228, note: "Right Calf (Back)" },
+  ] as const;
+
   const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>, side: "front" | "back") => {
     if (readOnly) return;
     const svg = e.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const x = parseFloat((((e.clientX - rect.left) / rect.width) * 100).toFixed(1));
-    const y = parseFloat((((e.clientY - rect.top) / rect.height) * 220).toFixed(1));
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    
+    let x = 50;
+    let y = 100;
+    try {
+      const cursorPoint = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+      if (cursorPoint) {
+        x = parseFloat(cursorPoint.x.toFixed(1));
+        y = parseFloat(cursorPoint.y.toFixed(1));
+      }
+    } catch {
+      const rect = svg.getBoundingClientRect();
+      x = parseFloat((((e.clientX - rect.left) / rect.width) * 100).toFixed(1));
+      y = parseFloat((((e.clientY - rect.top) / rect.height) * 255).toFixed(1));
+    }
 
     setClickCoords({ x, y, side });
     setTempNote("");
+    setSeverity("moderate");
+    setShowNoteInput(true);
+    setEditingMarkerId(null);
+  };
+
+  const handleSelectPresetRegion = (regionLabel: string) => {
+    const found = BODY_REGIONS.find((r) => r.label === regionLabel);
+    if (!found) return;
+    setClickCoords({ x: found.x, y: found.y, side: found.side as "front" | "back", regionName: found.label });
+    setTempNote(`${found.note} problem`);
     setSeverity("moderate");
     setShowNoteInput(true);
     setEditingMarkerId(null);
@@ -439,7 +488,7 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
           
           <svg
             ref={svgRef}
-            viewBox="0 0 100 220"
+            viewBox="0 0 100 255"
             className={`w-full max-w-[180px] h-auto select-none relative ${!readOnly ? "cursor-crosshair" : ""}`}
             onClick={(e) => handleSvgClick(e, side)}
           >
@@ -490,6 +539,23 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
               className="transition-all duration-300 group-hover:stroke-[var(--accent-green)]/80"
             />
 
+            {/* Interactive Hotspot Nodes */}
+            {!readOnly && BODY_REGIONS.filter(r => r.side === side).map((reg) => (
+              <circle
+                key={reg.label}
+                cx={reg.x}
+                cy={reg.y}
+                r="3"
+                className="fill-[var(--accent-green)]/30 hover:fill-[var(--accent-green)] hover:r-[5] transition-all cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectPresetRegion(reg.label);
+                }}
+              >
+                <title>Select {reg.label}</title>
+              </circle>
+            ))}
+
             {sideMarkers.map((marker) => {
               const markerIndex = markers.findIndex((m) => m.id === marker.id) + 1;
               const severityColor = 
@@ -499,7 +565,7 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
                   ? "#eab308" 
                   : "#f97316";
 
-              const markerY = marker.y <= 100 ? parseFloat((marker.y * 2.2).toFixed(1)) : marker.y;
+              const markerY = marker.y <= 100 ? parseFloat((marker.y * 2.55).toFixed(1)) : marker.y;
 
               return (
                 <g key={marker.id} className="cursor-pointer" onClick={(e) => { e.stopPropagation(); startEditing(marker); }}>
@@ -525,10 +591,34 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
 
       <div className="md:col-span-5 flex flex-col justify-between min-w-0">
         <div>
+          {!readOnly && (
+            <div className="mb-4">
+              <label className="block text-[9px] font-mono text-[var(--text-secondary)] uppercase tracking-widest mb-1.5">
+                Quick Select Region
+              </label>
+              <select
+                onChange={(e) => {
+                  if (e.target.value) handleSelectPresetRegion(e.target.value);
+                }}
+                value=""
+                className="w-full text-xs p-2.5 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-green)] cursor-pointer"
+              >
+                <option value="" disabled>-- Click Silhouette or Select Body Part --</option>
+                {BODY_REGIONS.map((r) => (
+                  <option key={r.label} value={r.label}>
+                    {r.label} ({r.side.toUpperCase()})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {!readOnly && showNoteInput && clickCoords && (
-            <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl mb-6 space-y-4 shadow-xl">
+            <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl mb-6 space-y-4 shadow-xl animate-fade-in">
               <div className="flex justify-between items-start gap-2 text-[10px] font-black uppercase text-[var(--accent-green)] tracking-wider">
-                <span className="leading-tight">Flag: {clickCoords.side.toUpperCase()} ({clickCoords.x}%, {clickCoords.y}%)</span>
+                <span className="leading-tight">
+                  Flag: {clickCoords.regionName ? clickCoords.regionName : `${clickCoords.side.toUpperCase()} (${clickCoords.x}%, ${clickCoords.y}%)`}
+                </span>
                 <button type="button" onClick={() => setShowNoteInput(false)} className="text-[9px] text-[var(--text-muted)] hover:text-white shrink-0">Cancel</button>
               </div>
 
