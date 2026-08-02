@@ -8,13 +8,15 @@ import { join } from 'path';
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
+  const supabaseAdmin = createAdminClient();
 
   // 1. Auth & Role Check
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return NextResponse.json({ error: 'Unauthorized: Session required' }, { status: 401 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'superadmin' && profile?.role !== 'staff') {
+  const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).single();
+  const role = profile?.role?.toLowerCase() || '';
+  if (role !== 'superadmin' && role !== 'admin' && role !== 'staff') {
     return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
   }
 

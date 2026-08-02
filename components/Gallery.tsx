@@ -224,7 +224,7 @@ export default function Gallery() {
   const [mounted, setMounted] = useState(false);
   
   // Admin State
-  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'staff';
+  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'staff';
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCategoryManageOpen, setIsCategoryManageOpen] = useState(false);
   
@@ -285,7 +285,7 @@ export default function Gallery() {
       const formData = new FormData();
       formData.append('file', uploadFile);
       formData.append('title', uploadTitle || uploadFile.name);
-      formData.append('category', uploadCategory);
+      formData.append('category', uploadCategory || 'TRAINING');
       formData.append('type', uploadFile.type.startsWith('video') ? 'video' : 'image');
 
       const res = await fetch('/api/admin/gallery', {
@@ -294,14 +294,17 @@ export default function Gallery() {
       });
 
       const result = await res.json();
-      if (result.success) {
-        fetchData();
+      if (res.ok && result.success) {
+        await fetchData();
         setIsUploadOpen(false);
         setUploadFile(null);
         setUploadTitle("");
+      } else {
+        alert(result.error || "Upload Failed: Check file size and admin privileges.");
       }
-    } catch (err) {
-      alert("System Failure: Could not commit file to persistent storage.");
+    } catch (err: any) {
+      console.error("Gallery upload error:", err);
+      alert(`System Failure: ${err.message || "Could not commit file to persistent storage."}`);
     } finally {
       setUploadLoading(false);
     }
