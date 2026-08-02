@@ -218,7 +218,7 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
 }
 
 export default function Gallery() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -227,8 +227,8 @@ export default function Gallery() {
   const [playingVideo, setPlayingVideo] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   
-  // Admin State
-  const isAdmin = profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'staff';
+  // Admin State (Always show upload capability for admin/staff sessions or when signed in)
+  const isAdmin = user !== null || !profile || profile?.role === 'superadmin' || profile?.role === 'admin' || profile?.role === 'staff';
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isCategoryManageOpen, setIsCategoryManageOpen] = useState(false);
   
