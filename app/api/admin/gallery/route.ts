@@ -21,22 +21,47 @@ export async function POST(request: Request) {
   }
 
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const title = formData.get('title') as string || 'Untitled';
-    const type = formData.get('type') as string; // 'image' | 'video'
+    let fileBuffer: Buffer;
+    let fileNameOriginal = '';
+    let title = 'Untitled';
+    let type = 'image';
+    let category = 'TRAINING';
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const headerFileName = request.headers.get('x-file-name');
+
+    if (headerFileName) {
+      // 1. Binary Direct Stream (Used for videos and large files to bypass FormData parsing limits)
+      fileNameOriginal = decodeURIComponent(headerFileName);
+      title = decodeURIComponent(request.headers.get('x-title') || fileNameOriginal);
+      type = request.headers.get('x-type') || (fileNameOriginal.match(/\.(mp4|mov|avi|mkv|webm)$/i) ? 'video' : 'image');
+      category = decodeURIComponent(request.headers.get('x-category') || 'TRAINING');
+
+      const arrayBuffer = await request.arrayBuffer();
+      fileBuffer = Buffer.from(arrayBuffer);
+    } else {
+      // 2. Standard FormData parsing
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      if (!file) {
+        return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      }
+
+      fileNameOriginal = file.name;
+      title = (formData.get('title') as string) || file.name;
+      type = (formData.get('type') as string) || (file.type.startsWith('video') ? 'video' : 'image');
+      category = (formData.get('category') as string) || 'TRAINING';
+
+      const arrayBuffer = await file.arrayBuffer();
+      fileBuffer = Buffer.from(arrayBuffer);
     }
 
-    // 2. Prepare Storage Path
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    if (!fileBuffer || fileBuffer.length === 0) {
+      return NextResponse.json({ error: 'Uploaded file is empty' }, { status: 400 });
+    }
 
-    const ext = file.name.split('.').pop();
+    const ext = fileNameOriginal.split('.').pop() || 'bin';
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
-    
+
     // Ensure directory exists (Next.js public folder)
     const uploadDir = join(process.cwd(), 'public', 'uploads', 'gallery');
     try {
@@ -46,10 +71,10 @@ export async function POST(request: Request) {
     const filePath = join(uploadDir, fileName);
     const publicUrl = `/uploads/gallery/${fileName}`;
 
-    // 3. Write File to Disk
-    await writeFile(filePath, buffer);
+    // Write File to Disk
+    await writeFile(filePath, fileBuffer);
 
-    // 4. Save to Database (Use Admin Client to bypass RLS for now)
+    // Save to Database
     const supabaseAdmin = createAdminClient();
     
     // Get max order to append at the end
@@ -68,14 +93,14 @@ export async function POST(request: Request) {
         title,
         file_path: publicUrl,
         type,
-        category: formData.get('category') as string || 'TRAINING',
+        category,
         display_order: newOrder
       })
       .select()
       .single();
 
     if (error) {
-      // Cleanup the file if DB fails
+      // Cleanup file if DB fails
       await unlink(filePath).catch(() => {});
       throw error;
     }

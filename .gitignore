@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Local logs
 next-dev.log
+
+# User-uploaded media (stored on server disk, not in git — can be large)
+/public/uploads/

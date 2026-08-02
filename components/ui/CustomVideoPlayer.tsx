@@ -20,6 +20,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [videoSrc, setVideoSrc] = useState(src);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -27,11 +28,34 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [videoError, setVideoError] = useState<string | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Flag: after a src change, auto-play once the browser signals canplay
+  const pendingAutoPlay = useRef(false);
+
+  // When src changes: set the src imperatively and call load().
+  // Do NOT call play() here — the browser hasn't fetched anything yet and
+  // will throw NotSupportedError. Instead set pendingAutoPlay = true and
+  // fire play() inside the onCanPlay handler below.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    setVideoSrc(src);
+    setIsLoading(true);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setVideoError(null);  // clear any previous error
+
+    pendingAutoPlay.current = true;
+    video.src = src;
+    video.load();        // start fetching; canplay fires when ready
+  }, [src]);
 
   const togglePlay = useCallback(() => {
     if (videoRef.current) {
@@ -66,7 +90,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration);
+      setDuration(videoRef.current.duration || 0);
       setIsLoading(false);
     }
   };
@@ -211,7 +235,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
       {/* Video Element */}
       <video
         ref={videoRef}
-        src={src}
+        src={videoSrc}
         className={`relative z-10 w-full h-full cursor-pointer ${type === 'portrait' ? 'object-contain' : 'object-cover'}`}
         onClick={(e) => {
           if (e.detail === 1) togglePlay();
@@ -220,9 +244,33 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
 
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={() => {
+          setIsLoading(false);
+          // Auto-play the correct video only after the browser confirms it can play
+          if (pendingAutoPlay.current && videoRef.current) {
+            pendingAutoPlay.current = false;
+            const p = videoRef.current.play();
+            if (p !== undefined) {
+              p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+            }
+          }
+        }}
+        onCanPlayThrough={() => setIsLoading(false)}
         onWaiting={() => setIsLoading(true)}
-        onPlaying={() => setIsLoading(false)}
-        onEnded={() => setIsPlaying(false)}
+        onPlaying={() => { setIsLoading(false); setIsPlaying(true); }}
+        onPause={() => { setIsLoading(false); setIsPlaying(false); }}
+        onEnded={() => { setIsPlaying(false); setIsLoading(false); }}
+        onError={(e) => {
+          const vid = e.target as HTMLVideoElement;
+          const err = vid.error;
+          const code = err?.code ?? 0;
+          const msg = err?.message ?? 'unknown';
+          // MediaError codes: 1=ABORTED 2=NETWORK 3=DECODE 4=SRC_NOT_SUPPORTED
+          console.error(`Video error code=${code} message="${msg}" src="${vid.src}"`);
+          setIsLoading(false);
+          setVideoError(`Cannot play video (code ${code}): ${msg || 'Source not supported'}`);
+          pendingAutoPlay.current = false;
+        }}
         playsInline
       />
 
@@ -232,7 +280,7 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
 
       {/* Loading Spinner */}
       <AnimatePresence>
-        {isLoading && (
+        {isLoading && !videoError && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -245,9 +293,26 @@ export default function CustomVideoPlayer({ src, type = 'landscape', title, cate
         )}
       </AnimatePresence>
 
+      {/* Video Error Overlay */}
+      <AnimatePresence>
+        {videoError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50 gap-4 p-8 text-center"
+          >
+            <div className="w-16 h-16 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 text-3xl">✕</div>
+            <p className="text-white/80 font-semibold text-sm tracking-wide">VIDEO UNAVAILABLE</p>
+            <p className="text-white/40 text-xs max-w-xs">{videoError}</p>
+            <p className="text-white/30 text-xs break-all max-w-sm">{src}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Big Center Play Button (Visible when paused) */}
       <AnimatePresence>
-        {!isPlaying && !isLoading && (
+        {!isPlaying && !isLoading && !videoError && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

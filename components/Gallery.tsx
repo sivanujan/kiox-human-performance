@@ -31,6 +31,7 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
   isLast: boolean;
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const backVideoRef = useRef<HTMLVideoElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
@@ -114,10 +115,23 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
               preload="metadata"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
+          ) : imgError || !item.file_path ? (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#121212] via-[#1c1c1c] to-[#090909] relative p-6 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] mb-3 shadow-[0_0_20px_rgba(34,197,94,0.15)]">
+                <ImageIcon size={26} />
+              </div>
+              <span className="font-display text-[10px] font-black text-[#22c55e] tracking-[3px] uppercase">
+                {item.title}
+              </span>
+              <span className="text-[9px] text-gray-500 font-mono uppercase mt-1">
+                KIO-X ARCHIVE
+              </span>
+            </div>
           ) : (
             <img
               src={item.file_path}
               alt={item.title}
+              onError={() => setImgError(true)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
           )}
@@ -125,12 +139,19 @@ function FlipCard({ item, index, onPlay, isAdmin, onDelete, onReorder, isFirst, 
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%)' }} />
 
           {item.type === 'video' && (
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(0,0,0,0.7)',
-              border: '2px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '18px', boxShadow: '0 0 20px rgba(34,197,94,0.4)', color: '#22c55e'
-            }}>
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlay(item);
+              }}
+              className="hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              style={{
+                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+                width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(0,0,0,0.75)',
+                border: '2px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '18px', boxShadow: '0 0 25px rgba(34,197,94,0.5)', color: '#22c55e', zIndex: 30
+              }}
+            >
               ▶
             </div>
           )}
@@ -236,6 +257,7 @@ export default function Gallery() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadCategory, setUploadCategory] = useState("");
+  const [uploadType, setUploadType] = useState<'image' | 'video'>('image');
   
   const [newCategoryName, setNewCategoryName] = useState("");
   const [categoryActionLoading, setCategoryActionLoading] = useState(false);
@@ -268,7 +290,18 @@ export default function Gallery() {
       ]);
       const [itemsData, catsData] = await Promise.all([itemsRes.json(), catsRes.json()]);
       
-      if (Array.isArray(itemsData)) setItems(itemsData);
+      if (Array.isArray(itemsData)) {
+        // Rewrite /uploads/gallery/<filename> → /api/media/<filename>
+        // This routes through our proper streaming API with Range request support
+        const normalized = itemsData.map((item: any) => {
+          if (item.file_path && item.file_path.startsWith('/uploads/gallery/')) {
+            const filename = item.file_path.replace('/uploads/gallery/', '');
+            return { ...item, file_path: `/api/media/${filename}` };
+          }
+          return item;
+        });
+        setItems(normalized);
+      }
       if (Array.isArray(catsData)) {
         setCategories(catsData);
         if (catsData.length > 0) setUploadCategory(catsData[0].name);
@@ -286,16 +319,34 @@ export default function Gallery() {
 
     setUploadLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('file', uploadFile);
-      formData.append('title', uploadTitle || uploadFile.name);
-      formData.append('category', uploadCategory || 'TRAINING');
-      formData.append('type', uploadFile.type.startsWith('video') ? 'video' : 'image');
+      let res: Response;
 
-      const res = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        body: formData
-      });
+      // Direct binary stream for videos or large assets to bypass Next.js FormData parsing limits
+      if (uploadType === 'video' || uploadFile.size > 4 * 1024 * 1024) {
+        const fileBuffer = await uploadFile.arrayBuffer();
+        res = await fetch('/api/admin/gallery', {
+          method: 'POST',
+          headers: {
+            'x-file-name': encodeURIComponent(uploadFile.name),
+            'x-title': encodeURIComponent(uploadTitle || uploadFile.name),
+            'x-category': encodeURIComponent(uploadCategory || 'TRAINING'),
+            'x-type': uploadType,
+            'content-type': uploadFile.type || 'application/octet-stream',
+          },
+          body: fileBuffer,
+        });
+      } else {
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('title', uploadTitle || uploadFile.name);
+        formData.append('category', uploadCategory || 'TRAINING');
+        formData.append('type', uploadType);
+
+        res = await fetch('/api/admin/gallery', {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       const result = await res.json();
       if (res.ok && result.success) {
@@ -682,7 +733,48 @@ export default function Gallery() {
                       </div>
                       <div className="text-text-muted text-[10px] mt-1 tracking-widest uppercase">MP4 / MOV / JPG / PNG</div>
                     </div>
-                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} />
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept="image/*,video/*" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setUploadFile(file);
+                        if (file) {
+                          setUploadType(file.type.startsWith('video') ? 'video' : 'image');
+                        }
+                      }} 
+                    />
+                  </div>
+
+                  {/* Asset Type Selector */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-text-muted tracking-[2px] uppercase ml-1">Media Format</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setUploadType('image')}
+                        className={`py-3.5 px-4 rounded-2xl text-xs font-black uppercase flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                          uploadType === 'image'
+                            ? 'bg-[#22c55e] text-black border-[#22c55e] shadow-lg shadow-[#22c55e]/20'
+                            : 'bg-bg-input border-border-input text-text-muted hover:text-text-primary'
+                        }`}
+                      >
+                        <ImageIcon size={16} /> Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadType('video')}
+                        className={`py-3.5 px-4 rounded-2xl text-xs font-black uppercase flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                          uploadType === 'video'
+                            ? 'bg-[#22c55e] text-black border-[#22c55e] shadow-lg shadow-[#22c55e]/20'
+                            : 'bg-bg-input border-border-input text-text-muted hover:text-text-primary'
+                        }`}
+                      >
+                        <Video size={16} /> Video
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

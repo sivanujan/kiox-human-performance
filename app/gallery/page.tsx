@@ -1,5 +1,8 @@
 import Gallery from '@/components/Gallery';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata = {
   title: 'Gallery | KIO-X',
   description: 'KIO-X Performance Gallery - Elite training sessions, match day highlights and performance moments',
