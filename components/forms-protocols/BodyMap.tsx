@@ -517,24 +517,24 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
-      <div className="lg:col-span-8 flex flex-col md:flex-row gap-6 justify-center items-center">
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
+      <div className="md:col-span-7 flex flex-col sm:flex-row gap-4 justify-center items-center">
         <BodySilhouette side="front" />
         <BodySilhouette side="back" />
       </div>
 
-      <div className="lg:col-span-4 flex flex-col justify-between">
+      <div className="md:col-span-5 flex flex-col justify-between min-w-0">
         <div>
           {!readOnly && showNoteInput && clickCoords && (
-            <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl mb-6 space-y-4">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase text-[var(--accent-green)] tracking-wider">
-                <span>Flag Position: {clickCoords.side.toUpperCase()} ({clickCoords.x}%, {clickCoords.y}%)</span>
-                <button type="button" onClick={() => setShowNoteInput(false)} className="text-[9px] text-[var(--text-muted)]">Cancel</button>
+            <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-2xl mb-6 space-y-4 shadow-xl">
+              <div className="flex justify-between items-start gap-2 text-[10px] font-black uppercase text-[var(--accent-green)] tracking-wider">
+                <span className="leading-tight">Flag: {clickCoords.side.toUpperCase()} ({clickCoords.x}%, {clickCoords.y}%)</span>
+                <button type="button" onClick={() => setShowNoteInput(false)} className="text-[9px] text-[var(--text-muted)] hover:text-white shrink-0">Cancel</button>
               </div>
 
               <div className="space-y-2">
                 <label className="block text-[9px] font-mono text-[var(--text-secondary)] uppercase tracking-widest">Severity</label>
-                <div className="flex gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
                   {(["mild", "moderate", "severe"] as const).map((sev) => {
                     const active = severity === sev;
                     const color = sev === "severe" ? "bg-red-500" : sev === "moderate" ? "bg-orange-500" : "bg-yellow-500";
@@ -543,10 +543,10 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
                         type="button"
                         key={sev}
                         onClick={() => setSeverity(sev)}
-                        className={`flex-1 py-1.5 px-2.5 border rounded-xl text-[9px] font-black uppercase flex items-center justify-center gap-1 transition-all ${
+                        className={`py-2 px-1 border rounded-xl text-[9px] font-black uppercase flex items-center justify-center transition-all truncate ${
                           active 
-                            ? `${color} text-white border-transparent`
-                            : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)]`
+                            ? `${color} text-white border-transparent shadow-md`
+                            : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)] hover:border-[var(--border-active)]`
                         }`}
                       >
                         {sev}
@@ -562,7 +562,7 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
                   placeholder="Describe biomechanical issues..."
                   value={tempNote}
                   onChange={(e) => setTempNote(e.target.value)}
-                  className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl text-[var(--text-primary)] h-20 focus:outline-none focus:border-[var(--accent-green)]"
+                  className="w-full text-xs p-3 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl text-[var(--text-primary)] h-20 focus:outline-none focus:border-[var(--accent-green)] resize-none"
                 />
               </div>
 
@@ -571,9 +571,9 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
                   type="button"
                   onClick={handleSaveMarker}
                   disabled={!tempNote.trim()}
-                  className="px-4 py-2 bg-[var(--accent-green)] text-black font-extrabold rounded-md disabled:opacity-50"
+                  className="w-full py-2.5 bg-[var(--accent-green)] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl disabled:opacity-50 hover:bg-[var(--accent-green)]/90 transition-all shadow-md"
                 >
-                  Add
+                  Add Marker
                 </button>
               </div>
             </div>
@@ -587,42 +587,42 @@ function OldBodyMap({ markers = [], onChange, readOnly = false }: { markers: Bod
             {markers.length === 0 ? (
               <div className="text-[11px] text-[var(--text-muted)] italic text-center py-4">No markers set</div>
             ) : (
-              <div className="max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+              <div className="max-h-[260px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                 {markers.map((marker, index) => (
-                  <div key={marker.id} className="p-2.5 bg-[var(--bg-primary)]/40 border border-[var(--border-primary)] rounded-xl flex items-start gap-3 group/item hover:border-[var(--border-active)]/30 transition-all">
-                    <span className="w-5 h-5 flex items-center justify-center font-sans text-[10px] font-black rounded-lg shrink-0 mt-0.5 text-white" style={{ backgroundColor: marker.severity === "severe" ? "#ef4444" : marker.severity === "mild" ? "#eab308" : "#f97316" }}>
+                  <div key={marker.id} className="p-3 bg-[var(--bg-primary)]/40 border border-[var(--border-primary)] rounded-xl flex items-start gap-2.5 group/item hover:border-[var(--border-active)]/30 transition-all min-w-0">
+                    <span className="w-5 h-5 flex items-center justify-center font-sans text-[10px] font-black rounded-lg shrink-0 mt-0.5 text-white shadow-sm" style={{ backgroundColor: marker.severity === "severe" ? "#ef4444" : marker.severity === "mild" ? "#eab308" : "#f97316" }}>
                       {index + 1}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[9px] font-black text-[var(--text-secondary)] tracking-wider uppercase">{marker.side}</span>
-                        <span className="text-[8px] font-black uppercase tracking-widest px-1 rounded-sm border" style={{ borderColor: marker.severity === "severe" ? "#fecaca" : marker.severity === "mild" ? "#fef08a" : "#fed7aa", color: marker.severity === "severe" ? "#ef4444" : marker.severity === "mild" ? "#eab308" : "#f97316" }}>
+                        <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md border" style={{ borderColor: marker.severity === "severe" ? "#fecaca" : marker.severity === "mild" ? "#fef08a" : "#fed7aa", color: marker.severity === "severe" ? "#ef4444" : marker.severity === "mild" ? "#eab308" : "#f97316" }}>
                           {marker.severity}
                         </span>
                       </div>
                       {editingMarkerId === marker.id ? (
-                        <div className="mt-1.5 space-y-2">
-                          <div className="flex gap-1.5">
+                        <div className="mt-2 space-y-2">
+                          <div className="grid grid-cols-3 gap-1">
                             {(["mild", "moderate", "severe"] as const).map((sev) => {
                               const active = severity === sev;
                               const color = sev === "severe" ? "bg-red-500" : sev === "moderate" ? "bg-orange-500" : "bg-yellow-500";
                               return (
-                                <button type="button" key={sev} onClick={() => setSeverity(sev)} className={`flex-1 py-0.5 px-1.5 border rounded-md text-[8px] font-black uppercase flex items-center justify-center gap-1 transition-all ${active ? `${color} text-white border-transparent` : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)]`}`}>{sev}</button>
+                                <button type="button" key={sev} onClick={() => setSeverity(sev)} className={`py-1 border rounded-md text-[8px] font-black uppercase flex items-center justify-center transition-all truncate ${active ? `${color} text-white border-transparent` : `bg-transparent text-[var(--text-secondary)] border-[var(--border-primary)]`}`}>{sev}</button>
                               );
                             })}
                           </div>
-                          <textarea value={tempNote} onChange={(e) => setTempNote(e.target.value)} className="w-full text-xs p-2 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] h-12 focus:outline-none focus:border-[var(--accent-green)]" />
+                          <textarea value={tempNote} onChange={(e) => setTempNote(e.target.value)} className="w-full text-xs p-2 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] h-14 focus:outline-none focus:border-[var(--accent-green)] resize-none" />
                           <div className="flex justify-end gap-1.5 text-[9px]">
-                            <button type="button" onClick={() => setEditingMarkerId(null)} className="px-2 py-1 border border-[var(--border-primary)] text-[var(--text-secondary)] rounded">Cancel</button>
-                            <button type="button" onClick={() => handleUpdateMarkerNote(marker.id)} className="px-2 py-1 bg-[var(--accent-green)] text-black font-bold rounded">Save</button>
+                            <button type="button" onClick={() => setEditingMarkerId(null)} className="px-2 py-1 border border-[var(--border-primary)] text-[var(--text-secondary)] rounded-md">Cancel</button>
+                            <button type="button" onClick={() => handleUpdateMarkerNote(marker.id)} className="px-2.5 py-1 bg-[var(--accent-green)] text-black font-bold rounded-md">Save</button>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-xs text-[var(--text-primary)] mt-0.5 break-words">{marker.note}</p>
+                        <p className="text-xs text-[var(--text-primary)] mt-1 break-all whitespace-pre-wrap leading-normal">{marker.note}</p>
                       )}
                     </div>
                     {!readOnly && editingMarkerId !== marker.id && (
-                      <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 shrink-0 opacity-80 group-hover/item:opacity-100 transition-opacity">
                         <button type="button" onClick={() => startEditing(marker)} className="p-1 hover:text-[var(--accent-green)] text-[var(--text-muted)] transition-colors"><Edit2 size={12} /></button>
                         <button type="button" onClick={() => handleDeleteMarker(marker.id)} className="p-1 hover:text-red-500 text-[var(--text-muted)] transition-colors"><Trash2 size={12} /></button>
                       </div>
